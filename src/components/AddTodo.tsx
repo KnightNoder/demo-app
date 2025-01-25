@@ -25,7 +25,7 @@ const AddTodo: React.FC = () => {
       />
       <button
         type="submit"
-        className="px-3 py-1 bg-blue-500 text-white rounded"
+        className="cursor-pointer px-3 py-1 bg-blue-500! text-white rounded"
       >
         Add
       </button>

@@ -32,14 +32,14 @@ const TodoList: React.FC = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div>
+    <div className="h-[100vh] flex flex-col justify-center items-center ">
       <h1>Todo List</h1>
       <AddTodo /> {/* Add the form above the list */}
       <ul className="mt-2">
         {todos.map((todo) => (
           <li
             key={todo.id}
-            className={`flex items-center gap-2 ${
+            className={`flex items-center justify-center gap-2 ${
               todo.completed ? "line-through text-gray-500" : ""
             }`}
           >
@@ -56,7 +56,7 @@ const TodoList: React.FC = () => {
       <div className="mt-4 flex gap-2">
         <button
           onClick={() => dispatch(fetchTodosUsingRest())}
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          className="cursor cursor-pointer px-4 py-2 bg-green-500 text-white rounded"
         >
           Load from REST
         </button>

@@ -39,7 +39,7 @@ const todoSlice = createSlice({
     },
     addTodo: (state, action: PayloadAction<string>) => {
       const newTodo: Todo = {
-        id: state.todos.length + 1, // Simplified ID generation
+        id: state.todos.length + 2, 
         todo: action.payload,
         completed: false,
       };
