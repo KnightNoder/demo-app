@@ -3,9 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   fetchTodosUsingRest,
   toggleTodoCompletion,
-} from "../features/todo/todoThunk";
-import { RootState, AppDispatch } from "../store/store";
-import AddTodo from "./AddTodo"; // Import AddTodo
+} from "../../features/todo/todoThunk";
+import { RootState, AppDispatch } from "../../store/store";
+import AddTodo from "../AddTodo/AddTodo"; // Import AddTodo
 
 interface Todo {
   id: number;
@@ -33,13 +33,13 @@ const TodoList: React.FC = () => {
 
   return (
     <div className="h-[100vh] flex flex-col justify-center items-center ">
-      <h1>Todo List</h1>
+      <p className="text-3xl text-black">Todo List</p>
       <AddTodo /> {/* Add the form above the list */}
-      <ul className="mt-2">
+      <ul className="mt-4">
         {todos.map((todo) => (
           <li
             key={todo.id}
-            className={`flex items-center justify-center gap-2 ${
+            className={`flex items-center justify-center gap-4 mt-2 ${
               todo.completed ? "line-through text-gray-500" : ""
             }`}
           >
@@ -58,7 +58,7 @@ const TodoList: React.FC = () => {
           onClick={() => dispatch(fetchTodosUsingRest())}
           className="cursor cursor-pointer px-4 py-2 bg-green-500 text-white rounded"
         >
-          Load from REST
+          Get Data from REST api
         </button>
       </div>
     </div>

@@ -19,7 +19,7 @@ const initialState: TodoState = {
 };
 
 const todoSlice = createSlice({
-  name: "todos",
+  name: "todos", // This name must match the key in the reducer
   initialState,
   reducers: {
     setTodos: (state, action: PayloadAction<Todo[]>) => {
@@ -39,7 +39,7 @@ const todoSlice = createSlice({
     },
     addTodo: (state, action: PayloadAction<string>) => {
       const newTodo: Todo = {
-        id: state.todos.length + 2, 
+        id: state.todos.length + 1,
         todo: action.payload,
         completed: false,
       };
@@ -48,6 +48,6 @@ const todoSlice = createSlice({
   },
 });
 
-export const { setTodos, setLoading, setError, toggleTodoCompletion,addTodo } =
+export const { setTodos, setLoading, setError, toggleTodoCompletion, addTodo } =
   todoSlice.actions;
 export default todoSlice.reducer;

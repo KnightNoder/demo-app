@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addTodo } from "../features/todo/todoSlice"; // Import the action
+import { addTodo } from "../../features/todo/todoSlice"; // Import the action
 
 const AddTodo: React.FC = () => {
   const [task, setTask] = useState("");
@@ -15,7 +15,7 @@ const AddTodo: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2 mt-4">
       <input
         type="text"
         value={task}
