@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 
 import TodoList from "./TodoList";
-import todoReducer from "../../features/todo/todoSlice"; // Import your reducer
+import todoReducer from "../../../features/todo/todoSlice"; // Import your reducer
 
 // Mock Redux Store
 const mockStore = configureStore({

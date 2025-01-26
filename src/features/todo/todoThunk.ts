@@ -2,7 +2,6 @@ import { AppDispatch } from "../../store/store";
 import { fetchTodosFromRest, fetchTodosFromGraphql } from "../../api/todosApi";
 import { setLoading, setTodos, setError } from "./todoSlice";
 
-// Thunk to fetch todos using REST API
 export const fetchTodosUsingRest = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
@@ -14,7 +13,6 @@ export const fetchTodosUsingRest = () => async (dispatch: AppDispatch) => {
   }
 };
 
-// Thunk to fetch todos using GraphQL API
 export const fetchTodosUsingGraphql = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {

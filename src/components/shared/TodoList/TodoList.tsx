@@ -3,9 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   fetchTodosUsingRest,
   toggleTodoCompletion,
-} from "../../features/todo/todoThunk";
-import { RootState, AppDispatch } from "../../store/store";
-import AddTodo from "../AddTodo/AddTodo"; // Import AddTodo
+} from "../../../features/todo/todoThunk";
+import { RootState, AppDispatch } from "../../../store/store";
+import AddTodo from "../../shared/AddTodo/AddTodo";
+import TodoItem from "../../shared/TodoItem/TodoItem";
+import Button from "../../base/Button/Button";
 
 interface Todo {
   id: number;
@@ -32,34 +34,26 @@ const TodoList: React.FC = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="h-[100vh] flex flex-col justify-center items-center ">
+    <div className="h-[100vh] flex flex-col justify-center items-center">
       <p className="text-3xl text-black">Todo List</p>
-      <AddTodo /> {/* Add the form above the list */}
+      <AddTodo />
       <ul className="mt-4">
         {todos.map((todo) => (
-          <li
+          <TodoItem
             key={todo.id}
-            className={`flex items-center justify-center gap-4 mt-2 ${
-              todo.completed ? "line-through text-gray-500" : ""
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => handleToggle(todo.id)}
-              className="cursor-pointer"
-            />
-            {todo.todo}
-          </li>
+            todo={todo.todo}
+            completed={todo.completed}
+            onToggle={() => handleToggle(todo.id)}
+          />
         ))}
       </ul>
       <div className="mt-4 flex gap-2">
-        <button
+        <Button
+          variant="primary"
           onClick={() => dispatch(fetchTodosUsingRest())}
-          className="cursor cursor-pointer px-4 py-2 bg-green-500 text-white rounded"
         >
-          Get Data from REST api
-        </button>
+          Get Data from REST API
+        </Button>
       </div>
     </div>
   );

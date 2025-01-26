@@ -1,7 +1,7 @@
 import React from "react";
 import { Provider } from "react-redux";
 import store from "./store/store";
-import TodoList from "./components/TodoList/TodoList";
+import TodoList from "./components/shared/TodoList/TodoList";
 import "./index.css";
 
 const App: React.FC = () => {
