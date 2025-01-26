@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start:dev":"vite --mode dev",
+    "start:staging":"vite --mode staging",
+    "start:prod":"vite --mode prod",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

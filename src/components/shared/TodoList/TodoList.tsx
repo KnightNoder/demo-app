@@ -8,6 +8,7 @@ import { RootState, AppDispatch } from "../../../store/store";
 import AddTodo from "../../shared/AddTodo/AddTodo";
 import TodoItem from "../../shared/TodoItem/TodoItem";
 import Button from "../../base/Button/Button";
+import { CONFIG } from "../../../constants";
 
 interface Todo {
   id: number;
@@ -52,7 +53,7 @@ const TodoList: React.FC = () => {
           variant="primary"
           onClick={() => dispatch(fetchTodosUsingRest())}
         >
-          Get Data from REST API
+          {CONFIG.GET_LIST}
         </Button>
       </div>
     </div>
