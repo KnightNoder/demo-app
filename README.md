@@ -122,7 +122,7 @@ export const fetchExample = async () => {
 - Add necessary environment variables, e.g.:
 
 ```env
-REACT_APP_API_URL=https://api.example.com
+VITE_API_URL=https://api.example.com
 ```
 
 ### 7. Git Configuration
