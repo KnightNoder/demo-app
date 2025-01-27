@@ -1,5 +1,5 @@
 import React from "react";
-import Checkbox from "../../base/Checkbox/Checkbox";
+import Checkbox from "../../atoms/Checkbox/Checkbox";
 
 interface TodoItemProps {
   todo: string;

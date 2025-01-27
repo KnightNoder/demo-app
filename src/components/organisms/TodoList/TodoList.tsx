@@ -5,9 +5,9 @@ import {
   toggleTodoCompletion,
 } from "../../../features/todo/todoThunk";
 import { RootState, AppDispatch } from "../../../store/store";
-import AddTodo from "../../shared/AddTodo/AddTodo";
-import TodoItem from "../../shared/TodoItem/TodoItem";
-import Button from "../../base/Button/Button";
+import AddTodo from "../../molecules/AddTodo/AddTodo";
+import TodoItem from "../../molecules/TodoItem/TodoItem";
+import Button from "../../atoms/Button/Button";
 import { CONFIG } from "../../../constants";
 
 interface Todo {
@@ -31,12 +31,22 @@ const TodoList: React.FC = () => {
     dispatch(toggleTodoCompletion(id));
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return (
+      <div className="h-[100vh] flex flex-col justify-center items-center">
+        <p>Loading...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="h-[100vh] flex flex-col justify-center items-center">
+        <p>{error}.</p>
+      </div>
+    );
 
   return (
     <div className="h-[100vh] flex flex-col justify-center items-center">
-      <p className="text-3xl text-black">Todo List</p>
+      <h1 className="text-3xl text-black">Todo List</h1>
       <AddTodo />
       <ul className="mt-4">
         {todos.map((todo) => (

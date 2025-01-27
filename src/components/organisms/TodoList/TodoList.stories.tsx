@@ -4,6 +4,7 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import TodoList from "./TodoList";
 import todoReducer from "../../../features/todo/todoSlice"; // Import your reducer
+import Center from "../../atoms/Center/Center";
 
 // Mock Redux Store
 const mockStore = configureStore({
@@ -28,7 +29,9 @@ export default {
   decorators: [
     (Story) => (
       <Provider store={mockStore}>
-        <Story />
+        <Center>
+          <Story />
+        </Center>
       </Provider>
     ),
   ],

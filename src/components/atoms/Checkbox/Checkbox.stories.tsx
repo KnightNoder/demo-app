@@ -1,5 +1,6 @@
 import { Meta, StoryFn } from "@storybook/react";
 import Checkbox from "./Checkbox";
+import Center from "../Center/Center";
 
 export default {
   title: "Base/Checkbox",
@@ -12,6 +13,7 @@ export default {
     },
     onChange: { action: "changed" },
   },
+  decorators: [(Story) => <Center>{Story()}</Center>],
 } as Meta;
 
 const Template: StoryFn<typeof Checkbox> = (args) => <Checkbox {...args} />;

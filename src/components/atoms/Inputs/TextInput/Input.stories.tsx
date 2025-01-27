@@ -1,5 +1,6 @@
 import { Meta, StoryFn } from "@storybook/react";
 import Input, { InputProps } from "./Input";
+import Center from "../../Center/Center";
 
 export default {
   title: "Base/TextInput",
@@ -18,6 +19,7 @@ export default {
       control: "boolean",
     },
   },
+  decorators: [(Story) => <Center>{Story()}</Center>],
 } as Meta;
 
 const Template: StoryFn<InputProps> = (args) => <Input {...args} />;

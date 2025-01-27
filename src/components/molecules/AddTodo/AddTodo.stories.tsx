@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import todoReducer from "../../../features/todo/todoSlice"; // Import your reducer
 import AddTodo from "./AddTodo";
+import Center from "../../atoms/Center/Center";
 
 const store = configureStore({
   reducer: {
@@ -16,7 +17,9 @@ export default {
   decorators: [
     (Story) => (
       <Provider store={store}>
-        <Story />
+        <Center>
+          <Story />
+        </Center>
       </Provider>
     ),
   ],

@@ -1,5 +1,6 @@
 import { Meta, StoryFn } from "@storybook/react";
 import Button, { ButtonProps } from "./Button";
+import Center from "../Center/Center";
 
 export default {
   title: "Base/Button",
@@ -13,6 +14,7 @@ export default {
     },
     onClick: { action: "clicked" },
   },
+  decorators: [(Story) => <Center>{Story()}</Center>],
 } as Meta;
 
 const Template: StoryFn<ButtonProps> = (args) => <Button {...args} />;

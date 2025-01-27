@@ -1,5 +1,6 @@
-import '../src/index.css'
 import type { Preview } from "@storybook/react";
+import '../src/index.css';
+import CenterComponent from '../src/components/atoms/Center/Center';
 
 const preview: Preview = {
   parameters: {
