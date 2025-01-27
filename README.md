@@ -181,5 +181,3 @@ tsconfig.json: TypeScript configuration file.
 Notes
 
 This structure is designed for scalability, maintainability, and ease of collaboration. Each folder serves a distinct purpose, ensuring a clean separation of concerns across the project.
-
-Modify above for .md file
