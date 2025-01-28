@@ -5,9 +5,13 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true, // Optional, but helps with default imports
     "strict": true,
-    "module": "commonjs",
-    "target": "es6"
+    "jsx": "react",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "types": ["jest", "@testing-library/jest-dom"]
   }
 }

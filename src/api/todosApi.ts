@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 import { graphqlClient, gql } from "./graphqlClient";
 
 export const fetchTodosFromRest = async () => {
-  const response = await axiosClient.get("/todo");
+  const response = await axiosClient.get("/todos");
   return response.data.todos.slice(1,10);
 };
 
