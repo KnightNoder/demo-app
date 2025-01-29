@@ -12,6 +12,6 @@
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "node",
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest", "@testing-library/jest-dom", "cypress"]
   }
 }

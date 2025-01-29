@@ -10,7 +10,7 @@ interface TodoItemProps {
 const TodoItem: React.FC<TodoItemProps> = ({ todo, completed, onToggle }) => {
   return (
     <li
-      className={`flex items-center justify-center gap-4 mt-2 ${
+      className={`flex items-start justify-start gap-4 mt-2 ${
         completed ? "line-through text-gray-500" : ""
       }`}
     >

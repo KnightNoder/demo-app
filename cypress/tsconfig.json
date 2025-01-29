@@ -4,5 +4,10 @@
     "lib": ["es5", "dom"],
     "types": ["cypress", "node"]
   },
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "e2e/test.cy.tss",
+    "e2e/test.cy.tsx",
+    "e2e/Button.cy.ts"
+  ]
 }
