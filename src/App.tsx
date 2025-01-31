@@ -78,12 +78,18 @@ const App: React.FC = () => {
       <>
         {/* <Card title="Allergies" /> */}
         {/* <Card title="Diagnosis" /> */}
-        <Card title="Allergies" footer={<CardFooter />}>
-          <AllergyTable data={allergyData} />
+        <Card title="Allergies">
+          <>
+            <CardFooter />
+            <AllergyTable data={allergyData} />
+          </>
         </Card>
 
-        <Card title="Diagnosis" footer={<CardFooter />}>
-          <AllergyTable data={allergyData} />
+        <Card title="Diagnosis">
+          <>
+            <CardFooter />
+            <AllergyTable data={allergyData} />
+          </>
         </Card>
       </>
     </Provider>

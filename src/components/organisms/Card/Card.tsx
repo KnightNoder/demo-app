@@ -4,10 +4,9 @@ import AllergyTable from "../AllergiesCard/AllergiesCard";
 interface CardProps {
   title: string;
   children: React.ReactNode;
-  footer: React.ReactNode;
 }
 
-const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
+const DraggableCard: React.FC<CardProps> = ({ title, children }) => {
   const [position, setPosition] = useState({ x: 100, y: 100 });
   const [size, setSize] = useState({ width: 700, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
@@ -15,6 +14,13 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
 
   interface Allergy {
     id: string;
@@ -240,6 +246,9 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
       )}
       <div
         className="absolute overflow-x-auto bg-white shadow-lg rounded-lg border border-gray-200"
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
         style={{
           width: `${size.width}px`,
           height: isCollapsed ? "auto" : `${size.height}px`, // Adjust height when collapsed
@@ -350,7 +359,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
             />
             <>
               {children}
-              {!isCollapsed && <>{footer}</>}
+              {/* {!isCollapsed && <>{footer}</>} */}
             </>
             <div
               className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
