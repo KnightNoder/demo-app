@@ -67,7 +67,7 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ data }) => {
       <div className="mt-4">
         <div className="w-full rounded-md overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="bg-gray-50 top-0 z-10">
+            <thead className="bg-gray-50 top-0">
               <tr>
                 <th className="h-7 pl-1 pr-2 text-[11px] font-medium text-gray-500 uppercase align-middle whitespace-nowrap">
                   Allergen

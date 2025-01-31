@@ -166,18 +166,18 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     <>
       {isModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm"
+          className="fixed z-20 inset-0 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm"
           onClick={handleCloseModal}
         >
           <div
             ref={modalRef}
-            className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-2xl"
+            className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
           >
-            <div className="flex justify-between items-center  pb-2">
+            <div className="flex justify-between items-center pb-2">
               <span className="font-semibold">{title}</span>
               <button onClick={() => setIsModalOpen(false)}>❌</button>
             </div>
-            <div className="p-4 relative">
+            <div className="p-4 relative flex-1 overflow-y-auto">
               {/* Render the child content (AllergyTable) inside the modal */}
               {children}
             </div>
