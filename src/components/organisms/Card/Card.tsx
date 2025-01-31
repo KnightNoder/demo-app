@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import AllergyTable from "../AllergiesCard/AllergiesCard";
+import Icons from "../../../assets/Icons/Icons";
 
 interface CardProps {
   title: string;
@@ -13,8 +14,10 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false); // State for kebab menu
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const kebabMenuRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = () => {
     setIsDragging(true);
@@ -28,17 +31,27 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsModalOpen(false);
+        setIsKebabMenuOpen(false); // Close kebab menu on Escape
       }
     };
 
-    if (isModalOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        kebabMenuRef.current &&
+        !kebabMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsKebabMenuOpen(false); // Close kebab menu if clicked outside
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isResizing.current) return;
@@ -162,6 +175,10 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     }
   };
 
+  const toggleKebabMenu = () => {
+    setIsKebabMenuOpen((prev) => !prev);
+  };
+
   return (
     <>
       {isModalOpen && (
@@ -173,9 +190,25 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
             ref={modalRef}
             className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
           >
-            <div className="flex justify-between items-center pb-2">
+            <div className="flex justify-between items-center pb-2 pr-10">
               <span className="font-semibold">{title}</span>
-              <button onClick={() => setIsModalOpen(false)}>❌</button>
+              <div className="flex items-center gap-4">
+                <button>
+                  <Icons variant="print" />
+                </button>
+                <button>
+                  <Icons variant="share" />
+                </button>
+                <button>
+                  <Icons variant="download" />
+                </button>
+                <button>
+                  <Icons variant="delete" />
+                </button>
+                <button onClick={() => setIsModalOpen(false)}>
+                  <Icons variant="close" />
+                </button>
+              </div>
             </div>
             <div className="p-4 relative flex-1 overflow-y-auto">
               {/* Render the child content (AllergyTable) inside the modal */}
@@ -260,23 +293,39 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
                 </svg>
               </button>
               <button
-                className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-md transition-colors relative"
                 type="button"
+                onClick={toggleKebabMenu}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"
-                  />
-                </svg>
+                <Icons variant="kebab-menu" />
+                {isKebabMenuOpen && (
+                  <div
+                    ref={kebabMenuRef}
+                    className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+                  >
+                    <div className="py-1">
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <Icons variant="download" />
+                        Export
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <Icons variant="print" />
+                        Print
+                      </button>
+                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <Icons variant="share" />
+                        Share
+                      </button>
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                        disabled
+                      >
+                        <Icons variant="delete" />
+                        Cannot Delete Default Widget
+                      </button>
+                    </div>
+                  </div>
+                )}
               </button>
             </div>
           </div>
