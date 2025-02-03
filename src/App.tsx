@@ -12,7 +12,6 @@ const App: React.FC = () => {
   interface Allergy {
     id: string;
     type: string;
-    allergen: string;
     title: string;
     begdate: string;
     enddate: string;
@@ -24,7 +23,6 @@ const App: React.FC = () => {
   const allergyData: Allergy[] = [
     {
       id: "7162860202000553277",
-      allergen: "Pencillin",
       type: "medication",
       title: "ICD10:G30.0(Alzheimer's disease with early onset)",
       // begdate: "2025-01-01 17:49:01",
@@ -38,7 +36,6 @@ const App: React.FC = () => {
     {
       id: "7162860202000553295",
       type: "food",
-      allergen: "Peanuts",
       title:
         "ICD10:T84.81XD(Embolism due to internal orthopedic prosthetic devices, implants and grafts, subsequent encounter)",
       // begdate: "2025-01-01 17:50:43",
@@ -49,7 +46,6 @@ const App: React.FC = () => {
     },
     {
       id: "7162860202000553277",
-      allergen: "Pencillin",
       type: "environmental",
       title: "ICD10:G30.0(Alzheimer's disease with early onset)",
       // begdate: "2025-01-01 17:49:01",
@@ -63,7 +59,6 @@ const App: React.FC = () => {
     {
       id: "7162860202000553295",
       type: "medication",
-      allergen: "Peanuts",
       title:
         "ICD10:T84.81XD(Embolism due to internal orthopedic prosthetic devices, implants and grafts, subsequent encounter)",
       // begdate: "2025-01-01 17:50:43",
@@ -109,14 +104,14 @@ const App: React.FC = () => {
       <>
         <Card title="Allergies">
           <>
-            <AllergyTable data={allergyData} />
+            <AllergyTable />
             <CardFooter />
           </>
         </Card>
 
         <Card title="Diagnosis">
           <>
-            <DiagnosisCard data ={diagnosisData}  />
+            <DiagnosisCard   />
             <CardFooter />
           </>
         </Card>

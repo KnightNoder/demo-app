@@ -6,6 +6,11 @@ export const fetchTodosFromRest = async () => {
   return response.data.todos.slice(1,10);
 };
 
+export const fetchData = async () => {
+  const response = await axiosClient.get("/todos");
+  return response.data.todos.slice(1,10);
+};
+
 // GraphQL API: Fetch Todos
 export const fetchTodosFromGraphql = async () => {
   const GET_TODOS = gql`
