@@ -1,10 +1,10 @@
 import React from "react";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "default";
-  active?: Boolean,
-  count?: number
+  active?: boolean;
+  count?: number;
+  onClick: () => void;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -12,7 +12,8 @@ const Button: React.FC<ButtonProps> = ({
   active = false,
   count,
   children,
-  className,
+  className = "",
+  onClick,
   ...props
 }) => {
   const getVariantClasses = (variant: string, active: boolean) => {
@@ -34,9 +35,10 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       {...props}
-      className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium transition-all rounded-sm w-full ${getVariantClasses(
+      onClick={onClick}
+      className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium transition-all rounded-md w-full hover:bg-gray-100 ${getVariantClasses(
         variant,
-        active = false
+        active
       )} ${className}`}
     >
       {children}

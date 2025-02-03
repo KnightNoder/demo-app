@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllergies } from "../../../features/allergySlice/allergyThunk";
-import TabListHeader from "../../molecules/CardHeader/CardHeader";
+import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import { AppDispatch, RootState } from "../../../store/store";
 import AllergyTable from "../../molecules/AllergyTable/AllergyTable";
 
