@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  build: {
+    rollupOptions: {
+      external: (id) => {
+        // Exclude files ending with .test.tsx
+        return id.endsWith('.test.tsx');
+      },
+    },
+  },
+  base:"./"
 })

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import TabListHeader from "../../molecules/CardHeader/CardHeader";
 
 interface Allergy {
   id: string;
@@ -17,51 +18,18 @@ interface AllergyTableProps {
 }
 
 const AllergyTable: React.FC<AllergyTableProps> = ({ data }) => {
-  const [activeTab, setActiveTab] = useState("All");
-
-  const filteredData = data.filter((allergy) => {
-    if (activeTab === "All") return true;
-    if (activeTab === "Medication") return allergy.type === "medication";
-    return allergy.type !== "medication";
-  });
+  const [activeTab, setActiveTab] = useState("Active");
+  const tabs = [
+    { label: "Active", count: data.length },
+    { label: "Medication" },
+    { label: "Others", count: data.length },
+  ];
 
   return (
     <div className="bg-white p-4 rounded-lg">
       {/* Tabs */}
-      <div
-        role="tablist"
-        className="inline-flex h-9 items-center px-1 py-1 pl-2 w-full justify-start gap-2 bg-gray-100 rounded-sm"
-      >
-        {[
-          { label: "All", count: data.length },
-          {
-            label: "Medication",
-            count: data.filter((a) => a.type === "medication").length,
-          },
-          {
-            label: "Others",
-            count: data.filter((a) => a.type !== "medication").length,
-          },
-        ].map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.label}
-            className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-xs font-medium transition-all rounded-sm w-full ${
-              activeTab === tab.label
-                ? "bg-white text-zinc-900 shadow-sm"
-                : "text-zinc-500 hover:text-zinc-900"
-            }`}
-            onClick={() => setActiveTab(tab.label)}
-          >
-            {tab.label}
-            <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 ml-2 h-4 w-4">
-              {tab.count}
-            </div>
-          </button>
-        ))}
-      </div>
+      
+      <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
 
       {/* Table */}
       <div className="mt-4">
@@ -93,7 +61,7 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((allergy) => (
+              {data.map((allergy) => (
                 <tr key={allergy.id} className="hover:bg-gray-50">
                   <td className="pl-1 pr-2 py-4 align-middle text-xs font-medium">
                     {allergy.allergen}

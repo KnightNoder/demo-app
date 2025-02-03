@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import AllergyTable from "../AllergiesCard/AllergiesCard";
 import Icons from "../../../assets/Icons/Icons";
 
 interface CardProps {
@@ -183,14 +182,14 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     <>
       {isModalOpen && (
         <div
-          className="fixed z-20 inset-0 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm"
+          className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm"
           onClick={handleCloseModal}
         >
           <div
             ref={modalRef}
             className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
           >
-            <div className="flex justify-between items-center pb-2 pr-10">
+            <div className="flex items-center justify-between pb-2 pr-10">
               <span className="font-semibold">{title}</span>
               <div className="flex items-center gap-4">
                 <button>
@@ -210,18 +209,18 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
                 </button>
               </div>
             </div>
-            <div className="p-4 relative flex-1 overflow-y-auto">
+            <div className="relative flex-1 p-4 overflow-y-auto">
               {/* Render the child content (AllergyTable) inside the modal */}
               {children}
             </div>
             {/* Render the footer inside the modal */}
-            {footer && <div className="border-t pt-2">{footer}</div>}
+            {footer && <div className="pt-2 border-t">{footer}</div>}
           </div>
         </div>
       )}
       {!isModalOpen && (
         <div
-          className="absolute overflow-x-auto bg-white shadow-lg rounded-lg border border-gray-200"
+          className="absolute overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-lg"
           draggable
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
@@ -234,12 +233,12 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
           }}
           onMouseDown={handleMouseDown}
         >
-          <div className="drag-handle flex items-center justify-between p-4 cursor-move bg-white">
+          <div className="flex items-center justify-between p-4 bg-white cursor-move drag-handle">
             <h3 className="font-medium">{title}</h3>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleCollapse}
-                className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                className="p-1 transition-colors rounded-md hover:bg-gray-100"
               >
                 {isCollapsed ? (
                   <svg
@@ -275,7 +274,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
               </button>
               <button
                 onClick={handleExpandModal}
-                className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                className="p-1 transition-colors rounded-md hover:bg-gray-100"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -293,7 +292,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
                 </svg>
               </button>
               <button
-                className="p-1 hover:bg-gray-100 rounded-md transition-colors relative"
+                className="relative p-1 transition-colors rounded-md hover:bg-gray-100"
                 type="button"
                 onClick={toggleKebabMenu}
               >
@@ -301,23 +300,23 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
                 {isKebabMenuOpen && (
                   <div
                     ref={kebabMenuRef}
-                    className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+                    className="absolute right-0 z-50 w-40 mt-2 bg-white border border-gray-200 rounded-md shadow-lg"
                   >
                     <div className="py-1">
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                      <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
                         <Icons variant="download" />
                         Export
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                      <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
                         <Icons variant="print" />
                         Print
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                      <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
                         <Icons variant="share" />
                         Share
                       </button>
                       <button
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                        className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100"
                         disabled
                       >
                         <Icons variant="delete" />
@@ -337,18 +336,18 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
               />
               {children}
               {!isCollapsed && footer && (
-                <div className="border-t p-2">{footer}</div>
+                <div className="p-2 border-t">{footer}</div>
               )}
               <div
                 className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
               />
               <div
-                className="absolute left-0 top-0 w-2 h-full cursor-ew-resize"
+                className="absolute top-0 left-0 w-2 h-full cursor-ew-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "left")}
               />
               <div
-                className="absolute right-0 top-0 w-2 h-full cursor-ew-resize"
+                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "right")}
               />
               <div

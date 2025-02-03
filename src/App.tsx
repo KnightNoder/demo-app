@@ -6,6 +6,7 @@ import AllergyTable from "./components/organisms/AllergiesCard/AllergiesCard";
 import CardFooter from "./components/molecules/CardFooter/CardFooter";
 import Card from "./components/organisms/Card/Card";
 import "./index.css";
+import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
 
 const App: React.FC = () => {
   interface Allergy {
@@ -72,23 +73,51 @@ const App: React.FC = () => {
       severity: "255604002",
     },
   ];
+  type MedicalProblem = {
+    id: string;
+    type: string;
+    title: string;
+    begdate: string;
+    enddate: string;
+    diagnosis: string;
+    user: string;
+  };
+  
+  const diagnosisData: MedicalProblem[] = [
+    {
+      id: "7162860202000553509",
+      type: "medical_problem",
+      title: "ICD10:R50.81 (Fever presenting with conditions classified elsewhere)",
+      begdate: "2025-01-01 10:57:02",
+      enddate: "",
+      diagnosis: "ICD10:R50.81",
+      user: "admin",
+    },
+    {
+      id: "7162860202000553515",
+      type: "medical_problem",
+      title: "ICD10:R50.81 (Fever presenting with conditions classified elsewhere)",
+      begdate: "2025-01-01",
+      enddate: "",
+      diagnosis: "ICD10:R50.81",
+      user: "admin",
+    },
+  ];
   return (
     <Provider store={store}>
       {/* <TodoList /> */}
       <>
-        {/* <Card title="Allergies" /> */}
-        {/* <Card title="Diagnosis" /> */}
         <Card title="Allergies">
           <>
-            <CardFooter />
             <AllergyTable data={allergyData} />
+            <CardFooter />
           </>
         </Card>
 
         <Card title="Diagnosis">
           <>
+            <DiagnosisCard data ={diagnosisData}  />
             <CardFooter />
-            <AllergyTable data={allergyData} />
           </>
         </Card>
       </>
