@@ -27,7 +27,6 @@ const allergySlice = createSlice({
   initialState,
   reducers: {
     setAllergies: (state, action: PayloadAction<Allergy[]>) => {
-      console.log("Setting allergies:", action.payload);
       state.allergies = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
