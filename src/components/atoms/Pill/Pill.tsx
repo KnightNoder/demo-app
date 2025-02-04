@@ -7,7 +7,14 @@ interface PillProps {
 
 const Pill: React.FC<PillProps> = ({ text, className = "" }) => {
   return (
-    <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium bg-gray-100 text-[10px] ${className}`}>
+    <div
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium bg-gray-100 text-[10px] ${className}`}
+      style={{
+        fontFamily: "Inter, sans-serif",
+        fontFeatureSettings: '"rlig", "calt"',
+        fontVariationSettings: "normal",
+      }}
+    >
       {text}
     </div>
   );

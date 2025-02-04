@@ -5,10 +5,11 @@ interface CardProps {
   title: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  initialPosition: { x: number, y: number }
 }
 
-const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
-  const [position, setPosition] = useState({ x: 100, y: 100 });
+const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition }) => {
+  const [position, setPosition] = useState(initialPosition);
   const [size, setSize] = useState({ width: 700, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -59,8 +60,8 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     setIsDragging(true);
     document.body.style.cursor = "grabbing";
 
-    const startX = e.clientX - position.x;
-    const startY = e.clientY - position.y;
+    const startX = e.clientX - position?.x;
+    const startY = e.clientY - position?.y;
 
     const handleMouseMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX - startX, y: e.clientY - startY });
@@ -97,8 +98,8 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     const startY = e.clientY;
     const startWidth = size.width;
     const startHeight = size.height;
-    const startLeft = position.x;
-    const startTop = position.y;
+    const startLeft = position?.x;
+    const startTop = position?.y;
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - startX;

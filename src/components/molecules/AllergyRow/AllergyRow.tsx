@@ -25,7 +25,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
         <Pill text={allergy.severity} className="text-gray-700" />
       </TableCell>
       <TableCell>
-        <Pill text="Active" className="text-gray-700" />
+        <Pill text="active" className="text-gray-700" />
       </TableCell>
       <TableCell>
         {allergy.reaction ? <Pill text={allergy.reaction} className="text-gray-600" /> : "N/A"}

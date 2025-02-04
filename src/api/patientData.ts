@@ -24,6 +24,7 @@ export const getAllergyDataFromApi = async () => {
       begdate: "2025-01-01 17:50:43",
       enddate: "",
       diagnosis: "ICD10:T84.81XD",
+      reaction: "test Reaction",
       severity: "255604002",
     },
     {
@@ -46,6 +47,7 @@ export const getAllergyDataFromApi = async () => {
       begdate: "2025-01-01 17:50:43",
       enddate: "",
       diagnosis: "ICD10:T84.81XD",
+      reaction: "test Reaction",
       severity: "255604002",
     },
   ];
