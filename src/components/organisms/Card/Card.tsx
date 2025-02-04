@@ -14,6 +14,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false); // State for kebab menu
+  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null); // Track hovered edge
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
@@ -178,11 +179,38 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
     setIsKebabMenuOpen((prev) => !prev);
   };
 
+  const handleMouseEnterResizeHandle = (edge: string) => {
+    setHoveredEdge(edge); // Track which edge is hovered
+  };
+
+  const handleMouseLeaveResizeHandle = () => {
+    setHoveredEdge(null); // Reset when leaving the resize handle
+  };
+
+  const getResizeCursor = () => {
+    switch (hoveredEdge) {
+      case "top":
+      case "bottom":
+        return "ns-resize";
+      case "left":
+      case "right":
+        return "ew-resize";
+      case "top-left":
+      case "bottom-right":
+        return "nwse-resize";
+      case "top-right":
+      case "bottom-left":
+        return "nesw-resize";
+      default:
+        return "default";
+    }
+  };
+
   return (
     <>
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm"
+          className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
           onClick={handleCloseModal}
         >
           <div
@@ -229,7 +257,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
             height: isCollapsed ? "auto" : `${size.height}px`,
             left: `${position.x}px`,
             top: `${position.y}px`,
-            cursor: isDragging ? "grabbing" : "default",
+            cursor: isDragging ? "grabbing" : getResizeCursor(),
           }}
           onMouseDown={handleMouseDown}
         >
@@ -241,55 +269,16 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
                 className="p-1 transition-colors rounded-md hover:bg-gray-100"
               >
                 {isCollapsed ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-4 h-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                    />
-                  </svg>
+                  <Icons variant="collapseUp" />
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-4 h-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                    />
-                  </svg>
+                    <Icons variant="collapseDown" />
                 )}
               </button>
               <button
                 onClick={handleExpandModal}
                 className="p-1 transition-colors rounded-md hover:bg-gray-100"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
-                  />
-                </svg>
+                <Icons variant="modalExpand" />
               </button>
               <button
                 className="relative p-1 transition-colors rounded-md hover:bg-gray-100"
@@ -332,6 +321,8 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
             <>
               <div
                 className="absolute top-0 left-0 w-full h-2 cursor-ns-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("top")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "top")}
               />
               {children}
@@ -340,30 +331,44 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
               )}
               <div
                 className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("bottom")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
               />
               <div
                 className="absolute top-0 left-0 w-2 h-full cursor-ew-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("left")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "left")}
               />
               <div
                 className="absolute top-0 right-0 w-2 h-full cursor-ew-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("right")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "right")}
               />
               <div
                 className="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("top-left")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "top-left")}
               />
               <div
                 className="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("top-right")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "top-right")}
               />
               <div
                 className="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("bottom-left")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")}
               />
               <div
                 className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
+                onMouseEnter={() => handleMouseEnterResizeHandle("bottom-right")}
+                onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
               />
             </>
