@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import AllergyTable from "../../components/organisms/AllergiesCard/AllergiesCard";
 
 interface Diagnosis {
   id: string;
@@ -13,8 +12,8 @@ interface Diagnosis {
 
 interface DiagnosisState {
   diagnosis: Diagnosis[];
-  loading: Boolean;
-  error: null | String;
+  loading: boolean;
+  error: null | string;
 }
 
 const initialState: DiagnosisState = {
@@ -30,10 +29,10 @@ const diagnosisSlice = createSlice({
     setDiagnoses: (state, action: PayloadAction<Diagnosis[]>) => {
       state.diagnosis = action.payload;
     },
-    setLoading: (state, action: PayloadAction<Boolean>) => {
+    setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    setError: (state, action: PayloadAction<null | String>) => {
+    setError: (state, action: PayloadAction<null | string>) => {
       state.error = action.payload;
     },
     addDiagnosis: (state, action: PayloadAction<Diagnosis>) => {

@@ -1,4 +1,4 @@
-import axiosClient from "./axiosClient";
+// import axiosClient from "./axiosClient";
 
 export const getAllergyDataFromApi = async () => {
   // const response = await axiosClient.get("/allergies");
