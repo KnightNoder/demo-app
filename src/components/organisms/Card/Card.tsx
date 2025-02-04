@@ -4,7 +4,7 @@ import Icons from "../../../assets/Icons/Icons";
 interface CardProps {
   title: string;
   children: React.ReactNode;
-  footer?: React.ReactNode; // Add footer prop
+  footer?: React.ReactNode;
 }
 
 const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
@@ -13,8 +13,8 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false); // State for kebab menu
-  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null); // Track hovered edge
+  const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
+  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null); 
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
@@ -40,7 +40,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
         kebabMenuRef.current &&
         !kebabMenuRef.current.contains(e.target as Node)
       ) {
-        setIsKebabMenuOpen(false); // Close kebab menu if clicked outside
+        setIsKebabMenuOpen(false); 
       }
     };
 
@@ -238,10 +238,8 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
               </div>
             </div>
             <div className="relative flex-1 p-4 overflow-y-auto">
-              {/* Render the child content (AllergyTable) inside the modal */}
               {children}
             </div>
-            {/* Render the footer inside the modal */}
             {footer && <div className="pt-2 border-t">{footer}</div>}
           </div>
         </div>
@@ -261,7 +259,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer }) => {
           }}
           onMouseDown={handleMouseDown}
         >
-          <div className="flex items-center justify-between p-4 bg-white cursor-move drag-handle">
+          <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
             <h3 className="font-medium">{title}</h3>
             <div className="flex items-center gap-1">
               <button

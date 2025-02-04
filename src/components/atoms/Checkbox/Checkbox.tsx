@@ -30,6 +30,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     <input
       type="checkbox"
       checked={checked}
+      data-testid="checkbox"
       {...props}
       className={`cursor-pointer ${variantClass} ${className}`}
     />

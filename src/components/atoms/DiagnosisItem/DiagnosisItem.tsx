@@ -1,5 +1,6 @@
 import React from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const DiagnosisItem: React.FC<{ item: any }> = ({ item }) => (
     <div className="p-4 mb-2 rounded-lg shadow-sm">
       <h3 className="font-medium text-md">{item.title}</h3>

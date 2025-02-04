@@ -1,20 +1,21 @@
-// import React from "react";
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Button from "./Button";
 
 describe("Button Component", () => {
   it("renders the button with default props", () => {
-    render(<Button>Click Me</Button>);
+    render(<Button onClick={jest.fn()}>Click Me</Button>);  // Provide onClick
 
     const button = screen.getByRole("button", { name: /click me/i });
-    expect(button).toBeInTheDocument(); // This should now work
-    expect(button).toHaveClass("bg-gray-400"); // Default variant class
-    expect(button).toHaveClass("text-white");
-    expect(button).toHaveClass("rounded");
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass("text-zinc-500");
+    expect(button).toHaveClass("hover:text-zinc-900");
+    expect(button).toHaveClass("rounded-md");
   });
 
+
   it("applies the correct classes for the 'primary' variant", () => {
-    render(<Button variant="primary">Primary Button</Button>);
+    render(<Button variant="primary" onClick={jest.fn()}>Primary Button</Button>); // Provide onClick
 
     const button = screen.getByRole("button", { name: /primary button/i });
     expect(button).toHaveClass("bg-blue-500");
@@ -23,7 +24,7 @@ describe("Button Component", () => {
   });
 
   it("applies the correct classes for the 'secondary' variant", () => {
-    render(<Button variant="secondary">Secondary Button</Button>);
+    render(<Button variant="secondary" onClick={jest.fn()}>Secondary Button</Button>); // Provide onClick
 
     const button = screen.getByRole("button", { name: /secondary button/i });
     expect(button).toHaveClass("bg-gray-500");
@@ -32,7 +33,7 @@ describe("Button Component", () => {
   });
 
   it("applies the correct classes for the 'danger' variant", () => {
-    render(<Button variant="danger">Danger Button</Button>);
+    render(<Button variant="danger" onClick={jest.fn()}>Danger Button</Button>); // Provide onClick
 
     const button = screen.getByRole("button", { name: /danger button/i });
     expect(button).toHaveClass("bg-red-500");
@@ -41,7 +42,7 @@ describe("Button Component", () => {
   });
 
   it("applies custom class names correctly", () => {
-    render(<Button className="custom-class">Custom Class Button</Button>);
+    render(<Button className="custom-class" onClick={jest.fn()}>Custom Class Button</Button>); // Provide onClick
 
     const button = screen.getByRole("button", { name: /custom class button/i });
     expect(button).toHaveClass("custom-class");
@@ -57,7 +58,7 @@ describe("Button Component", () => {
   });
 
   it("passes additional HTML attributes to the button", () => {
-    render(<Button aria-label="Test Button">Test</Button>);
+    render(<Button aria-label="Test Button" onClick={jest.fn()}>Test</Button>); // Provide onClick
 
     const button = screen.getByRole("button", { name: /test button/i });
     expect(button).toBeInTheDocument();
