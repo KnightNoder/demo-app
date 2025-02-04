@@ -1,6 +1,6 @@
-import React from "react";
+// import React from "react";
 // import Button from "../../src/components/atoms/Button/Button"; // Adjust the path to your Button component
-import { mount } from "cypress/react";
+// import { mount } from "cypress/react";
 
 describe('Button Component', () => {
   beforeEach(() => {

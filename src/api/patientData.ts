@@ -21,8 +21,8 @@ export const getAllergyDataFromApi = async () => {
       type: "allergy",
       title:
         "ICD10:T84.81XD(Embolism due to internal orthopedic prosthetic devices, implants and grafts, subsequent encounter)",
-      begdate: "2025-01-01 17:50:43",
-      enddate: "",
+      begdate: "2025-01-01 17:49:01",
+      enddate: "2025-01-31 17:49:04",
       diagnosis: "ICD10:T84.81XD",
       reaction: "test Reaction",
       severity: "255604002",
@@ -44,8 +44,8 @@ export const getAllergyDataFromApi = async () => {
       type: "allergy",
       title:
         "ICD10:T84.81XD(Embolism due to internal orthopedic prosthetic devices, implants and grafts, subsequent encounter)",
-      begdate: "2025-01-01 17:50:43",
-      enddate: "",
+      begdate: "2025-01-01 17:49:01",
+      enddate: "2025-01-31 17:49:04",
       diagnosis: "ICD10:T84.81XD",
       reaction: "test Reaction",
       severity: "255604002",
