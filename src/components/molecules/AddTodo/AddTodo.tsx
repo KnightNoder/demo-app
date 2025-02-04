@@ -25,7 +25,7 @@ const AddTodo: React.FC = () => {
         placeholder="Add a task"
         variant="outlined"
       />
-      <Button type="submit" variant="primary" onClick={handleSubmit}>
+      <Button variant="primary" onClick={handleSubmit}>
         Add
       </Button>
     </div>

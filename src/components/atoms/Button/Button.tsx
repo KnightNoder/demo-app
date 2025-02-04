@@ -3,10 +3,10 @@ import Icon from "../../../assets/Icons/Icons"; // Adjust import path accordingl
 
 interface ButtonProps {
   variant: "primary" | "secondary" | "default";
-  icon?: "add" | "view"; // Option to include icons based on type
-  onClick?: () => void;
+  icon?: "add" | "view";
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void; // Updated onClick type
   children: React.ReactNode;
-  dataCy?: string; // Optional prop to pass data-cy attribute for Cypress tests
+  dataCy?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, dataCy }) => {
@@ -23,9 +23,10 @@ const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, dataC
 
   return (
     <button
-      data-cy={dataCy} // Use the dataCy prop here
+      data-cy={dataCy}
       className={`inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-[#0093D3]/50 focus-visible:ring-offset-2 text-xs rounded-md px-3 h-7 ${getVariantClasses()}`}
       onClick={onClick}
+      type="button"
     >
       {icon && <Icon variant={icon} />}
       {children}
