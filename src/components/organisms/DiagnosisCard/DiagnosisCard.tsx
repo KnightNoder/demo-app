@@ -8,7 +8,7 @@ import {DiagnosisTable} from "../../molecules/DiagnosisTable/DiagnosisTable";
 
 const MedicalProblemsList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { diagnosis, loading, error } = useSelector(
+  const { diagnosis } = useSelector(
     (state: RootState) => state.diagnosis
   );
   const [activeTab, setActiveTab] = useState("All");
