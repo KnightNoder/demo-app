@@ -16,7 +16,7 @@ interface AllergyRowProps {
 
 const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="transition-colors hover:bg-muted/50 hover:bg-gray-50">
       <TableCell className="font-medium">{allergy.allergen}</TableCell>
       <TableCell>
         <Pill text={allergy.type} className="text-gray-500 border border-gray-200" />

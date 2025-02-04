@@ -26,6 +26,28 @@ export const getAllergyDataFromApi = async () => {
       diagnosis: "ICD10:T84.81XD",
       severity: "255604002",
     },
+    {
+      id: "7162860202000553277",
+      type: "allergy",
+      allergen: "Peanuts",
+      title: "ICD10:G30.0(Alzheimer's disease with early onset)",
+      begdate: "2025-01-01 17:49:01",
+      enddate: "2025-01-31 17:49:04",
+      diagnosis: "ICD10:G30.0",
+      reaction: "test Reaction",
+      severity: "255604002",
+    },
+    {
+      id: "7162860202000553295",
+      allergen: "Pencillin",
+      type: "allergy",
+      title:
+        "ICD10:T84.81XD(Embolism due to internal orthopedic prosthetic devices, implants and grafts, subsequent encounter)",
+      begdate: "2025-01-01 17:50:43",
+      enddate: "",
+      diagnosis: "ICD10:T84.81XD",
+      severity: "255604002",
+    },
   ];
 };
 
