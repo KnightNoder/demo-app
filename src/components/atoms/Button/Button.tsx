@@ -1,48 +1,34 @@
 import React from "react";
+import Icon from "../../../assets/Icons/Icons"; // Adjust import path accordingly
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "default";
-  active?: boolean;
-  count?: number;
-  onClick: () => void;
+interface ButtonProps {
+  variant: "primary" | "secondary" | "default";
+  icon?: "add" | "view"; // Option to include icons based on type
+  onClick?: () => void;
+  children: React.ReactNode;
+  dataCy?: string; // Optional prop to pass data-cy attribute for Cypress tests
 }
 
-const Button: React.FC<ButtonProps> = ({
-  variant = "default",
-  active = false,
-  count,
-  children,
-  className = "",
-  onClick,
-  ...props
-}) => {
-  const getVariantClasses = (variant: string, active: boolean) => {
-    if (active) {
-      return "bg-white text-zinc-900 shadow-sm";
-    }
+const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, dataCy }) => {
+  const getVariantClasses = () => {
     switch (variant) {
       case "primary":
-        return "bg-blue-500 text-white hover:bg-blue-600";
+        return "inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-[#0093D3]/50 focus-visible:ring-offset-2 text-[#0093D3] underline-offset-4 hover:underline hover:brightness-110 h-7 rounded-md px-3 text-xs gap-1 shrink-0";
       case "secondary":
-        return "bg-gray-500 text-white hover:bg-gray-600";
-      case "danger":
-        return "bg-red-500 text-white hover:bg-red-600";
+        return "inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-[#0093D3]/50 focus-visible:ring-offset-2 text-[#0093D3] underline-offset-4 hover:underline hover:brightness-110 h-7 rounded-md px-3 text-xs shrink-0";
       default:
-        return "text-zinc-500 hover:text-zinc-900";
+        return "bg-transparent text-[#0093D3] hover:bg-[#0093D3] hover:text-white";
     }
   };
 
   return (
     <button
-      {...props}
+      data-cy={dataCy} // Use the dataCy prop here
+      className={`inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-[#0093D3]/50 focus-visible:ring-offset-2 text-xs rounded-md px-3 h-7 ${getVariantClasses()}`}
       onClick={onClick}
-      className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium transition-all rounded-md w-full hover:bg-gray-100 ${getVariantClasses(
-        variant,
-        active
-      )} ${className}`}
     >
+      {icon && <Icon variant={icon} />}
       {children}
-      {count !== undefined && <span className="ml-2 text-gray-600">({count})</span>}
     </button>
   );
 };

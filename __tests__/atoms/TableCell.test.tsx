@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from '@testing-library/react';
-import TableCell from './TableCell';
+import '@testing-library/jest-dom';
+import TableCell from "../../src/components/atoms/TableCell/TableCell";
 
 describe('TableCell Component', () => {
   it('should render the TableCell with children', () => {

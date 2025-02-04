@@ -1,7 +1,7 @@
-// Center.test.tsx
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import Center from "./Center";
+import '@testing-library/jest-dom';
+import Center from "../../src/components/atoms/Center/Center";
 
 // Test if the component renders without crashing
 describe("Center Component", () => {

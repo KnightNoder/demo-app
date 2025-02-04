@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from '@testing-library/react';
-import Input from './Input';
+import '@testing-library/jest-dom';
+import Input from "../../src/components/atoms/Inputs/TextInput/Input";
 
 // Test default render with no props
 describe('Input Component', () => {

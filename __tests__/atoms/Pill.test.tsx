@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Pill from './Pill';
+import '@testing-library/jest-dom';
+import Pill from "../../src/components/atoms/Pill/Pill";
 
 describe('Pill Component', () => {
   it('should render the pill with text', () => {

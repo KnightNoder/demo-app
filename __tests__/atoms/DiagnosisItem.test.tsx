@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { DiagnosisItem } from "./DiagnosisItem";
+import '@testing-library/jest-dom';
+import { DiagnosisItem } from "../../src/components/atoms/DiagnosisItem/DiagnosisItem";
 
 describe("DiagnosisItem", () => {
   const mockItem = {

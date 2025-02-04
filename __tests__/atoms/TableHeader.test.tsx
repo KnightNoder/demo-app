@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from '@testing-library/react';
-import TableHeader from './TableHeader';
+import '@testing-library/jest-dom';
+import TableHeader from "../../src/components/atoms/TableHeader/TableHeader";
 
 describe('TableHeader Component', () => {
   it('should render the TableHeader with children', () => {

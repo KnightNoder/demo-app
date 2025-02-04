@@ -7,12 +7,18 @@ import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
 import AllergyTable from "./components/organisms/AllergiesCard/AllergiesCard";
 import "./index.css";
 
-const CardWithFooter: React.FC<{ title: string; children: ReactNode; position: { x: number, y: number } }> = ({ title, children, position }) => (
-  <Card title={title} initialPosition={position}>
+const CardWithFooter: React.FC<{
+  title: string;
+  children: ReactNode;
+  initialPosition: { x: number; y: number }
+}> = ({ title, children, initialPosition }) => (
+  <Card title={title} initialPosition={initialPosition}>
     {children}
     <CardFooter />
   </Card>
 );
+
+
 
 const App: React.FC = () => {
   const [allergyTablePosition] = useState({ x: 100, y: 100 });
@@ -20,16 +26,17 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <>
-        <CardWithFooter title="Allergies" position={allergyTablePosition} >
+        <CardWithFooter title="Allergies" initialPosition={allergyTablePosition}>
           <AllergyTable />
         </CardWithFooter>
 
-        <CardWithFooter title="Diagnosis" position={diagnosisTablePosition}>
+        <CardWithFooter title="Diagnosis" initialPosition={diagnosisTablePosition}>
           <DiagnosisCard />
         </CardWithFooter>
       </>
     </Provider>
   );
 };
+
 
 export default App;

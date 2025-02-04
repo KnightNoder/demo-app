@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Checkbox from "./Checkbox";
+import '@testing-library/jest-dom';
+import Checkbox from "../../src/components/atoms/Checkbox/Checkbox";
 
 describe("Checkbox Component", () => {
   it("handles the checked prop correctly", async () => {
