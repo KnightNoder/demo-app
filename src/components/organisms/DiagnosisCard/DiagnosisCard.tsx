@@ -25,16 +25,60 @@ const MedicalProblemsList: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          "http://qa-phoenix.drcloudemr.com/drcloud_1/public/api/allergies/1004785/"
-        );
+        // const response = await fetch(
+        //   "http://qa-phoenix.drcloudemr.com/drcloud_1/public/api/allergies/1004785/"
+        // );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch diagnosis data");
-        }
+        // if (!response.ok) {
+        //   throw new Error("Failed to fetch diagnosis data");
+        // }
 
-        const data = await response.json();
-        setDiagnosis(data.data.splice(0, 2)); // Assuming the response structure is like { data: [...] }
+        // const data = await response.json();
+        // setDiagnosis(data.data.splice(0, 2)); // Assuming the response structure is like { data: [...] }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dummyData = [
+          {
+            id: "7162860202000553509",
+            type: "medical_problem",
+            title:
+              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
+            begdate: "2025-01-01 10:57:02",
+            enddate: "",
+            diagnosis: "ICD10:R50.81",
+            user: "admin",
+          },
+          {
+            id: "7162860202000553515",
+            type: "medical_problem",
+            title:
+              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
+            begdate: "2025-01-01",
+            enddate: "",
+            diagnosis: "ICD10:R50.81",
+            user: "admin",
+          },
+          {
+            id: "7162860202000553515",
+            type: "medical_problem",
+            title:
+              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
+            begdate: "2025-01-01",
+            enddate: "",
+            diagnosis: "ICD10:R50.81",
+            user: "admin",
+          },
+          {
+            id: "7162860202000553515",
+            type: "medical_problem",
+            title:
+              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
+            begdate: "2025-01-01",
+            enddate: "",
+            diagnosis: "ICD10:R50.81",
+            user: "admin",
+          },
+        ]
+        setDiagnosis(dummyData);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         setError(err.message || "An error occurred while fetching diagnosis data");
