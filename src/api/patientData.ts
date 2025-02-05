@@ -54,7 +54,11 @@ export const getAllergyDataFromApi = async () => {
 };
 
 export const getDiagnosisDataFromApi = async () => {
-  // const response = await axiosClient.get("/diagnosis");
+  // const response =
+  // await fetch(
+  //   "http://qa-phoenix.drcloudemr.com/drcloud/public/api/medical-problems"
+  // );
+  // await axiosClient.get("/medical_problems");
   // return response.data;
   return [
     {

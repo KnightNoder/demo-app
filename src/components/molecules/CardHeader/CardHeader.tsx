@@ -1,5 +1,16 @@
 import React from "react";
-import Icons from "../../../assets/Icons/Icons";
+import Button from "../../atoms/Button/Button";
+import Icon from "../../../assets/Icons/Icons";
+import Menu from "../../molecules/Menu/Menu";
+
+type MenuIconVariant = "download" | "print" | "share" | "delete";
+
+interface MenuOption {
+  label: string;
+  icon: MenuIconVariant;
+  onClick: () => void;
+  disabled: boolean;
+}
 
 interface CardHeaderProps {
   title: string;
@@ -17,60 +28,28 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onExpand,
   onKebabMenuToggle,
   isKebabMenuOpen,
-}) => (
-  <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
-    <h3 className="font-medium">{title}</h3>
-    <div className="flex items-center gap-1">
-      <button
-        onClick={onCollapse}
-        className="p-1 transition-colors rounded-md hover:bg-gray-100"
-      >
-        {isCollapsed ? (
-          <Icons variant="collapseUp" />
-        ) : (
-          <Icons variant="collapseDown" />
-        )}
-      </button>
-      <button
-        onClick={onExpand}
-        className="p-1 transition-colors rounded-md hover:bg-gray-100"
-      >
-        <Icons variant="modalExpand" />
-      </button>
-      <button
-        className="relative p-1 transition-colors rounded-md hover:bg-gray-100"
-        type="button"
-        onClick={onKebabMenuToggle}
-      >
-        <Icons variant="kebab-menu" />
-        {isKebabMenuOpen && (
-          <div className="absolute right-0 z-50 w-40 mt-2 bg-white border border-gray-200 rounded-md shadow-lg">
-            <div className="py-1">
-              <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                <Icons variant="download" />
-                Export
-              </button>
-              <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                <Icons variant="print" />
-                Print
-              </button>
-              <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                <Icons variant="share" />
-                Share
-              </button>
-              <button
-                className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100"
-                disabled
-              >
-                <Icons variant="delete" />
-                Cannot Delete Default Widget
-              </button>
-            </div>
-          </div>
-        )}
-      </button>
+}) => {
+  const menuOptions: MenuOption[] = [
+    { label: "Export", icon: "download", onClick: () => { }, disabled: false },
+    { label: "Print", icon: "print", onClick: () => { }, disabled: false },
+    { label: "Share", icon: "share", onClick: () => { }, disabled: false },
+    { label: "Cannot Delete Default Widget", icon: "delete", onClick: () => { }, disabled: true },
+  ];
+
+  return (
+    <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
+      <h3 className="font-medium">{title}</h3>
+      <div className="flex items-center gap-1">
+        <Button variant="default" onClick={onCollapse}>
+          <Icon variant={isCollapsed ? "collapseUp" : "collapseDown"} />
+        </Button>
+        <Button variant="default" onClick={onExpand}>
+          <Icon variant="modalExpand" />
+        </Button>
+        <Menu isOpen={isKebabMenuOpen} onToggle={onKebabMenuToggle} options={menuOptions} />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default CardHeader;
