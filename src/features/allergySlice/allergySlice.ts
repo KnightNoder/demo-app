@@ -3,21 +3,26 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Allergy {
   id: string;
   allergen: string;
-  type: string;
-  severity: string;
-  reaction?: string;
+  severity: {
+    id: string;
+    title: string | null;
+  };
+  reaction?: {
+    id: string;
+    title: string | null;
+  };
   begdate: string;
   enddate?: string;
 }
 
 interface AllergyState {
   allergies: Allergy[];
-  loading: boolean;
+  loading: boolean | null;
   error: string | null;
 }
 
 const initialState: AllergyState = {
-  allergies: [],
+  allergies: [], // Default as an empty array
   loading: false,
   error: null,
 };
@@ -26,21 +31,22 @@ const allergySlice = createSlice({
   name: "allergies",
   initialState,
   reducers: {
-    setAllergies: (state, action: PayloadAction<Allergy[]>) => {
+    setAllergies(state: AllergyState, action: PayloadAction<Allergy[]>) {
       state.allergies = action.payload;
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
+    setLoading(state: AllergyState) {
+      state.loading = true; // When setLoading is called, set loading to true.
     },
-    setError: (state, action: PayloadAction<string | null>) => {
+    clearLoading(state: AllergyState) {
+      state.loading = false; // You can add a `clearLoading` action to set it to false.
+    },
+    setError(state: AllergyState, action: PayloadAction<string>) {
       state.error = action.payload;
-    },
-    addAllergy: (state, action: PayloadAction<Allergy>) => {
-      state.allergies.push(action.payload);
     },
   },
 });
 
-export const { setAllergies, setLoading, setError, addAllergy } =
+export const { setAllergies, setLoading, clearLoading, setError } =
   allergySlice.actions;
+
 export default allergySlice.reducer;

@@ -1,7 +1,10 @@
 // import axiosClient from "./axiosClient";
 
+import axiosClient from "./axiosClient";
+
 export const getAllergyDataFromApi = async () => {
-  // const response = await axiosClient.get("/allergies");
+  // const response = await axiosClient.get("/allergies/1004785/");
+  // console.log(response.data, "data");
   // return response.data;
   return [
     {
@@ -58,8 +61,10 @@ export const getDiagnosisDataFromApi = async () => {
   // await fetch(
   //   "http://qa-phoenix.drcloudemr.com/drcloud/public/api/medical-problems"
   // );
-  // await axiosClient.get("/medical_problems");
-  // return response.data;
+  const response = await axiosClient.get(
+    "http://qa-phoenix.drcloudemr.com/drcloud_1/public/api/allergies/1004785/"
+  );
+  return response.data;
   return [
     {
       id: "7162860202000553509",

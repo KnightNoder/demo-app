@@ -1,29 +1,58 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllergies } from "../../../features/allergySlice/allergyThunk";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
-import { AppDispatch, RootState } from "../../../store/store";
 import AllergyTable from "../../molecules/AllergyTable/AllergyTable";
 
 const AllergiesCard: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { allergies, loading, error } = useSelector((state: RootState) => state.allergies);
+  // Local state management for allergies, loading, and error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [allergies, setAllergies] = useState<any[]>([]); // Type as 'any' for simplicity
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    dispatch(fetchAllergies());
-  }, [dispatch]);
-
+  // Active tab state
   const [activeTab, setActiveTab] = useState("Active");
+
+  // Tabs data, can be modified based on your need
   const tabs = [
     { label: "Active", count: allergies.length },
-    { label: "Allergy", count: allergies.filter((allergy) => allergy.type === "allergy").length },
-    { label: "Others", count: allergies.filter((allergy) => allergy.type !== "allergy").length },
+    { label: "Allergy", count: 0 }, // You may adjust this count dynamically
+    { label: "Others", count: allergies.length },
   ];
 
+  // Fetch allergies data when the component mounts
+  useEffect(() => {
+    const fetchAllergiesData = async () => {
+      setLoading(true);
+      setError(null); // Clear error before making the API call
+
+      try {
+        const response = await fetch(
+          "http://qa-phoenix.drcloudemr.com/drcloud_1/public/api/allergies/1004785/"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch allergies data");
+        }
+
+        const data = await response.json();
+        setAllergies(data.data); // Set the fetched allergies data
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        setError(err.message || "An error occurred while fetching allergies");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllergiesData(); // Call the function on mount
+  }, []);
+
+  // Loading state: display loading message while fetching data
   if (loading) {
     return <div>Loading...</div>;
   }
 
+  // Error state: display error message if something goes wrong
   if (error) {
     return <div>Error: {error}</div>;
   }

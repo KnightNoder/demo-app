@@ -22,7 +22,7 @@ const CardWithFooter: React.FC<{
 
 const App: React.FC = () => {
   const [allergyTablePosition] = useState({ x: 100, y: 100 });
-  const [diagnosisTablePosition] = useState({ x: 850, y: 100 });
+  const [diagnosisTablePosition] = useState({ x: 1000, y: 100 });
   return (
     <Provider store={store}>
       <>

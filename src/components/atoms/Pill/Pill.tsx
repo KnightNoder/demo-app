@@ -1,7 +1,7 @@
 import React from "react";
 
 interface PillProps {
-  text: string;
+  text: string | undefined;
   className?: string;
 }
 

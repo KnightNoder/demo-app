@@ -10,7 +10,7 @@ interface CardProps {
 
 const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition }) => {
   const [position, setPosition] = useState(initialPosition);
-  const [size, setSize] = useState({ width: 700, height: 500 });
+  const [size, setSize] = useState({ width: 800, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
