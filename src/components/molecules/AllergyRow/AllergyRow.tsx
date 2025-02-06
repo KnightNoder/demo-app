@@ -5,15 +5,15 @@ import { formatDate } from '../../../utils/utils'
 interface AllergyRowProps {
   allergy: {
     id: string;
-    title?: string;
+    title: string;
     allergen: string;
     severity: {
       id: string;
       title: string | null;
     };
-    reaction?: string;
+    reaction: string | null | undefined;
     begdate: string;
-    enddate: string | null | undefined;
+    enddate: string | undefined | null;
     modified_by: {
       fname: string,
       lname: string

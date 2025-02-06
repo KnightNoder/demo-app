@@ -7,12 +7,13 @@ import TableHeader from "../../atoms/TableHeader/TableHeader";
 interface AllergyTableProps {
   allergies: Array<{
     id: string;
+    title: string;
     allergen: string;
     severity: {
       id: string;
       title: string | null;
     };
-    reaction?: string;
+    reaction: string | null | undefined;
     begdate: string;
     enddate: string | undefined | null;
     modified_by: {

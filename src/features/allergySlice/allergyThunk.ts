@@ -3,18 +3,6 @@ import { setAllergies, setError, setLoading } from "./allergySlice";
 import { getAllergyDataFromApi } from "../../api/patientData";
 
 export const fetchAllergies = () => async (dispatch: AppDispatch) => {
-  const allergens = [
-    "ICD10:P07.31",
-    "ICD10:P05.18",
-    "ICD10:P07.03",
-    "ICD10:P05.0",
-  ];
-  const severityLevels = [
-    { id: "severe" },
-    { id: "moderate" },
-    { id: "moderate" },
-    { id: "mild" },
-  ];
   try {
     dispatch(setLoading(true));
     const allergies = await getAllergyDataFromApi();
