@@ -73,7 +73,7 @@ const AllergiesCard: React.FC = () => {
     <div className="p-4 bg-white rounded-lg">
       <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
       <div className="mt-4">
-        <AllergyTable allergies={allergies} />
+        <AllergyTable allergies={allergies} loading={false} />
       </div>
     </div>
   );

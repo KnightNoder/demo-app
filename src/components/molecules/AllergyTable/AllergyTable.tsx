@@ -18,7 +18,7 @@ interface AllergyTableProps {
       title: string | null;
     };
     begdate: string;
-    enddate?: string;
+    enddate: string | undefined | null;
   }>;
   loading: boolean; // Added loading state to trigger skeleton loader
 }

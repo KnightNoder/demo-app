@@ -12,7 +12,7 @@ interface Allergy {
     title: string | null;
   };
   begdate: string;
-  enddate?: string;
+  enddate: string | null | undefined;
 }
 
 interface AllergyState {

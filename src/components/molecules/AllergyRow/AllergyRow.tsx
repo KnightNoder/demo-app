@@ -17,7 +17,7 @@ interface AllergyRowProps {
       title: string | null;
     };
     begdate: string;
-    enddate?: string | undefined;
+    enddate: string | null | undefined;
   };
 }
 
@@ -39,7 +39,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
         {allergy.reaction ? <Pill text={allergy.reaction.id} className="text-gray-600" /> : "N/A"}
       </TableCell>
       <TableCell className="text-gray-500">{formatDate(allergy.begdate)}</TableCell>
-      <TableCell className="text-gray-500">{formatDate(allergy.enddate) || "N/A"}</TableCell>
+      <TableCell className="text-gray-500">{formatDate(allergy?.enddate) || "N/A"}</TableCell>
     </tr>
   );
 };
