@@ -1,18 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Allergy {
-  id: string;
-  allergen: string;
-  severity: {
-    id: string;
-    title: string | null;
+  id?: string;
+  allergen?: string;
+  severity?: {
+    id?: string;
+    title?: string | null;
   };
-  reaction?: {
-    id: string;
-    title: string | null;
+  reaction?: string;
+  begdate?: string;
+  enddate?: string | null | undefined;
+  modified_by?: {
+    fname?: string;
+    lname?: string;
   };
-  begdate: string;
-  enddate: string | null | undefined;
 }
 
 interface AllergyState {

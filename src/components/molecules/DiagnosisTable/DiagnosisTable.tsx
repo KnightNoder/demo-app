@@ -1,6 +1,24 @@
-import {DiagnosisItem} from '../../atoms/DiagnosisItem/DiagnosisItem'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const DiagnosisTable: React.FC<{ diagnosis: any[] }> = ({ diagnosis }) => {
+import { DiagnosisItem } from '../../atoms/DiagnosisItem/DiagnosisItem';
+
+interface DiagnosisProps {
+  diagnosis: Array<{
+    id: string;
+    type: string;
+    title: string;
+    begdate: string;
+    enddate: string;
+    diagnosis: string;
+    user: {
+      id: string;
+      username: string;
+      fname: string;
+      mname: string;
+      lname: string;
+    };
+  }
+  >
+}
+export const DiagnosisTable: React.FC<DiagnosisProps> = ({ diagnosis }) => {
   if (!Array.isArray(diagnosis)) {
     return <div>No diagnosis data available</div>;
   }

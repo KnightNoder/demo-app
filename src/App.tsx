@@ -4,7 +4,7 @@ import store from "./store/store";
 import CardFooter from "./components/molecules/CardFooter/CardFooter";
 import Card from "./components/organisms/Card/Card";
 import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
-import AllergyTable from "./components/organisms/AllergiesCard/AllergiesCard";
+import AllergyCard from "./components/organisms/AllergiesCard/AllergiesCard";
 import "./index.css";
 // import TodoList from "./components/organisms/TodoList/TodoList";
 
@@ -29,7 +29,7 @@ const App: React.FC = () => {
       <>
         {/* <TodoList /> */}
         <CardWithFooter title="Allergies" initialPosition={allergyTablePosition}>
-          <AllergyTable />
+          <AllergyCard />
         </CardWithFooter>
 
         <CardWithFooter title="Diagnosis" initialPosition={diagnosisTablePosition}>

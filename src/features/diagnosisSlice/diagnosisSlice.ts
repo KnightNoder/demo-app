@@ -7,7 +7,13 @@ interface Diagnosis {
   begdate: string;
   enddate: string;
   diagnosis: string;
-  user: string;
+  user: {
+    id: string;
+    username: string;
+    fname: string;
+    mname: string;
+    lname: string;
+  };
 }
 
 interface DiagnosisState {

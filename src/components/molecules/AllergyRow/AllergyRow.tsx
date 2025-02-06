@@ -2,7 +2,6 @@ import React from "react";
 import Pill from "../../atoms/Pill/Pill";
 import TableCell from "../../atoms/TableCell/TableCell";
 import { formatDate } from '../../../utils/utils'
-// AllergyRow.tsx
 interface AllergyRowProps {
   allergy: {
     id: string;
@@ -12,34 +11,43 @@ interface AllergyRowProps {
       id: string;
       title: string | null;
     };
-    reaction?: {
-      id: string;
-      title: string | null;
-    };
+    reaction?: string;
     begdate: string;
     enddate: string | null | undefined;
+    modified_by: {
+      fname: string,
+      lname: string
+    }
   };
 }
 
 
 const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
   return (
-    <tr className="!py-10 !mt-10 transition-colors hover:bg-muted/50 hover:bg-gray-50"> {/* Increased gap between rows */}
-      <TableCell className="my-3 font-medium">{allergy.title}</TableCell> {/* Optional: Increased gap in individual cells */}
+    <tr className="!py-10 !mt-10 transition-colors hover:bg-muted/50"> {/* Increased gap between rows */}
+      <TableCell className="my-3 font-medium text-left">{allergy.title}</TableCell> {/* Optional: Increased gap in individual cells */}
       <TableCell>
-        <Pill text={allergy?.title} className="text-gray-500 border border-gray-200" />
+        <Pill text="allergy" className="text-gray-500 bg-white border border-gray-200" />
       </TableCell>
       <TableCell>
-        <Pill text={allergy.severity?.id} className="text-gray-700" />
+        <Pill
+          text={allergy.severity?.title}
+          className={`text-gray-700 ${allergy.severity?.id === 'severe' ? 'text-red-500' : ''}`}
+        />
+
       </TableCell>
       <TableCell>
         <Pill text="active" className="text-gray-700" />
       </TableCell>
       <TableCell>
-        {allergy.reaction ? <Pill text={allergy.reaction.id} className="text-gray-600" /> : "N/A"}
+        {allergy.reaction ? <Pill text={allergy.reaction || "N/A"} className="text-gray-600" /> : "N/A"}
       </TableCell>
       <TableCell className="text-gray-500">{formatDate(allergy.begdate)}</TableCell>
-      <TableCell className="text-gray-500">{formatDate(allergy?.enddate) || "N/A"}</TableCell>
+      <TableCell className="text-gray-500">
+        {allergy?.modified_by?.fname && allergy?.modified_by?.lname
+          ? `${"Dr."}${allergy.modified_by.fname} ${allergy.modified_by.lname}`
+          : "Dr.Ensoftek Admin"}
+      </TableCell>
     </tr>
   );
 };

@@ -6,8 +6,8 @@ export const fetchDiagnosis = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     const diagnosis = await getDiagnosisDataFromApi();
-    console.log(diagnosis, "diag data");
-    dispatch(setDiagnoses(diagnosis)); // Ensure this is an array
+    console.log(diagnosis.data, "diag data");
+    dispatch(setDiagnoses(diagnosis)); 
   } catch (error: unknown) {
     if (error instanceof Error) {
       dispatch(setError(error.message));

@@ -1,11 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // import axiosClient from "./axiosClient";
 
 import axiosClient from "./axiosClient";
 
 export const getAllergyDataFromApi = async () => {
-  const response = await axiosClient.get("/allergies/1004785/");
-  return response.data;
+  try {
+    const response = await axiosClient.get("/allergies/1004146/");
+    console.log(response.data, "resp data");
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching allergy data:", error);
+    throw error;
+  }
   // return new Promise((resolve, reject) => {
   //   setTimeout(() => {
   //     // reject("lol"); // Resolve with the diagnosis data
@@ -15,18 +23,10 @@ export const getAllergyDataFromApi = async () => {
 };
 
 export const getDiagnosisDataFromApi = async () => {
-  // const response =
-  // await fetch(
-  //   "http://qa-phoenix.drcloudemr.com/drcloud/public/api/medical-problems"
-  // );
-  const response = await axiosClient.get("/medical-problems?pid=1004596");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = response.data.map((item: any) => {
-    const { user, ...rest } = item; // Destructure to exclude the 'user' field
-    return rest; // Return the object without the 'user' field
-  });
+  const response = await axiosClient.get("/medical-problems?pid=1004146");
 
-  return result;
+  console.log(response.data, "api response");
+  return response.data;
   // return new Promise((resolve, reject) => {
   //   setTimeout(() => {
   //     // reject("lol"); // Resolve with the diagnosis data

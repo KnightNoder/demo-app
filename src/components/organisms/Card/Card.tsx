@@ -318,7 +318,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
               </div>
             </div>
             {!isCollapsed && (
-              <div className="flex flex-col h-[calc(100%-4rem)]">
+              <div className="flex flex-col h-[calc(100%-8rem)]">
                 <div className="flex-1 overflow-y-auto">
                   {children}
                 </div>

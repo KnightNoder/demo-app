@@ -1,10 +1,9 @@
 import React from "react";
-import Skeleton from "react-loading-skeleton"; // Import Skeleton component
-import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import AllergyRow from "../../molecules/AllergyRow/AllergyRow";
 import TableHeader from "../../atoms/TableHeader/TableHeader";
 
-// Define props for AllergyTable
 interface AllergyTableProps {
   allergies: Array<{
     id: string;
@@ -13,14 +12,15 @@ interface AllergyTableProps {
       id: string;
       title: string | null;
     };
-    reaction?: {
-      id: string;
-      title: string | null;
-    };
+    reaction?: string;
     begdate: string;
     enddate: string | undefined | null;
+    modified_by: {
+      fname: string,
+      lname: string
+    }
   }>;
-  loading: boolean; // Added loading state to trigger skeleton loader
+  loading: boolean;
 }
 
 const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
@@ -40,7 +40,6 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
     );
   }
 
-  // Display Skeleton Loader when loading is true
   if (loading) {
     return (
       <div className="w-full overflow-x-auto rounded-md">
@@ -57,7 +56,6 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
             </tr>
           </thead>
           <tbody>
-            {/* Render Skeleton for each row */}
             {[...Array(5)].map((_, index) => (
               <tr key={index}>
                 <td><Skeleton width={150} /></td>

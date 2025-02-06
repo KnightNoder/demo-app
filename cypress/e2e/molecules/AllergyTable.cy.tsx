@@ -1,131 +1,148 @@
-// import React from "react";
-// import { mount } from "cypress/react";
+import React from "react";
+import { mount } from "cypress/react";
+import AllergyTable from '../../../src/components/molecules/AllergyTable'
 
-describe("AllergyTable Component", () => {
-  const allergies = [
-    {
-      id: "1",
-      allergen: "Peanuts",
-      type: "allergy",
-      severity: "255604002",
-      reaction: "Anaphylaxis",
-      begdate: "2025-01-01 17:49:01",
-      enddate: "2020-12-31",
-    },
-    {
-      id: "2",
-      allergen: "Pencillin",
-      type: "allergy",
-      severity: "255604002",
-      reaction: "Sneezing",
-      begdate: "2025-01-01 17:49:01",
-    },
-    {
-      id: "1",
-      allergen: "Peanuts",
-      type: "allergy",
-      severity: "255604002",
-      reaction: "Anaphylaxis",
-      begdate: "2025-01-01 17:49:01",
-      enddate: "2025-01-31 17:49:04",
-    },
-    {
-      id: "2",
-      allergen: "Pencillin",
-      type: "allergy",
-      severity: "255604002",
-      reaction: "Sneezing",
-      begdate: "2025-01-01 17:49:01",
-      enddate: "2025-01-31 17:49:04",
-    },
-  ];
+describe('AllergyTable Component', () => {
 
-  beforeEach(() => {
-    // Mock the API call or set the allergies data as needed
-    cy.visit("/path/to/your/component");  // Adjust the URL to the correct page URL where AllergyTable is rendered
+  // Test Case 1: Check if skeleton loaders are visible when loading is true
+  it('should display skeleton loaders when loading is true', () => {
+    cy.mount(
+      <AllergyTable allergies={[]} loading={true} />
+    );
+
+    // Check if skeleton loaders are visible
+    cy.get('td').should('have.class', 'react-loading-skeleton');
+    cy.get('td').should('have.length', 35); // 7 columns * 5 rows of skeletons
   });
 
-  it("should render the table with headers correctly", () => {
-    cy.get("table").within(() => {
-      // Ensure the table headers are present
-      cy.get("thead tr th").eq(0).should("contain.text", "Allergen");
-      cy.get("thead tr th").eq(1).should("contain.text", "Type");
-      cy.get("thead tr th").eq(2).should("contain.text", "Severity");
-      cy.get("thead tr th").eq(3).should("contain.text", "Status");
-      cy.get("thead tr th").eq(4).should("contain.text", "Reactions");
-      cy.get("thead tr th").eq(5).should("contain.text", "Onset Date");
-      cy.get("thead tr th").eq(6).should("contain.text", "Last Updated");
-    });
+  // Test Case 2: Check if an error message appears when allergies is not an array
+  it('should display an error message if allergies is not an array', () => {
+    cy.mount(
+      <AllergyTable allergies={null} loading={false} />
+    );
+
+    // Check for the error message
+    cy.contains('Error: Expected an array of allergies.').should('be.visible');
   });
 
-  it("should render rows correctly for each allergy", () => {
-    cy.intercept("GET", "/api/allergies", allergies);  // Mocking the API call if needed
-    cy.visit("/path/to/your/page");
+  // Test Case 3: Check if "No allergies found" message appears for empty data
+  it('should display "No allergies found" message if allergies array is empty', () => {
+    cy.mount(
+      <AllergyTable allergies={[]} loading={false} />
+    );
 
-    // Verify that each allergy row is rendered
-    cy.get("tbody tr").should("have.length", allergies.length);
-
-    // Check if the allergy data is displayed correctly in the table
-    cy.get("tbody tr").eq(0).within(() => {
-      cy.get("td").eq(0).should("contain.text", "Peanuts");
-      cy.get("td").eq(1).should("contain.text", "allergy");
-      cy.get("td").eq(2).should("contain.text", "255604002");
-      cy.get("td").eq(3).should("contain.text", "active");
-      cy.get("td").eq(4).should("contain.text", "test Reaction");
-      cy.get("td").eq(5).should("contain.text", "2025-01-01 17:49:01");
-      cy.get("td").eq(6).should("contain.text", "2025-01-31 17:49:04");
-    });
-
-    cy.get("tbody tr").eq(1).within(() => {
-      cy.get("td").eq(0).should("contain.text", "Pencillin");
-      cy.get("td").eq(1).should("contain.text", "allergy");
-      cy.get("td").eq(2).should("contain.text", "255604002");
-      cy.get("td").eq(3).should("contain.text", "active");
-      cy.get("td").eq(4).should("contain.text", "test Reaction");
-      cy.get("td").eq(5).should("contain.text", "2025-01-01 17:49:01");
-      cy.get("td").eq(6).should("not.contain.text", "Last Updated");
-    });
+    // Check for the "No allergies found" message
+    cy.contains('No allergies found.').should('be.visible');
   });
 
-  it("should render no rows when allergies data is empty", () => {
-    cy.intercept("GET", "/api/allergies", []);  // Mock empty allergies data
-    cy.visit("/path/to/your/page");
+  // Test Case 4: Check if allergy data is rendered correctly when allergies data is available
+  it('should render allergy data correctly when allergies data is available', () => {
+    const mockAllergies = [
+      {
+        id: '1',
+        allergen: 'Peanuts',
+        severity: { id: '1', title: 'Severe' },
+        reaction: { id: '1', title: 'Anaphylaxis' },
+        begdate: '2023-01-01',
+        enddate: '2023-12-01',
+        modified_by: { fname: 'John', lname: 'Doe' },
+      },
+      {
+        id: '2',
+        allergen: 'Dust',
+        severity: { id: '2', title: 'Mild' },
+        reaction: { id: '2', title: 'Sneezing' },
+        begdate: '2022-05-01',
+        enddate: null,
+        modified_by: { fname: 'Jane', lname: 'Smith' },
+      }
+    ];
 
-    cy.get("tbody tr").should("have.length", 0);
+    cy.mount(
+      <AllergyTable allergies={mockAllergies} loading={false} />
+    );
+
+    // Check if the allergy data is rendered correctly in the table
+    cy.contains('Peanuts').should('be.visible');
+    cy.contains('Severe').should('be.visible');
+    cy.contains('Anaphylaxis').should('be.visible');
+    cy.contains('John Doe').should('be.visible');
+
+    cy.contains('Dust').should('be.visible');
+    cy.contains('Mild').should('be.visible');
+    cy.contains('Sneezing').should('be.visible');
+    cy.contains('Jane Smith').should('be.visible');
   });
 
-  it("should render correct allergy data for each row", () => {
-    cy.intercept("GET", "/api/allergies", allergies);
-    cy.visit("/path/to/your/page");
+  // Test Case 5: Check if the table headers render correctly
+  it('should render the table headers correctly', () => {
+    cy.mount(
+      <AllergyTable allergies={[]} loading={false} />
+    );
 
-    // Check for allergy data rendering
-    cy.get("tbody tr").eq(0).should("contain.text", "Peanuts");
-    cy.get("tbody tr").eq(0).should("contain.text", "allergy");
-    cy.get("tbody tr").eq(0).should("contain.text", "255604002");
-    cy.get("tbody tr").eq(0).should("contain.text", "test Reaction");
-
-    cy.get("tbody tr").eq(1).should("contain.text", "Pencillin");
-    cy.get("tbody tr").eq(1).should("contain.text", "allergy");
-    cy.get("tbody tr").eq(1).should("contain.text", "255604002");
-    cy.get("tbody tr").eq(1).should("contain.text", "test Reaction");
+    // Check if the table headers are rendered
+    cy.get('th').eq(0).should('contain', 'Allergen');
+    cy.get('th').eq(1).should('contain', 'Type');
+    cy.get('th').eq(2).should('contain', 'Severity');
+    cy.get('th').eq(3).should('contain', 'Status');
+    cy.get('th').eq(4).should('contain', 'Reactions');
+    cy.get('th').eq(5).should('contain', 'Onset Date');
+    cy.get('th').eq(6).should('contain', 'Last Updated');
   });
 
-  it("should display 'Active' status for allergies with an end date in the future or no end date", () => {
-    cy.intercept("GET", "/api/allergies", allergies);
-    cy.visit("/path/to/your/page");
+  // Test Case 6: Check if the date format is rendered correctly (onset and last updated)
+  it('should render formatted dates correctly', () => {
+    const mockAllergies = [
+      {
+        id: '1',
+        allergen: 'Peanuts',
+        severity: { id: '1', title: 'Severe' },
+        reaction: { id: '1', title: 'Anaphylaxis' },
+        begdate: '2023-01-01T00:00:00Z',
+        enddate: '2023-12-01T00:00:00Z',
+        modified_by: { fname: 'John', lname: 'Doe' },
+      }
+    ];
 
-    // Ensure that allergies that don't have an end date or have a future end date show 'Active'
-    cy.get("tbody tr").eq(1).find("td").eq(3).should("contain.text", "active"); // Dust allergy, has no end date
-    cy.get("tbody tr").eq(0).find("td").eq(3).should("contain.text", "active"); // Peanuts allergy, enddate is within past year
+    cy.mount(
+      <AllergyTable allergies={mockAllergies} loading={false} />
+    );
+
+    // Check if the formatted dates are rendered correctly
+    cy.contains('01/01/2023').should('be.visible');
+    cy.contains('12/01/2023').should('be.visible');
   });
 
+  // Test Case 7: Check if the reactions column displays properly
+  it('should render reactions column correctly', () => {
+    const mockAllergies = [
+      {
+        id: '1',
+        allergen: 'Peanuts',
+        severity: { id: '1', title: 'Severe' },
+        reaction: { id: '1', title: 'Anaphylaxis' },
+        begdate: '2023-01-01',
+        enddate: '2023-12-01',
+        modified_by: { fname: 'John', lname: 'Doe' },
+      },
+      {
+        id: '2',
+        allergen: 'Dust',
+        severity: { id: '2', title: 'Mild' },
+        reaction: null, // No reaction
+        begdate: '2022-05-01',
+        enddate: null,
+        modified_by: { fname: 'Jane', lname: 'Smith' },
+      }
+    ];
 
-  it("should show a button for 'Add Allergy'", () => {
-    cy.intercept("GET", "/api/allergies", allergies);
-    cy.visit("/path/to/your/page");
+    cy.mount(
+      <AllergyTable allergies={mockAllergies} loading={false} />
+    );
 
-    // Check if the 'Add Allergy' button exists
-    cy.get('button').contains("Add Allergy").should("exist");
+    // Check if the reaction column displays "No reaction" for empty reactions
+    cy.contains('No reaction').should('be.visible');
+    cy.contains('Anaphylaxis').should('be.visible');
   });
-
 });
+

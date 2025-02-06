@@ -4,5 +4,5 @@ export const formatDate = (dateString: any): string => {
   const year = date.getFullYear(); // Get the full year
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Get the month and pad to two digits
   const day = String(date.getDate()).padStart(2, "0"); // Get the day and pad to two digits
-  return `${year}-${month}-${day}`; // Return the formatted string
+  return `${month}/${day}/${year}`; // Return the formatted string
 };
