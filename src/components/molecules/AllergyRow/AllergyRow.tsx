@@ -32,7 +32,19 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
       <TableCell>
         <Pill
           text={allergy.severity?.title}
-          className={`text-gray-700 ${allergy.severity?.id === 'severe' ? 'text-red-500' : ''}`}
+          className={`
+    text-gray-700 
+    ${allergy.severity?.title === 'Fatal'
+              ? 'text-red-800 bg-red-200 hover:bg-red-300'
+              : allergy.severity?.title === 'Moderate to severe'
+                ? 'text-red-500 bg-red-100 hover:bg-red-200'
+                : allergy.severity?.title === 'Moderate'
+                  ? 'text-red-400 bg-red-100  hover:bg-red-200'
+                  : allergy.severity?.title === 'Mild'
+                    ? 'text-yellow-500 bg-yellow-100 hover:bg-yellow-200'
+                    : ''
+            }
+        `}
         />
 
       </TableCell>
