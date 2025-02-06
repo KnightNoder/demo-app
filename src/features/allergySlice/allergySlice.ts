@@ -34,11 +34,8 @@ const allergySlice = createSlice({
     setAllergies(state: AllergyState, action: PayloadAction<Allergy[]>) {
       state.allergies = action.payload;
     },
-    setLoading(state: AllergyState) {
-      state.loading = true; // When setLoading is called, set loading to true.
-    },
-    clearLoading(state: AllergyState) {
-      state.loading = false; // You can add a `clearLoading` action to set it to false.
+    setLoading(state: AllergyState, action: PayloadAction<boolean>) {
+      state.loading = action.payload; // When setLoading is called, set loading to true.
     },
     setError(state: AllergyState, action: PayloadAction<string>) {
       state.error = action.payload;
@@ -46,7 +43,6 @@ const allergySlice = createSlice({
   },
 });
 
-export const { setAllergies, setLoading, clearLoading, setError } =
-  allergySlice.actions;
+export const { setAllergies, setLoading, setError } = allergySlice.actions;
 
 export default allergySlice.reducer;

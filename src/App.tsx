@@ -6,6 +6,7 @@ import Card from "./components/organisms/Card/Card";
 import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
 import AllergyTable from "./components/organisms/AllergiesCard/AllergiesCard";
 import "./index.css";
+// import TodoList from "./components/organisms/TodoList/TodoList";
 
 const CardWithFooter: React.FC<{
   title: string;
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <>
+        {/* <TodoList /> */}
         <CardWithFooter title="Allergies" initialPosition={allergyTablePosition}>
           <AllergyTable />
         </CardWithFooter>

@@ -7,9 +7,14 @@ export const fetchTodosUsingRest = () => async (dispatch: AppDispatch) => {
   try {
     const todos = await fetchTodosFromRest();
     dispatch(setTodos(todos));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      dispatch(setError(error.message));
+    } else {
+      dispatch(setError("An unknown error occurred"));
+    }
+  } finally {
     dispatch(setLoading(false));
-  } catch (error: any) {
-    dispatch(setError(error.message));
   }
 };
 
@@ -18,9 +23,14 @@ export const fetchTodosUsingGraphql = () => async (dispatch: AppDispatch) => {
   try {
     const todos = await fetchTodosFromGraphql();
     dispatch(setTodos(todos));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      dispatch(setError(error.message));
+    } else {
+      dispatch(setError("An unknown error occurred"));
+    }
+  } finally {
     dispatch(setLoading(false));
-  } catch (error: any) {
-    dispatch(setError(error.message));
   }
 };
 

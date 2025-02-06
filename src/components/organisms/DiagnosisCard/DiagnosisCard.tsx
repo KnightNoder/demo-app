@@ -1,103 +1,74 @@
 import React, { useEffect, useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import { DiagnosisTable } from "../../molecules/DiagnosisTable/DiagnosisTable";
+import { fetchDiagnosis } from "../../../features/diagnosisSlice/diagnosisThunk";
+import { useAppDispatch, useAppSelector } from "../../../store/store";
+import Skeleton from "react-loading-skeleton"; // Import Skeleton component
+import "react-loading-skeleton/dist/skeleton.css"; // Import skeleton styles
 
 const MedicalProblemsList: React.FC = () => {
-  // State to store diagnosis data, loading state, and error state
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [diagnosis, setDiagnosis] = useState<any[]>([]); // Use 'any' type for simplicity, you can define a proper type
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch(); // Use the typed dispatch
+  const { diagnosis, loading, error } = useAppSelector(
+    (state) => state.diagnosis
+  );
 
   const [activeTab, setActiveTab] = useState("All");
 
   // Tabs data
   const tabs = [
-    { label: "Active", count: diagnosis.filter(d => d.status === 'Active').length }, // Filter based on status for active count
-    { label: "Resolved", count: diagnosis.filter(d => d.status === 'Resolved').length }, // Filter based on status for resolved count
-    { label: "All", count: diagnosis.length },
+    { label: "Active", count: diagnosis?.length },
+    { label: "Resolved", count: diagnosis?.length },
+    { label: "All", count: 0 },
   ];
 
-  // Fetch diagnosis data from API
+  // Fetch diagnosis data on mount
   useEffect(() => {
-    const fetchDiagnosisData = async () => {
-      setLoading(true);
-      setError(null);
+    dispatch(fetchDiagnosis()); // Dispatch the thunk action
+  }, [dispatch]);
 
-      try {
-        // const response = await fetch(
-        //   "http://qa-phoenix.drcloudemr.com/drcloud_1/public/api/allergies/1004785/"
-        // );
-
-        // if (!response.ok) {
-        //   throw new Error("Failed to fetch diagnosis data");
-        // }
-
-        // const data = await response.json();
-        // setDiagnosis(data.data.splice(0, 2)); // Assuming the response structure is like { data: [...] }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const dummyData = [
-          {
-            id: "7162860202000553509",
-            type: "medical_problem",
-            title:
-              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
-            begdate: "2025-01-01 10:57:02",
-            enddate: "",
-            diagnosis: "ICD10:R50.81",
-            user: "admin",
-          },
-          {
-            id: "7162860202000553515",
-            type: "medical_problem",
-            title:
-              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
-            begdate: "2025-01-01",
-            enddate: "",
-            diagnosis: "ICD10:R50.81",
-            user: "admin",
-          },
-          {
-            id: "7162860202000553515",
-            type: "medical_problem",
-            title:
-              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
-            begdate: "2025-01-01",
-            enddate: "",
-            diagnosis: "ICD10:R50.81",
-            user: "admin",
-          },
-          {
-            id: "7162860202000553515",
-            type: "medical_problem",
-            title:
-              "ICD10:R50.81(Fever presenting with conditions classified elsewhere)",
-            begdate: "2025-01-01",
-            enddate: "",
-            diagnosis: "ICD10:R50.81",
-            user: "admin",
-          },
-        ]
-        setDiagnosis(dummyData);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        setError(err.message || "An error occurred while fetching diagnosis data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDiagnosisData();
-  }, []);
-
-  // Loading state
+  // Skeleton Loader for the tabs and table
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="p-4 mx-auto bg-white rounded-lg">
+        {/* Skeleton loader for TabListHeader */}
+        <div className="flex mb-4 gap-1.5 justify-between">
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+        </div>
+
+        {/* Skeleton loader for Diagnosis Table */}
+        <div className="mt-4">
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
   }
 
-  // Error state
+  // Professional-looking error skeleton and error message display
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex flex-col items-center justify-center p-4 mx-auto bg-white rounded-lg">
+        {/* Error Skeleton with a visual representation */}
+        <div className="flex flex-col items-center mb-4">
+          <Skeleton circle height={40} width={40} />
+          <div className="mt-4">
+            <Skeleton height={30} width={200} />
+          </div>
+          <div className="mt-2">
+            <Skeleton height={20} width={250} />
+          </div>
+        </div>
+        {/* Error message displayed clearly */}
+        <div className="mt-4 text-center">
+          <p className="text-lg font-semibold text-red-500">Oops! Something went wrong.</p>
+          <p className="mt-2 text-gray-600">{error}</p>
+        </div>
+        {/* Optional: Skeleton for action buttons or retry logic */}
+        <Skeleton height={50} width={180} />
+      </div>
+    );
   }
 
   return (

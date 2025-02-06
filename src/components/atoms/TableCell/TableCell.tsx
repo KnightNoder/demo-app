@@ -7,7 +7,7 @@ interface TableCellProps {
 
 const TableCell: React.FC<TableCellProps> = ({ children, className = "" }) => {
   return (
-    <td className={`py-2 px-2 my-2 text-xs align-middle ${className}`}>
+    <td className={`py-2 px-2 my-10 text-xs align-middle ${className}`}>
       {children}
     </td>
   );
