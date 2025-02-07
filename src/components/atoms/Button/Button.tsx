@@ -11,7 +11,7 @@ interface ButtonProps {
   className?: string; // Added this to allow for additional custom styles
 }
 
-const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, dataCy, disabled, className = "" }) => {
+const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, disabled, className = "" }) => {
   const getVariantClasses = () => {
     switch (variant) {
       case "primary":
@@ -25,7 +25,6 @@ const Button: React.FC<ButtonProps> = ({ variant, icon, children, onClick, dataC
 
   return (
     <button
-      data-cy={dataCy}
       className={`inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-[#0093D3]/50 focus-visible:ring-offset-2 text-xs rounded-md px-3 h-7 ${getVariantClasses()} ${className}`}
       onClick={onClick}
       type="button"

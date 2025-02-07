@@ -33,19 +33,24 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
         <Pill
           text={allergy.severity?.title}
           className={`
-    text-gray-700 
-    ${allergy.severity?.title === 'Fatal'
-              ? 'text-red-800 bg-red-200 hover:bg-red-300'
+    ${
+            allergy.severity?.title === 'Fatal'
+              ? 'text-red-600 bg-red-200 hover:bg-red-300'  // Fatal - Darken background on hover
               : allergy.severity?.title === 'Moderate to severe'
-                ? 'text-red-500 bg-red-100 hover:bg-red-200'
-                : allergy.severity?.title === 'Moderate'
-                  ? 'text-red-400 bg-red-100  hover:bg-red-200'
-                  : allergy.severity?.title === 'Mild'
-                    ? 'text-yellow-500 bg-yellow-100 hover:bg-yellow-200'
+              ? 'text-gray-500 bg-[#FFD580] hover:bg-[#FF8C00]'  // Orange for Moderate to Severe, lighter background and hover darkens
+              : allergy.severity?.title === 'Moderate'
+                ? 'text-[#8B6000] bg-[#FFEB80] hover:bg-[#FFB800]'  // Darker yellowish for Moderate, better contrast for visibility
+                : allergy.severity?.title === 'Mild'
+                  ? 'text-gray-700 bg-[#FFD700] hover:bg-[#FFEA00]'  // Mild - Lighter yellow hover
                     : ''
             }
-        `}
+  `}
         />
+
+
+
+
+
 
       </TableCell>
       <TableCell>
