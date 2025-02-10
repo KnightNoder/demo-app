@@ -14,7 +14,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             aria-hidden="true"
             data-slot="icon"
             className="w-4 h-4"
@@ -33,7 +33,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             aria-hidden="true"
             data-slot="icon"
             className="w-4 h-4"
@@ -52,7 +52,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             aria-hidden="true"
             data-slot="icon"
             className="w-4 h-4"
@@ -71,7 +71,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             aria-hidden="true"
             data-slot="icon"
             className="w-4 h-4"
@@ -91,7 +91,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             aria-hidden="true"
             data-slot="icon"
             className="w-4 h-4 text-red-600"
@@ -111,7 +111,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             className="w-4 h-4"
           >
             <path
@@ -128,7 +128,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             className="w-4 h-4"
           >
             <path
@@ -145,7 +145,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             className="w-4 h-4"
           >
             <path
@@ -162,7 +162,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
-            stroke="currentColor"
+            stroke="black"
             className="w-4 h-4"
           >
             <path

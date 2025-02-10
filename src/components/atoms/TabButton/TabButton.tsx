@@ -11,7 +11,7 @@ interface TabButtonProps {
 const TabButton: React.FC<TabButtonProps> = ({ label, activeTab, onClick, count }) => {
   return (
     <Button
-      variant="default"
+      variant="default" data-cy="default-button"
       onClick={() => onClick(label)}
       disabled={false}
       className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-xs font-medium transition-all rounded-sm w-full ${activeTab === label

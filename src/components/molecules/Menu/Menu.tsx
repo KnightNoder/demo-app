@@ -21,7 +21,7 @@ interface MenuProps {
 const Menu: React.FC<MenuProps> = ({ isOpen, onToggle, options }) => {
   return (
     <div className="relative">
-      <Button variant="default" onClick={onToggle}>
+      <Button variant="default" data-cy="default-button" onClick={onToggle}>
         <Icon variant="kebab-menu" />
       </Button>
 
@@ -31,7 +31,7 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onToggle, options }) => {
             {options && options.map((option) => (
               <Button
                 key={option.label}
-                variant="default"
+                variant="default" data-cy="default-button"
                 onClick={option.onClick}
                 dataCy={`menu-option-${option.label.toLowerCase().replace(" ", "-")}`}
                 disabled={option.disabled}

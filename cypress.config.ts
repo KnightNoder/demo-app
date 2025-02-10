@@ -3,7 +3,7 @@ import viteConfig from "./vite.config";
 
 export default defineConfig({
   e2e: {
-    baseUrl: "http://localhost:5173",
+    baseUrl: "http://localhost:5175",
     setupNodeEvents() {
       // Node event listeners can be defined here
     },
@@ -12,7 +12,8 @@ export default defineConfig({
     devServer: {
       framework: "react",
       bundler: "vite",
-      viteConfig, // Reuse your Vite config
+      viteConfig,
     },
+    supportFile: "cypress/support/component.ts",
   },
 });

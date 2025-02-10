@@ -16,9 +16,34 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
   const [hoveredEdge, setHoveredEdge] = useState<null | string>(null); 
+  const [isVisible, setIsVisible] = useState(false);
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        setIsVisible(entry.isIntersecting && entry.intersectionRatio >= 0.1);
+      },
+        {
+          threshHold: 0.1
+        }
+      )
+    })
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return (() => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    })
+
+  }, [])
 
   const handleDragStart = () => {
     setIsDragging(true);
@@ -247,6 +272,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
       )}
       {!isModalOpen && (
         <div
+          ref={cardRef}
           className="absolute overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
           draggable
           onDragStart={handleDragStart}
@@ -320,9 +346,9 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
             {!isCollapsed && (
               <div className="flex flex-col h-[calc(100%-8rem)]">
                 <div className="flex-1 overflow-y-auto">
-                  {children}
+                  {isVisible ? children : <div className="w-full h-full bg-gray-100 animate-pulse" />}
                 </div>
-                {footer && <div className="p-2 mt-auto border-t">{footer}</div>}
+                {footer && <div className="p-2 mt-auto border-t">{isVisible ? footer : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
               </div>
             )}
           </div>

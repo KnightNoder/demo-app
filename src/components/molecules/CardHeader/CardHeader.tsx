@@ -40,10 +40,10 @@ const CardHeader: React.FC<CardHeaderProps> = ({
     <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
       <h3 className="font-medium">{title}</h3>
       <div className="flex items-center gap-1">
-        <Button variant="default" onClick={onCollapse}>
+        <Button variant="default" data-cy="default-button" onClick={onCollapse}>
           <Icon variant={isCollapsed ? "collapseUp" : "collapseDown"} />
         </Button>
-        <Button variant="default" onClick={onExpand}>
+        <Button variant="default" data-cy="default-button" onClick={onExpand}>
           <Icon variant="modalExpand" />
         </Button>
         <Menu isOpen={isKebabMenuOpen} onToggle={onKebabMenuToggle} options={menuOptions} />
