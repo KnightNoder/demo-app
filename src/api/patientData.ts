@@ -4,9 +4,9 @@
 
 import axiosClient from "./axiosClient";
 
-export const getAllergyDataFromApi = async () => {
+export const getAllergyDataFromApi = async (patientId: string | null) => {
   try {
-    const response = await axiosClient.get("/allergies/1004146/");
+    const response = await axiosClient.get(`/allergies/${patientId}/`);
     console.log(response.data, "resp data");
 
     return response.data;
@@ -22,8 +22,8 @@ export const getAllergyDataFromApi = async () => {
   // });
 };
 
-export const getDiagnosisDataFromApi = async () => {
-  const response = await axiosClient.get("/medical-problems?pid=1004146");
+export const getDiagnosisDataFromApi = async (patientId: string | null) => {
+  const response = await axiosClient.get(`/medical-problems?pid=${patientId}`);
 
   console.log(response.data, "api response");
   return response.data;

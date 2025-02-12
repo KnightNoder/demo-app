@@ -1,12 +1,16 @@
+<?php session_start(); ?>
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image" href="/Logo.png" />
+    <link rel="icon" type="image/png" href="/Logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DrCloudEHR</title>
   </head>
   <body>
+  <form>
+    <input type="text" style="display: none;" name="patient_id" value="1002497">
+  </form>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

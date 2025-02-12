@@ -6,7 +6,11 @@ import { useAppDispatch, useAppSelector } from "../../../store/store";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css"; 
 
-const MedicalProblemsList: React.FC = () => {
+interface MedicalProblemsListProps {
+  patientId: string | null
+}
+
+const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({ patientId }) => {
   const dispatch = useAppDispatch(); 
   const { diagnosis, loading, error } = useAppSelector(
     (state) => state.diagnosis
@@ -21,8 +25,10 @@ const MedicalProblemsList: React.FC = () => {
   ];
 
   useEffect(() => {
-    dispatch(fetchDiagnosis()); 
-  }, [dispatch]);
+    if (patientId) {
+      dispatch(fetchDiagnosis(patientId));
+    }
+  }, [dispatch, patientId]);
 
   if (loading) {
     return (

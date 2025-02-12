@@ -26,9 +26,9 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
   return (
     <tr className="!py-10 !mt-10 transition-colors hover:bg-muted/50"> {/* Increased gap between rows */}
       <TableCell className="my-3 font-medium text-left">{allergy.title}</TableCell> {/* Optional: Increased gap in individual cells */}
-      <TableCell>
+      {/* <TableCell>
         <Pill text="allergy" className="text-gray-500 bg-white border border-gray-200" />
-      </TableCell>
+      </TableCell> */}
       <TableCell>
         <Pill
           text={allergy.severity?.title}

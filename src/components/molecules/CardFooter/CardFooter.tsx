@@ -1,6 +1,6 @@
 // CardFooter.tsx
 import React from "react";
-import Button from "../../atoms/Button/Button"; // Adjust the import path accordingly
+import Button from "../../atoms/Button/Button";
 import Icons from "../../../assets/Icons/Icons";
 
 const CardFooter: React.FC = () => {

@@ -48,7 +48,7 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
           <thead className="top-0 bg-gray-50">
             <tr>
               <TableHeader>Allergen</TableHeader>
-              <TableHeader>Type</TableHeader>
+              {/* <TableHeader>Type</TableHeader> */}
               <TableHeader>Severity</TableHeader>
               <TableHeader>Status</TableHeader>
               <TableHeader>Reactions</TableHeader>
@@ -80,7 +80,7 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
         <thead className="top-0 bg-gray-50">
           <tr>
             <TableHeader>Allergen</TableHeader>
-            <TableHeader>Type</TableHeader>
+            {/* <TableHeader>Type</TableHeader> */}
             <TableHeader>Severity</TableHeader>
             <TableHeader>Status</TableHeader>
             <TableHeader>Reactions</TableHeader>

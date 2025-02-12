@@ -6,7 +6,11 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { fetchAllergies } from "../../../features/allergySlice/allergyThunk"; 
 
-const AllergiesCard: React.FC = () => {
+interface AllergyCardProps {
+  patientId: string | null
+}
+
+const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
   const dispatch = useAppDispatch();
   const { allergies, loading, error } = useAppSelector((state) => state.allergies); 
 
@@ -19,8 +23,10 @@ const AllergiesCard: React.FC = () => {
   ];
 
   useEffect(() => {
-    dispatch(fetchAllergies()); 
-  }, [dispatch]);
+    if (patientId) {
+      dispatch(fetchAllergies(patientId));
+    }
+  }, [dispatch, patientId]);
 
   if (loading) {
     return (
