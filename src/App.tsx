@@ -11,19 +11,6 @@ import MedicationsCard from "./components/organisms/MedicationsCard/MedicationsC
 import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/ClinicalNotesCard";
 // import TodoList from "./components/organisms/TodoList/TodoList";
 
-const CardWithFooter: React.FC<{
-  title: string;
-  children: ReactNode;
-  initialPosition: { x: number; y: number }
-}> = ({ title, children, initialPosition }) => (
-  <Card title={title} initialPosition={initialPosition}>
-    {children}
-    <CardFooter />
-  </Card>
-);
-
-
-
 const App: React.FC = () => {
   const [allergyTablePosition] = useState({ x: 100, y: 100 });
   const [diagnosisTablePosition] = useState({ x: 1000, y: 100 });
@@ -42,23 +29,25 @@ const App: React.FC = () => {
 
   return (
     <Provider store={store}>
-      <div className="mb-20">
-        {/* <TodoList /> */}
-        <CardWithFooter title="Allergies" initialPosition={allergyTablePosition}>
-          <AllergyCard patientId={patientId} />
-        </CardWithFooter>
+      <div className="relative mb-20 h-[130vh] w-[100vw] ">
+        <div className="relative h-[100vh] w-[100vw] ">
+          {/* <TodoList /> */}
+          <Card title="Allergies" initialPosition={allergyTablePosition} footer={true} category={"Allergy"}>
+            <AllergyCard patientId={patientId} />
+          </Card>
 
-        <CardWithFooter title="Diagnosis" initialPosition={diagnosisTablePosition}>
-          <DiagnosisCard patientId={patientId} />
-        </CardWithFooter>
+          <Card title="Diagnosis" initialPosition={diagnosisTablePosition} footer={true} category={"Diagnosis"}>
+            <DiagnosisCard patientId={patientId} />
+          </Card>
 
-        <CardWithFooter title="Medications" initialPosition={medicationsPostion}>
-          <MedicationsCard />
-        </CardWithFooter>
+          <Card title="Medications" initialPosition={medicationsPostion} footer={true} category={"Medication"}>
+            <MedicationsCard />
+          </Card>
 
-        <CardWithFooter title="Clinical Notes" initialPosition={clinicalNotesPosition}>
-          <ClinicalNotesCard />
-        </CardWithFooter>
+          <Card title="Clinical Notes" initialPosition={clinicalNotesPosition} footer={true} category={"Clincal Note"}>
+            <ClinicalNotesCard />
+          </Card>
+        </div>
       </div>
     </Provider>
   );

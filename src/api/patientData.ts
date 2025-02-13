@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// import axiosClient from "./axiosClient";
-
 import axiosClient from "./axiosClient";
 
 export const getAllergyDataFromApi = async (patientId: string | null) => {
@@ -33,6 +29,20 @@ export const getDiagnosisDataFromApi = async (patientId: string | null) => {
   //     resolve(getDiagnosisData());
   //   }, 2000); // Simulate a 2-second delay
   // });
+};
+
+const getClinicalNotesDataFromApi = async (patientId: string | null) => {
+  try {
+    const response = await axiosClient.get(`/clinical-notes/${patientId}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching clinical notes data:", error);
+    throw error;
+  }
+};
+
+const getMedicationsDataFromApi = async (patientId: string | null) => {
+  // try {}
 };
 
 // const getDiagnosisData = () => {

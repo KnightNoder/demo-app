@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import Icons from "../../../assets/Icons/Icons";
+import Header from "../../molecules/CardHeader/CardHeader";
+import CardFooter from "../../molecules/CardFooter/CardFooter";
 
 interface CardProps {
   title: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
   initialPosition: { x: number, y: number }
+  category?: string | null
 }
 
-const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition }) => {
+const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition, category }) => {
   const [position, setPosition] = useState(initialPosition);
   const [size, setSize] = useState({ width: 800, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
@@ -88,7 +91,23 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
     const startY = e.clientY - position?.y;
 
     const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX - startX, y: e.clientY - startY });
+      const container = document.getElementById('card-container');
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = cardRef.current?.getBoundingClientRect();
+
+      if (!cardRect) return;
+
+      // Calculate new position
+      let newX = e.clientX - startX;
+      let newY = e.clientY - startY;
+
+      // Constrain to container bounds
+      newX = Math.max(0, Math.min(newX, containerRect.width - cardRect.width));
+      newY = Math.max(0, Math.min(newY, containerRect.height - cardRect.height));
+
+      setPosition({ x: newX, y: newY });
     };
 
     const handleMouseUp = () => {
@@ -288,68 +307,21 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
           onMouseDown={handleMouseDown}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
-              <h3 className="font-medium">{title}</h3>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={handleCollapse}
-                  className="p-1 transition-colors rounded-md hover:bg-gray-100"
-                >
-                  {isCollapsed ? (
-                    <Icons variant="collapseUp" />
-                  ) : (
-                    <Icons variant="collapseDown" />
-                  )}
-                </button>
-                <button
-                  onClick={handleExpandModal}
-                  className="p-1 transition-colors rounded-md hover:bg-gray-100"
-                >
-                  <Icons variant="modalExpand" />
-                </button>
-                <button
-                  className="relative p-1 transition-colors rounded-md hover:bg-gray-100"
-                  type="button"
-                  onClick={toggleKebabMenu}
-                >
-                  <Icons variant="kebab-menu" />
-                  {isKebabMenuOpen && (
-                    <div
-                      ref={kebabMenuRef}
-                      className="absolute right-0 z-50 w-40 mt-2 bg-white border border-gray-200 rounded-md shadow-lg"
-                    >
-                      <div className="py-1">
-                        <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                          <Icons variant="download" />
-                          Export
-                        </button>
-                        <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                          <Icons variant="print" />
-                          Print
-                        </button>
-                        <button className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100">
-                          <Icons variant="share" />
-                          Share
-                        </button>
-                        <button
-                          className="flex items-center w-full gap-2 px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100"
-                          disabled
-                        >
-                          <Icons variant="delete" />
-                          Cannot Delete Default Widget
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </button>
-              </div>
-            </div>
+            <Header
+              title={title}
+              isCollapsed={isCollapsed}
+              handleCollapse={handleCollapse}
+              handleExpandModal={handleExpandModal}
+              isKebabMenuOpen={isKebabMenuOpen}
+              toggleKebabMenu={toggleKebabMenu}
+              kebabMenuRef={kebabMenuRef}
+            />
             {!isCollapsed && (
               <div className="flex flex-col h-[calc(100%-8rem)]">
                 <div className="flex-1 overflow-y-auto">
                   {true ? children : <div className="w-full h-full bg-gray-100 animate-pulse" />}
                 </div>
-                {footer && <div className="p-2 mt-auto border-t">{true ? footer : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
+                {footer && <div className="">{true ? <CardFooter category={category} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
               </div>
             )}
           </div>

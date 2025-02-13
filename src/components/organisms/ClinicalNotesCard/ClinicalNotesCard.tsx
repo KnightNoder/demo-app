@@ -55,7 +55,7 @@ const TabbedNotes: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Progress");
 
   return (
-    <div className="max-w-2xl p-4 mx-auto bg-white rounded-lg shadow">
+    <div className="max-w-2xl px-4 pb-4 mx-auto bg-white rounded-lg shadow">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

@@ -16,7 +16,7 @@ const TabListHeader: React.FC<TabListHeaderProps> = ({ tabs, activeTab, onTabCli
   return (
     <div
       role="tablist"
-      className="inline-flex items-center justify-start w-full gap-2 px-1 py-1 pl-2 bg-gray-100 rounded-sm h-9"
+      className="sticky top-0 inline-flex items-center justify-start w-full gap-2 px-1 pl-2 bg-gray-100 rounded-sm h-9"
     >
       {tabs.map((tab) => (
         <TabButton

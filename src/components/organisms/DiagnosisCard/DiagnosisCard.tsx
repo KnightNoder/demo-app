@@ -69,7 +69,7 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({ patientId }) 
   }
 
   return (
-    <div className="p-4 mx-auto bg-white rounded-lg">
+    <div className="px-4 pb-4 mx-auto bg-white rounded-lg">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

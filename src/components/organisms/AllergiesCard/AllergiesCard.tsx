@@ -47,7 +47,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-4 mx-auto bg-white rounded-lg">
+      <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
         <div className="flex flex-col items-center mb-4">
           <Skeleton circle height={40} width={40} />
           <div className="mt-4">
