@@ -1,15 +1,22 @@
 import React from "react";
 import TabButton from "../../atoms/TabButton/TabButton";  // Importing the TabButton atom
 
+
 interface Tab {
-  label: string;
+  label: "summary" | "coverage" | "financials"; // Explicitly type allowed tab labels
   count?: number;
+}
+
+interface TabListHeaderProps {
+  tabs: Tab[]; // Use the defined Tab type
+  activeTab: "summary" | "coverage" | "financials";
+  onTabClick: (label: "summary" | "coverage" | "financials") => void;
 }
 
 interface TabListHeaderProps {
   tabs: Tab[];
   activeTab: string;
-  onTabClick: (label: string) => void;
+  onTabClick: (label: string) => void;  // Ensure correct function name
 }
 
 const TabListHeader: React.FC<TabListHeaderProps> = ({ tabs, activeTab, onTabClick }) => {
