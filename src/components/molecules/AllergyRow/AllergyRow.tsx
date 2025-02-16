@@ -2,6 +2,8 @@ import React from "react";
 import Pill from "../../atoms/Pill/Pill";
 import TableCell from "../../atoms/TableCell/TableCell";
 import { formatDate } from '../../../utils/utils'
+import Button from "../../atoms/Button/Button";
+import Icons from "../../../assets/Icons/Icons";
 interface AllergyRowProps {
   allergy: {
     id: string;
@@ -32,11 +34,9 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
       <TableCell>
         <Pill
           text={allergy.severity?.title}
-          className={`
-    ${
-            allergy.severity?.title === 'Fatal'
-              ? 'text-red-600 bg-red-200 hover:bg-red-300'  // Fatal - Darken background on hover
-              : allergy.severity?.title === 'Moderate to severe'
+          className={`${allergy.severity?.title === 'Fatal'
+            ? 'text-red-600 bg-red-200 hover:bg-red-300'  // Fatal - Darken background on hover
+            : allergy.severity?.title === 'Moderate to severe'
               ? 'text-gray-500 bg-[#FFD580] hover:bg-[#FF8C00]'  // Orange for Moderate to Severe, lighter background and hover darkens
               : allergy.severity?.title === 'Moderate'
                 ? 'text-[#8B6000] bg-[#FFEB80] hover:bg-[#FFB800]'  // Darker yellowish for Moderate, better contrast for visibility
@@ -44,14 +44,8 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
                   ? 'text-gray-700 bg-[#FFD700] hover:bg-[#FFEA00]'  // Mild - Lighter yellow hover
                     : ''
             }
-  `}
+          `}
         />
-
-
-
-
-
-
       </TableCell>
       <TableCell>
         <Pill text="active" className="text-gray-700" />
@@ -64,6 +58,24 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
         {allergy?.modified_by?.fname && allergy?.modified_by?.lname
           ? `${"Dr."}${allergy.modified_by.fname} ${allergy.modified_by.lname}`
           : "Dr.Ensoftek Admin"}
+      </TableCell>
+      <TableCell>
+        <div className="flex space-x-2">
+          <Button
+            variant="primary"
+            className="p-1"
+          // onClick={() => onEdit(allergy.id)}
+          >
+            <Icons variant="edit" />
+          </Button>
+          <Button
+            variant="secondary"
+            className="p-1 text-red-600 hover:bg-red-200"
+          // onClick={() => onDelete(allergy.id)}
+          >
+            <Icons variant="delete" />
+          </Button>
+        </div>
       </TableCell>
     </tr>
   );

@@ -7,17 +7,6 @@ export const fetchAllergies =
     try {
       dispatch(setLoading(true));
       const allergies = await getAllergyDataFromApi(patientId);
-      // if (Array.isArray(allergies.data)) {
-      //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      //   allergies.data.forEach((item: any, index: number) => {
-      //     item.title = allergens[index];
-      //     if (severityLevels[index]) {
-      //       item.severity = severityLevels[index];
-      //     }
-      //   });
-      // } else {
-      //   console.error("allergies data is not an array:", allergies.data);
-      // }
       dispatch(setAllergies(allergies.data));
     } catch (error: unknown) {
       if (error instanceof Error) {

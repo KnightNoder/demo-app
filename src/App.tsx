@@ -13,9 +13,9 @@ import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/Clinical
 
 const App: React.FC = () => {
   const [allergyTablePosition] = useState({ x: 100, y: 100 });
-  const [diagnosisTablePosition] = useState({ x: 1000, y: 100 });
+  const [diagnosisTablePosition] = useState({ x: 950, y: 100 });
   const [medicationsPostion] = useState({ x: 100, y: 650 });
-  const [clinicalNotesPosition] = useState({ x: 1000, y: 650 });
+  const [clinicalNotesPosition] = useState({ x: 950, y: 650 });
   const [patientId, setpatientId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,8 +29,8 @@ const App: React.FC = () => {
 
   return (
     <Provider store={store}>
-      <div className="relative mb-20 h-[130vh] w-[100vw] ">
-        <div className="relative h-[100vh] w-[100vw] ">
+      <div className="relative mb-20 h-[130vh] w-[50vw] ">
+        <div className="relative h-[100vh] w-[50vw] ">
           {/* <TodoList /> */}
           <Card title="Allergies" initialPosition={allergyTablePosition} footer={true} category={"Allergy"}>
             <AllergyCard patientId={patientId} />
@@ -41,7 +41,7 @@ const App: React.FC = () => {
           </Card>
 
           <Card title="Medications" initialPosition={medicationsPostion} footer={true} category={"Medication"}>
-            <MedicationsCard />
+            <MedicationsCard patientId={patientId} />
           </Card>
 
           <Card title="Clinical Notes" initialPosition={clinicalNotesPosition} footer={true} category={"Clincal Note"}>

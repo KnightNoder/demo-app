@@ -84,6 +84,14 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
           </svg>
         );
 
+      case 'edit':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="black">
+            <path d="M3 21v-3.75L14.06 6.19l3.75 3.75L6.75 21H3zm16.95-13.16l-3.75-3.75 1.41-1.41a1 1 0 0 1 1.41 0l2.34 2.34a1 1 0 0 1 0 1.41l-1.41 1.41z" />
+          </svg>
+
+        )
+
       case "delete":
         return (
           <svg
@@ -94,7 +102,7 @@ const Icons: React.FC<IconsProps> = ({ variant }) => {
             stroke="black"
             aria-hidden="true"
             data-slot="icon"
-            className="w-4 h-4 text-red-600"
+            className="w-3 h-3 text-red-600"
           >
             <path
               strokeLinecap="round"
