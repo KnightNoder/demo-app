@@ -4,6 +4,10 @@ const config: Config = {
   preset: "ts-jest",
   testEnvironment: "jsdom",
   roots: ["<rootDir>/__tests__"], // Maintaining your existing test root directory
+
+  moduleDirectories: ['node_modules', 'src'],
+  testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/*.{spec,test}.{ts,tsx}'],
+  testTimeout: 10000,
   
   // Coverage configuration (maintaining your existing settings)
   collectCoverage: true,
