@@ -1,63 +1,83 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store/store";
+import { fetchInsuranceData } from "../../../features/insuranceSlice/insuranceThunk";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import CoverageDetails from "../../molecules/CoverageDetails/CoverageDetails";
 import InsuranceSection from "../../molecules/InsuranceSection/InsuranceSection";
+import Financials from "../../molecules/Financials/Financials";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css"; // Placeholder loader component
 
-const insuranceData = [
-  {
-    id: '7160965258201788542',
-    type: 'primary',
-    provider: '100265',
-    plan: 'RC-IDP',
-    policyNumber: 'Test123',
-    groupNumber: 'GRP123',
-    subscriberId: 'SUB123',
-    relationship: 'Self',
-    validity: '2025-12-31',
-    contact: '123-456-7890',
-    lastVerified: '2024-01-01',
-    deductibleRemaining: '$500',
-    outOfPocketRemaining: '$1500',
-    status: 'Active',
-    copays: {
-      primaryCare: '$20',
-      specialistVisit: '$40',
-      urgentCare: '$50',
-      emergencyRoom: '$150'
-    },
-    coverage: [
-      { name: 'Hospital Stay', covered: true },
-      { name: 'Dental', covered: false, note: 'Not included in this plan' },
-      { name: 'Prescription Drugs', covered: true }
-    ]
+interface InsuranceCardProps {
+  patientId: string | null
+}
+
+const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { data: insuranceData, loading, error } = useSelector((state: RootState) => state.insurance);
+  const [activeTab, setActiveTab] = React.useState<"Summary" | "Coverage" | "Financials">("Summary");
+
+  useEffect(() => {
+    if (patientId) {
+      dispatch(fetchInsuranceData(patientId));
+    }
+  }, [dispatch, patientId]);
+
+  if (loading) {
+    return (
+      <div className="p-4 mx-auto bg-white rounded-lg">
+        <div className="flex mb-4 gap-1.5 justify-between">
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+        </div>
+
+        <div className="mt-4">
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
   }
-];
 
-const InsuranceCard = () => {
-  const [activeTab, setActiveTab] = useState<'summary' | 'coverage' | 'financials'>('summary');
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
+  if (!insuranceData.length) {
+    return <div className="text-gray-500">No insurance data available.</div>;
+  }
 
   return (
     <div>
       <TabListHeader
         tabs={[
-          { label: "summary" },
-          { label: "coverage" },
-          { label: "financials" }
+          { label: "Summary" },
+          { label: "Coverage" },
+          { label: "Financials" }
         ]}
         activeTab={activeTab}
-        onTabClick={setActiveTab}  // Correct function name
+        onTabClick={setActiveTab}  
       />
-      {activeTab === 'summary' && <InsuranceSection insurance={insuranceData[0]} />}
-      {activeTab === 'coverage' && <CoverageDetails insurance={insuranceData[0]} />}
-      {activeTab === 'financials' && (
-        <div>
-          <h3>Financial Information</h3>
-          <p>Financial details will go here...</p>
-        </div>
+      {activeTab === "Summary" && <InsuranceSection insurance={insuranceData[0]} />}
+      {activeTab === "Coverage" && <CoverageDetails insurance={insuranceData[0]} />}
+      {activeTab === "Financials" && (
+        <Financials
+          deductible={{
+            individual: 2000,
+            family: 4000,
+            remaining: 1500
+          }}
+          outOfPocket={{
+            individual: 5000,
+            family: 10000,
+            remaining: 4000
+          }}
+        />
       )}
     </div>
   );
 };
 
 export default InsuranceCard;
-

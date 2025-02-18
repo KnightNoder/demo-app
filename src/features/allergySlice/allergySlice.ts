@@ -24,7 +24,7 @@ interface AllergyState {
 }
 
 const initialState: AllergyState = {
-  allergies: [], // Default as an empty array
+  allergies: [],
   loading: false,
   error: null,
 };

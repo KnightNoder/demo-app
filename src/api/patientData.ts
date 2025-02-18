@@ -1,5 +1,29 @@
 import axiosClient from "./axiosClient";
 
+interface InsuranceData {
+  id: string;
+  type: string;
+  provider: string;
+  plan: string;
+  policyNumber: string;
+  groupNumber: string;
+  subscriberId: string;
+  relationship: string;
+  validity: string;
+  contact: string;
+  lastVerified: string;
+  deductibleRemaining: string;
+  outOfPocketRemaining: string;
+  status: string;
+  copays: {
+    primaryCare: string;
+    specialistVisit: string;
+    urgentCare: string;
+    emergencyRoom: string;
+  };
+  coverage: { name: string; covered: boolean; note?: string }[];
+}
+
 export const getAllergyDataFromApi = async (patientId: string | null) => {
   try {
     const response = await axiosClient.get(`/allergies/${patientId}/`);
@@ -51,10 +75,18 @@ export const getMedicationsDataFromApi = async (patientId: string | null) => {
   }
 };
 
-const getInsuranceDataFromApi = async (patientId: string | null) => {
+export const getInsuranceDataFromApi = async (
+  patientId: string | null
+): Promise<InsuranceData[]> => {
   try {
-    const response = await axiosClient.get(`/insurance/${patientId}/`);
-    return response.data;
+    const response = await axiosClient.get(`/insurance-data?pid=${patientId}`);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // reject("lol"); // Resolve with the diagnosis data
+        resolve(getInsuranceData());
+      }, 2000); // Simulate a 2-second delay
+    });
+    // return response.data;
   } catch (error) {
     console.error("Error fetching insurance data:", error);
     throw error;
@@ -168,3 +200,35 @@ const getInsuranceDataFromApi = async (patientId: string | null) => {
 //     },
 //   ];
 // };
+
+const getInsuranceData = () => {
+  return [
+    {
+      id: "7160965258201788542",
+      type: "primary",
+      provider: "100265",
+      plan: "RC-IDP",
+      policyNumber: "Test123",
+      groupNumber: "GRP123",
+      subscriberId: "SUB123",
+      relationship: "Self",
+      validity: "2025-12-31",
+      contact: "123-456-7890",
+      lastVerified: "2024-01-01",
+      deductibleRemaining: "$500",
+      outOfPocketRemaining: "$1500",
+      status: "Active",
+      copays: {
+        primaryCare: "$20",
+        specialistVisit: "$40",
+        urgentCare: "$50",
+        emergencyRoom: "$150",
+      },
+      coverage: [
+        { name: "Hospital Stay", covered: true },
+        { name: "Dental", covered: false, note: "Not included in this plan" },
+        { name: "Prescription Drugs", covered: true },
+      ],
+    },
+  ];
+};

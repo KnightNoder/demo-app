@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
-import Button from "../../atoms/Button/Button";
-import Icons from "../../../assets/Icons/Icons";
+// import Button from "../../atoms/Button/Button";
+// import Icons from "../../../assets/Icons/Icons";
 
 interface Tab {
   label: string;
@@ -76,7 +76,7 @@ const TabbedNotes: React.FC = () => {
                 <p className="text-xs text-gray-500">{note.author} • {note.time}</p>
                 <p className="w-[80%] mt-2 text-sm text-gray-700">{note.content}</p>
               </div>
-              <div className="flex space-x-2">
+              {/* <div className="flex space-x-2">
                 <Button
                   variant="primary"
                   className="p-1"
@@ -91,7 +91,7 @@ const TabbedNotes: React.FC = () => {
                 >
                   <Icons variant="delete" />
                 </Button>
-              </div>
+              </div> */}
             </div>
           ))
         ) : (

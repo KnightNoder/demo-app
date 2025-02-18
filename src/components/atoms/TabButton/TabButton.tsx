@@ -2,9 +2,9 @@ import React from "react";
 import Button from "../../atoms/Button/Button";  // Importing the Button atom
 
 interface TabButtonProps {
-  label: string;
-  activeTab: string;
-  onClick: (label: string) => void;
+  label: "Summary" | "Coverage" | "Financials";
+  activeTab: "Summary" | "Coverage" | "Financials";
+  onClick: (label: "Summary" | "Coverage" | "Financials") => void; 
   count?: number;
 }
 

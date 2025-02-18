@@ -1,7 +1,7 @@
 import React from "react";
 import { formatDate } from "../../../utils/utils";
-import Button from "../Button/Button";
-import Icons from "../../../assets/Icons/Icons";
+// import Button from "../Button/Button";
+// import Icons from "../../../assets/Icons/Icons";
 
 interface DiagnosisItemProps {
   item: {
@@ -34,7 +34,7 @@ export const DiagnosisItem: React.FC<DiagnosisItemProps> = ({ item }) => {
           Updated by: Dr. {item.user.fname} {item.user.lname}
         </p>
       </div>
-      <div className="flex space-x-2">
+      {/* <div className="flex space-x-2">
         <Button
           variant="primary"
           className="p-1"
@@ -49,7 +49,7 @@ export const DiagnosisItem: React.FC<DiagnosisItemProps> = ({ item }) => {
         >
           <Icons variant="delete" />
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

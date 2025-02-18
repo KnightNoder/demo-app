@@ -1,6 +1,6 @@
 // MedicationItem.tsx
-import Button from "../../atoms/Button/Button";
-import Icons from "../../../assets/Icons/Icons";
+// import Button from "../../atoms/Button/Button";
+// import Icons from "../../../assets/Icons/Icons";
 
 interface Medication {
   title: string;
@@ -23,12 +23,12 @@ const MedicationItem: React.FC<{ medication: Medication }> = ({ medication }) =>
         {medication.isActive && (
           <div className="flex justify-end">
             <span className="px-2 py-1 text-xs text-gray-600 bg-gray-200 rounded-full">active</span>
-            <Button variant="primary" className="p-1">
+            {/* <Button variant="primary" className="p-1">
               <Icons variant="edit" />
             </Button>
             <Button variant="secondary" className="p-1 text-red-600 hover:bg-red-200">
               <Icons variant="delete" />
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>

@@ -2,8 +2,8 @@ import React from "react";
 import Pill from "../../atoms/Pill/Pill";
 import TableCell from "../../atoms/TableCell/TableCell";
 import { formatDate } from '../../../utils/utils'
-import Button from "../../atoms/Button/Button";
-import Icons from "../../../assets/Icons/Icons";
+// import Button from "../../atoms/Button/Button";
+// import Icons from "../../../assets/Icons/Icons";
 interface AllergyRowProps {
   allergy: {
     id: string;
@@ -59,7 +59,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
           ? `${"Dr."}${allergy.modified_by.fname} ${allergy.modified_by.lname}`
           : "Dr.Ensoftek Admin"}
       </TableCell>
-      <TableCell>
+      {/* <TableCell>
         <div className="flex space-x-2">
           <Button
             variant="primary"
@@ -76,7 +76,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
             <Icons variant="delete" />
           </Button>
         </div>
-      </TableCell>
+      </TableCell> */}
     </tr>
   );
 };

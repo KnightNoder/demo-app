@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import store from "./store/store";
-import CardFooter from "./components/molecules/CardFooter/CardFooter";
 import Card from "./components/organisms/Card/Card";
 import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
 import AllergyCard from "./components/organisms/AllergiesCard/AllergiesCard";
@@ -31,8 +29,8 @@ const App: React.FC = () => {
 
   return (
     <Provider store={store}>
-      <div className="relative h-[200vh] w-[50vw] ">
-        <div className="relative h-[130vh] w-[50vw] ">
+      <div className=" h-[200vh] w-[50vw] ">
+        <div className=" h-[130vh] w-[50vw] ">
           {/* <TodoList /> */}
           <Card title="Allergies" initialPosition={allergyTablePosition} footer={true} category={"Allergy"}>
             <AllergyCard patientId={patientId} />
@@ -51,7 +49,7 @@ const App: React.FC = () => {
           </Card>
 
           <Card title="Insurance Card" initialPosition={insuranceCardPosition} footer={true} category={"Insurance"}>
-            <InsuranceCard />
+            <InsuranceCard patientId={patientId} />
           </Card>
         </div>
       </div>

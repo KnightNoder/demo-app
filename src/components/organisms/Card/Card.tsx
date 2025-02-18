@@ -91,23 +91,24 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
     const startY = e.clientY - position?.y;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const container = document.getElementById('card-container');
-      if (!container) return;
+      // const container = document.getElementById('card-container');
+      // if (!container) return;
 
-      const containerRect = container.getBoundingClientRect();
-      const cardRect = cardRef.current?.getBoundingClientRect();
+      // const containerRect = container.getBoundingClientRect();
+      // const cardRect = cardRef.current?.getBoundingClientRect();
 
-      if (!cardRect) return;
+      // if (!cardRect) return;
 
-      // Calculate new position
-      let newX = e.clientX - startX;
-      let newY = e.clientY - startY;
+      // // Calculate new position
+      // let newX = e.clientX - startX;
+      // let newY = e.clientY - startY;
 
-      // Constrain to container bounds
-      newX = Math.max(0, Math.min(newX, containerRect.width - cardRect.width));
-      newY = Math.max(0, Math.min(newY, containerRect.height - cardRect.height));
+      // // Constrain to container bounds
+      // newX = Math.max(0, Math.min(newX, containerRect.width - cardRect.width));
+      // newY = Math.max(0, Math.min(newY, containerRect.height - cardRect.height));
 
-      setPosition({ x: newX, y: newY });
+      // setPosition({ x: newX, y: newY });
+      setPosition({ x: e.clientX - startX, y: e.clientY - startY });
     };
 
     const handleMouseUp = () => {
@@ -286,14 +287,14 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
             <div className="relative flex-1 p-4 overflow-y-auto">
               {children}
             </div>
-            {footer && <div className="">{footer}</div>}
+            {footer && <div className="pt-2 border-t">{footer}</div>}
           </div>
         </div>
       )}
       {!isModalOpen && (
         <div
           ref={cardRef}
-          className="absolute overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
+          className="absolute z-10 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
           draggable
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
