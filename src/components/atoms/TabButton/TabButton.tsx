@@ -2,11 +2,12 @@ import React from "react";
 import Button from "../../atoms/Button/Button";  // Importing the Button atom
 
 interface TabButtonProps {
-  label: "Summary" | "Coverage" | "Financials";
-  activeTab: "Summary" | "Coverage" | "Financials";
-  onClick: (label: "Summary" | "Coverage" | "Financials") => void; 
+  label: string;
+  activeTab: string;
+  onClick: (label: string) => void;
   count?: number;
 }
+
 
 const TabButton: React.FC<TabButtonProps> = ({ label, activeTab, onClick, count }) => {
   return (

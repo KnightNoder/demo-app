@@ -27,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-1">
         <button
           onClick={handleCollapse}
+          data-testid='collapse-button' 
           className="p-1 transition-colors rounded-md hover:bg-gray-100"
         >
           {isCollapsed ? (

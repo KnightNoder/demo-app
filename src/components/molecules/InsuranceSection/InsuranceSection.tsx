@@ -1,5 +1,5 @@
 import React from "react";
-import { formatToDashDate } from "../../../utils/utils";
+import { capitalizeWord, formatToDashDate } from "../../../utils/utils";
 import Pill from "../../atoms/Pill/Pill";
 import Icons from "../../../assets/Icons/Icons";
 
@@ -47,8 +47,8 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
       {insurances?.map((insurance, index) => (
         <div key={index} className="p-4 mx-4 my-4 rounded-lg">
           <div className="flex justify-between">
-            <h2 className="text-lg font-semibold">
-              {insurance.insurance_company.name} <span className="ml-2 text-sm text-blue-500">{insurance.type}</span>
+            <h2 className="flex items-center text-lg font-semibold">
+              {insurance.insurance_company.name} <span className="px-2 py-1 ml-2 text-xs text-blue-800 bg-blue-200 rounded ">{capitalizeWord(insurance.type)}</span>
             </h2>
             {insurance.status && <Pill text={insurance.status} className="px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded">
             </Pill>}
@@ -59,21 +59,21 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             <div className="flex justify-between my-2">
               <div>
                 <p>Policy Number: </p>
-                <p>{insurance.policy_number}</p>
+                <p className="font-semibold">{insurance.policy_number}</p>
               </div>
-              <div>
+              <div className="mr-57">
                 <p>Group Number:</p>
-                <p> {insurance.group_number}</p>
+                <p className="font-semibold"> {insurance.group_number}</p>
               </div>
             </div>
             <div className="flex justify-between my-2">
               <div>
                 <p>Subscriber ID: </p>
-                <p>{insurance.subscriber.first_name}</p>
+                <p className="font-semibold">{insurance.subscriber.first_name}</p>
               </div>
-              <div>
+              <div className="mr-40">
                 <p>Relationship to Subscriber </p>
-                <p>{insurance.subscriber.relationship}</p>
+                <p className="font-semibold">{capitalizeWord(insurance.subscriber.relationship)}</p>
               </div>
             </div>
             <div className="flex my-2">

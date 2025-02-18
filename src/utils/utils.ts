@@ -40,9 +40,9 @@ export const capitalizeWord = (word: any) => {
 
 export const timeAgoFromToday = (dateString: string | number | Date) => {
   const givenDate = new Date(dateString);
-  const today: Date = new Date();
+  const today = new Date();
 
-  const diffInMs: any = today - givenDate;
+  const diffInMs = today.getTime() - givenDate.getTime();
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   const months = Math.floor(diffInDays / 30);
   const days = diffInDays % 30;
@@ -52,3 +52,4 @@ export const timeAgoFromToday = (dateString: string | number | Date) => {
   if (days > 0) result += `${days} day${days > 1 ? "s" : ""} `;
   return result.trim() + " ago";
 };
+

@@ -45,9 +45,13 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
     return <div className="text-red-500">Error: {error}</div>;
   }
 
-  if (!insuranceData.length) {
-    return <div className="text-gray-500">No insurance data available.</div>;
-  }
+  // if (!insuranceData.length) {
+  //   return (
+  //     <div className="w-full p-4 text-center text-gray-500">
+  //       No Insurances found
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="mx-4">
@@ -58,8 +62,9 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           { label: "Financials" }
         ]}
         activeTab={activeTab}
-        onTabClick={setActiveTab}  
+        onTabClick={(label) => setActiveTab(label as "Summary" | "Coverage" | "Financials")}   
       />
+      {insuranceData.length ? <>
       {activeTab === "Summary" && <InsuranceSection insurances={insuranceData} />}
       {activeTab === "Coverage" && <CoverageDetails insurances={insuranceData} />}
       {activeTab === "Financials" && (
@@ -76,6 +81,9 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           }}
         />
       )}
+      </> : <div className="w-full p-4 text-center text-gray-500">
+        No Insurances found
+      </div>}
     </div>
   );
 };

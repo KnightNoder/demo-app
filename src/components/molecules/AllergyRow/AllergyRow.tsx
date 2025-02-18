@@ -40,7 +40,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
               ? 'text-gray-500 bg-[#FFD580] hover:bg-[#FF8C00]'  // Orange for Moderate to Severe, lighter background and hover darkens
               : allergy.severity?.title === 'Moderate'
                 ? 'text-[#8B6000] bg-[#FFEB80] hover:bg-[#FFB800]'  // Darker yellowish for Moderate, better contrast for visibility
-                : allergy.severity?.title === 'Mild'
+                : allergy.severity?.title === 'Mild to Moderate'
                   ? 'text-gray-700 bg-[#FFD700] hover:bg-[#FFEA00]'  // Mild - Lighter yellow hover
                     : ''
             }

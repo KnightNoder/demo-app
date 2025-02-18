@@ -9,7 +9,7 @@ interface CardFooterProps {
 
 const CardFooter: React.FC<CardFooterProps> = ({ category }) => {
   return (
-    <div role="contentinfo" className="footer absolute bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+    <div role="contentinfo" data-testid='card-content' className="footer absolute bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/75">
       <div className="relative h-full">
         <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
           <Button variant="primary" dataCy="data-primary" >

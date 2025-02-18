@@ -36,7 +36,7 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
   if (allergies.length === 0) {
     return (
       <div className="w-full p-4 text-center text-gray-500">
-        No allergies found.
+        No allergies found
       </div>
     );
   }

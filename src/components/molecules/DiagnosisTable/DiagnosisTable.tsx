@@ -20,7 +20,11 @@ interface DiagnosisProps {
 }
 export const DiagnosisTable: React.FC<DiagnosisProps> = ({ diagnosis }) => {
   if (!Array.isArray(diagnosis)) {
-    return <div>No diagnosis data available</div>;
+    return (
+      <div className="w-full p-4 text-center text-gray-500">
+        No diagnoses found
+      </div>
+    );
   }
 
   return (

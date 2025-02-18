@@ -1,7 +1,7 @@
 import React from "react";
 
 interface IconsProps {
-  variant: string; // Prop to determine the icon variant
+  variant: string;
 }
 
 const Icons: React.FC<IconsProps> = ({ variant }) => {
