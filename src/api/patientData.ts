@@ -4,10 +4,23 @@ interface InsuranceData {
   id: string;
   type: string;
   provider: string;
-  plan: string;
-  policyNumber: string;
-  groupNumber: string;
-  subscriberId: string;
+  plan_name: string;
+  policy_number: string;
+  group_number: string;
+  subscriber: {
+    last_name: string;
+    first_name: string;
+    middle_name: string;
+    relationship: string;
+    dob: string;
+    street: string;
+    postal_code: string;
+    city: string;
+    state: string;
+    country: string;
+    phone: string;
+    employer: string;
+  };
   relationship: string;
   validity: string;
   contact: string;
@@ -15,6 +28,11 @@ interface InsuranceData {
   deductibleRemaining: string;
   outOfPocketRemaining: string;
   status: string;
+  effective_date: string;
+  termination_date: string;
+  insurance_company: {
+    name: string;
+  };
   copays: {
     primaryCare: string;
     specialistVisit: string;
@@ -67,7 +85,7 @@ export const getDiagnosisDataFromApi = async (patientId: string | null) => {
 
 export const getMedicationsDataFromApi = async (patientId: string | null) => {
   try {
-    const response = await axiosClient.get(`/medications/${patientId}/`);
+    const response = await axiosClient.get(`/medications/${patientId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching clinical notes data:", error);
@@ -80,13 +98,13 @@ export const getInsuranceDataFromApi = async (
 ): Promise<InsuranceData[]> => {
   try {
     const response = await axiosClient.get(`/insurance-data?pid=${patientId}`);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // reject("lol"); // Resolve with the diagnosis data
-        resolve(getInsuranceData());
-      }, 2000); // Simulate a 2-second delay
-    });
-    // return response.data;
+    // return new Promise((resolve) => {
+    //   setTimeout(() => {
+    //     // reject("lol"); // Resolve with the diagnosis data
+    //     resolve(getInsuranceData());
+    //   }, 2000); // Simulate a 2-second delay
+    // });
+    return response.data;
   } catch (error) {
     console.error("Error fetching insurance data:", error);
     throw error;
@@ -207,10 +225,23 @@ const getInsuranceData = () => {
       id: "7160965258201788542",
       type: "primary",
       provider: "100265",
-      plan: "RC-IDP",
-      policyNumber: "Test123",
-      groupNumber: "GRP123",
-      subscriberId: "SUB123",
+      plan_name: "RC-IDP",
+      policy_number: "Test123",
+      group_number: "GRP123",
+      subscriber: {
+        last_name: "Jon",
+        first_name: "Sam",
+        middle_name: "Mike",
+        relationship: "spouse",
+        dob: "1988-02-09",
+        street: "Newjercy",
+        postal_code: "98698798",
+        city: "Kom",
+        state: "AL",
+        country: "USA",
+        phone: "986-987-9879",
+        employer: "Test S Empoyer",
+      },
       relationship: "Self",
       validity: "2025-12-31",
       contact: "123-456-7890",
@@ -224,11 +255,100 @@ const getInsuranceData = () => {
         urgentCare: "$50",
         emergencyRoom: "$150",
       },
+      insurance_company: {
+        name: "(Medicaid) AETNA",
+      },
+      effective_date: "2025-02-01",
+      termination_date: "2025-02-13",
       coverage: [
         { name: "Hospital Stay", covered: true },
         { name: "Dental", covered: false, note: "Not included in this plan" },
         { name: "Prescription Drugs", covered: true },
       ],
+    },
+    {
+      id: "7160965258201788542",
+      type: "Secondary",
+      provider: "100265",
+      plan_name: "RC-IDP",
+      policy_number: "Test123",
+      group_number: "GRP123",
+      subscriber: {
+        last_name: "Jon",
+        first_name: "Sam",
+        middle_name: "Mike",
+        relationship: "spouse",
+        dob: "1988-02-09",
+        street: "Newjercy",
+        postal_code: "98698798",
+        city: "Kom",
+        state: "AL",
+        country: "USA",
+        phone: "986-987-9879",
+        employer: "Test S Empoyer",
+      },
+      effective_date: "2025-02-01",
+      termination_date: "2025-02-13",
+      relationship: "Self",
+      validity: "2025-12-31",
+      contact: "123-456-7890",
+      lastVerified: "2024-01-01",
+      deductibleRemaining: "$500",
+      outOfPocketRemaining: "$1500",
+      status: "Active",
+      copays: {
+        primaryCare: "$20",
+        specialistVisit: "$40",
+        urgentCare: "$50",
+        emergencyRoom: "$150",
+      },
+      insurance_company: {
+        name: "(Medicaid) AETNA",
+      },
+      coverage: [
+        { name: "Hospital Stay", covered: true },
+        { name: "Dental", covered: false, note: "Not included in this plan" },
+        { name: "Prescription Drugs", covered: true },
+      ],
+    },
+    {
+      id: "7162860202005745682",
+      type: "primary",
+      plan_name: "Test Plan",
+      policy_number: "P987987",
+      group_number: "G9879879",
+      subscriber: {
+        last_name: "Jon",
+        first_name: "Sam",
+        middle_name: "Mike",
+        relationship: "spouse",
+        dob: "1988-02-09",
+        street: "Newjercy",
+        postal_code: "98698798",
+        city: "Kom",
+        state: "AL",
+        country: "USA",
+        phone: "986-987-9879",
+        employer: "Test S Empoyer",
+      },
+      user: {
+        first_name: "Ensoftek",
+        middle_name: "test",
+        last_name: "Admin",
+      },
+      insurance_company: {
+        name: "(Medicaid) AETNA",
+      },
+      facility: "A-AADO, 1111ADiamond1111 Facility",
+      copay: "10.00",
+      copay_notes: "",
+      effective_date: "2025-02-01",
+      termination_date: "2025-02-13",
+      policy_type: "",
+      deductible_amount: "9879",
+      deductible_met: "1000",
+      coinsurance: "2999",
+      notes: "test notes",
     },
   ];
 };

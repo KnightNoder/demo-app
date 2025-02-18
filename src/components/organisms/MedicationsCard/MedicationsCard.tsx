@@ -17,8 +17,8 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   const [activeTab, setActiveTab] = useState("Active");
 
   const tabs = [
-    { label: "Active", count: medications.length },
-    { label: "OTC", count: 2 },
+    { label: "Active", count: medications.filter((med) => med.isActive).length },
+    { label: "OTC", count: medications.filter((med) => !med.isActive).length },
   ];
 
   useEffect(() => {
@@ -64,15 +64,19 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
     );
   }
 
+  const filteredMedications = medications.filter((med) =>
+    activeTab === "Active" ? med.isActive : !med.isActive
+  );
+
   return (
     <div className="p-4 bg-white rounded-lg">
       <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
       <div className="mt-4 space-y-4">
-        {medications
-          .filter((med) => (activeTab === "Active" ? med.isActive : !med.isActive))
-          .map((med, index: number) => (
-            <MedicationItem key={index} medication={med} />
-          ))}
+        {filteredMedications.length > 0 ? (
+          filteredMedications.map((med, index) => <MedicationItem key={index} medication={med} />)
+        ) : (
+          <div className="w-full p-4 text-center text-gray-500">No Medications found</div>
+        )}
       </div>
     </div>
   );

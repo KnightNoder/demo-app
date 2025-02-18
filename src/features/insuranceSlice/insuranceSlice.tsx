@@ -4,10 +4,23 @@ interface InsuranceData {
   id: string;
   type: string;
   provider: string;
-  plan: string;
-  policyNumber: string;
-  groupNumber: string;
-  subscriberId: string;
+  plan_name: string;
+  policy_number: string;
+  group_number: string;
+  subscriber: {
+    last_name: string;
+    first_name: string;
+    middle_name: string;
+    relationship: string;
+    dob: string;
+    street: string;
+    postal_code: string;
+    city: string;
+    state: string;
+    country: string;
+    phone: string;
+    employer: string;
+  }
   relationship: string;
   validity: string;
   contact: string;
@@ -15,6 +28,8 @@ interface InsuranceData {
   deductibleRemaining: string;
   outOfPocketRemaining: string;
   status: string;
+  effective_date: string;
+  termination_date: string
   copays: {
     primaryCare: string;
     specialistVisit: string;
@@ -22,6 +37,9 @@ interface InsuranceData {
     emergencyRoom: string;
   };
   coverage: { name: string; covered: boolean; note?: string }[];
+  insurance_company: {
+    name: string;
+  };
 }
 
 interface InsuranceState {

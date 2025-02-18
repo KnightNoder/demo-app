@@ -7,7 +7,7 @@ import CoverageDetails from "../../molecules/CoverageDetails/CoverageDetails";
 import InsuranceSection from "../../molecules/InsuranceSection/InsuranceSection";
 import Financials from "../../molecules/Financials/Financials";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css"; // Placeholder loader component
+import "react-loading-skeleton/dist/skeleton.css"; 
 
 interface InsuranceCardProps {
   patientId: string | null
@@ -50,7 +50,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
   }
 
   return (
-    <div>
+    <div className="mx-4">
       <TabListHeader
         tabs={[
           { label: "Summary" },
@@ -60,8 +60,8 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
         activeTab={activeTab}
         onTabClick={setActiveTab}  
       />
-      {activeTab === "Summary" && <InsuranceSection insurance={insuranceData[0]} />}
-      {activeTab === "Coverage" && <CoverageDetails insurance={insuranceData[0]} />}
+      {activeTab === "Summary" && <InsuranceSection insurances={insuranceData} />}
+      {activeTab === "Coverage" && <CoverageDetails insurances={insuranceData} />}
       {activeTab === "Financials" && (
         <Financials
           deductible={{

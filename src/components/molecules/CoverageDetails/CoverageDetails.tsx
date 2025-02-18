@@ -1,26 +1,44 @@
 import React from "react";
 
-interface CoverageItem {
-  name: string;
-  covered: boolean;
-  note?: string;
-}
-
-interface CoverageDetailsProps {
-  insurance: {
-    provider: string;
-    type: string;
-    copays: {
-      primaryCare: string;
-      specialistVisit: string;
-      urgentCare: string;
-      emergencyRoom: string;
-    };
-    coverage: CoverageItem[];
+interface Insurance {
+  type: string;
+  provider: string;
+  plan_name: string;
+  policy_number: string;
+  group_number: string;
+  subscriber: {
+    last_name: string;
+    first_name: string;
+    middle_name: string;
+    relationship: string;
+    dob: string;
+    street: string;
+    postal_code: string;
+    city: string;
+    state: string;
+    country: string;
+    phone: string;
+    employer: string;
+  };
+  relationship: string;
+  validity: string;
+  contact: string;
+  lastVerified: string;
+  deductibleRemaining: string;
+  outOfPocketRemaining: string;
+  status: string;
+  effective_date: string;
+  termination_date: string;
+  insurance_company: {
+    name: string;
   };
 }
 
-const CoverageDetails: React.FC<CoverageDetailsProps> = ({ insurance }) => {
+interface InsuranceSectionProps {
+  insurances: Insurance[];
+}
+
+const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       <h2 className="text-xl font-bold">

@@ -287,7 +287,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
             <div className="relative flex-1 p-4 overflow-y-auto">
               {children}
             </div>
-            {footer && <div className="pt-2 border-t">{footer}</div>}
+            {footer && <div className="">{footer}</div>}
           </div>
         </div>
       )}

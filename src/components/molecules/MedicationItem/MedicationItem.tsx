@@ -2,6 +2,9 @@
 // import Button from "../../atoms/Button/Button";
 // import Icons from "../../../assets/Icons/Icons";
 
+import Icons from "../../../assets/Icons/Icons";
+import { capitalizeWord, timeAgoFromToday } from "../../../utils/utils";
+
 interface Medication {
   title: string;
   quantity: string;
@@ -9,10 +12,11 @@ interface Medication {
   frequency: string;
   ordered_by: string;
   begdate: string;
-  refillsRemaining: number;
+  refill: number;
   dosage: string;
   interval: string;
   isActive: boolean;
+  size_type: string
 }
 
 const MedicationItem: React.FC<{ medication: Medication }> = ({ medication }) => {
@@ -32,14 +36,14 @@ const MedicationItem: React.FC<{ medication: Medication }> = ({ medication }) =>
           </div>
         )}
       </div>
-      <p className="text-sm text-gray-500">{medication.quantity} · {medication.route}</p>
+      <p className="flex items-center text-sm text-gray-500"><Icons variant="dosage" />{medication.quantity}{medication.size_type} · {medication.route}</p>
       <div className="mt-2">
-        <p className="flex items-center gap-2 text-sm">⏳ {medication.frequency}</p>
-        <p className="flex items-center gap-2 text-sm">👨‍⚕️ {medication.ordered_by}</p>
-        <p className="flex items-center gap-2 text-sm">📅 Prescribed by {medication.begdate} ago</p>
+        <p className="flex items-center gap-2 text-sm text-gray-500"><Icons variant="frequency" /> <span className="text-gray-800"> {capitalizeWord(medication.interval)}</span></p>
+        <p className="flex items-center gap-2 text-sm text-gray-500"><Icons variant="doctor" /> Dr.{capitalizeWord(medication.ordered_by)}</p>
+        <p className="flex items-center gap-2 text-sm text-gray-500"><Icons variant="calender" /> Prescribed about {timeAgoFromToday(medication.begdate)} </p>
       </div>
       <div className="p-2 mt-3 text-xs text-gray-600 bg-gray-100 rounded-md w-fit">
-        {medication.refillsRemaining} refills remaining
+        {medication.refill} refills remaining
       </div>
     </div>
   );

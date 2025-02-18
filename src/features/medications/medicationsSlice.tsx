@@ -7,10 +7,11 @@ interface Medication {
   frequency: string;
   ordered_by: string;
   begdate: string;
-  refillsRemaining: number;
+  refill: number;
   dosage: string;
   interval: string;
   isActive: boolean;
+  size_type: string
 }
 
 interface MedicationState {
