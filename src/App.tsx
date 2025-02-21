@@ -8,7 +8,7 @@ import "./index.css";
 import MedicationsCard from "./components/organisms/MedicationsCard/MedicationsCard";
 import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/ClinicalNotesCard";
 import InsuranceCard from "./components/organisms/InsuranceCard/InsuranceCard";
-// import TodoList from "./components/organisms/TodoList/TodoList";
+import TodoList from "./components/organisms/TodoList/TodoList";
 
 
 
