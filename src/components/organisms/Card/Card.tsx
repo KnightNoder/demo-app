@@ -8,10 +8,11 @@ interface CardProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   initialPosition: { x: number, y: number }
-  category?: string | null
+  category?: string | null;
+  patientId?: string | null;
 }
 
-const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition, category }) => {
+const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition, category, patientId }) => {
   const [position, setPosition] = useState(initialPosition);
   const [size, setSize] = useState({ width: 800, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
@@ -257,6 +258,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
     <>
       {isModalOpen && (
         <div
+          data-testid='modal'
           className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
           onClick={handleCloseModal}
         >
@@ -279,7 +281,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
                 <button>
                   <Icons variant="delete" />
                 </button>
-                <button onClick={() => setIsModalOpen(false)}>
+                <button data-testid="modal-close" onClick={() => setIsModalOpen(false)}>
                   <Icons variant="close" />
                 </button>
               </div>
@@ -287,13 +289,14 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
             <div className="relative flex-1 p-4 overflow-y-auto">
               {children}
             </div>
-            {footer && <div className="">{footer}</div>}
+            {footer && <div className="">{true ? <CardFooter category={category} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
           </div>
         </div>
       )}
       {!isModalOpen && (
         <div
           ref={cardRef}
+          data-testid='draggable-card'
           className="absolute z-10 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
           draggable
           onDragStart={handleDragStart}
@@ -322,7 +325,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
                 <div className="flex-1 overflow-y-auto">
                   {true ? children : <div className="w-full h-full bg-gray-100 animate-pulse" />}
                 </div>
-                {footer && <div className="">{true ? <CardFooter category={category} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
+                {footer && <div className="">{true ? <CardFooter category={category} patientId={patientId} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
               </div>
             )}
           </div>

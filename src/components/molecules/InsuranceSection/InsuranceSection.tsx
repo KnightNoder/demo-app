@@ -48,7 +48,13 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
         <div key={index} className="p-4 mx-4 my-4 rounded-lg">
           <div className="flex justify-between">
             <h2 className="flex items-center text-lg font-semibold">
-              {insurance.insurance_company.name} <span className="px-2 py-1 ml-2 text-xs text-blue-800 bg-blue-200 rounded ">{capitalizeWord(insurance.type)}</span>
+              {insurance.insurance_company.name} <span
+                className={`px-2 py-1 ml-2 text-xs rounded 
+                  ${capitalizeWord(insurance.type) === "Secondary" ? "text-purple-800 bg-purple-100" : "text-blue-800 bg-blue-200"}`}
+              >
+                {capitalizeWord(insurance.type)}
+              </span>
+
             </h2>
             {insurance.status && <Pill text={insurance.status} className="px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded">
             </Pill>}

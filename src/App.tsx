@@ -8,7 +8,7 @@ import "./index.css";
 import MedicationsCard from "./components/organisms/MedicationsCard/MedicationsCard";
 import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/ClinicalNotesCard";
 import InsuranceCard from "./components/organisms/InsuranceCard/InsuranceCard";
-// import TodoList from "./components/organisms/TodoList/TodoList";
+import TodoList from "./components/organisms/TodoList/TodoList";
 
 const App: React.FC = () => {
   const [allergyTablePosition] = useState({ x: 100, y: 100 });
@@ -32,23 +32,23 @@ const App: React.FC = () => {
       <div className=" h-[200vh] w-[50vw] ">
         <div className=" h-[130vh] w-[50vw] ">
           {/* <TodoList /> */}
-          <Card title="Allergies" initialPosition={allergyTablePosition} footer={true} category={"Allergy"}>
+          <Card title="Allergies" initialPosition={allergyTablePosition} footer={true} category={"Allergy"} patientId={patientId}>
             <AllergyCard patientId={patientId} />
           </Card>
 
-          <Card title="Diagnosis" initialPosition={diagnosisTablePosition} footer={true} category={"Diagnosis"}>
+          <Card title="Diagnosis" initialPosition={diagnosisTablePosition} footer={true} category={"Diagnosis"} patientId={patientId}>
             <DiagnosisCard patientId={patientId} />
           </Card>
 
-          <Card title="Medications" initialPosition={medicationsPostion} footer={true} category={"Medication"}>
+          <Card title="Medications" initialPosition={medicationsPostion} footer={true} category={"Medication"} patientId={patientId}>
             <MedicationsCard patientId={patientId} />
           </Card>
 
-          <Card title="Clinical Notes" initialPosition={clinicalNotesPosition} footer={true} category={"Clincal Note"}>
+          <Card title="Clinical Notes" initialPosition={clinicalNotesPosition} footer={true} category={"Clinical Note"} patientId={patientId}>
             <ClinicalNotesCard />
           </Card>
 
-          <Card title="Insurance Card" initialPosition={insuranceCardPosition} footer={true} category={"Insurance"}>
+          <Card title="Insurance Card" initialPosition={insuranceCardPosition} footer={true} category={"Insurance"} patientId={patientId}>
             <InsuranceCard patientId={patientId} />
           </Card>
         </div>

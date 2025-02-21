@@ -1,3 +1,3 @@
 export const CONFIG = {
-  GET_LIST: "Get Data from REST Api"
-}
+  GET_LIST: "Get Data from REST Api",
+};

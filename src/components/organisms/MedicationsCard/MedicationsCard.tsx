@@ -17,8 +17,8 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   const [activeTab, setActiveTab] = useState("Active");
 
   const tabs = [
-    { label: "Active", count: medications.filter((med) => med.isActive).length },
-    { label: "OTC", count: medications.filter((med) => !med.isActive).length },
+    { label: "Active", count: medications.filter((med) => !med.isActive).length },
+    { label: "OTC", count: medications.filter((med) => med.isActive).length },
   ];
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   }
 
   const filteredMedications = medications.filter((med) =>
-    activeTab === "Active" ? med.isActive : !med.isActive
+    activeTab != "Active" ? med.isActive : !med.isActive
   );
 
   return (

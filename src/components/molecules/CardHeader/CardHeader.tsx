@@ -38,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({
         </button>
         <button
           onClick={handleExpandModal}
+          data-testid='expand-icon'
           className="p-1 transition-colors rounded-md hover:bg-gray-100"
         >
           <Icons variant="modalExpand" />
