@@ -2,7 +2,7 @@ import React from "react";
 
 interface TableCellProps {
   children: React.ReactNode;
-  className?: string |;
+  className?: string;
 }
 
 const TableCell: React.FC<TableCellProps> = ({ children, className = "" }) => {
