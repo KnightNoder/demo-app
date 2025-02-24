@@ -23,13 +23,13 @@ const CardFooter: React.FC<CardFooterProps> = ({ category, patientId }) => {
               }
 
               setTimeout(() => {
-                const link = document.querySelector(`a[title^="AltID: ${patientId}"]`) as HTMLAnchorElement | null;
+                // const link = document.querySelector(`a[title^="AltID: ${patientId}"]`) as HTMLAnchorElement | null;
 
-                if (link) {
-                  link.click();
-                } else {
-                  console.warn(`Patient link with ID ${patientId} not found`);
-                }
+                // if (link) {
+                window.parent.postMessage({ action: 'clickButton' }, '*');
+                // } else {
+                // console.warn(`Patient link with ID ${patientId} not found`);
+                // }
               }, 100);
             }}
 

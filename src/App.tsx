@@ -26,8 +26,8 @@ const App: React.FC = () => {
       setpatientId(patientIdInput.value);
     }
     console.log(patientIdInput?.value, 'Input from php');
-
   }, [])
+
 
   return (
     <Provider store={store}>
