@@ -1,47 +1,5 @@
 import axiosClient from "./axiosClient";
 
-interface InsuranceData {
-  id: string;
-  type: string;
-  provider: string;
-  plan_name: string;
-  policy_number: string;
-  group_number: string;
-  subscriber: {
-    last_name: string;
-    first_name: string;
-    middle_name: string;
-    relationship: string;
-    dob: string;
-    street: string;
-    postal_code: string;
-    city: string;
-    state: string;
-    country: string;
-    phone: string;
-    employer: string;
-  };
-  relationship: string;
-  validity: string;
-  contact: string;
-  lastVerified: string;
-  deductibleRemaining: string;
-  outOfPocketRemaining: string;
-  status: string;
-  effective_date: string;
-  termination_date: string;
-  insurance_company: {
-    name: string;
-  };
-  copays: {
-    primaryCare: string;
-    specialistVisit: string;
-    urgentCare: string;
-    emergencyRoom: string;
-  };
-  coverage: { name: string; covered: boolean; note?: string }[];
-}
-
 export const getAllergyDataFromApi = async (patientId: string | null) => {
   try {
     const response = await axiosClient.get(`/allergies/${patientId}/`);
@@ -65,23 +23,17 @@ export const getDiagnosisDataFromApi = async (patientId: string | null) => {
 
   console.log(response.data, "api response");
   return response.data;
-  // return new Promise((resolve, reject) => {
-  //   setTimeout(() => {
-  //     // reject("lol"); // Resolve with the diagnosis data
-  //     resolve(getDiagnosisData());
-  //   }, 2000); // Simulate a 2-second delay
-  // });
 };
 
-// const getClinicalNotesDataFromApi = async (patientId: string | null) => {
-//   try {
-//     const response = await axiosClient.get(`/clinical-notes/${patientId}/`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching clinical notes data:", error);
-//     throw error;
-//   }
-// };
+const getClinicalNotesDataFromApi = async (patientId: string | null) => {
+  try {
+    const response = await axiosClient.get(`/clinical-notes/${patientId}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching clinical notes data:", error);
+    throw error;
+  }
+};
 
 export const getMedicationsDataFromApi = async (patientId: string | null) => {
   try {
@@ -93,17 +45,33 @@ export const getMedicationsDataFromApi = async (patientId: string | null) => {
   }
 };
 
-export const getInsuranceDataFromApi = async (
-  patientId: string | null
-): Promise<InsuranceData[]> => {
+export const getInsuranceDataFromApi = async (patientId: string | null) => {
   try {
     const response = await axiosClient.get(`/insurance-data?pid=${patientId}`);
-    // return new Promise((resolve) => {
-    //   setTimeout(() => {
-    //     // reject("lol"); // Resolve with the diagnosis data
-    //     resolve(getInsuranceData());
-    //   }, 2000); // Simulate a 2-second delay
-    // });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching insurance data:", error);
+    throw error;
+  }
+};
+
+const getLabResultsDataFromApi = async (patientId: string | null) => {
+  try {
+    const response = await axiosClient.get(
+      `/lab-order?patient_id=${patientId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching insurance data:", error);
+    throw error;
+  }
+};
+
+const getPrescriptionsDataFromApi = async (patientId: string | null) => {
+  try {
+    const response = await axiosClient.get(
+      `/prescriptions?patient_id=${patientId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching insurance data:", error);

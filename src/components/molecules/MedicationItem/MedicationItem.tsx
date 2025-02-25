@@ -1,7 +1,3 @@
-// MedicationItem.tsx
-// import Button from "../../atoms/Button/Button";
-// import Icons from "../../../assets/Icons/Icons";
-
 import Icons from "../../../assets/Icons/Icons";
 import { capitalizeWord, timeAgoFromToday } from "../../../utils/utils";
 

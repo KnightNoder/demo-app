@@ -7,7 +7,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { fetchAllergies } from "../../../features/allergySlice/allergyThunk"; 
 
 interface AllergyCardProps {
-  patientId: string | null
+  patientId: string | null;
 }
 
 const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
@@ -21,6 +21,8 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
     { label: "Allergy", count: allergies.length }, 
     { label: "Others", count: 0 },
   ];
+
+  const tableHeaders = ["Allergen", "Severity", "Status", "Reactions", "Onset Date", "Last Updated"]; // Define headers
 
   useEffect(() => {
     if (patientId) {
@@ -70,7 +72,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
     <div className="p-4 bg-white rounded-lg">
       <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
       <div className="mt-4">
-        <AllergyTable allergies={allergies} loading={false} />
+        <AllergyTable allergies={allergies} loading={false} tableHeaders={tableHeaders} />
       </div>
     </div>
   );

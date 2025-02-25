@@ -22,9 +22,10 @@ interface AllergyTableProps {
     }
   }>;
   loading: boolean;
+  tableHeaders: string[];
 }
 
-const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
+const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHeaders }) => {
   if (!Array.isArray(allergies)) {
     return (
       <div className="w-full p-4 text-center text-red-600">
@@ -47,13 +48,9 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
         <table className="w-full text-xs">
           <thead className="top-0 bg-gray-50">
             <tr>
-              <TableHeader>Allergen</TableHeader>
-              {/* <TableHeader>Type</TableHeader> */}
-              <TableHeader>Severity</TableHeader>
-              <TableHeader>Status</TableHeader>
-              <TableHeader>Reactions</TableHeader>
-              <TableHeader>Onset Date</TableHeader>
-              <TableHeader>Last Updated</TableHeader>
+              {tableHeaders.map((header, index) => (
+                <TableHeader key={index}>{header}</TableHeader>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -79,13 +76,9 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading }) => {
       <table className="w-full text-xs">
         <thead className="top-0 bg-gray-50">
           <tr>
-            <TableHeader>Allergen</TableHeader>
-            {/* <TableHeader>Type</TableHeader> */}
-            <TableHeader>Severity</TableHeader>
-            <TableHeader>Status</TableHeader>
-            <TableHeader>Reactions</TableHeader>
-            <TableHeader>Onset Date</TableHeader>
-            <TableHeader>Last Updated</TableHeader>
+            {tableHeaders.map((header, index) => (
+              <TableHeader key={index}>{header}</TableHeader>
+            ))}
           </tr>
         </thead>
         <tbody className="mt-6">

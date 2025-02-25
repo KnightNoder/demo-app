@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
-// import Button from "../../atoms/Button/Button";
-// import Icons from "../../../assets/Icons/Icons";
+import ClinicalNoteItem from "../../molecules/ClinicalNote/ClinicalNote";
 
 interface Tab {
   label: string;
@@ -53,11 +52,11 @@ const notes: Record<string, Note[]> = {
   Orders: [],
 };
 
-const TabbedNotes: React.FC = () => {
+const ClinicalNotesCard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Progress");
 
   return (
-    <div className="px-4 pb-4 mx-auto bg-white rounded-lg shadow ">
+    <div className="px-4 pb-4 mx-auto bg-white rounded-lg shadow">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}
@@ -67,32 +66,13 @@ const TabbedNotes: React.FC = () => {
       <div className="mt-4 space-y-4">
         {notes[activeTab]?.length > 0 ? (
           notes[activeTab].map((note, index) => (
-            <div
+            <ClinicalNoteItem
               key={index}
-              className="flex justify-between p-4 border border-gray-200 rounded-md"
-            >
-              <div>
-                <h2 className="text-lg font-semibold">{note.title}</h2>
-                <p className="text-xs text-gray-500">{note.author} • {note.time}</p>
-                <p className="w-[80%] mt-2 text-sm text-gray-700">{note.content}</p>
-              </div>
-              {/* <div className="flex space-x-2">
-                <Button
-                  variant="primary"
-                  className="p-1"
-                // onClick={() => onEdit(allergy.id)}
-                >
-                  <Icons variant="edit" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="p-1 text-red-600 hover:bg-red-200"
-                // onClick={() => onDelete(allergy.id)}
-                >
-                  <Icons variant="delete" />
-                </Button>
-              </div> */}
-            </div>
+              title={note.title}
+              author={note.author}
+              time={note.time}
+              content={note.content}
+            />
           ))
         ) : (
           <p className="text-sm text-gray-500">No records available.</p>
@@ -102,4 +82,4 @@ const TabbedNotes: React.FC = () => {
   );
 };
 
-export default TabbedNotes;
+export default ClinicalNotesCard;
