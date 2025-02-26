@@ -25,15 +25,15 @@ export const getDiagnosisDataFromApi = async (patientId: string | null) => {
   return response.data;
 };
 
-const getClinicalNotesDataFromApi = async (patientId: string | null) => {
-  try {
-    const response = await axiosClient.get(`/clinical-notes/${patientId}/`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching clinical notes data:", error);
-    throw error;
-  }
-};
+// const getClinicalNotesDataFromApi = async (patientId: string | null) => {
+//   try {
+//     const response = await axiosClient.get(`/clinical-notes/${patientId}/`);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching clinical notes data:", error);
+//     throw error;
+//   }
+// };
 
 export const getMedicationsDataFromApi = async (patientId: string | null) => {
   try {
@@ -55,29 +55,29 @@ export const getInsuranceDataFromApi = async (patientId: string | null) => {
   }
 };
 
-const getLabResultsDataFromApi = async (patientId: string | null) => {
-  try {
-    const response = await axiosClient.get(
-      `/lab-order?patient_id=${patientId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching insurance data:", error);
-    throw error;
-  }
-};
+// const getLabResultsDataFromApi = async (patientId: string | null) => {
+//   try {
+//     const response = await axiosClient.get(
+//       `/lab-order?patient_id=${patientId}`
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching insurance data:", error);
+//     throw error;
+//   }
+// };
 
-const getPrescriptionsDataFromApi = async (patientId: string | null) => {
-  try {
-    const response = await axiosClient.get(
-      `/prescriptions?patient_id=${patientId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching insurance data:", error);
-    throw error;
-  }
-};
+// const getPrescriptionsDataFromApi = async (patientId: string | null) => {
+//   try {
+//     const response = await axiosClient.get(
+//       `/prescriptions?patient_id=${patientId}`
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching insurance data:", error);
+//     throw error;
+//   }
+// };
 
 // const getDiagnosisData = () => {
 //   return [

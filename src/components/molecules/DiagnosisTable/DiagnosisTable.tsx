@@ -30,7 +30,9 @@ export const DiagnosisTable: React.FC<DiagnosisProps> = ({ diagnosis }) => {
   return (
     <div>
       {diagnosis.map((item) => (
-        <DiagnosisItem key={item.id} item={item} />
+        <div className='mt-2' key={item.id}>
+          <DiagnosisItem item={item} />
+        </div>
       ))}
     </div>
   );
