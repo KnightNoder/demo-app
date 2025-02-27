@@ -8,7 +8,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm  // Jenkins automatically checks out the correct branch
-                sh '~/nvm-wrapper.sh nvm use 18 || ~/nvm-wrapper.sh nvm install 18'
+                sh 'bash -c "export NVM_DIR=$HOME/.nvm && [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh && nvm use 18 || nvm install 18"'
             }
         }
         stage('Verify Checkout') {
