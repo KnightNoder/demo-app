@@ -20,7 +20,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                nvm use 18
                 node -v
                 npm install
                 '''
@@ -29,7 +28,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                nvm use 18
+                node -v
                 npm run build
                 '''
             }
@@ -37,6 +36,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
+                node -v
                 npm test
                 '''
             }
@@ -47,7 +47,7 @@ pipeline {
             }
             steps {
                 sh '''
-                nvm use 18
+                node -v
                 scp -r build/* user@qa-server:/data1/wwwroot/html/
                 '''
             }
