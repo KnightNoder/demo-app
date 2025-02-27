@@ -14,31 +14,30 @@ pipeline {
             steps {
                 sh '''
                 git branch --show-current
-                ~/nvm-wrapper.sh nvm use 18
                 '''
             }
         }
         stage('Install Dependencies') {
             steps {
                 sh '''
-                ~/nvm-wrapper.sh nvm use 18
-                ~/nvm-wrapper.sh npm install
+                nvm use 18
+                node -v
+                npm install
                 '''
             }
         }
         stage('Build') {
             steps {
                 sh '''
-                ~/nvm-wrapper.sh nvm use 18
-                ~/nvm-wrapper.sh npm run build
+                nvm use 18
+                npm run build
                 '''
             }
         }
         stage('Test') {
             steps {
                 sh '''
-                ~/nvm-wrapper.sh nvm use 18
-                ~/nvm-wrapper.sh npm test
+                npm test
                 '''
             }
         }
@@ -48,7 +47,7 @@ pipeline {
             }
             steps {
                 sh '''
-                ~/nvm-wrapper.sh nvm use 18
+                nvm use 18
                 scp -r build/* user@qa-server:/data1/wwwroot/html/
                 '''
             }
