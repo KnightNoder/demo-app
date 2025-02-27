@@ -7,81 +7,57 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'git@bitbucket.org:drcloud/drc_phoenix_react.git'
-                sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-
-                # Ensure we are using Node.js 22
-                nvm use 22 || nvm install 22
-                node -v
-                npm -v
-                '''
+                checkout scm  // Jenkins automatically checks out the correct branch
+                sh '~/nvm-wrapper.sh nvm use 18 || ~/nvm-wrapper.sh nvm install 18'
             }
         }
         stage('Verify Checkout') {
             steps {
                 sh '''
                 git branch --show-current
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                nvm use 22
-                node -v
-                npm -v
+                ~/nvm-wrapper.sh nvm use 18
                 '''
             }
         }
         stage('Install Dependencies') {
             steps {
                 sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                nvm use 22
-                node -v
-                npm -v
-                npm install
+                ~/nvm-wrapper.sh nvm use 18
+                ~/nvm-wrapper.sh npm install
                 '''
             }
         }
         stage('Build') {
             steps {
                 sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                nvm use 22
-                node -v
-                npm -v
-                npm run build
+                ~/nvm-wrapper.sh nvm use 18
+                ~/nvm-wrapper.sh npm run build
                 '''
             }
         }
         stage('Test') {
             steps {
                 sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                nvm use 22
-                node -v
-                npm -v
-                npm test
+                ~/nvm-wrapper.sh nvm use 18
+                ~/nvm-wrapper.sh npm test
                 '''
             }
         }
         stage('Deploy to QA') {
             when {
-                branch 'master' // Deploy only if it's the master branch
+                branch 'master'  // Deploy only if on the master branch
             }
             steps {
                 sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                nvm use 22
-                node -v
-                npm -v
+                ~/nvm-wrapper.sh nvm use 18
                 scp -r build/* user@qa-server:/data1/wwwroot/html/
                 '''
             }
+        }
+    }
+    post {
+        failure {
+            error "Build failed, skipping deploy"
         }
     }
 }
