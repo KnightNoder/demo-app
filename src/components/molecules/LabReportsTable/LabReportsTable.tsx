@@ -1,43 +1,40 @@
 import React from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import AllergyRow from "./AllergyRow";
+import LabReportRow from "./LapReportRow";
 import TableHeader from "../../atoms/TableHeader/TableHeader";
 
-interface AllergyTableProps {
-  allergies: Array<{
+interface LabReportsTableProps {
+  labReports: Array<{
     id: string;
-    title: string;
-    allergen: string;
-    severity: {
-      id: string;
-      title: string | null;
-    };
-    reaction: string | null | undefined;
-    begdate: string;
-    enddate: string | undefined | null;
-    modified_by: {
-      fname: string;
-      lname: string;
-    };
+    test: string;
+    result: string;
+    range: string;
+    status: "normal" | "abnormal" | "critical";
+    ordered: string;
+    reported: string;
   }>;
   loading: boolean;
   tableHeaders: string[];
 }
 
-const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHeaders }) => {
-  if (!Array.isArray(allergies)) {
+const LabReportsTable: React.FC<LabReportsTableProps> = ({
+  labReports,
+  loading,
+  tableHeaders,
+}) => {
+  if (!Array.isArray(labReports)) {
     return (
       <div className="w-full p-4 text-center text-red-600">
-        Error: Expected an array of allergies.
+        Error: Expected an array of lab reports.
       </div>
     );
   }
 
-  if (allergies.length === 0) {
+  if (labReports.length === 0) {
     return (
       <div className="w-full p-4 text-center text-gray-500">
-        No allergies found
+        No lab reports found
       </div>
     );
   }
@@ -56,13 +53,24 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHe
           <tbody>
             {[...Array(5)].map((_, index) => (
               <tr key={index}>
-                <td><Skeleton width={150} /></td>
-                <td><Skeleton width={100} /></td>
-                <td><Skeleton width={80} /></td>
-                <td><Skeleton width={80} /></td>
-                <td><Skeleton width={120} /></td>
-                <td><Skeleton width={100} /></td>
-                <td><Skeleton width={100} /></td>
+                <td>
+                  <Skeleton width={150} />
+                </td>
+                <td>
+                  <Skeleton width={100} />
+                </td>
+                <td>
+                  <Skeleton width={80} />
+                </td>
+                <td>
+                  <Skeleton width={80} />
+                </td>
+                <td>
+                  <Skeleton width={120} />
+                </td>
+                <td>
+                  <Skeleton width={100} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -81,9 +89,9 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHe
             ))}
           </tr>
         </thead>
-        <tbody className="mt-6">
-          {allergies.map((allergy) => (
-            <AllergyRow key={allergy.id} allergy={allergy} />
+        <tbody>
+          {labReports.map((report) => (
+            <LabReportRow key={report.id} labReport={report} />
           ))}
         </tbody>
       </table>
@@ -91,4 +99,4 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHe
   );
 };
 
-export default AllergyTable;
+export default LabReportsTable;

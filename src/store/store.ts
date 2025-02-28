@@ -4,6 +4,7 @@ import allergyReducer from "../features/allergySlice/allergySlice";
 import diagnosisReducer from "../features/diagnosisSlice/diagnosisSlice";
 import medicationsReducer from "../features/medications/medicationsSlice";
 import insuranceReducer from "../features/insuranceSlice/insuranceSlice";
+import labReportsReducer from "../features/labResults/labResultsSlice";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 const store = configureStore({
@@ -13,6 +14,7 @@ const store = configureStore({
     diagnosis: diagnosisReducer,
     medications: medicationsReducer,
     insurance: insuranceReducer,
+    labReports: labReportsReducer,
   },
 });
 

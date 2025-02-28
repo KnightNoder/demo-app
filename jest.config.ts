@@ -8,13 +8,14 @@ const config: Config = {
   moduleDirectories: ["node_modules", "src"],
   testMatch: ["**/__tests__/**/*.{ts,tsx}", "**/*.{spec,test}.{ts,tsx}"],
   testTimeout: 10000,
-
+  modulePathIgnorePatterns: ["<rootDir>/src/assets/Icons/Icons.tsx"],
   // Coverage configuration (maintaining your existing settings)
   collectCoverage: true,
   collectCoverageFrom: [
     "src/**/*.{ts,tsx}",
     "!src/main.tsx",
     "!src/vite-env.d.ts",
+    "!src/assets/Icons/Icons.tsx",
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["json", "lcov", "text", "clover"],
