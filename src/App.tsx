@@ -48,6 +48,12 @@ const widgetOptions = [
     position: { x: 950, y: 1250 },
     icon: "insurance",
   },
+  {
+    key: "Prescriptions",
+    component: LabReportsCard,
+    position: { x: 100, y: 1850 },
+    icon: "insurance",
+  },
 ];
 
 const App: React.FC = () => {
@@ -60,6 +66,7 @@ const App: React.FC = () => {
     "Insurance",
     "Clinical Notes",
     "Lab Reports",
+    "Prescriptions",
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);

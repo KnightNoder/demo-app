@@ -61,9 +61,10 @@ export const getLabResultsDataFromApi = async (patientId: string | null) => {
     //   `/lab-order?patient_id=${patientId}`
     // );
     // return response.data;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         // reject("lol"); // Resolve with the diagnosis data
+        console.log(patientId);
         resolve(getLabReportsDataFromApi());
       }, 2000); // Simulate a 2-second delay
     });
@@ -75,14 +76,75 @@ export const getLabResultsDataFromApi = async (patientId: string | null) => {
 
 // const getPrescriptionsDataFromApi = async (patientId: string | null) => {
 //   try {
-//     const response = await axiosClient.get(
-//       `/prescriptions?patient_id=${patientId}`
-//     );
-//     return response.data;
+//     // const response = await axiosClient.get(
+//     //   `/prescriptions?patient_id=${patientId}`
+//     // );
+//     // return response.data;
+//     return new Promise((resolve, reject) => {
+//       setTimeout(() => {
+//         // reject("lol"); // Resolve with the diagnosis data
+//         resolve(getPrescriptionsData());
+//       }, 2000); // Simulate a 2-second delay
+//     });
 //   } catch (error) {
 //     console.error("Error fetching insurance data:", error);
 //     throw error;
 //   }
+// };
+
+// const getPrescriptionsData = () => {
+//   return [
+//     {
+//       data: {
+//         id: 5,
+//         patient_id: 1002,
+//         drug_display: "psyllium husk (Reguloid (psyllium husk)) capsule",
+//         dosage: "1",
+//         action: null,
+//         form: "capsule",
+//         route: "tablet,delayed release (DR/EC)",
+//         interval: "once a day",
+//         doseother: "as needed",
+//         note: "after gym and walk",
+//         quantity: "5",
+//         quantityunit: "capsule",
+//         active: 1,
+//         ndcid: "80681002200",
+//         refills: 0,
+//         per_refill: null,
+//         start_date: "2023-10-02",
+//         provider: {
+//           id: 1,
+//           name: "Ensoftek Administrator",
+//         },
+//       },
+//     },
+//     {
+//       data: {
+//         id: 5,
+//         patient_id: 1002,
+//         drug_display: "psyllium husk (Reguloid (psyllium husk)) capsule",
+//         dosage: "1",
+//         action: null,
+//         form: "capsule",
+//         route: "tablet,delayed release (DR/EC)",
+//         interval: "once a day",
+//         doseother: "as needed",
+//         note: "after gym and walk",
+//         quantity: "5",
+//         quantityunit: "capsule",
+//         active: 1,
+//         ndcid: "80681002200",
+//         refills: 0,
+//         per_refill: null,
+//         start_date: "2023-10-02",
+//         provider: {
+//           id: 1,
+//           name: "Ensoftek Administrator",
+//         },
+//       },
+//     },
+//   ];
 // };
 
 // const getDiagnosisData = () => {
