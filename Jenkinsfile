@@ -45,7 +45,8 @@ pipeline {
             steps {
                 sh '''
                 node -v
-                npm run dev
+                npm run dev &
+                sleep 10
                 npx cypress run
                 '''
             }
