@@ -53,6 +53,8 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
+                    export TERM=xterm  # Fix tput warning
+
                     node -v        
                     sleep 5
 
