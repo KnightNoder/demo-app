@@ -15,6 +15,8 @@ import "./index.css";
 import DocumentsCard from "./components/organisms/DocumentsCard/DocumentsCard";
 import PrescriptionCard from "./components/organisms/PrescriptionCard/PrescriptionCard";
 import AppointmentsCard from "./components/organisms/AppointmentsCard/AppointmentsCard";
+import NotificationCard from "./components/organisms/NotificationsCard/NotificationsCard";
+import DemographicsCard from "./components/organisms/Demographics/Demographics";
 
 const widgetOptions = [
   {
@@ -71,6 +73,18 @@ const widgetOptions = [
     position: { x: 100, y: 2450 },
     icon: "insurance",
   },
+  {
+    key: "Notifications",
+    component: NotificationCard,
+    position: { x: 950, y: 2450 },
+    icon: "insurance",
+  },
+  {
+    key: "Demographics",
+    component: DemographicsCard,
+    position: { x: 100, y: 2950 },
+    icon: "insurance",
+  },
 ];
 
 const App: React.FC = () => {
@@ -85,6 +99,9 @@ const App: React.FC = () => {
     "Lab Reports",
     "Prescriptions",
     "Documents",
+    "Appointments",
+    "Notifications",
+    "Demographics",
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
