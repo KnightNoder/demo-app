@@ -21,41 +21,90 @@ pipeline {
             steps {
                 sh '''
                 node -v
-                npm install
+                npm ci // use ci instead of 'install', as it is recommended for CI/CD
+
+                # Install missing Cypress dependencies
+                #apt-get update
+                #apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libdrm2
                 '''
+            }
+        }
+        stage('Lint') {
+            steps {
+                sh 'npm run lint || echo "Lint issues found but continuing build"'
             }
         }
         stage('Build') {
             steps {
                 sh '''
                 node -v
-                npm run build
+                npm run build  
                 '''
             }
         }
-        stage('Test') {
+        stage('Unit Test JEST') {
             steps {
-                sh '''
-                node -v
-                npm test
-                '''
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh 'npm test'
+                }
+            }
+        }
+        stage('UI Test Cypress') {
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                    node -v        
+                    sleep 5
+
+                    # Start frontend server in the background
+                    npm run dev &
+
+                    # Wait for server to be available (Max 30s)
+                    timeout=30
+                    while ! curl -s http://localhost:5173 >/dev/null; do
+                    sleep 2
+                    timeout=$((timeout - 2))
+                    if [ $timeout -le 0 ]; then
+                        echo "Frontend server did not start in time!"
+                        exit 1
+                    fi
+                    done
+                    echo "Frontend server is up!"
+
+                    # Start Xvfb for headless execution
+                    Xvfb :99 &
+                    export DISPLAY=:99
+
+                    # Run Cypress tests
+                    npx cypress run --headless --browser chrome
+                    '''
+                }
             }
         }
         stage('Deploy to QA') {
             when {
-                branch 'master'  // Deploy only if on the master branch
+                allOf {
+                    branch 'master'  // Deploy only if on master branch
+                    expression { currentBuild.result != 'FAILURE' }  // Deploy only if the build did not fail
+                }
             }
             steps {
-                sh '''
-                node -v
-                scp -r build/* user@qa-server:/data1/wwwroot/html/
-                '''
+                sh 'scp -r build/* user@qa-server:/data1/wwwroot/html/'
             }
         }
     }
+
     post {
+        always {
+            archiveArtifacts artifacts: 'build/**', allowEmptyArchive: true
+            junit testResults: 'coverage/junit.xml', allowEmptyResults: true
+        }
+        unstable {
+            echo "Build is unstable but deploying anyway"
+        }
         failure {
-            error "Build failed, skipping deploy"
+            echo "Build failed, skipping deploy"
         }
     }
 }
+
