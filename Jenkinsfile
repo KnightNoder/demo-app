@@ -22,6 +22,10 @@ pipeline {
                 sh '''
                 node -v
                 npm ci // use ci instead of 'install', as it is recommended for CI/CD
+
+                # Install missing Cypress dependencies
+                sudo apt-get update
+                sudo apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libdrm2
                 '''
             }
         }
