@@ -25,7 +25,7 @@ pipeline {
 
                 # Install missing Cypress dependencies
                 #apt-get update
-                apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libdrm2
+                #apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 libdrm2
                 '''
             }
         }
