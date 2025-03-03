@@ -54,13 +54,28 @@ pipeline {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
                     node -v        
-                    sleep 10
+                    sleep 5
+
+                    # Start frontend server in the background
+                    npm run dev &
+
+                    # Wait for server to be available (Max 30s)
+                    timeout=30
+                    while ! curl -s http://localhost:5173 >/dev/null; do
+                    sleep 2
+                    timeout=$((timeout - 2))
+                    if [ $timeout -le 0 ]; then
+                        echo "Frontend server did not start in time!"
+                        exit 1
+                    fi
+                    done
+                    echo "Frontend server is up!"
 
                     # Start Xvfb for headless execution
                     Xvfb :99 &
                     export DISPLAY=:99
 
-                    # Run Cypress with Chrome
+                    # Run Cypress tests
                     npx cypress run --headless --browser chrome
                     '''
                 }
