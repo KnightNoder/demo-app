@@ -84,4 +84,5 @@ pipeline {
             echo "Build failed, skipping deploy"
         }
     }
+    }
 }
