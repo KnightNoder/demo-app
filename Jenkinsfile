@@ -21,7 +21,7 @@ pipeline {
             steps {
                 sh '''
                 node -v
-                npm ci // use ci instead of install as it is recommended for CI/CD
+                npm ci // use ci instead of 'install', as it is recommended for CI/CD
                 '''
             }
         }
@@ -42,33 +42,34 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh 'npm test'
+                }
             }
         }
         stage('UI Test Cypress') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
-                    # Install Xvfb if missing
-                    which Xvfb || (echo "Installing Xvfb..." && apt-get update && apt-get install -y xvfb)
-                    
+                    #Install Xvfb if missing
+                    #which Xvfb || (echo "Installing Xvfb..." && apt-get update && apt-get install -y xvfb) // not needed ehen using electron
+                     
                     # Run Cypress tests
-                    npx cypress run
+                    node -v        
+                    npm ci
+                    sleep 10
+                    npx cypress run --headless --browser electron
                     '''
                 }
             }
         }
         stage('Deploy to QA') {
             when {
-                branch 'master'  // Deploy only if on the master branch
-            }
-            steps {
-                when {
-                branch 'master'
-                expression { currentBuild.result != 'FAILURE' }
+                allOf {
+                    branch 'master'  // Deploy only if on master branch
+                    expression { currentBuild.result != 'FAILURE' }  // Deploy only if the build did not fail
+                }
             }
             steps {
                 sh 'scp -r build/* user@qa-server:/data1/wwwroot/html/'
-            }
             }
         }
     }
@@ -83,6 +84,5 @@ pipeline {
         failure {
             echo "Build failed, skipping deploy"
         }
-    }
     }
 }
