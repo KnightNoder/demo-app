@@ -9,7 +9,12 @@ import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/Clinical
 import InsuranceCard from "./components/organisms/InsuranceCard/InsuranceCard";
 import LabReportsCard from "./components/organisms/LabReportsCard/LabReportsCard";
 import Icons from "./assets/Icons/Icons";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
+import DocumentsCard from "./components/organisms/DocumentsCard/DocumentsCard";
+import PrescriptionCard from "./components/organisms/PrescriptionCard/PrescriptionCard";
+import AppointmentsCard from "./components/organisms/AppointmentsCard/AppointmentsCard";
 
 const widgetOptions = [
   {
@@ -50,8 +55,20 @@ const widgetOptions = [
   },
   {
     key: "Prescriptions",
-    component: LabReportsCard,
+    component: PrescriptionCard,
     position: { x: 100, y: 1850 },
+    icon: "insurance",
+  },
+  {
+    key: "Documents",
+    component: DocumentsCard,
+    position: { x: 950, y: 1850 },
+    icon: "insurance",
+  },
+  {
+    key: "Appointments",
+    component: AppointmentsCard,
+    position: { x: 100, y: 2450 },
     icon: "insurance",
   },
 ];
@@ -67,6 +84,7 @@ const App: React.FC = () => {
     "Clinical Notes",
     "Lab Reports",
     "Prescriptions",
+    "Documents",
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
@@ -95,18 +113,46 @@ const App: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  const toggleWidget = (widgetKey: string) => {
-    setVisibleWidgets((prevWidgets) =>
-      prevWidgets.includes(widgetKey)
-        ? prevWidgets.filter((w) => w !== widgetKey)
-        : [...prevWidgets, widgetKey]
+  const showWidgetToast = (widgetKey: string, isAdding: boolean) => {
+    toast(
+      <div className="p-2">
+        <h3 className="text-lg font-bold">
+          {isAdding ? "Widget Added" : "Widget Removed"}
+        </h3>
+        <p className="font-semibold">{widgetKey}</p>
+        <p className="text-sm text-gray-600">
+          {isAdding
+            ? "The widget has been added to your dashboard. You can now view and interact with it."
+            : "The widget has been removed from your dashboard."}
+        </p>
+      </div>,
+      {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        className: "rounded-md shadow-lg bg-white",
+      }
     );
+  };
+
+  const toggleWidget = (widgetKey: string) => {
+    setVisibleWidgets((prevWidgets) => {
+      const isAdding = !prevWidgets.includes(widgetKey);
+      showWidgetToast(widgetKey, isAdding);
+      return isAdding
+        ? [...prevWidgets, widgetKey]
+        : prevWidgets.filter((w) => w !== widgetKey);
+    });
   };
 
   return (
     <Provider store={store}>
-      <div className="relative h-[200vh] w-[50vw]">
-        <div className="relative h-[130vh] w-[50vw]">
+      <ToastContainer />
+      <div className="relative h-[300vh] w-[50vw]">
+        <div className="relative h-[230vh] w-[50vw]">
           <div
             className="fixed z-50 transform -translate-x-1/2 top-10 left-1/2"
             ref={widgetRef}
@@ -120,7 +166,7 @@ const App: React.FC = () => {
             </button>
 
             <div
-              className={`absolute top-full left-0 mt-2 p-4 w-96 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+              className={`absolute top-full left-0 mt-2 p-4 w-[500px] bg-white rounded-md shadow-lg transition-transform duration-300 ${
                 isOpen
                   ? "scale-100 opacity-100"
                   : "scale-95 opacity-0 pointer-events-none"
