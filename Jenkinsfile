@@ -45,8 +45,8 @@ pipeline {
             steps {
                 sh '''
                 node -v
-                npm run dev &
-                sleep 10
+                npm ci  # Ensure dependencies, including Cypress, are installed
+                sleep 5  # Wait for 5 seconds to ensure Cypress is fully installed
                 npx cypress run
                 '''
             }
