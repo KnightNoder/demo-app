@@ -33,11 +33,20 @@ pipeline {
                 '''
             }
         }
-        stage('Test') {
+        stage('Unit Test JEST') {
             steps {
                 sh '''
                 node -v
                 npm test
+                '''
+            }
+        }
+        stage('UI Test Cypress') {
+            steps {
+                sh '''
+                node -v
+                npm run dev
+                npx cypress run
                 '''
             }
         }
