@@ -59,36 +59,66 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
     //       setLoading(false);
     //     });
     // }
-    setAppointments([{
-      "id": 39,
-      "title": "Assessment",
-      "description": "Routine Checkup",
-      "event_date": "2024-02-12",
-      "end_date": "2024-02-29",
-      "duration": 60,
-      "start_time": "01:00 PM",
-      "end_time": "02:00 PM",
-      "recurrence_type": 1,
-      "patient": {
-        "id": 1002,
-        "first_name": "Test",
-        "last_name": "Patient"
+    setAppointments([
+      {
+        id: 39,
+        title: "Assessment",
+        description: "Routine Checkup",
+        event_date: "2024-02-12",
+        end_date: "2024-02-29",
+        duration: 60,
+        start_time: "01:00 PM",
+        end_time: "02:00 PM",
+        recurrence_type: 1,
+        patient: {
+          id: 1002,
+          first_name: "Test",
+          last_name: "Patient",
+        },
+        provider: {
+          id: 1,
+          first_name: "Ensoftek",
+          last_name: "Administrator",
+        },
+        facility: {
+          id: 13,
+          name: "Yashoda",
+        },
+        category: {
+          id: 17,
+          name: "Assessment",
+        },
       },
-      "provider": {
-        "id": 1,
-        "first_name": "Ensoftek",
-        "last_name": "Administrator"
+      {
+        id: 39,
+        title: "Assessment",
+        description: "Routine Checkup",
+        event_date: "2024-02-12",
+        end_date: "2024-02-29",
+        duration: 60,
+        start_time: "01:00 PM",
+        end_time: "02:00 PM",
+        recurrence_type: 1,
+        patient: {
+          id: 1002,
+          first_name: "Test",
+          last_name: "Patient",
+        },
+        provider: {
+          id: 1,
+          first_name: "Ensoftek",
+          last_name: "Administrator",
+        },
+        facility: {
+          id: 13,
+          name: "Yashoda",
+        },
+        category: {
+          id: 17,
+          name: "Assessment",
+        },
       },
-      "facility": {
-        "id": 13,
-        "name": "Yashoda"
-      },
-      "category": {
-        "id": 17,
-        "name": "Assessment"
-      }
-    }
-  ])
+    ]);
   }, [patientId]);
 
   if (loading) {
