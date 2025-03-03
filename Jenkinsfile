@@ -49,13 +49,11 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
-                    #Install Xvfb if missing
-                    #which Xvfb || (echo "Installing Xvfb..." && apt-get update && apt-get install -y xvfb) // not needed ehen using electron
-                     
-                    # Run Cypress tests
                     node -v        
-                    npm ci
                     sleep 10
+
+                    # Force Cypress to run without Xvfb
+                    export DISPLAY=:99
                     npx cypress run --headless --browser electron
                     '''
                 }
@@ -73,6 +71,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             archiveArtifacts artifacts: 'build/**', allowEmptyArchive: true
@@ -86,3 +85,4 @@ pipeline {
         }
     }
 }
+
