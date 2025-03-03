@@ -56,9 +56,12 @@ pipeline {
                     node -v        
                     sleep 10
 
-                    # Force Cypress to run without Xvfb
+                    # Start Xvfb for headless execution
+                    Xvfb :99 &
                     export DISPLAY=:99
-                    npx cypress run --headless --browser electron
+
+                    # Run Cypress with Chrome
+                    npx cypress run --headless --browser chrome
                     '''
                 }
             }
