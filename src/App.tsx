@@ -82,7 +82,7 @@ const widgetOptions = [
   {
     key: "Demographics",
     component: DemographicsCard,
-    position: { x: 100, y: 2950 },
+    position: { x: 100, y: 3050 },
     icon: "insurance",
   },
 ];
@@ -168,8 +168,8 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer />
-      <div className="relative h-[300vh] w-[50vw]">
-        <div className="relative h-[230vh] w-[50vw]">
+      <div className="relative h-[350vh] w-[50vw]">
+        <div className="relative h-[300vh] w-[50vw]">
           <div
             className="fixed z-50 transform -translate-x-1/2 top-10 left-1/2"
             ref={widgetRef}

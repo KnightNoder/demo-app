@@ -7,7 +7,7 @@ interface Tab {
 
 interface TabListHeaderProps {
   tabs: Tab[];
-  activeTab: string; // Allow any string instead of fixed options
+  activeTab: string;
   onTabClick: (label: string) => void;
 }
 
