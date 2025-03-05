@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NotificationItem from "../../molecules/NotificationItem/NotificationItem";
+import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 
 interface Notification {
   id: number;
@@ -14,6 +15,7 @@ const NotificationCard: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("All");
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -23,7 +25,8 @@ const NotificationCard: React.FC = () => {
           type: "ALERT",
           priority: "High",
           title: "Critical Lab Alert",
-          description: "STAT: Patient Sarah M. shows K+ level of 6.8 mEq/L - Immediate action required",
+          description:
+            "STAT: Patient Sarah M. shows K+ level of 6.8 mEq/L - Immediate action required",
           time: "47m ago",
         },
         {
@@ -59,9 +62,20 @@ const NotificationCard: React.FC = () => {
 
   if (loading) return <div className="p-4 text-center">Loading...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
-
+  const tabs = [
+    { label: "All", count: 3 },
+    { label: "GT Alerts", count: 0 },
+    { label: "Tasks", count: 1 },
+    { label: "Messages", count: 1 },
+    { label: "Reminders", count: 1 },
+  ];
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
       {notifications.length > 0 ? (
         notifications.map((notification) => (
           <NotificationItem key={notification.id} notification={notification} />

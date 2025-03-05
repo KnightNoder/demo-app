@@ -40,85 +40,84 @@ interface AppointmentsCardProps {
 
 const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading] = useState<boolean>(false);
-  const [error] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Upcoming");
-  
 
   useEffect(() => {
-    // if (patientId) {
-    //   setLoading(true);
-    //   fetch(`/api/appointments?patientId=${patientId}`)
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       setAppointments(data.data);
-    //       setLoading(false);
-    //     })
-    //     .catch((err) => {
-    //       setError(err.message);
-    //       setLoading(false);
-    //     });
-    // }
-    setAppointments([
-      {
-        id: 39,
-        title: "Assessment",
-        description: "Routine Checkup",
-        event_date: "2024-02-12",
-        end_date: "2024-02-29",
-        duration: 60,
-        start_time: "01:00 PM",
-        end_time: "02:00 PM",
-        recurrence_type: 1,
-        patient: {
-          id: 1002,
-          first_name: "Test",
-          last_name: "Patient",
-        },
-        provider: {
-          id: 1,
-          first_name: "Ensoftek",
-          last_name: "Administrator",
-        },
-        facility: {
-          id: 13,
-          name: "Yashoda",
-        },
-        category: {
-          id: 17,
-          name: "Assessment",
-        },
-      },
-      {
-        id: 39,
-        title: "Assessment",
-        description: "Routine Checkup",
-        event_date: "2024-02-12",
-        end_date: "2024-02-29",
-        duration: 60,
-        start_time: "01:00 PM",
-        end_time: "02:00 PM",
-        recurrence_type: 1,
-        patient: {
-          id: 1002,
-          first_name: "Test",
-          last_name: "Patient",
-        },
-        provider: {
-          id: 1,
-          first_name: "Ensoftek",
-          last_name: "Administrator",
-        },
-        facility: {
-          id: 13,
-          name: "Yashoda",
-        },
-        category: {
-          id: 17,
-          name: "Assessment",
-        },
-      },
-    ]);
+    if (patientId) {
+      setLoading(true);
+      fetch(`https://qa-phoenix.drcloudemr.com/api/appointments/${patientId}/`)
+        .then((response) => response.json())
+        .then((data) => {
+          setAppointments(data.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    }
+    // setAppointments([
+    //   {
+    //     id: 39,
+    //     title: "Assessment",
+    //     description: "Routine Checkup",
+    //     event_date: "2024-02-12",
+    //     end_date: "2024-02-29",
+    //     duration: 60,
+    //     start_time: "01:00 PM",
+    //     end_time: "02:00 PM",
+    //     recurrence_type: 1,
+    //     patient: {
+    //       id: 1002,
+    //       first_name: "Test",
+    //       last_name: "Patient",
+    //     },
+    //     provider: {
+    //       id: 1,
+    //       first_name: "Ensoftek",
+    //       last_name: "Administrator",
+    //     },
+    //     facility: {
+    //       id: 13,
+    //       name: "Yashoda",
+    //     },
+    //     category: {
+    //       id: 17,
+    //       name: "Assessment",
+    //     },
+    //   },
+    //   {
+    //     id: 39,
+    //     title: "Assessment",
+    //     description: "Routine Checkup",
+    //     event_date: "2024-02-12",
+    //     end_date: "2024-02-29",
+    //     duration: 60,
+    //     start_time: "01:00 PM",
+    //     end_time: "02:00 PM",
+    //     recurrence_type: 1,
+    //     patient: {
+    //       id: 1002,
+    //       first_name: "Test",
+    //       last_name: "Patient",
+    //     },
+    //     provider: {
+    //       id: 1,
+    //       first_name: "Ensoftek",
+    //       last_name: "Administrator",
+    //     },
+    //     facility: {
+    //       id: 13,
+    //       name: "Yashoda",
+    //     },
+    //     category: {
+    //       id: 17,
+    //       name: "Assessment",
+    //     },
+    //   },
+    // ]);
   }, [patientId]);
 
   if (loading) {

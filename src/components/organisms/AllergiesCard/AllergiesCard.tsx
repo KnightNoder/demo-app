@@ -70,9 +70,17 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
 
   return (
     <div className="p-4 bg-white rounded-lg">
-      <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
       <div className="mt-4">
-        <AllergyTable allergies={allergies} loading={false} tableHeaders={tableHeaders} />
+        <AllergyTable
+          allergies={[]}
+          loading={false}
+          tableHeaders={tableHeaders}
+        />
       </div>
     </div>
   );

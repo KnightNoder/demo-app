@@ -168,8 +168,8 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer />
-      <div className="relative h-[350vh] w-[50vw]">
-        <div className="relative h-[300vh] w-[50vw]">
+      <div className="relative h-[400vh] w-[50vw]">
+        <div className="relative h-[400vh] w-[50vw]">
           <div
             className="fixed z-50 transform -translate-x-1/2 top-10 left-1/2"
             ref={widgetRef}
