@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import * as ScrollArea from "@radix-ui/react-scroll-area";
 import Card from "./components/organisms/Card/Card";
 import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
 import AllergyCard from "./components/organisms/AllergiesCard/AllergiesCard";
@@ -17,6 +18,8 @@ import PrescriptionCard from "./components/organisms/PrescriptionCard/Prescripti
 import AppointmentsCard from "./components/organisms/AppointmentsCard/AppointmentsCard";
 import NotificationCard from "./components/organisms/NotificationsCard/NotificationsCard";
 import DemographicsCard from "./components/organisms/Demographics/Demographics";
+import PhotosCard from "./components/organisms/PhotosCard/PhotosCard";
+import VitalsCard from "./components/organisms/VitalsCard/VitalsCard";
 
 const widgetOptions = [
   {
@@ -85,6 +88,18 @@ const widgetOptions = [
     position: { x: 100, y: 3050 },
     icon: "insurance",
   },
+  {
+    key: "ID/Card Photos",
+    component: PhotosCard,
+    position: { x: 950, y: 3050 },
+    icon: "insurance",
+  },
+  {
+    key: "Vitals",
+    component: VitalsCard,
+    position: { x: 100, y: 3650 },
+    icon: "insurance",
+  },
 ];
 
 const App: React.FC = () => {
@@ -102,6 +117,8 @@ const App: React.FC = () => {
     "Appointments",
     "Notifications",
     "Demographics",
+    "ID/Card Photos",
+    "Vitals",
   ]);
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
@@ -168,7 +185,7 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer />
-      <div className="relative h-[400vh] w-[50vw]">
+      <div className="relative h-[450vh] w-[50vw]">
         <div className="relative h-[400vh] w-[50vw]">
           <div
             className="fixed z-50 transform -translate-x-1/2 top-10 left-1/2"
@@ -199,65 +216,88 @@ const App: React.FC = () => {
                   className="w-full pl-8 pr-4 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50"
                 ></input>
               </div>
-
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
-                  <h3 className="pb-1 mb-2 font-bold ">Add Widgets</h3>
-                  <ul className="mt-4 overflow-auto max-h-60">
-                    {widgetOptions
-                      .filter(
-                        (w) =>
-                          !visibleWidgets.includes(w.key) &&
-                          w.key.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((widget) => (
-                        <li
-                          key={widget.key}
-                          className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
-                        >
-                          <span className="flex items-center space-x-2">
-                            <Icons variant={widget.icon} />
-                            <span>{widget.key}</span>
-                          </span>
-                          <button
-                            className="font-bold text-green-500"
-                            onClick={() => toggleWidget(widget.key)}
-                          >
-                            +
-                          </button>
-                        </li>
-                      ))}
-                  </ul>
+                  <h3 className="pb-1 mb-2 font-bold">Add Widgets</h3>
+                  <ScrollArea.Root className="overflow-hidden border rounded-md max-h-60">
+                    <ScrollArea.Viewport className="p-2">
+                      <ul>
+                        {widgetOptions
+                          .filter(
+                            (w) =>
+                              !visibleWidgets.includes(w.key) &&
+                              w.key
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                          )
+                          .map((widget) => (
+                            <li
+                              key={widget.key}
+                              className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
+                            >
+                              <span className="flex items-center space-x-2">
+                                <Icons variant={widget.icon} />
+                                <span>{widget.key}</span>
+                              </span>
+                              <button
+                                className="font-bold text-green-500"
+                                onClick={() => toggleWidget(widget.key)}
+                              >
+                                +
+                              </button>
+                            </li>
+                          ))}
+                      </ul>
+                    </ScrollArea.Viewport>
+                    <ScrollArea.Scrollbar
+                      orientation="vertical"
+                      className="w-2 bg-gray-200 rounded-full"
+                    >
+                      <ScrollArea.Thumb className="bg-gray-500 rounded-full" />
+                    </ScrollArea.Scrollbar>
+                  </ScrollArea.Root>
                 </div>
 
                 <div>
                   <h3 className="pb-1 mb-2 font-bold">Remove Widgets</h3>
-                  <ul className="overflow-auto max-h-60">
-                    {visibleWidgets
-                      .filter((key) =>
-                        key.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((key) => {
-                        const widget = widgetOptions.find((w) => w.key === key);
-                        return (
-                          <li
-                            key={key}
-                            className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
-                          >
-                            <span className="flex items-center space-x-2">
-                              <Icons variant={widget?.icon || "default"} />
-                              <span>{key}</span>
-                            </span>
-                            <button
-                              className="font-bold text-red-500"
-                              onClick={() => toggleWidget(key)}
-                            >
-                              -
-                            </button>
-                          </li>
-                        );
-                      })}
-                  </ul>
+                  <ScrollArea.Root className="overflow-hidden border rounded-md max-h-60">
+                    <ScrollArea.Viewport className="p-2">
+                      <ul>
+                        {visibleWidgets
+                          .filter((key) =>
+                            key.toLowerCase().includes(searchTerm.toLowerCase())
+                          )
+                          .map((key) => {
+                            const widget = widgetOptions.find(
+                              (w) => w.key === key
+                            );
+                            return (
+                              <li
+                                key={key}
+                                className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
+                              >
+                                <span className="flex items-center space-x-2">
+                                  <Icons variant={widget?.icon || "default"} />
+                                  <span>{key}</span>
+                                </span>
+                                <button
+                                  className="font-bold text-red-500"
+                                  onClick={() => toggleWidget(key)}
+                                >
+                                  -
+                                </button>
+                              </li>
+                            );
+                          })}
+                      </ul>
+                    </ScrollArea.Viewport>
+                    <ScrollArea.Scrollbar
+                      orientation="vertical"
+                      className="w-2 bg-gray-200 rounded-full"
+                    >
+                      <ScrollArea.Thumb className="bg-gray-500 rounded-full" />
+                    </ScrollArea.Scrollbar>
+                  </ScrollArea.Root>
                 </div>
               </div>
             </div>

@@ -149,10 +149,9 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
   }
 
   const tabs = [
-    { label: "Upcoming", count: 2  },
+    { label: "Upcoming", count: appointments.length },
     { label: "Past", count: 0 },
-    { label: "All", count: 2 },
-
+    { label: "All", count: appointments.length },
   ];
 
   return (

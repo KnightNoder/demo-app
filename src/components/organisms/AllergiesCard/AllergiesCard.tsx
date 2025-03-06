@@ -77,7 +77,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
       />
       <div className="mt-4">
         <AllergyTable
-          allergies={[]}
+          allergies={allergies}
           loading={false}
           tableHeaders={tableHeaders}
         />

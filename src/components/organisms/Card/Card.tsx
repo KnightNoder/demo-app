@@ -2,24 +2,32 @@ import React, { useState, useRef, useEffect } from "react";
 import Icons from "../../../assets/Icons/Icons";
 import Header from "../../molecules/CardHeader/CardHeader";
 import CardFooter from "../../molecules/CardFooter/CardFooter";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface CardProps {
   title: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  initialPosition: { x: number, y: number }
+  initialPosition: { x: number; y: number };
   category?: string | null;
   patientId?: string | null;
 }
 
-const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPosition, category, patientId }) => {
+const DraggableCard: React.FC<CardProps> = ({
+  title,
+  children,
+  footer,
+  initialPosition,
+  category,
+  patientId,
+}) => {
   const [position, setPosition] = useState(initialPosition);
   const [size, setSize] = useState({ width: 800, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
-  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null); 
+  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null);
   // const [isVisible, setIsVisible] = useState(false);
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -69,7 +77,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
         kebabMenuRef.current &&
         !kebabMenuRef.current.contains(e.target as Node)
       ) {
-        setIsKebabMenuOpen(false); 
+        setIsKebabMenuOpen(false);
       }
     };
 
@@ -216,7 +224,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
   };
 
   const handleCloseModal = (e: React.MouseEvent) => {
-    console.log('in close modal');
+    console.log("in close modal");
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       setIsModalOpen(false);
       // setIsVisible(true);
@@ -258,7 +266,7 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
     <>
       {isModalOpen && (
         <div
-          data-testid='modal'
+          data-testid="modal"
           className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
           onClick={handleCloseModal}
         >
@@ -281,7 +289,10 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
                 <button>
                   <Icons variant="delete" />
                 </button>
-                <button data-testid="modal-close" onClick={() => setIsModalOpen(false)}>
+                <button
+                  data-testid="modal-close"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   <Icons variant="close" />
                 </button>
               </div>
@@ -289,14 +300,22 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
             <div className="relative flex-1 p-4 overflow-y-auto">
               {children}
             </div>
-            {footer && <div className="">{true ? <CardFooter category={category} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
+            {footer && (
+              <div className="">
+                {true ? (
+                  <CardFooter category={category} />
+                ) : (
+                  <div className="h-8 bg-gray-100 animate-pulse" />
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
       {!isModalOpen && (
         <div
           ref={cardRef}
-          data-testid='draggable-card'
+          data-testid="draggable-card"
           className="absolute z-10 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
           draggable
           onDragStart={handleDragStart}
@@ -321,12 +340,27 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
               kebabMenuRef={kebabMenuRef}
             />
             {!isCollapsed && (
+              // <ScrollArea className="h-full">
+
               <div className="flex flex-col h-[calc(100%-8rem)]">
                 <div className="flex-1 overflow-y-auto">
-                  {true ? children : <div className="w-full h-full bg-gray-100 animate-pulse" />}
+                  {true ? (
+                    children
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 animate-pulse" />
+                  )}
                 </div>
-                {footer && <div className="">{true ? <CardFooter category={category} patientId={patientId} /> : <div className="h-8 bg-gray-100 animate-pulse" />}</div>}
+                {footer && (
+                  <div className="">
+                    {true ? (
+                      <CardFooter category={category} patientId={patientId} />
+                    ) : (
+                      <div className="h-8 bg-gray-100 animate-pulse" />
+                    )}
+                  </div>
+                )}
               </div>
+              // </ScrollArea>
             )}
           </div>
 
@@ -376,7 +410,9 @@ const DraggableCard: React.FC<CardProps> = ({ title, children, footer, initialPo
               />
               <div
                 className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("bottom-right")}
+                onMouseEnter={() =>
+                  handleMouseEnterResizeHandle("bottom-right")
+                }
                 onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
               />
