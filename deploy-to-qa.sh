@@ -3,7 +3,7 @@
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
 QA_SERVER_HOST="10.1.2.12"
-QA_HTML_PATH="./index_v2.html"
+QA_HTML_PATH="./"
 QA_DEPLOY_PATH="./"
 DIST_DIR="dist"  # Your local build output directory
 
@@ -16,13 +16,13 @@ if [ -z "$SSH_PASSWORD" ]; then
 fi
 
 # Step 1: Download the current HTML file from QA server
-echo "Downloading index_v2.html from QA server..."
-sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$QA_SERVER:$QA_HTML_PATH" ./index_v2.html
-if [ ! -f "./index_v2.html" ]; then
-    echo "Error: Failed to download index_v2.html from QA server."
+echo "Downloading index_v2.php from QA server..."
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$QA_SERVER:$QA_HTML_PATH" ./index_v2.php
+if [ ! -f "./index_v2.php" ]; then
+    echo "Error: Failed to download index_v2.php from QA server."
     exit 1
 fi
-echo "Successfully downloaded index_v2.html"
+echo "Successfully downloaded index_v2.php"
 
 # Step 2: Find the latest JS and CSS files from the build
 echo "Finding latest assets from build..."
@@ -50,26 +50,26 @@ echo "- JavaScript: $JS_FILENAME"
 echo "- CSS: $CSS_FILENAME"
 
 # Step 3: Update the HTML file with new asset references
-echo "Updating asset references in index_v2.html..."
+echo "Updating asset references in index_v2.php..."
 # Create a backup of the original file
-cp "./index_v2.html" "./index_v2.html.bak"
+cp "./index_v2.php" "./index_v2.php.bak"
 
 # Update the JavaScript file reference
-sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$JS_FILENAME"'"><\/script>/g' "./index_v2.html"
+sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$JS_FILENAME"'"><\/script>/g' "./index_v2.php"
 
 # Update the CSS file reference
-sed -i -E 's/<link rel="stylesheet" crossorigin href="[^"]+">/<link rel="stylesheet" crossorigin href="'"$CSS_FILENAME"'">/g' "./index_v2.html"
+sed -i -E 's/<link rel="stylesheet" crossorigin href="[^"]+">/<link rel="stylesheet" crossorigin href="'"$CSS_FILENAME"'">/g' "./index_v2.php"
 
 # Check if any changes were made
-if diff -q "./index_v2.html" "./index_v2.html.bak" > /dev/null; then
+if diff -q "./index_v2.php" "./index_v2.php.bak" > /dev/null; then
     echo "Warning: No changes were made to asset references. Check if the pattern matching is correct."
     exit 1
 else
-    echo "Success: Asset references updated in index_v2.html."
+    echo "Success: Asset references updated in index_v2.php."
 fi
 
 # Step 4: Create a backup on the QA server first
-echo "Creating backup of index_v2.html on QA server..."
+echo "Creating backup of index_v2.php on QA server..."
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$QA_SERVER" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
 if [ $? -ne 0 ]; then
     echo "Warning: Failed to create backup on QA server. Proceeding anyway..."
@@ -79,9 +79,9 @@ fi
 echo "Uploading updated files to QA server..."
 
 # Upload the HTML file
-sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no ./index_v2.html "$QA_SERVER:$QA_HTML_PATH"
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no ./index_v2.php "$QA_SERVER:$QA_HTML_PATH"
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to upload updated index_v2.html to QA server."
+    echo "Error: Failed to upload updated index_v2.php to QA server."
     exit 1
 fi
 
@@ -100,12 +100,12 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Deployment complete!"
-echo "- Updated index_v2.html with new asset references"
-echo "- Uploaded index_v2.html to QA server"
+echo "- Updated index_v2.php with new asset references"
+echo "- Uploaded index_v2.php to QA server"
 echo "- Uploaded $JS_FILENAME to QA server"
 echo "- Uploaded $CSS_FILENAME to QA server"
 
 # Optional: Clean up local files
-rm -f ./index_v2.html ./index_v2.html.bak
+rm -f ./index_v2.php ./index_v2.php.bak
 
 exit 0
