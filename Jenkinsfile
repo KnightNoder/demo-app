@@ -84,14 +84,12 @@ pipeline {
             }
         }
         stage('Deploy to QA') {
-            when {
-                allOf {
-                    branch 'master'  // Deploy only if on master branch
-                    expression { currentBuild.result != 'FAILURE' }  // Deploy only if the build did not fail
-                }
-            }
             steps {
-                sh 'scp -r build/* user@qa-server:/data1/wwwroot/html/'
+                // Make the deployment script executable
+                sh 'chmod +x ./deploy-to-qa.sh'
+                
+                // Run the deployment script
+                sh './deploy-to-qa.sh'
             }
         }
     }
