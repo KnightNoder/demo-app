@@ -3,9 +3,9 @@
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
 QA_SERVER_HOST="10.1.2.12"
-QA_HTML_PATH="./index_v2.php"
+QA_HTML_PATH="index_v2.php"
 QA_DEPLOY_PATH="./"
-DIST_DIR="dist"  # Your local build output directory
+DIST_DIR="dist"  # the local build output directory
 
 # Password handling - use Jenkins credentials or environment variables
 # DO NOT hardcode the password in the script
@@ -17,7 +17,10 @@ fi
 
 # Step 1: Download the current HTML file from QA server
 echo "Downloading index_v2.php from QA server..."
+set -x  # Turn on command echoing
 sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
+set +x  # Turn off command echoing
+
 if [ ! -f "./index_v2.php" ]; then
     echo "Error: Failed to download index_v2.php from QA server."
     exit 1
@@ -71,7 +74,9 @@ fi
 # Step 4: Create a backup on the QA server first
 echo "Creating backup of index_v2.php on QA server..."
 #sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$QA_SERVER" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
+set -x  # Turn on command echoing
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "${QA_SERVER_USER}@${QA_SERVER_HOST}" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
+set +x  # Turn off command echoing
 if [ $? -ne 0 ]; then
     echo "Warning: Failed to create backup on QA server. Proceeding anyway..."
 fi
