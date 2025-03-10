@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Configuration - modify these variables as needed
-QA_SERVER="jenkins@10.1.2.12"
+QA_SERVER_USER="jenkins"
+QA_SERVER_HOST="10.1.2.12"
 QA_HTML_PATH="./index_v2.html"
 QA_DEPLOY_PATH="./"
 DIST_DIR="dist"  # Your local build output directory
