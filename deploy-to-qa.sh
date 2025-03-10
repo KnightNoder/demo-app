@@ -5,13 +5,18 @@ QA_SERVER="jenkins@10.1.2.12"
 QA_HTML_PATH="./index_v2.html"
 QA_DEPLOY_PATH="./"
 DIST_DIR="dist"  # Your local build output directory
-SSH_KEY_PATH="$HOME/.ssh/id_rsa"  # Path to SSH private key for authentication
-# Add -i flag if using a specific SSH key
-SSH_OPTS="-i $SSH_KEY_PATH -o StrictHostKeyChecking=no"
+
+# Password handling - use Jenkins credentials or environment variables
+# DO NOT hardcode the password in the script
+# This example assumes the password is passed as an environment variable
+if [ -z "$SSH_PASSWORD" ]; then
+    echo "Error: SSH_PASSWORD environment variable not set."
+    exit 1
+fi
 
 # Step 1: Download the current HTML file from QA server
 echo "Downloading index_v2.html from QA server..."
-scp $SSH_OPTS $QA_SERVER:$QA_HTML_PATH ./index_v2.html
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$QA_SERVER:$QA_HTML_PATH" ./index_v2.html
 if [ ! -f "./index_v2.html" ]; then
     echo "Error: Failed to download index_v2.html from QA server."
     exit 1
@@ -64,7 +69,7 @@ fi
 
 # Step 4: Create a backup on the QA server first
 echo "Creating backup of index_v2.html on QA server..."
-ssh $SSH_OPTS $QA_SERVER "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$QA_SERVER" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
 if [ $? -ne 0 ]; then
     echo "Warning: Failed to create backup on QA server. Proceeding anyway..."
 fi
@@ -73,21 +78,21 @@ fi
 echo "Uploading updated files to QA server..."
 
 # Upload the HTML file
-scp $SSH_OPTS ./index_v2.html $QA_SERVER:$QA_HTML_PATH
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no ./index_v2.html "$QA_SERVER:$QA_HTML_PATH"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload updated index_v2.html to QA server."
     exit 1
 fi
 
 # Upload the JS file
-scp $SSH_OPTS $LATEST_JS $QA_SERVER:$QA_DEPLOY_PATH/$JS_FILENAME
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$LATEST_JS" "$QA_SERVER:$QA_DEPLOY_PATH/$JS_FILENAME"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload JS file to QA server."
     exit 1
 fi
 
 # Upload the CSS file
-scp $SSH_OPTS $LATEST_CSS $QA_SERVER:$QA_DEPLOY_PATH/$CSS_FILENAME
+sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no "$LATEST_CSS" "$QA_SERVER:$QA_DEPLOY_PATH/$CSS_FILENAME"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload CSS file to QA server."
     exit 1
