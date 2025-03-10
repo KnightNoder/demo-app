@@ -3,6 +3,8 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'nodejs', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "$NODEJS_HOME/bin:$PATH" // Ensures Jenkins uses the correct Node.js version
+        SSH_PASSWORD = credentials('qa-server-password')
+
     }
     stages {
         stage('Checkout') {
