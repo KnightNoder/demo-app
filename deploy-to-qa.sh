@@ -138,11 +138,13 @@ echo "Checking if new assets are present on QA server..."
 # fi  
 
 # Change the permissions of the JS and CSS files to 644
+echo "Changing permissions of JS and CSS files to 644"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$JS_FILENAME"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$CSS_FILENAME"  
 echo "Changed permissions of JS and CSS files to 644"
 
 # Change the ownership of the JS and CSS files to www-data
+echo "Changing ownership of JS and CSS files to www-data"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$JS_FILENAME"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$CSS_FILENAME"
 echo "Changed ownership of JS and CSS files to www-data"
