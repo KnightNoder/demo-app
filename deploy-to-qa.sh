@@ -28,6 +28,14 @@ if [ ! -f "./index_v2.php" ]; then
 fi
 echo "Successfully downloaded index_v2.php"
 
+#find the existing index-*.js and index-*.css files in the downloaded index_v2.php
+EXISTING_JS=$(grep -oP '<script type="module" crossorigin src="\K[^"]+' ./index_v2.php)
+EXISTING_CSS=$(grep -oP '<link rel="stylesheet" crossorigin href="\K[^"]+' ./index_v2.php)
+
+echo "Existing JS: $EXISTING_JS"
+echo "Existing CSS: $EXISTING_CSS"
+
+
 # Step 2: Find the latest JS and CSS files from the build
 echo "Finding latest assets from build..."
 if [ ! -d "$DIST_DIR" ]; then
@@ -109,7 +117,36 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Step 6: Check if the new assets are present on the QA server
+echo "Checking if new assets are present on QA server..."
+
+# Check if the JS file is present
+if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$JS_FILENAME"; then
+    echo "JS file is present on QA server"
+else
+    echo "Error: JS file is not present on QA server."
+    exit 1
+fi
+
+# Check if the CSS file is present
+if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$CSS_FILENAME"; then
+    echo "CSS file is present on QA server"
+else
+    echo "Error: CSS file is not present on QA server."
+    exit 1
+fi  
+
+# Change the permissions of the JS and CSS files to 644
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$JS_FILENAME"
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$CSS_FILENAME"  
+echo "Changed permissions of JS and CSS files to 644"
+
+# Change the ownership of the JS and CSS files to www-data
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$JS_FILENAME"
+sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$CSS_FILENAME"
+echo "Changed ownership of JS and CSS files to www-data"
 echo "Deployment complete!"
+
 echo "- Updated index_v2.php with new asset references"
 echo "- Uploaded index_v2.php to QA server"
 echo "- Uploaded $JS_FILENAME to QA server"
