@@ -119,7 +119,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Step 6: Check if the new assets are present on the QA server
-echo "Checking if new assets are present on QA server..."
+# echo "Checking if new assets are present on QA server..."
 
 # Check if the JS file is present
 # if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$JS_FILENAME"; then
@@ -148,12 +148,12 @@ echo "Changing ownership of JS and CSS files to www-data"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$JS_FILENAME"
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$CSS_FILENAME"
 echo "Changed ownership of JS and CSS files to www-data"
-echo "Deployment complete!"
 
 echo "- Updated index_v2.php with new asset references"
 echo "- Uploaded index_v2.php to QA server"
 echo "- Uploaded $JS_FILENAME to QA server"
 echo "- Uploaded $CSS_FILENAME to QA server"
+echo "Deployment complete!"
 
 # Optional: Clean up local files
 rm -f ./index_v2.php ./index_v2.php.bak
