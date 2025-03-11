@@ -1,49 +1,54 @@
-// CardFooter.tsx
 import React from "react";
 import Button from "../../atoms/Button/Button";
 import Icons from "../../../assets/Icons/Icons";
+import { CustomScroll } from "react-custom-scroll";
 
 interface CardFooterProps {
-  category?: string | null;
-  patientId?: string | null
+  category?: string | null | undefined;
+  patientId?: string | null;
+  onAction?: (action: "add" | "view", category: string | null) => void;
 }
 
-const CardFooter: React.FC<CardFooterProps> = ({ category, patientId }) => {
+const CardFooter: React.FC<CardFooterProps> = ({ category, onAction }) => {
+  const handleAddClick = () => {
+    console.log("clicked", onAction);
+    if (onAction) {
+      onAction("add", category ?? null);
+    }
+  };
+
+  const handleViewHistoryClick = () => {
+    if (onAction) {
+      onAction("view", category ?? null);
+    }
+  };
+
   return (
-    <div role="contentinfo" data-testid='card-content' className="footer absolute bottom-0 left-0 right-0 h-14 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/75">
-      <div className="relative h-full">
-        <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
-          <Button
-            variant="primary"
-            dataCy="data-primary"
-            onClick={() => {
-              if (!patientId) {
-                console.warn("patientId is undefined or null");
-                return;
-              }
+    <div role="contentinfo" data-testid="card-content" className="relative">
+      <CustomScroll heightRelativeToParent="calc(100% - 100px)">
+        <div className="footer h-14 bg-white/95 backdrop-blur">
+          <div className="relative h-full">
+            <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
+              <Button
+                variant="primary"
+                dataCy="data-primary"
+                onClick={handleAddClick}
+              >
+                <Icons variant="add" />
+                Add {category}
+              </Button>
 
-              setTimeout(() => {
-                // const link = document.querySelector(`a[title^="AltID: ${patientId}"]`) as HTMLAnchorElement | null;
-
-                // if (link) {
-                window.parent.postMessage({ action: 'clickButton' }, '*');
-                // } else {
-                // console.warn(`Patient link with ID ${patientId} not found`);
-                // }
-              }, 100);
-            }}
-
-          >
-            <Icons variant="add" />
-            Add {category}
-          </Button>
-
-
-          <Button variant="secondary" dataCy="data-secondary">
-            View History
-          </Button>
+              <Button
+                variant="secondary"
+                dataCy="data-secondary"
+                onClick={handleViewHistoryClick}
+              >
+                View History
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      </CustomScroll>
     </div>
   );
 };
