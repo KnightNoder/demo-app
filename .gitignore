@@ -26,3 +26,8 @@ coverage/
 *.lcov
 
 *storybook.log
+
+
+# Cypress
+cypress/screenshots
+cypress/videos

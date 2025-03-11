@@ -3,6 +3,8 @@ pipeline {
     environment {
         NODEJS_HOME = tool name: 'nodejs', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
         PATH = "$NODEJS_HOME/bin:$PATH" // Ensures Jenkins uses the correct Node.js version
+        SSH_PASSWORD = credentials('qa-server-password')
+
     }
     stages {
         stage('Checkout') {
@@ -84,14 +86,12 @@ pipeline {
             }
         }
         stage('Deploy to QA') {
-            when {
-                allOf {
-                    branch 'master'  // Deploy only if on master branch
-                    expression { currentBuild.result != 'FAILURE' }  // Deploy only if the build did not fail
-                }
-            }
             steps {
-                sh 'scp -r build/* user@qa-server:/data1/wwwroot/html/'
+                // Make the deployment script executable
+                sh 'chmod +x ./deploy-to-qa.sh'
+                
+                // Run the deployment script
+                sh './deploy-to-qa.sh'
             }
         }
     }
