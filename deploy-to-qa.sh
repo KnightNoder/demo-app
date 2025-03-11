@@ -15,6 +15,7 @@ if [ -z "$SSH_PASSWORD" ]; then
     exit 1
 fi
 
+
 # Step 1: Download the current HTML file from QA server
 echo "Downloading index_v2.php from QA server..."
 set -x  # Turn on command echoing
