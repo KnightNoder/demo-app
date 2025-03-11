@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import ClinicalNoteItem from "../../molecules/ClinicalNote/ClinicalNote";
-import { ScrollArea } from "../../atoms/ScrollArea/ScrollArea";
 
 interface Tab {
   label: string;

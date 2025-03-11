@@ -7,6 +7,7 @@ export default defineConfig({
     setupNodeEvents() {
       // Node event listeners can be defined here
     },
+    screenshotOnRunFailure: true,
   },
   component: {
     devServer: {

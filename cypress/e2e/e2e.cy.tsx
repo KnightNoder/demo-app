@@ -29,18 +29,18 @@ describe("Dashboard Widgets Test", () => {
   //   });
   // });
 
-  // it("should collapse and expand each widget", () => {
-  //   Widgets.forEach(({ name }) => {
-  //     cy.contains(name)
-  //       .closest(".drag-handle")
-  //       .within(() => {
-  //         cy.get("[data-testid='collapse-button']").click();
-  //         cy.wait(500); // Observe collapse
-  //         cy.get("[data-testid='collapse-button']").click();
-  //         cy.wait(500); // Observe expand
-  //       });
-  //   });
-  // });
+  it("should collapse and expand each widget", () => {
+    Widgets.forEach(({ name }) => {
+      cy.contains(name)
+        .closest(".drag-handle")
+        .within(() => {
+          cy.get("[data-testid='collapse-button']").click();
+          cy.wait(500); // Observe collapse
+          cy.get("[data-testid='collapse-button']").click();
+          cy.wait(500); // Observe expand
+        });
+    });
+  });
 
   it("should drag and move cards", () => {
     cy.get("[data-testid='draggable-card']")
@@ -65,24 +65,25 @@ describe("Dashboard Widgets Test", () => {
       });
   });
 
-  // it("should expand and close each widget modal", () => {
-  //   cy.get("[data-testid=expand-icon]").each(($icon) => {
-  //     cy.wrap($icon)
-  //       .click()
-  //       .wait(1000) // Allow animation time
-  //       .then(() => {
-  //         cy.get("[data-testid=modal]").should("be.visible");
-  //       })
-  //       .wait(1000)
-  //       .then(() => {
-  //         cy.get("[data-testid=modal-close]").click();
-  //       })
-  //       .wait(1000)
-  //       .then(() => {
-  //         cy.get("[data-testid=modal]").should("not.exist");
-  //       });
-  //   });
-  // });
+  it("should expand and close each widget modal", () => {
+    cy.get("[data-testid=expand-icon]").each(($icon) => {
+      cy.wrap($icon)
+        .click()
+        .wait(1000) // Allow animation time
+        .then(() => {
+          cy.get("[data-testid=modal]").should("be.visible");
+        })
+        .wait(1000)
+        .then(() => {
+          cy.get("[data-testid=modal-close]").click();
+        })
+        .wait(1000)
+        .then(() => {
+          cy.get("[data-testid=modal]").should("not.exist");
+        });
+    });
+  });
+
 });
 
 

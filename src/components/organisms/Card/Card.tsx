@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Icons from "../../../assets/Icons/Icons";
 import Header from "../../molecules/CardHeader/CardHeader";
 import CardFooter from "../../molecules/CardFooter/CardFooter";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { CustomScroll } from "react-custom-scroll";
 
 interface CardProps {
   title: string;
@@ -11,6 +11,7 @@ interface CardProps {
   initialPosition: { x: number; y: number };
   category?: string | null;
   patientId?: string | null;
+  onAction?: (action: "add" | "view", category: string | null) => void;
 }
 
 const DraggableCard: React.FC<CardProps> = ({
@@ -20,9 +21,10 @@ const DraggableCard: React.FC<CardProps> = ({
   initialPosition,
   category,
   patientId,
+  onAction,
 }) => {
   const [position, setPosition] = useState(initialPosition);
-  const [size, setSize] = useState({ width: 800, height: 500 });
+  const [size, setSize] = useState({ width: 600, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -303,7 +305,11 @@ const DraggableCard: React.FC<CardProps> = ({
             {footer && (
               <div className="">
                 {true ? (
-                  <CardFooter category={category} />
+                  <CardFooter
+                    category={category}
+                    onAction={onAction}
+                    patientId={patientId}
+                  />
                 ) : (
                   <div className="h-8 bg-gray-100 animate-pulse" />
                 )}
@@ -341,15 +347,18 @@ const DraggableCard: React.FC<CardProps> = ({
             />
             {!isCollapsed && (
               // <ScrollArea className="h-full">
-
-              <div className="flex flex-col h-[calc(100%-8rem)]">
-                <div className="flex-1 overflow-y-auto">
-                  {true ? (
-                    children
-                  ) : (
-                    <div className="w-full h-full bg-gray-100 animate-pulse" />
-                  )}
-                </div>
+              <>
+                <CustomScroll heightRelativeToParent="calc(100% - 100px)">
+                  <div className="flex flex-col">
+                    <div className="flex-1 overflow-y-auto">
+                      {true ? (
+                        children
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 animate-pulse" />
+                      )}
+                    </div>
+                  </div>
+                </CustomScroll>
                 {footer && (
                   <div className="">
                     {true ? (
@@ -359,7 +368,8 @@ const DraggableCard: React.FC<CardProps> = ({
                     )}
                   </div>
                 )}
-              </div>
+              </>
+
               // </ScrollArea>
             )}
           </div>

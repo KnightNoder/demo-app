@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+.rcs-inner-handle {
+  background-color: lightgray !important; /* Scrollbar handle color */
+  border-radius: 10px;
+  width: 8px !important;
+}
