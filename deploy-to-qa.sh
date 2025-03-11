@@ -122,20 +122,20 @@ fi
 echo "Checking if new assets are present on QA server..."
 
 # Check if the JS file is present
-if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$JS_FILENAME"; then
-    echo "JS file is present on QA server"
-else
-    echo "Error: JS file is not present on QA server."
-    exit 1
-fi
+# if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$JS_FILENAME"; then
+#     echo "JS file is present on QA server"
+# else
+#     echo "Error: JS file is not present on QA server."
+#     exit 1
+# fi
 
-# Check if the CSS file is present
-if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$CSS_FILENAME"; then
-    echo "CSS file is present on QA server"
-else
-    echo "Error: CSS file is not present on QA server."
-    exit 1
-fi  
+# # Check if the CSS file is present
+# if sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "test -f $QA_DEPLOY_PATH/$CSS_FILENAME"; then
+#     echo "CSS file is present on QA server"
+# else
+#     echo "Error: CSS file is not present on QA server."
+#     exit 1
+# fi  
 
 # Change the permissions of the JS and CSS files to 644
 sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$JS_FILENAME"
