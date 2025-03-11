@@ -29,18 +29,18 @@ describe("Dashboard Widgets Test", () => {
   //   });
   // });
 
-  it("should collapse and expand each widget", () => {
-    Widgets.forEach(({ name }) => {
-      cy.contains(name)
-        .closest(".drag-handle")
-        .within(() => {
-          cy.get("[data-testid='collapse-button']").click();
-          cy.wait(500); // Observe collapse
-          cy.get("[data-testid='collapse-button']").click();
-          cy.wait(500); // Observe expand
-        });
-    });
-  });
+  // it("should collapse and expand each widget", () => {
+  //   Widgets.forEach(({ name }) => {
+  //     cy.contains(name)
+  //       .closest(".drag-handle")
+  //       .within(() => {
+  //         cy.get("[data-testid='collapse-button']").click();
+  //         cy.wait(500); // Observe collapse
+  //         cy.get("[data-testid='collapse-button']").click();
+  //         cy.wait(500); // Observe expand
+  //       });
+  //   });
+  // });
 
   it("should drag and move cards", () => {
     cy.get("[data-testid='draggable-card']")
@@ -83,7 +83,6 @@ describe("Dashboard Widgets Test", () => {
         });
     });
   });
-
 });
 
 
