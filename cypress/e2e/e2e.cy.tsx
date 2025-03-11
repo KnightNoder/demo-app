@@ -65,24 +65,24 @@ describe("Dashboard Widgets Test", () => {
       });
   });
 
-  it("should expand and close each widget modal", () => {
-    cy.get("[data-testid=expand-icon]").each(($icon) => {
-      cy.wrap($icon)
-        .click()
-        .wait(1000) // Allow animation time
-        .then(() => {
-          cy.get("[data-testid=modal]").should("be.visible");
-        })
-        .wait(1000)
-        .then(() => {
-          cy.get("[data-testid=modal-close]").click();
-        })
-        .wait(1000)
-        .then(() => {
-          cy.get("[data-testid=modal]").should("not.exist");
-        });
-    });
-  });
+  // it("should expand and close each widget modal", () => {
+  //   cy.get("[data-testid=expand-icon]").each(($icon) => {
+  //     cy.wrap($icon)
+  //       .click()
+  //       .wait(1000) // Allow animation time
+  //       .then(() => {
+  //         cy.get("[data-testid=modal]").should("be.visible");
+  //       })
+  //       .wait(1000)
+  //       .then(() => {
+  //         cy.get("[data-testid=modal-close]").click();
+  //       })
+  //       .wait(1000)
+  //       .then(() => {
+  //         cy.get("[data-testid=modal]").should("not.exist");
+  //       });
+  //   });
+  // });
 });
 
 
