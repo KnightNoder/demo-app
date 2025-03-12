@@ -44,11 +44,11 @@ if [ ! -d "$DIST_DIR" ]; then
     exit 1
 fi
 
-# Find the latest JS and CSS files
+# Find the latest JS and CSS files in the dist directory
 LATEST_JS=$(find ${DIST_DIR}/assets -name "index-*.js" -type f -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2- -d' ')
 LATEST_CSS=$(find ${DIST_DIR}/assets -name "index-*.css" -type f -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2- -d' ')
 
-# Extract just the filenames
+# Extract just the filenames from the full paths in the dist directory
 JS_FILENAME=$(basename "$LATEST_JS")
 CSS_FILENAME=$(basename "$LATEST_CSS")
 
@@ -57,7 +57,7 @@ if [ -z "$JS_FILENAME" ] || [ -z "$CSS_FILENAME" ]; then
     exit 1
 fi
 
-echo "Found latest assets:"
+echo "Found latest assets in ${DIST_DIR}/assets/:"
 echo "- JavaScript: $JS_FILENAME"
 echo "- CSS: $CSS_FILENAME"
 
