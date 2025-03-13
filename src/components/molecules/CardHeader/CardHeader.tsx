@@ -8,6 +8,8 @@ interface HeaderProps {
   handleExpandModal: () => void;
   isKebabMenuOpen: boolean;
   toggleKebabMenu: () => void;
+  icon?: string | undefined;
+
   kebabMenuRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -19,10 +21,14 @@ const Header: React.FC<HeaderProps> = ({
   isKebabMenuOpen,
   toggleKebabMenu,
   kebabMenuRef,
+  icon,
 }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
-      <h3 className="font-medium">{title}</h3>
+      <h3 className="flex items-center justify-center font-medium">
+        <Icons variant={icon} />
+        <span className="ml-4"> {title}</span>
+      </h3>
       <div className="flex items-center gap-1">
         <button
           onClick={handleCollapse}

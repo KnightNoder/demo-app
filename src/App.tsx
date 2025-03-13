@@ -20,6 +20,7 @@ import DemographicsCard from "./components/organisms/Demographics/Demographics";
 import PhotosCard from "./components/organisms/PhotosCard/PhotosCard";
 import VitalsCard from "./components/organisms/VitalsCard/VitalsCard";
 import IframeModal from "./components/molecules/Modal/IframeModal";
+import DisclosuresCard from "./components/organisms/DisclosuresCard/DisclosuresCard";
 
 const widgetOptions = [
   {
@@ -100,6 +101,12 @@ const widgetOptions = [
     position: { x: 10, y: 3650 },
     icon: "insurance",
   },
+  {
+    key: "Disclosures",
+    component: DisclosuresCard,
+    position: { x: 700, y: 3650 },
+    icon: "insurance",
+  },
 ];
 
 const getCategoryUrl = (
@@ -151,6 +158,7 @@ const App: React.FC = () => {
     "Demographics",
     "ID/Card Photos",
     "Vitals",
+    "Disclosures",
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -346,6 +354,7 @@ const App: React.FC = () => {
                 footer={true}
                 category={widget.key}
                 initialPosition={widget.position}
+                icon={widget.icon}
                 onAction={(action, category) => {
                   console.log(action, category, "clicked in app");
                   if (action === "add") {
