@@ -362,7 +362,11 @@ const DraggableCard: React.FC<CardProps> = ({
                 {footer && (
                   <div className="">
                     {true ? (
-                      <CardFooter category={category} patientId={patientId} />
+                      <CardFooter
+                        category={category}
+                        patientId={patientId}
+                        onAction={onAction}
+                      />
                     ) : (
                       <div className="h-8 bg-gray-100 animate-pulse" />
                     )}

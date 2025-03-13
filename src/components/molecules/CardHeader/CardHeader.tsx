@@ -1,5 +1,4 @@
-// Header.tsx
-import React from 'react';
+import React from "react";
 import Icons from "../../../assets/Icons/Icons";
 
 interface HeaderProps {
@@ -19,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({
   handleExpandModal,
   isKebabMenuOpen,
   toggleKebabMenu,
-  kebabMenuRef
+  kebabMenuRef,
 }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
@@ -27,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-1">
         <button
           onClick={handleCollapse}
-          data-testid='collapse-button' 
+          data-testid="collapse-button"
           className="p-1 transition-colors rounded-md hover:bg-gray-100"
         >
           {isCollapsed ? (
@@ -38,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({
         </button>
         <button
           onClick={handleExpandModal}
-          data-testid='expand-icon'
+          data-testid="expand-icon"
           className="p-1 transition-colors rounded-md hover:bg-gray-100"
         >
           <Icons variant="modalExpand" />
