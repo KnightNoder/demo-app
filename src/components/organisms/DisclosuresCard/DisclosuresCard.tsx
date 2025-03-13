@@ -1,11 +1,5 @@
-import React from 'react'
-
 const DisclosuresCard = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  return <div></div>;
+};
 
-export default DisclosuresCard
+export default DisclosuresCard;
