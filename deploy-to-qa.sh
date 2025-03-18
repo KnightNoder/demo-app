@@ -2,7 +2,8 @@
 
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
-QA_SERVER_HOST="10.1.2.12"
+# QA_SERVER_HOST="10.1.2.12"
+QA_SERVER_HOST="qa-linux-01.drcloudemr.com"
 QA_HTML_PATH="index_v2.php"
 QA_DEPLOY_PATH="./"
 DIST_DIR="dist"  # the local build output directory
@@ -64,6 +65,7 @@ echo "- CSS filename in dist directory: $LATEST_CSS_FILENAME"
 # Step 3: Update the HTML file with new asset references
 echo "Updating asset references in index_v2.php..."
 # Create a backup of the original file
+echo "Creating backup of index_v2.php..."
 cp "./index_v2.php" "./index_v2.php.bak"
 
 # before updating the JS and CSS references, check if EXISTING_JS_FILENAME is same as LATEST_JS_FILENAME
@@ -74,7 +76,7 @@ if [ "$EXISTING_JS_FILENAME" == "$LATEST_JS_FILENAME" ]; then
     SKIP_JS_UPDATE=true
     echo "Proceeding anyway..."
 else
-    echo "JS filename in index_v2.php is different from the filename in the dist directory."
+    echo "JS filename in index_v2.php is $EXISTING_JS_FILENAME and the filename in the dist directory is $LATEST_JS_FILENAME"
     #set a flag to skip the JS update
     SKIP_JS_UPDATE=false
 fi
@@ -87,18 +89,20 @@ if [ "$EXISTING_CSS_FILENAME" == "$LATEST_CSS_FILENAME" ]; then
     SKIP_CSS_UPDATE=true
     echo "Proceeding to check the current lines of CSS in index_v2.php..."
 else
-    echo "CSS filename in index_v2.php is different from the filename in the dist directory."
+    echo "CSS filename in index_v2.php is $EXISTING_CSS_FILENAME and the filename in the dist directory is $LATEST_CSS_FILENAME"
     #set a flag to skip the CSS update
     SKIP_CSS_UPDATE=false
 fi
 
 
     # tell the user before updating the JS in index_v2.php by showing the corresonding lines of JS in index_v2.php
-    echo "Updating JS in index_v2.php... current line:"
-    sed -n -E '/<script type="module" crossorigin src="[^"]+"><\/script>/p' "./index_v2.php"
+    echo "Before updating JS in index_v2.php... current line:"
+    #add the $LATEST_JS_FILENAME to the line
+    sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$LATEST_JS_FILENAME"'"><\/script>/g' "./index_v2.php"
+    # sed -n -E '/<script type="module" crossorigin src="[^"]+"><\/script>/p' "./index_v2.php"   
 
     # tell the user before updating the CSS in index_v2.php by showing the corresonding lines of CSS in index_v2.php
-    echo "Updating CSS in index_v2.php... current line:"
+    echo "Before updating CSS in index_v2.php... current line:"
     sed -n -E '/<link rel="stylesheet" crossorigin href="[^"]+">/p' "./index_v2.php"
 
 
@@ -107,7 +111,7 @@ if [ "$SKIP_JS_UPDATE" == true ]; then
 else
     # Update the JavaScript file reference
     echo "Updating JS filename in index_v2.php..."
-    sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$JS_FILENAME"'"><\/script>/g' "./index_v2.php"
+    sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$LATEST_JS_FILENAME"'"><\/script>/g' "./index_v2.php"
 fi
 
 if [ "$SKIP_CSS_UPDATE" == true ]; then
@@ -115,12 +119,12 @@ if [ "$SKIP_CSS_UPDATE" == true ]; then
 else
     # Update the CSS file reference
     echo "Updating CSS filename in index_v2.php..."
-    sed -i -E 's/<link rel="stylesheet" crossorigin href="[^"]+">/<link rel="stylesheet" crossorigin href="'"$CSS_FILENAME"'">/g' "./index_v2.php"
+    sed -i -E 's/<link rel="stylesheet" crossorigin href="[^"]+">/<link rel="stylesheet" crossorigin href="'"$LATEST_CSS_FILENAME"'">/g' "./index_v2.php"
 fi
 
 
 # Check if any changes were made
-echo "Checking if any changes were made to asset references in index_v2.php..."
+echo "Finally checking if any changes were ACTUALLYmade to asset references in index_v2.php..."
 if diff -q "./index_v2.php" "./index_v2.php.bak" > /dev/null; then
     echo "Info: No changes were made to asset references. Check if the pattern matching is correct."
     #exit 1
@@ -155,9 +159,10 @@ fi
 echo "Uploading updated files to QA server..."
 
 # Upload the HTML file
+echo "Uploading updated index_v2.php to QA server..."
 #capture the output of the command below and save it to a variable
 UPLOAD_OUTPUT_HTML=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 ./index_v2.php "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_HTML_PATH")
-echo "Upload output: $UPLOAD_OUTPUT_HTML"
+echo "Upload HTML output: $UPLOAD_OUTPUT_HTML"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload updated index_v2.php to QA server."
     exit 1
@@ -165,8 +170,9 @@ fi
 
 # Upload the JS file
 #capture the output of the command below and save it to a variable
+echo "Uploading updated JS file to QA server..."
 UPLOAD_OUTPUT_JS=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "$LATEST_JS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_DEPLOY_PATH/$JS_FILENAME")
-echo "Upload output: $UPLOAD_OUTPUT_JS"
+echo "Upload JS output: $UPLOAD_OUTPUT_JS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload JS file to QA server."
     exit 1
@@ -174,8 +180,9 @@ fi
 
 # Upload the CSS file
 #capture the output of the command below and save it to a variable
+echo "Uploading updated CSS file to QA server..."
 UPLOAD_OUTPUT_CSS=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "$LATEST_CSS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_DEPLOY_PATH/$CSS_FILENAME")
-echo "Upload output: $UPLOAD_OUTPUT_CSS"
+echo "Upload CSS output: $UPLOAD_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload CSS file to QA server."
     exit 1
