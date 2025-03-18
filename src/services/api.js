@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Define the base URL for your Laravel API
-const baseURL = 'https://qa-phoenix.drcloudemr.com/drcp_laravel_jwtpoc/public/api';
+const baseURL = 'https://qa-phoenix.drcloudemr.com/';
 
 const api = axios.create({
   baseURL: baseURL,
