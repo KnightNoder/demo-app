@@ -11,6 +11,7 @@ interface CardProps {
   initialPosition: { x: number; y: number };
   category?: string | null;
   patientId?: string | null;
+  icon?: string | undefined;
   onAction?: (action: "add" | "view", category: string | null) => void;
 }
 
@@ -21,6 +22,7 @@ const DraggableCard: React.FC<CardProps> = ({
   initialPosition,
   category,
   patientId,
+  icon,
   onAction,
 }) => {
   const [position, setPosition] = useState(initialPosition);
@@ -344,6 +346,7 @@ const DraggableCard: React.FC<CardProps> = ({
               isKebabMenuOpen={isKebabMenuOpen}
               toggleKebabMenu={toggleKebabMenu}
               kebabMenuRef={kebabMenuRef}
+              icon={icon}
             />
             {!isCollapsed && (
               // <ScrollArea className="h-full">
@@ -362,7 +365,11 @@ const DraggableCard: React.FC<CardProps> = ({
                 {footer && (
                   <div className="">
                     {true ? (
-                      <CardFooter category={category} patientId={patientId} />
+                      <CardFooter
+                        category={category}
+                        patientId={patientId}
+                        onAction={onAction}
+                      />
                     ) : (
                       <div className="h-8 bg-gray-100 animate-pulse" />
                     )}

@@ -20,6 +20,7 @@ import DemographicsCard from "./components/organisms/Demographics/Demographics";
 import PhotosCard from "./components/organisms/PhotosCard/PhotosCard";
 import VitalsCard from "./components/organisms/VitalsCard/VitalsCard";
 import IframeModal from "./components/molecules/Modal/IframeModal";
+import DisclosuresCard from "./components/organisms/DisclosuresCard/DisclosuresCard";
 
 const widgetOptions = [
   {
@@ -100,9 +101,14 @@ const widgetOptions = [
     position: { x: 10, y: 3650 },
     icon: "insurance",
   },
+  {
+    key: "Disclosures",
+    component: DisclosuresCard,
+    position: { x: 700, y: 3650 },
+    icon: "insurance",
+  },
 ];
 
-// Centralized URL mapping function
 const getCategoryUrl = (
   category: string | null,
   patientId: string | null
@@ -114,7 +120,6 @@ const getCategoryUrl = (
       return `https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
     case "Diagnosis":
       return `https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
-    // Add other category URLs as needed
     case "Advanced Directive":
       return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/advancedirectives.php";
     case "Medications":
@@ -130,7 +135,6 @@ const getCategoryUrl = (
   }
 };
 
-// Create a type for modal metadata
 interface ModalInfo {
   isOpen: boolean;
   url: string;
@@ -154,6 +158,7 @@ const App: React.FC = () => {
     "Demographics",
     "ID/Card Photos",
     "Vitals",
+    "Disclosures",
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -166,7 +171,6 @@ const App: React.FC = () => {
     title: "",
   });
 
-  // Function to open modal with specific content
   const openModal = (category: string | null, patientId: string | null) => {
     const url = getCategoryUrl(category, patientId);
     if (!url) {
@@ -181,7 +185,6 @@ const App: React.FC = () => {
     });
   };
 
-  // Function to close modal
   const closeModal = () => {
     setModal((prev) => ({ ...prev, isOpen: false }));
   };
@@ -351,6 +354,7 @@ const App: React.FC = () => {
                 footer={true}
                 category={widget.key}
                 initialPosition={widget.position}
+                icon={widget.icon}
                 onAction={(action, category) => {
                   console.log(action, category, "clicked in app");
                   if (action === "add") {
@@ -368,7 +372,6 @@ const App: React.FC = () => {
             ))}
         </div>
 
-        {/* Centralized Modal for Iframe */}
         {modal.isOpen && (
           <div className="fixed inset-0 flex items-center justify-center z-200">
             <div className="relative bg-white p-4 rounded-lg shadow-lg w-[80%] h-[80%] flex flex-col">
@@ -384,7 +387,6 @@ const App: React.FC = () => {
                 </button>
               </div>
 
-              {/* Iframe Content */}
               <IframeModal modal={modal} closeModal={closeModal} />
             </div>
           </div>
