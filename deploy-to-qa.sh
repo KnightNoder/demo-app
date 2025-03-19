@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Step 1: Download the current HTML file from QA server
+# Step 2: Find the latest JS and CSS files from the build
+# Step 3: Update the HTML file with new asset references
+# Step 4: Check if any changes were made to asset references in index_v2.php
+# Step 5: Create a backup of index_v2.php on QA server
+# Step 6: Upload the updated HTML file and new assets to QA server
+# Step 7: Change the permissions of the JS,CSS and index_v2.php files to 644
+# Step 8: Change the ownership of the JS,CSS and index_v2.php files to www-data:www-data
+
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
 QA_SERVER_HOST="10.1.2.12"
