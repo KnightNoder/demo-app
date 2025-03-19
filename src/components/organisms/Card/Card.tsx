@@ -26,7 +26,7 @@ const DraggableCard: React.FC<CardProps> = ({
   onAction,
 }) => {
   const [position, setPosition] = useState(initialPosition);
-  const [size, setSize] = useState({ width: 600, height: 500 });
+  const [size, setSize] = useState({ width: 750, height: 500 });
   const [isDragging, setIsDragging] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
