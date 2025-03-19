@@ -2,7 +2,7 @@
 
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
-QA_SERVER_HOST="qa-linux-01.drcloudemr.com"
+QA_SERVER_HOST="10.1.2.12"
 QA_DEPLOY_PATH="/data1/wwwroot/html/qa-phoenix/interface/testPankaj"
 QA_HTML_FILE="index_v2.php"
 
@@ -18,7 +18,9 @@ SSH_KEY_PATH="/var/lib/jenkins/.ssh/id_rsa_qa-01-linux_jenkins"
 # Step 1: Download the current HTML file from QA server
 echo "Downloading index_v2.php from QA server..."
 set -x  # Turn on command echoing
+echo "Running : scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${QA_HTML_FILE}" ./index_v2.php"
 scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${QA_HTML_FILE}" ./index_v2.php
+# scp -i /var/lib/jenkins/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 jenkins@10.1.2.12:/data1/wwwroot/html/qa-phoenix/interface/testPankaj/index_v2.php ./index_v2.php2
 set +x  # Turn off command echoing
 
 if [ ! -f "./index_v2.php" ]; then
