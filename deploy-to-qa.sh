@@ -2,29 +2,12 @@
 
 # Configuration - modify these variables as needed
 QA_SERVER_USER="jenkins"
-# QA_SERVER_HOST="10.1.2.12"
 QA_SERVER_HOST="qa-linux-01.drcloudemr.com"
-QA_HTML_PATH="index_v2.php"
-QA_DEPLOY_PATH="./"
+QA_DEPLOY_PATH="/data1/wwwroot/html/qa-phoenix/interface/testPankaj"
+QA_HTML_FILE="index_v2.php"
+
 DIST_DIR="dist"  # the local build output directory
 
-#to ssh the pattern is:
-#ssh qa-01-linux -L 2222:20.253.202.152:4993
-#or
-#ssh qa-01-linux -L 2222:qa-linux-01.drcloudemr.com:4993
-
-#see /home/pankaj/.ssh/config
-#Host qa-01-linux
-#    HostName 10.1.2.12
-
-#qa-01-linux
-
-
-# Password handling - use Jenkins credentials or environment variables
-# DO NOT hardcode the password in the script
-# for password the sshkeygen is used. ssh-keygen -t rsa -b 4096
-# then save pu le to jenkins@10.1.2.12 using :
-# ssh-copy-id -i ~/.ssh/my_custom_key.pub -p 4993 jenkins@10.1.2.12
 
 
 
@@ -32,7 +15,9 @@ DIST_DIR="dist"  # the local build output directory
 echo "Downloading index_v2.php from QA server..."
 set -x  # Turn on command echoing
 #sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
-scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
+#scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${QA_HTML_FILE}" ./index_v2.php
+rsync -e "ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${QA_HTML_FILE}" ./index_v2.php
+
 
 
 
