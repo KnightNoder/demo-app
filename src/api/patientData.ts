@@ -1,4 +1,5 @@
 import axiosClient from "./axiosClient";
+``;
 
 export const getAllergyDataFromApi = async (patientId: string | null) => {
   try {

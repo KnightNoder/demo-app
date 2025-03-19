@@ -21,6 +21,9 @@ import PhotosCard from "./components/organisms/PhotosCard/PhotosCard";
 import VitalsCard from "./components/organisms/VitalsCard/VitalsCard";
 import IframeModal from "./components/molecules/Modal/IframeModal";
 import DisclosuresCard from "./components/organisms/DisclosuresCard/DisclosuresCard";
+import FunctionalStatusCard from "./components/organisms/FunctionalStatusCard/FunctionalStatusCard";
+import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/CognitiveStatusCard";
+import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 
 const widgetOptions = [
   {
@@ -32,7 +35,7 @@ const widgetOptions = [
   {
     key: "Diagnosis",
     component: DiagnosisCard,
-    position: { x: 700, y: 10 },
+    position: { x: 800, y: 10 },
     icon: "diagnosis",
   },
   {
@@ -44,7 +47,7 @@ const widgetOptions = [
   {
     key: "Clinical Notes",
     component: ClinicalNotesCard,
-    position: { x: 700, y: 650 },
+    position: { x: 800, y: 650 },
     icon: "clinicalNotes",
   },
   {
@@ -56,7 +59,7 @@ const widgetOptions = [
   {
     key: "Lab Reports",
     component: LabReportsCard,
-    position: { x: 700, y: 1250 },
+    position: { x: 800, y: 1250 },
     icon: "insurance",
   },
   {
@@ -68,7 +71,7 @@ const widgetOptions = [
   {
     key: "Documents",
     component: DocumentsCard,
-    position: { x: 700, y: 1850 },
+    position: { x: 800, y: 1850 },
     icon: "insurance",
   },
   {
@@ -80,7 +83,7 @@ const widgetOptions = [
   {
     key: "Notifications",
     component: NotificationCard,
-    position: { x: 700, y: 2450 },
+    position: { x: 800, y: 2450 },
     icon: "insurance",
   },
   {
@@ -92,7 +95,7 @@ const widgetOptions = [
   {
     key: "ID/Card Photos",
     component: PhotosCard,
-    position: { x: 700, y: 3050 },
+    position: { x: 800, y: 3050 },
     icon: "insurance",
   },
   {
@@ -104,7 +107,25 @@ const widgetOptions = [
   {
     key: "Disclosures",
     component: DisclosuresCard,
-    position: { x: 700, y: 3650 },
+    position: { x: 800, y: 3650 },
+    icon: "insurance",
+  },
+  {
+    key: "Functional Status",
+    component: FunctionalStatusCard,
+    position: { x: 10, y: 4250 },
+    icon: "insurance",
+  },
+  {
+    key: "Cognitive Status",
+    component: CognitiveStatusCard,
+    position: { x: 800, y: 4250 },
+    icon: "insurance",
+  },
+  {
+    key: "Advanced Directives",
+    component: AdvancedDirectivesCard,
+    position: { x: 10, y: 4850 },
     icon: "insurance",
   },
 ];
@@ -159,6 +180,9 @@ const App: React.FC = () => {
     "ID/Card Photos",
     "Vitals",
     "Disclosures",
+    "Functional Status",
+    "Cognitive Status",
+    "Advanced Directives",
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -251,15 +275,15 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer />
-      <div className="relative h-[450vh] w-[50vw]">
+      <div className="relative h-[600vh] w-[50vw]">
         <div className="relative mt-24 h-[400vh] w-[50vw]">
           <div
-            className="fixed z-50 transform -translate-x-1/6 top-10 left-1/2"
+            className="fixed z-50 transform -translate-x-1/6 top-10 left-2/5"
             ref={widgetRef}
           >
             <button
               onClick={() => setIsWidgetMenuOpen(!isWidgetMenuOpen)}
-              className="absolute left-1/2 -translate-x-1/2 top-[-10px] flex items-center p-2 space-x-2 transition bg-white rounded-md shadow-md hover:bg-gray-200"
+              className="absolute left-1/3 -translate-x-1/3 top-[-10px] flex items-center p-2 space-x-2 transition bg-white rounded-md shadow-md hover:bg-gray-200"
             >
               <Icons variant="widgets" />
               <span>Widgets</span>
