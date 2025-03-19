@@ -8,19 +8,34 @@ QA_HTML_PATH="index_v2.php"
 QA_DEPLOY_PATH="./"
 DIST_DIR="dist"  # the local build output directory
 
+#to ssh the pattern is:
+#ssh qa-01-linux -L 2222:20.253.202.152:4993
+#or
+#ssh qa-01-linux -L 2222:qa-linux-01.drcloudemr.com:4993
+
+#see /home/pankaj/.ssh/config
+#Host qa-01-linux
+#    HostName 10.1.2.12
+
+#qa-01-linux
+
+
 # Password handling - use Jenkins credentials or environment variables
 # DO NOT hardcode the password in the script
-# This example assumes the password is passed as an environment variable
-if [ -z "$SSH_PASSWORD" ]; then
-    echo "Error: SSH_PASSWORD environment variable not set."
-    exit 1
-fi
+# for password the sshkeygen is used. ssh-keygen -t rsa -b 4096
+# then save pu le to jenkins@10.1.2.12 using :
+# ssh-copy-id -i ~/.ssh/my_custom_key.pub -p 4993 jenkins@10.1.2.12
+
 
 
 # Step 1: Download the current HTML file from QA server
 echo "Downloading index_v2.php from QA server..."
 set -x  # Turn on command echoing
-sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
+#sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
+scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}" ./index_v2.php
+
+
+
 set +x  # Turn off command echoing
 
 if [ ! -f "./index_v2.php" ]; then
@@ -104,8 +119,9 @@ fi
     # tell the user before updating the CSS in index_v2.php by showing the corresonding lines of CSS in index_v2.php
     echo "Before updating CSS in index_v2.php... current line:"
     sed -n -E '/<link rel="stylesheet" crossorigin href="[^"]+">/p' "./index_v2.php"
-
-
+#####################################################
+#### UPDATE THE JS AND CSS FILES IN INDEX_V2.PHP ####
+#####################################################
 if [ "$SKIP_JS_UPDATE" == true ]; then
     echo "Skipping JS update..."
 else
@@ -122,7 +138,9 @@ else
     sed -i -E 's/<link rel="stylesheet" crossorigin href="[^"]+">/<link rel="stylesheet" crossorigin href="'"$LATEST_CSS_FILENAME"'">/g' "./index_v2.php"
 fi
 
-
+#####################################################
+#### CHECK IF ANY CHANGES WERE MADE TO ASSET REFERENCES IN INDEX_V2.PHP ####
+#####################################################
 # Check if any changes were made
 echo "Finally checking if any changes were ACTUALLYmade to asset references in index_v2.php..."
 if diff -q "./index_v2.php" "./index_v2.php.bak" > /dev/null; then
@@ -143,25 +161,30 @@ else
     echo "The diff command above should show the changes made to the asset references in index_v2.php."
 fi
 
-# Step 4: Create a backup on the QA server first
-echo "Creating backup of index_v2.php on QA server..."
-#sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$QA_SERVER" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak"
+#####################################################
+#### CREATE A BACKUP OF INDEX_V2.PHP ON QA SERVER ####
+#####################################################
 set -x  # Turn on command echoing
 #capture the output of the command below and save it to a variable
-BACKUP_OUTPUT=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak")
+# Using SSH key instead of sshpass for authentication
+echo "Creating backup of index_v2.php on QA server using SSH key..."
+#capture the output of the command below and save it to a variable
+BACKUP_OUTPUT=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "cp $QA_HTML_PATH ${QA_HTML_PATH}.$(date +%Y%m%d%H%M%S).bak")
 set +x  # Turn off command echoing
 echo "Backup output: $BACKUP_OUTPUT"
 if [ $? -ne 0 ]; then
     echo "Warning: Failed to create backup on QA server. Proceeding anyway..."
 fi
 
-# Step 5: Upload the updated HTML file and new assets to QA server
+#####################################################
+#### UPLOAD THE UPDATED HTML FILE AND NEW ASSETS TO QA SERVER ####
+#####################################################
 echo "Uploading updated files to QA server..."
 
 # Upload the HTML file
 echo "Uploading updated index_v2.php to QA server..."
 #capture the output of the command below and save it to a variable
-UPLOAD_OUTPUT_HTML=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 ./index_v2.php "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_HTML_PATH")
+UPLOAD_OUTPUT_HTML=$(scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 ./index_v2.php "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_HTML_PATH}")
 echo "Upload HTML output: $UPLOAD_OUTPUT_HTML"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload updated index_v2.php to QA server."
@@ -171,7 +194,8 @@ fi
 # Upload the JS file
 #capture the output of the command below and save it to a variable
 echo "Uploading updated JS file to QA server..."
-UPLOAD_OUTPUT_JS=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "$LATEST_JS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_DEPLOY_PATH/$JS_FILENAME")
+UPLOAD_OUTPUT_JS=$(scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 "$LATEST_JS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${JS_FILENAME}")
+
 echo "Upload JS output: $UPLOAD_OUTPUT_JS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload JS file to QA server."
@@ -181,18 +205,22 @@ fi
 # Upload the CSS file
 #capture the output of the command below and save it to a variable
 echo "Uploading updated CSS file to QA server..."
-UPLOAD_OUTPUT_CSS=$(sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -P 4993 "$LATEST_CSS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:$QA_DEPLOY_PATH/$CSS_FILENAME")
+UPLOAD_OUTPUT_CSS=$(scp -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -P 4993 "$LATEST_CSS" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${CSS_FILENAME}")
+
 echo "Upload CSS output: $UPLOAD_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to upload CSS file to QA server."
     exit 1
 fi
 
-# Step 6: Change the permissions of the JS,CSS and index_v2.php files to 644
+#####################################################
+#### CHANGE THE PERMISSIONS OF THE JS,CSS AND INDEX_V2.PHP FILES TO 644 ####
+#####################################################
 # Change the permissions of the JS,CSS and index_v2.php files to 644
 echo "Changing permissions of JS,CSS and index_v2.php files to 644"
 #capture the output of the command below and save it to a variable
-CHANGE_PERMISSIONS_OUTPUT_JS=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$JS_FILENAME")
+CHANGE_PERMISSIONS_OUTPUT_JS=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$JS_FILENAME")
+
 echo "Change permissions output of JS file: $CHANGE_PERMISSIONS_OUTPUT_JS" 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change permissions of JS file on QA server."
@@ -200,7 +228,8 @@ if [ $? -ne 0 ]; then
 fi
 
 #capture the output of the command below and save it to a variable
-CHANGE_PERMISSIONS_OUTPUT_CSS=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$CSS_FILENAME")
+CHANGE_PERMISSIONS_OUTPUT_CSS=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chmod 644 $QA_DEPLOY_PATH/$CSS_FILENAME")
+
 echo "Change permissions output of CSS file: $CHANGE_PERMISSIONS_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change permissions of CSS file on QA server."
@@ -216,10 +245,13 @@ if [ $? -ne 0 ]; then
 fi
 
 
-#step 7: change the ownership of the JS,CSS and index_v2.php file to www-data:www-data
+#####################################################
+#### CHANGE THE OWNERSHIP OF THE JS,CSS AND INDEX_V2.PHP FILES TO WWW-DATA:WWW-DATA ####
+#####################################################
 #change the ownership of the index_v2.php file to www-data:www-data
 echo "Changing ownership of index_v2.php file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/index_v2.php")
+CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/index_v2.php")
+
 echo "Change ownership output of index_v2.php file: $CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change ownership of index_v2.php file on QA server."
@@ -228,7 +260,8 @@ fi
 
 #change the ownership of the JS file to www-data:www-data
 echo "Changing ownership of JS file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_JS=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$JS_FILENAME")
+CHANGE_OWNERSHIP_OUTPUT_JS=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$JS_FILENAME")
+
 echo "Change ownership output of JS file: $CHANGE_OWNERSHIP_OUTPUT_JS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change ownership of JS file on QA server."
@@ -237,7 +270,8 @@ fi
 
 #change the ownership of the CSS file to www-data:www-data
 echo "Changing ownership of CSS file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_CSS=$(sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -P 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$CSS_FILENAME")
+CHANGE_OWNERSHIP_OUTPUT_CSS=$(ssh -i ~/.ssh/id_rsa_qa-01-linux_jenkins -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "chown www-data:www-data $QA_DEPLOY_PATH/$CSS_FILENAME")
+
 echo "Change ownership output of CSS file: $CHANGE_OWNERSHIP_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change ownership of CSS file on QA server."
