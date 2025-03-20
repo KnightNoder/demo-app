@@ -295,7 +295,7 @@ const App: React.FC = () => {
       <div className="relative mt-36 h-[600vh] w-[50vw]">
         <div className="relative mt-24 h-[400vh] w-[50vw]">
           <div
-            className="fixed z-50 transform -translate-x-1/6 top-10 left-2/5"
+            className="fixed transform z-110 -translate-x-1/4 top-10 left-2/5"
             ref={widgetRef}
           >
             <button
