@@ -18,7 +18,7 @@ interface Appointment {
   category: {
     name: string;
   };
-  status?: string[]; // Example: ["routine", "scheduled"]
+  status?: string[];
   note?: string;
 }
 

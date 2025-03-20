@@ -151,6 +151,12 @@ const getCategoryUrl = (
       return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/rx_frameset.php";
     case "Demographics":
       return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/demographics_full.php?curr_tab=Who";
+    case "Functional Status":
+      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status";
+    case "Cognitive Status":
+      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status";
+    case "Advanced Directives":
+      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/advancedirectives.php";
     default:
       return "";
   }
@@ -397,7 +403,7 @@ const App: React.FC = () => {
         </div>
 
         {modal.isOpen && (
-          <div className="fixed inset-0 flex items-center justify-center z-200">
+          <div className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-200 modal backdrop-blur-sm">
             <div className="relative bg-white p-4 rounded-lg shadow-lg w-[80%] h-[80%] flex flex-col">
               {/* Modal Header */}
               <div className="flex items-center justify-between mb-4">

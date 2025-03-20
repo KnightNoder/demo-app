@@ -12,6 +12,7 @@ interface PhotosCardProps {
 const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [patientImageUrl, setPatientImageUrl] = useState<string>("");
   const [activeTab, setActiveTab] = useState("Patient ID Card");
   const patientPhotos = [
     {
@@ -34,10 +35,13 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`https://qa-phoenix.drcloudemr.com/api/appointments/${patientId}/`)
+      fetch(
+        `https://qa-phoenix.drcloudemr.com/api/documents/patient-photo?patient_id=${patientId}&category_id=5`
+      )
         .then((response) => response.json())
-        .then(() => {
+        .then((resp) => {
           setLoading(false);
+          setPatientImageUrl(resp?.url);
         })
         .catch((err) => {
           setError(err.message);
@@ -85,7 +89,9 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
         onTabClick={setActiveTab}
       />
       <div className="mt-4">
-        {activeTab === "Patient ID Card" && <PatientCard />}
+        {activeTab === "Patient ID Card" && (
+          <PatientCard patientImage={patientImageUrl} />
+        )}
         {activeTab === "Photos" && (
           <PhotoGalleryComponent photos={patientPhotos} />
         )}

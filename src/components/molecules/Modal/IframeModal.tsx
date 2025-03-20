@@ -52,7 +52,7 @@ const IframeModal: React.FC<{
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           closeModal();

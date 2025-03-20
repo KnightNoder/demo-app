@@ -14,13 +14,20 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Current");
+  const [vitalsData, setVitalsData] = useState<any>(null);
 
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`https://qa-phoenix.drcloudemr.com/api/appointments/${patientId}/`)
+      fetch(`https://qa-phoenix.drcloudemr.com/api/vitals?pid=${patientId}`)
         .then((response) => response.json())
-        .then(() => {
+        .then((response) => {
+          console.log("Vitals API Response:", response);
+          if (Array.isArray(response.data)) {
+            setVitalsData(response.data);
+          } else {
+            setVitalsData([]);
+          }
           setLoading(false);
         })
         .catch((err) => {
@@ -67,11 +74,19 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
 
   return (
     <div className="p-4 bg-white rounded-lg">
-      <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
       <div className="mt-4">
-        {activeTab === "Current" && <VitalsOverview />}
-        {activeTab === "Trends" && <VitalsTrend interval={2000}/>}
-        {activeTab === "History" && <VitalsTable />}
+        {activeTab === "Current" && vitalsData && vitalsData.length > 0 && (
+          <VitalsOverview vitalData={vitalsData[0]} />
+        )}
+        {activeTab === "Trends" && <VitalsTrend interval={2000} />}
+        {activeTab === "History" && (
+          <VitalsTable vitalsDataArray={vitalsData} />
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,7 @@
-const VitalsTable = () => {
+interface VitalsTableProps {
+  vitalsDataArray: any[];
+}
+const VitalsTable: React.FC<VitalsTableProps> = ({}) => {
   return (
     <div className="p-4 mt-4 bg-white rounded-lg shadow">
       <table className="w-full border-collapse">
