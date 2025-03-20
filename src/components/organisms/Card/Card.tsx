@@ -32,41 +32,11 @@ const DraggableCard: React.FC<CardProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
   const [hoveredEdge, setHoveredEdge] = useState<null | string>(null);
-  // const [isVisible, setIsVisible] = useState(false);
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       entries.forEach((entry) => {
-  //         setIsVisible(entry.isIntersecting && entry.intersectionRatio >= 0.1);
-  //       });
-  //     },
-  //     { threshold: 0.1 } // Move this outside the callback
-  //   );
-
-  //   if (cardRef.current) {
-  //     observer.observe(cardRef.current);
-  //   }
-
-  //   return (() => {
-  //     if (cardRef.current) {
-  //       observer.unobserve(cardRef.current);
-  //     }
-  //   })
-
-  // }, [])
-
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
+  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -94,33 +64,25 @@ const DraggableCard: React.FC<CardProps> = ({
     };
   }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  // This method will be passed to the Header component
+  const handleHeaderMouseDown = (e: React.MouseEvent) => {
     if (isResizing.current) return;
     e.preventDefault();
     setIsDragging(true);
     document.body.style.cursor = "grabbing";
 
-    const startX = e.clientX - position?.x;
-    const startY = e.clientY - position?.y;
+    const startX = e.clientX - position.x;
+    const startY = e.clientY - position.y;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // const container = document.getElementById('card-container');
-      // if (!container) return;
-
-      // const containerRect = container.getBoundingClientRect();
-      // const cardRect = cardRef.current?.getBoundingClientRect();
-
-      // if (!cardRect) return;
-
-      // // Calculate new position
-      // let newX = e.clientX - startX;
-      // let newY = e.clientY - startY;
-
-      // // Constrain to container bounds
-      // newX = Math.max(0, Math.min(newX, containerRect.width - cardRect.width));
-      // newY = Math.max(0, Math.min(newY, containerRect.height - cardRect.height));
-
-      // setPosition({ x: newX, y: newY });
       setPosition({ x: e.clientX - startX, y: e.clientY - startY });
     };
 
@@ -155,8 +117,8 @@ const DraggableCard: React.FC<CardProps> = ({
     const startY = e.clientY;
     const startWidth = size.width;
     const startHeight = size.height;
-    const startLeft = position?.x;
-    const startTop = position?.y;
+    const startLeft = position.x;
+    const startTop = position.y;
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - startX;
@@ -231,7 +193,6 @@ const DraggableCard: React.FC<CardProps> = ({
     console.log("in close modal");
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       setIsModalOpen(false);
-      // setIsVisible(true);
     }
   };
 
@@ -325,31 +286,30 @@ const DraggableCard: React.FC<CardProps> = ({
           ref={cardRef}
           data-testid="draggable-card"
           className="absolute z-10 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
-          draggable
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
           style={{
             width: `${size.width}px`,
             height: isCollapsed ? "auto" : `${size.height}px`,
             left: `${position.x}px`,
             top: `${position.y}px`,
-            cursor: isDragging ? "grabbing" : getResizeCursor(),
+            cursor: getResizeCursor(),
           }}
-          onMouseDown={handleMouseDown}
         >
           <div className="flex flex-col h-full">
-            <Header
-              title={title}
-              isCollapsed={isCollapsed}
-              handleCollapse={handleCollapse}
-              handleExpandModal={handleExpandModal}
-              isKebabMenuOpen={isKebabMenuOpen}
-              toggleKebabMenu={toggleKebabMenu}
-              kebabMenuRef={kebabMenuRef}
-              icon={icon}
-            />
+            <div ref={headerRef}>
+              <Header
+                title={title}
+                isCollapsed={isCollapsed}
+                handleCollapse={handleCollapse}
+                handleExpandModal={handleExpandModal}
+                isKebabMenuOpen={isKebabMenuOpen}
+                toggleKebabMenu={toggleKebabMenu}
+                kebabMenuRef={kebabMenuRef}
+                icon={icon}
+                onMouseDown={handleHeaderMouseDown}
+                isDragging={isDragging}
+              />
+            </div>
             {!isCollapsed && (
-              // <ScrollArea className="h-full">
               <>
                 <CustomScroll heightRelativeToParent="calc(100% - 100px)">
                   <div className="flex flex-col">
@@ -376,8 +336,6 @@ const DraggableCard: React.FC<CardProps> = ({
                   </div>
                 )}
               </>
-
-              // </ScrollArea>
             )}
           </div>
 

@@ -8,9 +8,10 @@ interface HeaderProps {
   handleExpandModal: () => void;
   isKebabMenuOpen: boolean;
   toggleKebabMenu: () => void;
-  icon?: string | undefined;
-
   kebabMenuRef: React.RefObject<HTMLDivElement>;
+  icon?: string | undefined;
+  onMouseDown?: (e: React.MouseEvent) => void;
+  isDragging?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -22,9 +23,14 @@ const Header: React.FC<HeaderProps> = ({
   toggleKebabMenu,
   kebabMenuRef,
   icon,
+  onMouseDown,
+  isDragging,
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-white cursor-move header drag-handle">
+    <div
+      className={`flex items-center justify-between p-4 bg-white header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      onMouseDown={onMouseDown}
+    >
       <h3 className="flex items-center justify-center font-medium">
         <Icons variant={icon} />
         <span className="ml-4"> {title}</span>
