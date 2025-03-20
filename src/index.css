@@ -5,3 +5,7 @@
   border-radius: 10px;
   width: 8px !important;
 }
+
+body {
+  font-family: 'Inter', sans-serif;
+}
