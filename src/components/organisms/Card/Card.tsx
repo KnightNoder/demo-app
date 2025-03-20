@@ -64,13 +64,6 @@ const DraggableCard: React.FC<CardProps> = ({
     };
   }, []);
 
-  const handleDragStart = () => {
-    setIsDragging(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
 
   // This method will be passed to the Header component
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
