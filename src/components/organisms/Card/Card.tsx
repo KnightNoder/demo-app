@@ -278,7 +278,7 @@ const DraggableCard: React.FC<CardProps> = ({
         <div
           ref={cardRef}
           data-testid="draggable-card"
-          className="absolute z-10 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg"
+          className="absolute overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg z-100"
           style={{
             width: `${size.width}px`,
             height: isCollapsed ? "auto" : `${size.height}px`,

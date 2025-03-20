@@ -26,7 +26,6 @@ import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/Cogn
 import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 import { setAuthToken } from "./services/api";
 
-
 const widgetOptions = [
   {
     key: "Allergies",
@@ -235,7 +234,10 @@ const App: React.FC = () => {
     if ((window as any).JWT_AUTH_TOKEN) {
       // Save to localStorage
       setAuthToken((window as any).JWT_AUTH_TOKEN);
-      console.log("Token stored in localStorage:", (window as any).JWT_AUTH_TOKEN);
+      console.log(
+        "Token stored in localStorage:",
+        (window as any).JWT_AUTH_TOKEN
+      );
     }
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -290,7 +292,7 @@ const App: React.FC = () => {
   return (
     <Provider store={store}>
       <ToastContainer />
-      <div className="relative h-[600vh] w-[50vw]">
+      <div className="relative mt-36 h-[600vh] w-[50vw]">
         <div className="relative mt-24 h-[400vh] w-[50vw]">
           <div
             className="fixed z-50 transform -translate-x-1/6 top-10 left-2/5"
@@ -384,6 +386,7 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
+          {/* <PatientDockItem /> */}
           {widgetOptions
             .filter((widget) => visibleWidgets.includes(widget.key))
             .map((widget) => (

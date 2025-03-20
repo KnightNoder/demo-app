@@ -24,7 +24,11 @@ const CardFooter: React.FC<CardFooterProps> = ({ category, onAction }) => {
   };
 
   return (
-    <div role="contentinfo" data-testid="card-content" className="relative">
+    <div
+      role="contentinfo"
+      data-testid="card-content"
+      className="absolute bottom-0 left-0 w-full"
+    >
       <CustomScroll heightRelativeToParent="calc(100% - 100px)">
         <div className="footer h-14 bg-white/95 backdrop-blur">
           <div className="relative h-full">
