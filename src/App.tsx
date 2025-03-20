@@ -225,7 +225,7 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    //This will read the token from window.JWT_AUTH_TOKEN once your React app loads and store it in localStorage via setAuthToken
+    //This will read the token from window.JWT_AUTH_TOKEN once the React app loads and store it in localStorage via setAuthToken
     if ((window as any).JWT_AUTH_TOKEN) {
       // Save to localStorage
       setAuthToken((window as any).JWT_AUTH_TOKEN);

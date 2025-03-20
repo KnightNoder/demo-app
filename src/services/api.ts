@@ -3,9 +3,9 @@ import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 
 
 export const setAuthToken = (token: string | null) => {
   if (token) {
-    localStorage.setItem("jwtToken", token);
+    localStorage.setItem("JWT_AUTH_TOKEN", token);
   } else {
-    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("JWT_AUTH_TOKEN");
   }
 };
 
@@ -17,7 +17,7 @@ const api: AxiosInstance = axios.create({
 
 // Attach token from localStorage to every request
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('jwtToken');
+  const token = localStorage.getItem('JWT_AUTH_TOKEN');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
