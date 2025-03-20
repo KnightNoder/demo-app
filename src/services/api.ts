@@ -20,6 +20,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('JWT_AUTH_TOKEN');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('[Axios Interceptor] Attaching token:', token);
   }
   return config;
 });
