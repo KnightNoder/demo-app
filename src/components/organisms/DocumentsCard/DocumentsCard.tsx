@@ -4,46 +4,52 @@ interface Document {
   id: number;
   size: number;
   docdate: string;
-  urll: string;
   url: string;
   status: boolean;
+  filename: string;
 }
 
-const DocumentsComponent: React.FC = () => {
+interface DocumentsComponentProps {
+  patientId: string | null;
+}
+
+const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
+  patientId,
+}) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [selectedDocs, setSelectedDocs] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>("All");
 
   useEffect(() => {
-    setDocuments([
-      {
-        id: 100206276,
-        size: 539569,
-        docdate: "2025-02-28T00:00:00.000000Z",
-        urll: "file:///emrdocs/current/documents/1004596/istockphoto_1403500817_2048x2048.jpg",
-        url: "https://qa-phoenix.drcloudemr.com/api/documents/image?file_path=%2Femrdocs%2Fcurrent%2Fdocuments%2F1004596%2Fistockphoto_1403500817_2048x2048.jpg",
-        status: true,
-      },
-      {
-        id: 100206275,
-        size: 135946,
-        docdate: "2025-02-28T00:00:00.000000Z",
-        urll: "file:///emrdocs/current/documents/1004596/chain.jpg",
-        url: "https://qa-phoenix.drcloudemr.com/api/documents/image?file_path=%2Femrdocs%2Fcurrent%2Fdocuments%2F1004596%2Fchain.jpg",
-        status: true,
-      },
-      {
-        id: 100206258,
-        size: 235339,
-        docdate: "2025-02-21T00:00:00.000000Z",
-        urll: "file:///emrdocs/current/documents/1004596/LabResult_20241225_120700.pdf",
-        url: "https://qa-phoenix.drcloudemr.com/api/documents/image?file_path=%2Femrdocs%2Fcurrent%2Fdocuments%2F1004596%2FLabResult_20241225_120700.pdf",
-        status: true,
-      },
-    ]);
-  }, []);
+    const fetchDocuments = async () => {
+      if (!patientId) return;
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          `https://qa-phoenix.drcloudemr.com/api/documents?patient_id=${patientId}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setDocuments(data);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch documents");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, [patientId]);
 
   const formatBytes = (bytes: number, decimals: number = 2): string => {
     if (bytes === 0) return "0 Bytes";
@@ -74,18 +80,80 @@ const DocumentsComponent: React.FC = () => {
     setSelectAll(newSelection.size === documents.length);
   };
 
-  const handleDownload = () => {
-    selectedDocs.forEach((id) => {
-      const doc = documents.find((d) => d.id === id);
-      if (doc) {
+  const handleDownload = async () => {
+    if (selectedDocs.size === 0) return;
+
+    const selectedFilePaths = documents
+      .filter((doc) => selectedDocs.has(doc.id))
+      .map((doc) => encodeURIComponent(doc.url));
+
+    if (selectedFilePaths.length === 0) return;
+
+    if (selectedFilePaths.length === 1) {
+      // Single file download
+      const doc = documents.find((d) => selectedDocs.has(d.id));
+      if (!doc) return;
+
+      try {
+        const filePath = encodeURIComponent(doc.url);
+        const response = await fetch(`${filePath}&dl=1`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to download file: ${doc.filename}`);
+        }
+
+        const blob = await response.blob();
         const link = document.createElement("a");
-        link.href = doc.url;
-        link.download = decodeURIComponent(doc.url.split("/").pop() || "");
+        link.href = URL.createObjectURL(blob);
+        link.download = doc.filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      } catch (error) {
+        console.error("Download error:", error);
       }
-    });
+    } else {
+      const requestBody = new URLSearchParams();
+      selectedFilePaths.forEach((path) => {
+        const filePathUrl = decodeURIComponent(path);
+        const params = new URL(filePathUrl).searchParams;
+        const filePath = params.get("file_path") ?? ""; // Ensure it's a string
+
+        if (filePath) {
+          requestBody.append("file_paths[]", encodeURIComponent(filePath));
+        }
+      });
+
+      try {
+        const response = await fetch(
+          "https://qa-phoenix.drcloudemr.com/api/download/patient/documents",
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: requestBody.toString(),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to download: ${response.status} - ${response.statusText}`
+          );
+        }
+
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "documents.zip"; // Assuming the API returns a ZIP file for multiple downloads
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Download error:", error);
+      }
+    }
   };
 
   const filteredDocuments = documents.filter((doc) =>
@@ -134,55 +202,54 @@ const DocumentsComponent: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="grid grid-cols-5 gap-2 pb-2 text-sm font-semibold sm:grid-cols-7">
-          <span>
-            <input
-              type="checkbox"
-              checked={selectAll}
-              onChange={handleSelectAll}
-              className="w-4 h-4"
-            />
-          </span>
-          <span>Document</span>
-          <span className="hidden sm:block">Category</span>
-          <span>Date</span>
-          <span className="hidden sm:block">Uploaded By</span>
-          <span>Status</span>
-          <span className="hidden sm:block">Size</span>
-        </div>
-        <div className="mt-3 space-y-3">
-          {filteredDocuments.map((doc) => (
-            <div
-              key={doc.id}
-              className="grid items-center grid-cols-5 gap-2 pb-2 text-sm sm:grid-cols-7"
-            >
+      {loading && <p>Loading documents...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && !error && filteredDocuments.length === 0 && (
+        <p>No documents found.</p>
+      )}
+
+      {!loading && !error && filteredDocuments.length > 0 && (
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-5 gap-2 pb-2 text-sm font-semibold sm:grid-cols-5">
+            <span>
               <input
                 type="checkbox"
-                checked={selectedDocs.has(doc.id)}
-                onChange={() => handleSelectDocument(doc.id)}
+                checked={selectAll}
+                onChange={handleSelectAll}
                 className="w-4 h-4"
               />
-              <span className="truncate">
-                {decodeURIComponent(doc.url.split("/").pop() || "")}
-              </span>
-              <span className="hidden sm:block">Patient Forms</span>
-              <span>{new Date(doc.docdate).toLocaleDateString()}</span>
-              <span className="hidden sm:block">Patient Portal</span>
-              <span
-                className={`px-2 py-1 rounded text-xs font-semibold ${
-                  doc.status
-                    ? "text-green-800"
-                    : "bg-orange-100 text-orange-800"
-                }`}
+            </span>
+            <span>Document</span>
+            <span>Date</span>
+            <span>Status</span>
+            <span className="hidden sm:block">Size</span>
+          </div>
+          <div className="mt-3 space-y-3">
+            {filteredDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className="grid items-center grid-cols-5 gap-2 pb-2 text-sm sm:grid-cols-5"
               >
-                {doc.status ? "Approved" : "Pending"}
-              </span>
-              <span className="hidden sm:block">{formatBytes(doc.size)}</span>
-            </div>
-          ))}
+                <input
+                  type="checkbox"
+                  checked={selectedDocs.has(doc.id)}
+                  onChange={() => handleSelectDocument(doc.id)}
+                  className="w-4 h-4"
+                />
+                <span className="truncate">{doc?.filename}</span>
+                <span>{new Date(doc.docdate).toLocaleDateString()}</span>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-semibold ${doc.status ? "text-green-800" : "text-orange-800"}`}
+                >
+                  {doc.status ? "Approved" : "Pending"}
+                </span>
+                <span className="hidden sm:block">{formatBytes(doc.size)}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
