@@ -113,13 +113,12 @@ fi
 
     # tell the user before updating the JS in index_v2.php by showing the corresonding lines of JS in index_v2.php
     echo "Before updating JS in index_v2.php... current line:"
-    #add the $LATEST_JS_FILENAME to the line
-    sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$LATEST_JS_FILENAME"'"><\/script>/g' "./index_v2.php"
-    # sed -n -E '/<script type="module" crossorigin src="[^"]+"><\/script>/p' "./index_v2.php"   
+    sed -n '/<script type="module" crossorigin src=".*"><\/script>/p' "./index_v2.php"
 
     # tell the user before updating the CSS in index_v2.php by showing the corresonding lines of CSS in index_v2.php
     echo "Before updating CSS in index_v2.php... current line:"
-    sed -n -E '/<link rel="stylesheet" crossorigin href="[^"]+">/p' "./index_v2.php"
+    sed -n '/<link rel="stylesheet" crossorigin href=".*">/p' "./index_v2.php"
+
 #####################################################
 #### UPDATE THE JS AND CSS FILES IN INDEX_V2.PHP ####
 #####################################################
@@ -129,6 +128,8 @@ else
     # Update the JavaScript file reference
     echo "Updating JS filename in index_v2.php..."
     sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"$LATEST_JS_FILENAME"'"><\/script>/g' "./index_v2.php"
+   # sed -i -E 's/<script type="module" crossorigin src="[^"]+"><\/script>/<script type="module" crossorigin src="'"index-KRzBpBBb.js"'"><\/script>/g' "./index_v2.php"
+
 fi
 
 if [ "$SKIP_CSS_UPDATE" == true ]; then
