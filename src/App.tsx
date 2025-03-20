@@ -24,6 +24,8 @@ import DisclosuresCard from "./components/organisms/DisclosuresCard/DisclosuresC
 import FunctionalStatusCard from "./components/organisms/FunctionalStatusCard/FunctionalStatusCard";
 import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/CognitiveStatusCard";
 import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
+import { setAuthToken } from "./services/api";
+
 
 const widgetOptions = [
   {
@@ -229,6 +231,13 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    //This will read the token from window.JWT_AUTH_TOKEN once the React app loads and store it in localStorage via setAuthToken
+    if ((window as any).JWT_AUTH_TOKEN) {
+      // Save to localStorage
+      setAuthToken((window as any).JWT_AUTH_TOKEN);
+      console.log("Token stored in localStorage:", (window as any).JWT_AUTH_TOKEN);
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         widgetRef.current &&
