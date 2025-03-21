@@ -3,19 +3,26 @@ import Icons from "../../../assets/Icons/Icons";
 import Header from "../../molecules/CardHeader/CardHeader";
 import CardFooter from "../../molecules/CardFooter/CardFooter";
 import { CustomScroll } from "react-custom-scroll";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Define grid size for snapping
+const GRID_SIZE = 20; // Size in pixels for the grid
 
 interface CardProps {
   title: string;
   children: React.ReactNode;
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | boolean;
   initialPosition: { x: number; y: number };
   category?: string | null;
   patientId?: string | null;
   icon?: string | undefined;
   onAction?: (action: "add" | "view", category: string | null) => void;
+  id: string; // Required for dnd-kit
+  order?: number; // Order in the grid for sorting
 }
 
-const DraggableCard: React.FC<CardProps> = ({
+const Card: React.FC<CardProps> = ({
   title,
   children,
   footer,
@@ -24,10 +31,10 @@ const DraggableCard: React.FC<CardProps> = ({
   patientId,
   icon,
   onAction,
+  id,
+  order,
 }) => {
-  const [position, setPosition] = useState(initialPosition);
-  const [size, setSize] = useState({ width: 750, height: 500 });
-  const [isDragging, setIsDragging] = useState(false);
+  const [size, setSize] = useState({ width: "100%", height: 500 });
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
@@ -37,6 +44,30 @@ const DraggableCard: React.FC<CardProps> = ({
   const kebabMenuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+
+  // Set up dnd-kit sortable
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    data: {
+      type: "card",
+      order: order,
+    },
+  });
+
+  // Apply the transform as CSS
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    // Keep the card appearance the same when dragging
+    zIndex: isDragging ? 110 : 100,
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,32 +95,6 @@ const DraggableCard: React.FC<CardProps> = ({
     };
   }, []);
 
-
-  // This method will be passed to the Header component
-  const handleHeaderMouseDown = (e: React.MouseEvent) => {
-    if (isResizing.current) return;
-    e.preventDefault();
-    setIsDragging(true);
-    document.body.style.cursor = "grabbing";
-
-    const startX = e.clientX - position.x;
-    const startY = e.clientY - position.y;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX - startX, y: e.clientY - startY });
-    };
-
-    const handleMouseUp = () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      setIsDragging(false);
-      document.body.style.cursor = "default";
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  };
-
   const handleResizeMouseDown = (
     e: React.MouseEvent,
     direction:
@@ -106,61 +111,42 @@ const DraggableCard: React.FC<CardProps> = ({
     e.stopPropagation();
     isResizing.current = true;
 
+    // Show grid on resize start
+    document.body.classList.add("dragging-active");
+
     const startX = e.clientX;
     const startY = e.clientY;
-    const startWidth = size.width;
-    const startHeight = size.height;
-    const startLeft = position.x;
-    const startTop = position.y;
+    const startHeight = typeof size.height === "number" ? size.height : 500;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX;
       const deltaY = e.clientY - startY;
-
-      let newWidth = startWidth;
       let newHeight = startHeight;
-      let newLeft = startLeft;
-      let newTop = startTop;
 
       switch (direction) {
         case "top":
           newHeight = Math.max(100, startHeight - deltaY);
-          newTop = startTop + deltaY;
           break;
         case "bottom":
           newHeight = Math.max(100, startHeight + deltaY);
           break;
-        case "left":
-          newWidth = Math.max(100, startWidth - deltaX);
-          newLeft = startLeft + deltaX;
-          break;
-        case "right":
-          newWidth = Math.max(100, startWidth + deltaX);
-          break;
         case "top-left":
-          newWidth = Math.max(100, startWidth - deltaX);
-          newHeight = Math.max(100, startHeight - deltaY);
-          newLeft = startLeft + deltaX;
-          newTop = startTop + deltaY;
-          break;
         case "top-right":
-          newWidth = Math.max(100, startWidth + deltaX);
           newHeight = Math.max(100, startHeight - deltaY);
-          newTop = startTop + deltaY;
           break;
         case "bottom-left":
-          newWidth = Math.max(100, startWidth - deltaX);
-          newHeight = Math.max(100, startHeight + deltaY);
-          newLeft = startLeft + deltaX;
-          break;
         case "bottom-right":
-          newWidth = Math.max(100, startWidth + deltaX);
           newHeight = Math.max(100, startHeight + deltaY);
           break;
       }
 
-      setSize({ width: newWidth, height: newHeight });
-      setPosition({ x: newLeft, y: newTop });
+      // Round to grid size
+      const roundedHeight = Math.round(newHeight / GRID_SIZE) * GRID_SIZE;
+
+      // Update only height, width is handled by the grid
+      setSize((prev) => ({
+        ...prev,
+        height: roundedHeight,
+      }));
     };
 
     const handleMouseUp = () => {
@@ -168,6 +154,9 @@ const DraggableCard: React.FC<CardProps> = ({
       window.removeEventListener("mouseup", handleMouseUp);
       isResizing.current = false;
       document.body.style.cursor = "default";
+
+      // Hide grid on resize end
+      document.body.classList.remove("dragging-active");
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -183,7 +172,6 @@ const DraggableCard: React.FC<CardProps> = ({
   };
 
   const handleCloseModal = (e: React.MouseEvent) => {
-    console.log("in close modal");
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       setIsModalOpen(false);
     }
@@ -218,6 +206,17 @@ const DraggableCard: React.FC<CardProps> = ({
       default:
         return "default";
     }
+  };
+
+  // Card styles
+  const cardStyles = {
+    height: isCollapsed
+      ? "auto"
+      : typeof size.height === "number"
+        ? `${size.height}px`
+        : size.height,
+    cursor: isDragging ? "grabbing" : getResizeCursor(),
+    transition: isResizing.current ? "none" : transition,
   };
 
   return (
@@ -276,19 +275,21 @@ const DraggableCard: React.FC<CardProps> = ({
       )}
       {!isModalOpen && (
         <div
-          ref={cardRef}
+          ref={setNodeRef}
           data-testid="draggable-card"
-          className="absolute overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg z-100"
+          className="m-2 bg-white border border-gray-200 rounded-lg shadow-lg"
           style={{
-            width: `${size.width}px`,
-            height: isCollapsed ? "auto" : `${size.height}px`,
-            left: `${position.x}px`,
-            top: `${position.y}px`,
-            cursor: getResizeCursor(),
+            ...cardStyles,
+            ...style,
           }}
         >
           <div className="flex flex-col h-full">
-            <div ref={headerRef}>
+            <div
+              ref={headerRef}
+              className="cursor-grab active:cursor-grabbing"
+              {...attributes}
+              {...listeners}
+            >
               <Header
                 title={title}
                 isCollapsed={isCollapsed}
@@ -298,7 +299,7 @@ const DraggableCard: React.FC<CardProps> = ({
                 toggleKebabMenu={toggleKebabMenu}
                 kebabMenuRef={kebabMenuRef}
                 icon={icon}
-                onMouseDown={handleHeaderMouseDown}
+                onMouseDown={() => {}} // dnd-kit handles this now
                 isDragging={isDragging}
               />
             </div>
@@ -306,34 +307,28 @@ const DraggableCard: React.FC<CardProps> = ({
               <>
                 <CustomScroll heightRelativeToParent="calc(100% - 100px)">
                   <div className="flex flex-col">
-                    <div className="flex-1 overflow-y-auto">
-                      {true ? (
-                        children
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 animate-pulse" />
-                      )}
-                    </div>
+                    <div className="flex-1 overflow-y-auto">{children}</div>
                   </div>
                 </CustomScroll>
-                {footer && (
-                  <div className="">
-                    {true ? (
-                      <CardFooter
-                        category={category}
-                        patientId={patientId}
-                        onAction={onAction}
-                      />
-                    ) : (
-                      <div className="h-8 bg-gray-100 animate-pulse" />
-                    )}
-                  </div>
-                )}
               </>
+            )}
+
+            {/* Footer is now outside the collapsed condition to always show it */}
+            {footer && (
+              <div className="">
+                <CardFooter
+                  category={category}
+                  patientId={patientId}
+                  onAction={onAction}
+                />
+              </div>
             )}
           </div>
 
+          {/* Resize handles are separate from the footer now */}
           {!isCollapsed && (
             <>
+              {/* Only show vertical resize handles since width is controlled by grid */}
               <div
                 className="absolute top-0 left-0 w-full h-2 cursor-ns-resize"
                 onMouseEnter={() => handleMouseEnterResizeHandle("top")}
@@ -346,44 +341,6 @@ const DraggableCard: React.FC<CardProps> = ({
                 onMouseLeave={handleMouseLeaveResizeHandle}
                 onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
               />
-              <div
-                className="absolute top-0 left-0 w-2 h-full cursor-ew-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("left")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "left")}
-              />
-              <div
-                className="absolute top-0 right-0 w-2 h-full cursor-ew-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("right")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "right")}
-              />
-              <div
-                className="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("top-left")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "top-left")}
-              />
-              <div
-                className="absolute top-0 right-0 w-4 h-4 cursor-nesw-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("top-right")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "top-right")}
-              />
-              <div
-                className="absolute bottom-0 left-0 w-4 h-4 cursor-nesw-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("bottom-left")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")}
-              />
-              <div
-                className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
-                onMouseEnter={() =>
-                  handleMouseEnterResizeHandle("bottom-right")
-                }
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")}
-              />
             </>
           )}
         </div>
@@ -392,4 +349,4 @@ const DraggableCard: React.FC<CardProps> = ({
   );
 };
 
-export default DraggableCard;
+export default Card;
