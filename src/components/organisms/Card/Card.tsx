@@ -225,7 +225,7 @@ const DraggableCard: React.FC<CardProps> = ({
       {isModalOpen && (
         <div
           data-testid="modal"
-          className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-120 modal backdrop-blur-sm"
           onClick={handleCloseModal}
         >
           <div
