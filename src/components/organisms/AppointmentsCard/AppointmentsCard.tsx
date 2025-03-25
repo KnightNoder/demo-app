@@ -3,6 +3,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import AppointmentItem from "../../molecules/AppointmentItem/AppointmentItem";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
+import axiosClient from "../../../api/axiosClient";
 
 interface Appointment {
   id: number;
@@ -47,77 +48,17 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`https://qa-phoenix.drcloudemr.com/api/appointments/${patientId}/`)
-        .then((response) => response.json())
-        .then((data) => {
-          setAppointments(data.data);
+      axiosClient
+        .get(`/appointments/${patientId}/`)
+        .then((response) => {
+          setAppointments(response.data.data);
           setLoading(false);
         })
         .catch((err) => {
-          setError(err.message);
+          setError(err.response?.data?.message || err.message);
           setLoading(false);
         });
     }
-    // setAppointments([
-    //   {
-    //     id: 39,
-    //     title: "Assessment",
-    //     description: "Routine Checkup",
-    //     event_date: "2024-02-12",
-    //     end_date: "2024-02-29",
-    //     duration: 60,
-    //     start_time: "01:00 PM",
-    //     end_time: "02:00 PM",
-    //     recurrence_type: 1,
-    //     patient: {
-    //       id: 1002,
-    //       first_name: "Test",
-    //       last_name: "Patient",
-    //     },
-    //     provider: {
-    //       id: 1,
-    //       first_name: "Ensoftek",
-    //       last_name: "Administrator",
-    //     },
-    //     facility: {
-    //       id: 13,
-    //       name: "Yashoda",
-    //     },
-    //     category: {
-    //       id: 17,
-    //       name: "Assessment",
-    //     },
-    //   },
-    //   {
-    //     id: 39,
-    //     title: "Assessment",
-    //     description: "Routine Checkup",
-    //     event_date: "2024-02-12",
-    //     end_date: "2024-02-29",
-    //     duration: 60,
-    //     start_time: "01:00 PM",
-    //     end_time: "02:00 PM",
-    //     recurrence_type: 1,
-    //     patient: {
-    //       id: 1002,
-    //       first_name: "Test",
-    //       last_name: "Patient",
-    //     },
-    //     provider: {
-    //       id: 1,
-    //       first_name: "Ensoftek",
-    //       last_name: "Administrator",
-    //     },
-    //     facility: {
-    //       id: 13,
-    //       name: "Yashoda",
-    //     },
-    //     category: {
-    //       id: 17,
-    //       name: "Assessment",
-    //     },
-    //   },
-    // ]);
   }, [patientId]);
 
   if (loading) {
@@ -140,7 +81,9 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
     return (
       <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">Oops! Something went wrong.</p>
+          <p className="text-lg font-semibold text-red-500">
+            Oops! Something went wrong.
+          </p>
           <p className="mt-2 text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
@@ -156,15 +99,21 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
 
   return (
     <div className="p-4 bg-white rounded-lg">
-      <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
-      
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
+
       <div className="mt-4 space-y-4">
         {appointments.length > 0 ? (
           appointments.map((appointment) => (
             <AppointmentItem key={appointment.id} appointment={appointment} />
           ))
         ) : (
-          <div className="w-full p-4 text-center text-gray-500">No Appointments found</div>
+          <div className="w-full p-4 text-center text-gray-500">
+            No Appointments found
+          </div>
         )}
       </div>
     </div>

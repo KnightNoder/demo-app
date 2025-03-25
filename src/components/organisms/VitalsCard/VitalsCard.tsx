@@ -5,6 +5,7 @@ import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import VitalsOverview from "../../molecules/Vitals/Overview";
 import VitalsTrend from "../../molecules/Vitals/Trends";
 import VitalsTable from "../../molecules/Vitals/Table";
+import axiosClient from "../../../api/axiosClient";
 
 interface VitalsCardProps {
   patientId: string | null;
@@ -19,19 +20,21 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(`https://qa-phoenix.drcloudemr.com/api/vitals?pid=${patientId}`)
-        .then((response) => response.json())
+
+      axiosClient
+        .get(`/api/vitals?pid=${patientId}`)
         .then((response) => {
-          console.log("Vitals API Response:", response);
-          if (Array.isArray(response.data)) {
-            setVitalsData(response.data);
+          console.log("Vitals API Response:", response.data);
+          if (Array.isArray(response.data.data)) {
+            setVitalsData(response.data.data);
           } else {
             setVitalsData([]);
           }
-          setLoading(false);
         })
         .catch((err) => {
           setError(err.message);
+        })
+        .finally(() => {
           setLoading(false);
         });
     }

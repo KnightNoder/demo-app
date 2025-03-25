@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
+import axiosClient from "../../../api/axiosClient";
 
 interface DemographicsCardProps {
   patientId: string | null;
@@ -17,13 +18,10 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
   useEffect(() => {
     const fetchTabs = async () => {
       try {
-        const response = await fetch(
-          `https://qa-phoenix.drcloudemr.com/api/patient/${patientId}/demographics`
+        const response = await axiosClient.get(
+          `/patient/${patientId}/demographics`
         );
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data = await response.json();
+        const data = response.data;
 
         if (data && typeof data === "object") {
           const extractedTabs = Object.keys(data).map((key) => {
@@ -42,6 +40,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
             setStatsInfoData(data["5stats"]); // Storing the array of objects
             setContactInfoData(data["2Contact"]);
           }
+
           console.log(data["1Who"]);
 
           if (extractedTabs.length > 0) {
