@@ -9,3 +9,32 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
+/* .dragging-active::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 90;
+  background-image: 
+    linear-gradient(to right, rgba(59, 130, 246, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+} */
+
+/* .snap-point {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(59, 130, 246, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+} */
+
+[data-testid="draggable-card"]{
+  position: relative !important;
+}
