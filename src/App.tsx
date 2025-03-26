@@ -43,7 +43,7 @@ import "./App.css";
 
 // Define grid size for snapping
 const GRID_SIZE = 20;
-const GRID_COLUMNS = 3;
+const GRID_COLUMNS = 2;
 const CARD_WIDTH = 650;
 const CARD_HEIGHT = 500;
 const GRID_GAP = 20;
@@ -418,7 +418,7 @@ const App: React.FC = () => {
 
               {/* Widget menu */}
               <div
-                className={`absolute top-full left-0 mt-2 p-4 w-[500px] bg-white rounded-md shadow-lg transition-transform duration-300 ${
+                className={`absolute left-0 top-6 mt-2 p-4 w-[500px] bg-white rounded-md shadow-lg transition-transform duration-300 ${
                   isWidgetMenuOpen
                     ? "scale-100 opacity-100"
                     : "scale-95 opacity-0 pointer-events-none"
@@ -504,11 +504,8 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>;
-
-            {
-              /* Grid Container */
-            }
+            </div>
+            ;{/* Grid Container */}
             <div className="container p-4 mx-auto">
               <div
                 className="relative grid-container"
@@ -559,7 +556,8 @@ const App: React.FC = () => {
                   })}
                 </SortableContext>
               </div>
-            </div>;
+            </div>
+            ;
           </div>
 
           {/* Modal */}

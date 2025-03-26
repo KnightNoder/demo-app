@@ -208,10 +208,10 @@ const Card: React.FC<CardProps> = ({
     }
   };
 
-  // Card styles
+  // Card styles - set fixed height of 60px when collapsed
   const cardStyles = {
     height: isCollapsed
-      ? "auto"
+      ? "60px"
       : typeof size.height === "number"
         ? `${size.height}px`
         : size.height,
@@ -284,6 +284,7 @@ const Card: React.FC<CardProps> = ({
           }}
         >
           <div className="flex flex-col h-full">
+            {/* Header is always visible */}
             <div
               ref={headerRef}
               className="cursor-grab active:cursor-grabbing"
@@ -303,19 +304,22 @@ const Card: React.FC<CardProps> = ({
                 isDragging={isDragging}
               />
             </div>
+
+            {/* Content is only shown when not collapsed */}
             {!isCollapsed && (
               <>
                 <CustomScroll heightRelativeToParent="calc(100% - 100px)">
-                  <div className="flex flex-col">
-                    <div className="flex-1 overflow-y-auto">{children}</div>
-                  </div>
+                  <div className="flex-1 p-4 overflow-y-auto">{children}</div>
                 </CustomScroll>
               </>
             )}
 
-            {/* Footer is now outside the collapsed condition to always show it */}
-            {footer && (
-              <div className="">
+            {/* Footer is only shown when not collapsed */}
+            {!isCollapsed && footer && (
+              <div
+                className="mt-auto"
+                style={{ display: isCollapsed ? "none" : "block" }}
+              >
                 <CardFooter
                   category={category}
                   patientId={patientId}
@@ -325,7 +329,7 @@ const Card: React.FC<CardProps> = ({
             )}
           </div>
 
-          {/* Resize handles are separate from the footer now */}
+          {/* Resize handles are only shown when not collapsed */}
           {!isCollapsed && (
             <>
               {/* Only show vertical resize handles since width is controlled by grid */}

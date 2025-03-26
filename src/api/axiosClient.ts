@@ -10,8 +10,5 @@ const axiosClient = axios.create({
 });
 
 
-// Attach token from localStorage to every request
-
-
 export default axiosClient;
 
