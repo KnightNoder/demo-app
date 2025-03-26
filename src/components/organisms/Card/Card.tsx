@@ -26,7 +26,7 @@ const Card: React.FC<CardProps> = ({
   title,
   children,
   footer,
-  initialPosition,
+  // initialPosition,
   category,
   patientId,
   icon,
@@ -42,7 +42,7 @@ const Card: React.FC<CardProps> = ({
   const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  // const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   // Set up dnd-kit sortable
@@ -114,7 +114,7 @@ const Card: React.FC<CardProps> = ({
     // Show grid on resize start
     document.body.classList.add("dragging-active");
 
-    const startX = e.clientX;
+    // const startX = e.clientX;
     const startY = e.clientY;
     const startHeight = typeof size.height === "number" ? size.height : 500;
 

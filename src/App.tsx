@@ -42,10 +42,10 @@ import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCar
 import "./App.css";
 
 // Define grid size for snapping
-const GRID_SIZE = 20;
+// const GRID_SIZE = 20;
 const GRID_COLUMNS = 2;
 const CARD_WIDTH = 650;
-const CARD_HEIGHT = 500;
+// const CARD_HEIGHT = 500;
 const GRID_GAP = 20;
 
 // Define the interface for grid items
@@ -198,7 +198,7 @@ const App: React.FC = () => {
   const widgetRef = useRef<HTMLDivElement | null>(null);
 
   // State for active dragging widget
-  const [activeDragWidget, setActiveDragWidget] = useState<string | null>(null);
+  const [, setActiveDragWidget] = useState<string | null>(null);
 
   // State for grid items
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
