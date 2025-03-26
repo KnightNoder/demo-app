@@ -4,6 +4,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import PatientCard from "../../molecules/PatientCard/PatientCard";
 import PhotoGalleryComponent from "../../molecules/PhotoGallery/PhotoGallery";
+import axiosClient from "../../../api/axiosClient";
 
 interface PhotosCardProps {
   patientId: string | null;
@@ -35,13 +36,13 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   useEffect(() => {
     if (patientId) {
       setLoading(true);
-      fetch(
-        `https://qa-phoenix.drcloudemr.com/api/documents/patient-photo?patient_id=${patientId}&category_id=5`
-      )
-        .then((response) => response.json())
-        .then((resp) => {
+      axiosClient
+        .get(`/documents/patient-photo`, {
+          params: { patient_id: patientId, category_id: 5 },
+        })
+        .then((response) => {
           setLoading(false);
-          setPatientImageUrl(resp?.url);
+          setPatientImageUrl(response.data?.url);
         })
         .catch((err) => {
           setError(err.message);

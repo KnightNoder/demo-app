@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axiosClient from "../../../api/axiosClient";
 
 interface Document {
   id: number;
@@ -33,15 +34,10 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://qa-phoenix.drcloudemr.com/api/documents?patient_id=${patientId}`
+        const response = await axiosClient.get(
+          `/documents?patient_id=${patientId}`
         );
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = response.data;
 
         // Add category and uploadedBy to each document
         const enhancedData = data.map((doc: Document) => ({
@@ -52,7 +48,11 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
 
         setDocuments(enhancedData);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch documents");
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to fetch documents"
+        );
       } finally {
         setLoading(false);
       }
@@ -145,32 +145,26 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
       });
 
       try {
-        const response = await fetch(
-          "https://qa-phoenix.drcloudemr.com/api/download/patient/documents",
+        const response = await axiosClient.post(
+          "/download/patient/documents",
+          requestBody.toString(),
           {
-            method: "POST",
             headers: {
               Accept: "application/json",
               "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: requestBody.toString(),
+            responseType: "blob", // Ensure the response is treated as a binary file
           }
         );
 
-        if (!response.ok) {
-          throw new Error(
-            `Failed to download: ${response.status} - ${response.statusText}`
-          );
-        }
-
-        const blob = await response.blob();
+        const blob = new Blob([response.data]);
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = "documents.zip";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Download error:", error);
       }
     }

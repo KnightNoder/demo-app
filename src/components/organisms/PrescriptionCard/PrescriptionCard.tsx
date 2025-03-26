@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import PrescriptionItem from "../../molecules/PrescriptionItem/PrescriptionItem";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import Skeleton from "react-loading-skeleton";
+import axiosClient from "../../../api/axiosClient";
 
 interface PrescriptionCardProps {
   patientId: string | null;
@@ -37,16 +38,8 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
   useEffect(() => {
     const fetchPrescriptions = async () => {
       try {
-        const response = await fetch(
-          `https://qa-phoenix.drcloudemr.com/api/prescriptions/${patientId}/`
-        );
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setPrescriptions(data.data);
+        const response = await axiosClient.get(`/prescriptions/${patientId}/`);
+        setPrescriptions(response.data.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error occurred");
       } finally {
