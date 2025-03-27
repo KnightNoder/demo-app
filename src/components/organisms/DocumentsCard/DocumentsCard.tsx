@@ -229,7 +229,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
               placeholder="Search documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-32 p-2 pl-10 text-sm border border-gray-300 rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-64 p-2 pl-10 text-sm border border-gray-300 rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="relative">
@@ -252,7 +252,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="pl-10 p-2 w-[120px] text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              className="pl-10 p-2 w-[180px] text-sm bg-white border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
             >
               <option value="All" className="font-medium text-blue-500">
                 All Documents
