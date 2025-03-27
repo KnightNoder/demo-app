@@ -20,6 +20,7 @@ interface CardProps {
   onAction?: (action: "add" | "view", category: string | null) => void;
   id: string; // Required for dnd-kit
   order?: number; // Order in the grid for sorting
+  iconBgColor?: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -33,6 +34,7 @@ const Card: React.FC<CardProps> = ({
   onAction,
   id,
   order,
+  iconBgColor,
 }) => {
   const [size, setSize] = useState({ width: "100%", height: 500 });
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -224,7 +226,7 @@ const Card: React.FC<CardProps> = ({
       {isModalOpen && (
         <div
           data-testid="modal"
-          className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-120 modal backdrop-blur-sm"
+          className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal"
           onClick={handleCloseModal}
         >
           <div
@@ -254,22 +256,22 @@ const Card: React.FC<CardProps> = ({
                 </button>
               </div>
             </div>
-            <div className="relative flex-1 p-4 overflow-y-auto">
-              {children}
+            <div className="relative flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 p-4 overflow-y-auto">{children}</div>
+              {footer && (
+                <div className="mt-auto">
+                  {true ? (
+                    <CardFooter
+                      category={category}
+                      onAction={onAction}
+                      patientId={patientId}
+                    />
+                  ) : (
+                    <div className="h-8 bg-gray-100 animate-pulse" />
+                  )}
+                </div>
+              )}
             </div>
-            {footer && (
-              <div className="">
-                {true ? (
-                  <CardFooter
-                    category={category}
-                    onAction={onAction}
-                    patientId={patientId}
-                  />
-                ) : (
-                  <div className="h-8 bg-gray-100 animate-pulse" />
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -302,6 +304,7 @@ const Card: React.FC<CardProps> = ({
                 icon={icon}
                 onMouseDown={() => {}} // dnd-kit handles this now
                 isDragging={isDragging}
+                iconBgColor={iconBgColor}
               />
             </div>
 

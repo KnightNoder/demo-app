@@ -52,10 +52,13 @@ interface InsuranceSectionProps {
 
 const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
+    <div className="bg-white rounded-lg shadow ">
       {insurances.length > 0 ? (
         insurances.map((insurance, index) => (
-          <div key={index} className="p-4 mb-6 border border-gray-300 rounded-lg">
+          <div
+            key={index}
+            className="p-4 mb-6 border border-gray-300 rounded-lg"
+          >
             <h2 className="flex items-center text-xl font-bold">
               {insurance?.insurance_company?.name}{" "}
               <span className="px-2 py-1 ml-2 text-xs text-blue-800 bg-blue-200 rounded">
@@ -72,7 +75,9 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
                 </div>
                 <div>
                   <p>Specialist Visit</p>
-                  <p className="font-bold">{insurance?.copays?.specialistVisit}</p>
+                  <p className="font-bold">
+                    {insurance?.copays?.specialistVisit}
+                  </p>
                 </div>
                 <div>
                   <p>Urgent Care</p>
@@ -80,7 +85,9 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
                 </div>
                 <div>
                   <p>Emergency Room</p>
-                  <p className="font-bold">{insurance?.copays?.emergencyRoom}</p>
+                  <p className="font-bold">
+                    {insurance?.copays?.emergencyRoom}
+                  </p>
                 </div>
               </div>
             </div>
@@ -88,23 +95,34 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             <div className="mt-4">
               <h3 className="font-semibold">Coverage Details</h3>
               <ul className="mt-2">
-                {insurance?.coverage && insurance?.coverage.map((item, coverageIndex) => (
-                  <li key={coverageIndex} className="flex justify-between py-2 border-b">
-                    <span
-                      className={`flex items-center ${item?.covered ? "text-green-600" : "text-red-600"
-                        }`}
+                {insurance?.coverage &&
+                  insurance?.coverage.map((item, coverageIndex) => (
+                    <li
+                      key={coverageIndex}
+                      className="flex justify-between py-2 border-b"
                     >
-                      {item?.covered ? "✅" : "❌"} {item?.name}
-                    </span>
-                    {item?.note && <span className="text-sm text-gray-500">{item?.note}</span>}
-                  </li>
-                ))}
+                      <span
+                        className={`flex items-center ${
+                          item?.covered ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {item?.covered ? "✅" : "❌"} {item?.name}
+                      </span>
+                      {item?.note && (
+                        <span className="text-sm text-gray-500">
+                          {item?.note}
+                        </span>
+                      )}
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>
         ))
       ) : (
-        <div className="w-full p-4 text-center text-gray-500">No insurance coverage found</div>
+        <div className="w-full p-4 text-center text-gray-500">
+          No insurance coverage found
+        </div>
       )}
     </div>
   );

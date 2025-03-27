@@ -29,7 +29,7 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="p-4 bg-white rounded-lg">
+      <div className="bg-white rounded-lg">
         <div className="flex mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
@@ -69,13 +69,21 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   );
 
   return (
-    <div className="p-4 bg-white rounded-lg">
-      <TabListHeader tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
+    <div className="bg-white rounded-lg">
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
       <div className="mt-4 space-y-4">
         {filteredMedications.length > 0 ? (
-          filteredMedications.map((med, index) => <MedicationItem key={index} medication={med} />)
+          filteredMedications.map((med, index) => (
+            <MedicationItem key={index} medication={med} />
+          ))
         ) : (
-          <div className="w-full p-4 text-center text-gray-500">No Medications found</div>
+          <div className="w-full p-4 text-center text-gray-500">
+            No Medications found
+          </div>
         )}
       </div>
     </div>

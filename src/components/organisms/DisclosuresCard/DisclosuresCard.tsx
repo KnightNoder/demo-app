@@ -127,7 +127,7 @@ const DisclosuresCard = () => {
     { key: "notes", label: "NOTES" },
   ];
   return (
-    <div className="p-4 bg-white rounded-lg">
+    <div className="bg-white rounded-lg">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

@@ -32,7 +32,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="p-4 bg-white rounded-lg">
+      <div className="bg-white rounded-lg">
         <div className="flex mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
@@ -60,7 +60,9 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">Oops! Something went wrong.</p>
+          <p className="text-lg font-semibold text-red-500">
+            Oops! Something went wrong.
+          </p>
           <p className="mt-2 text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
@@ -69,7 +71,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg">
+    <div className="bg-white rounded-lg">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}
