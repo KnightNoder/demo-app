@@ -43,7 +43,7 @@ import "./App.css";
 
 // Define grid size for snapping
 // const GRID_SIZE = 20;
-const GRID_COLUMNS = 3;
+const GRID_COLUMNS = 2;
 const CARD_WIDTH = 650;
 // const CARD_HEIGHT = 500;
 const GRID_GAP = 20;
@@ -59,86 +59,103 @@ const widgetOptions = [
     key: "Allergies",
     component: AllergyCard,
     icon: "allergies",
+    iconBgColor: "bg-rose-100",
   },
   {
     key: "Diagnosis",
     component: DiagnosisCard,
     icon: "diagnosis",
+    iconBgColor: "bg-indigo-100",
   },
   {
     key: "Medications",
     component: MedicationsCard,
     icon: "medications",
+    iconBgColor: "bg-orange-100",
   },
   {
     key: "Clinical Notes",
     component: ClinicalNotesCard,
     icon: "clinicalNotes",
+    iconBgColor: "bg-emerald-100",
   },
   {
     key: "Insurance",
     component: InsuranceCard,
+    iconBgColor: "bg-blue-100",
     icon: "insurance",
   },
   {
     key: "Lab Reports",
     component: LabReportsCard,
-    icon: "insurance",
+    iconBgColor: "bg-blue-100",
+    icon: "lab-results",
   },
   {
     key: "Prescriptions",
     component: PrescriptionCard,
-    icon: "insurance",
+    iconBgColor: "bg-orange-100",
+    icon: "prescriptions",
   },
   {
     key: "Documents",
     component: DocumentsCard,
-    icon: "insurance",
+    iconBgColor: "bg-orange-100",
+    icon: "document",
   },
   {
     key: "Appointments",
     component: AppointmentsCard,
-    icon: "insurance",
+    iconBgColor: "bg-violet-100",
+    icon: "appointments",
   },
   {
     key: "Notifications",
     component: NotificationCard,
-    icon: "insurance",
+    iconBgColor: "bg-amber-100",
+    icon: "notifications",
   },
   {
     key: "Demographics",
     component: DemographicsCard,
-    icon: "insurance",
+    iconBgColor: "bg-green-100",
+    icon: "demographics",
   },
   {
     key: "ID/Card Photos",
     component: PhotosCard,
-    icon: "insurance",
+    iconBgColor: "bg-purple-100",
+    icon: "id-card",
   },
   {
     key: "Vitals",
     component: VitalsCard,
-    icon: "insurance",
+    iconBgColor: "bg-red-100",
+    icon: "vitals",
   },
   {
     key: "Disclosures",
     component: DisclosuresCard,
-    icon: "insurance",
+    iconBgColor: "bg-teal-100",
+    icon: "disclosures",
   },
   {
     key: "Functional Status",
     component: FunctionalStatusCard,
-    icon: "insurance",
+    iconBgColor: "bg-slate-100",
+    icon: "functional-status",
   },
   {
     key: "Cognitive Status",
     component: CognitiveStatusCard,
-    icon: "insurance",
+    iconBgColor: "bg-slate-100",
+    icon: "cognitive-status",
   },
   {
     key: "Advanced Directives",
     component: AdvancedDirectivesCard,
-    icon: "insurance",
+    iconBgColor: "bg-purple-100",
+    icon: "advanced-directives",
   },
 ];
 
@@ -401,20 +418,60 @@ const App: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <ToastContainer />
-        <div className="relative w-full min-h-screen mt-24">
+        <div className="relative w-full min-h-screen pt-12 bg-[#F4F5FB]">
           <div className="relative w-full">
-            {/* Widget menu button */}
+            {/* Widget menu button - Changed from fixed to static position */}
             <div
-              className="fixed transform z-110 -translate-x-1/4 top-10 left-2/5"
+              className="flex mx-auto mb-4 transform z-110 ml-[800px]"
               ref={widgetRef}
             >
-              <button
-                onClick={() => setIsWidgetMenuOpen(!isWidgetMenuOpen)}
-                className="absolute left-1/3 -translate-x-1/3 top-[-10px] flex items-center p-2 space-x-2 transition bg-white rounded-md shadow-md hover:bg-gray-200"
-              >
-                <Icons variant="widgets" />
-                <span>Widgets</span>
-              </button>
+              {/* Widgets button - separated from other buttons */}
+              <div>
+                <button
+                  onClick={() => setIsWidgetMenuOpen(!isWidgetMenuOpen)}
+                  className="flex items-center p-2 space-x-2 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50"
+                >
+                  <Icons variant="widgets" />
+                  <span>Widgets</span>
+                </button>
+              </div>
+
+              {/* Separate continuous strip for other buttons */}
+              <div className="ml-6 bg-white border border-gray-200 rounded-md shadow-sm">
+                <div className="flex">
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>Client Info</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>Clinical</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>Documents</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>Reports</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>Other</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>EDI</span>
+                  </button>
+
+                  <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                    <span>External Links</span>
+                  </button>
+
+                  <button className="flex items-center p-2 hover:bg-gray-50">
+                    <span>More Options</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Widget menu */}
               <div
@@ -456,7 +513,11 @@ const App: React.FC = () => {
                             className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
                           >
                             <span className="flex items-center space-x-2">
-                              <Icons variant={widget.icon} />
+                              <div
+                                className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor}`}
+                              >
+                                <Icons variant={widget.icon} />
+                              </div>
                               <span>{widget.key}</span>
                             </span>
                             <button
@@ -488,7 +549,11 @@ const App: React.FC = () => {
                               className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
                             >
                               <span className="flex items-center space-x-2">
-                                <Icons variant={widget?.icon || "default"} />
+                                <div
+                                  className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor}`}
+                                >
+                                  <Icons variant={widget?.icon || "default"} />
+                                </div>
                                 <span>{key}</span>
                               </span>
                               <button
@@ -504,11 +569,9 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>;
+            </div>
 
-            {
-              /* Grid Container */
-            }
+            {/* Grid Container */}
             <div className="container p-4 mx-auto">
               <div
                 className="relative grid-container"
@@ -550,6 +613,7 @@ const App: React.FC = () => {
                           }
                         }}
                         patientId={patientId}
+                        iconBgColor={widget?.iconBgColor}
                       >
                         {widget.component && (
                           <widget.component patientId={patientId} />
@@ -559,7 +623,7 @@ const App: React.FC = () => {
                   })}
                 </SortableContext>
               </div>
-            </div>;
+            </div>
           </div>
 
           {/* Modal */}

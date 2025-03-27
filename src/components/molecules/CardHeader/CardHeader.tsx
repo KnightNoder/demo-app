@@ -12,6 +12,7 @@ interface HeaderProps {
   icon?: string | undefined;
   onMouseDown?: (e: React.MouseEvent) => void;
   isDragging?: boolean;
+  iconBgColor?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -25,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   icon,
   onMouseDown,
   isDragging,
+  iconBgColor,
 }) => {
   return (
     <div
@@ -32,8 +34,12 @@ const Header: React.FC<HeaderProps> = ({
       onMouseDown={onMouseDown}
     >
       <h3 className="flex items-center justify-center font-medium">
-        <Icons variant={icon} />
-        <span className="ml-4"> {title}</span>
+        <div
+          className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${iconBgColor}`}
+        >
+          <Icons variant={icon} />
+        </div>
+        <span className="ml-2"> {title}</span>
       </h3>
       <div className="flex items-center gap-1">
         <button

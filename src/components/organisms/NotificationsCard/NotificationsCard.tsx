@@ -70,7 +70,7 @@ const NotificationCard: React.FC = () => {
     { label: "Reminders", count: 1 },
   ];
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="bg-white rounded-lg shadow-md">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

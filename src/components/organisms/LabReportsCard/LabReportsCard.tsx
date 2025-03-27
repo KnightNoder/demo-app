@@ -47,7 +47,7 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="p-4 bg-white rounded-lg">
+      <div className="bg-white rounded-lg">
         <div className="flex mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
@@ -75,7 +75,7 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
   }
 
   return (
-    <div className="p-4 bg-white rounded-lg">
+    <div className="bg-white rounded-lg">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

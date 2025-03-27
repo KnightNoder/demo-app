@@ -54,7 +54,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="p-4 bg-white rounded-lg">
+      <div className="bg-white rounded-lg">
         <div className="flex mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
@@ -107,7 +107,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
     { label: "All", count: 3 },
   ];
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="bg-white rounded-lg shadow-md">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

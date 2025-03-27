@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import axiosClient from "../../../api/axiosClient";
+import Skeleton from "react-loading-skeleton";
 
 interface DemographicsCardProps {
   patientId: string | null;
@@ -77,7 +78,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
             activeTab={activeTab || ""}
             onTabClick={handleTabClick}
           />
-          <div className="p-4">
+          <div className="p-4 h-[525px]">
             {activeTab &&
               renderTabContent(
                 activeTab,
@@ -108,7 +109,25 @@ const renderTabContent = (
     case "Misc":
       return <IDsInfo data={contactInfoData} />;
     default:
-      return <p>Content for {tabKey} is not available.</p>;
+      return (
+        <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
+          <div className="flex flex-col items-center mb-4">
+            <Skeleton circle height={40} width={40} />
+            <div className="mt-4">
+              <Skeleton height={30} width={200} />
+            </div>
+            <div className="mt-2">
+              <Skeleton height={20} width={250} />
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-lg font-semibold text-red-500">
+              Content for {tabKey} not available
+            </p>
+          </div>
+          <Skeleton height={50} width={180} />
+        </div>
+      );
   }
 };
 
