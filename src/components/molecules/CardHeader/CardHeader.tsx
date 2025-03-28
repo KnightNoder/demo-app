@@ -5,7 +5,7 @@ interface HeaderProps {
   title: string;
   isCollapsed: boolean;
   handleCollapse: () => void;
-  handleExpandModal: () => void;
+  handleExpandModal: (e?: React.MouseEvent) => void;
   isKebabMenuOpen: boolean;
   toggleKebabMenu: () => void;
   kebabMenuRef: React.RefObject<HTMLDivElement>;
@@ -28,6 +28,13 @@ const Header: React.FC<HeaderProps> = ({
   isDragging,
   iconBgColor,
 }) => {
+  // Add this function to stop event propagation
+  // In Header.js
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleExpandModal(e);
+  };
+
   return (
     <div
       className={`flex items-center justify-between p-4 bg-white header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
@@ -54,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </button>
         <button
-          onClick={handleExpandModal}
+          onClick={handleExpandClick} /* Changed this line */
           data-testid="expand-icon"
           className="p-1 transition-colors rounded-md hover:bg-gray-100"
         >

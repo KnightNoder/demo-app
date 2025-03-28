@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../../api/axiosClient";
+import Skeleton from "react-loading-skeleton";
 
 interface Document {
   id: number;
@@ -349,7 +350,26 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
       </div>
 
       {loading && <p>Loading documents...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {error && (
+        <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
+          <div className="flex flex-col items-center mb-4">
+            <Skeleton circle height={40} width={40} />
+            <div className="mt-4">
+              <Skeleton height={30} width={200} />
+            </div>
+            <div className="mt-2">
+              <Skeleton height={20} width={250} />
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-lg font-semibold text-red-500">
+              Oops! Something went wrong.
+            </p>
+            <p className="mt-2 text-gray-600">{error}</p>
+          </div>
+          <Skeleton height={50} width={180} />
+        </div>
+      )}
 
       {!loading && !error && filteredDocuments.length === 0 && (
         <p>No documents found.</p>

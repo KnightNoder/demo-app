@@ -38,3 +38,59 @@ body {
 [data-testid="draggable-card"]{
   position: relative !important;
 }
+
+
+
+@media (max-width: 767px) {
+  .grid-container {
+    display: block;
+  }
+  
+  .carousel-container {
+    position: relative;
+  }
+  
+  .carousel-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .carousel-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #d1d5db;
+    transition: background-color 0.3s;
+  }
+  
+  .carousel-dot.active {
+    background-color: #3b82f6;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1536px) {
+  .grid-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

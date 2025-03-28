@@ -169,7 +169,10 @@ const Card: React.FC<CardProps> = ({
     setIsCollapsed((prev) => !prev);
   };
 
-  const handleExpandModal = () => {
+  const handleExpandModal = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     setIsModalOpen(true);
   };
 
@@ -297,7 +300,7 @@ const Card: React.FC<CardProps> = ({
                 title={title}
                 isCollapsed={isCollapsed}
                 handleCollapse={handleCollapse}
-                handleExpandModal={handleExpandModal}
+                handleExpandModal={(e: any) => handleExpandModal(e)}
                 isKebabMenuOpen={isKebabMenuOpen}
                 toggleKebabMenu={toggleKebabMenu}
                 kebabMenuRef={kebabMenuRef}
