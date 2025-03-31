@@ -41,18 +41,22 @@ import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/Cogn
 import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 import "./App.css";
 
-// Define grid size for snapping
-// const GRID_SIZE = 20;
-const GRID_COLUMNS = 2;
-const CARD_WIDTH = 650;
-// const CARD_HEIGHT = 500;
+// Define grid gap
 const GRID_GAP = 20;
+const CARD_BASE_WIDTH = 650; // Base card width for calculating responsive widths
 
 // Define the interface for grid items
 interface GridItem {
   id: string;
   order: number;
 }
+
+// Screen size breakpoints (in pixels)
+// const SCREEN_SM = 640;  // Mobile
+const SCREEN_MD = 768;  // Small tablet
+const SCREEN_LG = 1024; // Large tablet
+const SCREEN_XL = 1280; // Small desktop
+const SCREEN_2XL = 1536; // Large desktop
 
 const widgetOptions = [
   {
@@ -214,11 +218,30 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
 
+  // State for window width to determine the number of columns
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : SCREEN_LG
+  );
+
+  // State for current carousel card index (for mobile view)
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+
   // State for active dragging widget
   const [, setActiveDragWidget] = useState<string | null>(null);
 
   // State for grid items
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
+
+  // Determine whether to show carousel based on screen width
+  const isMobileView = windowWidth < SCREEN_MD;
+
+  // Determine number of columns based on screen width
+  const getGridColumns = () => {
+    if (windowWidth >= SCREEN_2XL) return 4;
+    if (windowWidth >= SCREEN_XL) return 3;
+    if (windowWidth >= SCREEN_MD) return 2;
+    return 1; // Mobile will use carousel
+  };
 
   // Configure sensors for dragging
   const sensors = useSensors(
@@ -257,6 +280,29 @@ const App: React.FC = () => {
     }));
     setGridItems(items);
   }, [visibleWidgets]);
+
+  // Add event listener for window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Initial call to set the correct width
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Reset active card index when switching between mobile and desktop view
+  useEffect(() => {
+    if (isMobileView && activeCardIndex >= gridItems.length) {
+      setActiveCardIndex(0);
+    }
+  }, [isMobileView, gridItems.length, activeCardIndex]);
 
   const openModal = (category: string | null, patientId: string | null) => {
     const url = getCategoryUrl(category, patientId);
@@ -409,6 +455,146 @@ const App: React.FC = () => {
     document.body.classList.remove("dragging-active");
   };
 
+  // Move to the next card in the carousel
+  const nextCard = () => {
+    setActiveCardIndex((prevIndex) =>
+      prevIndex === gridItems.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  // Move to the previous card in the carousel
+  const prevCard = () => {
+    setActiveCardIndex((prevIndex) =>
+      prevIndex === 0 ? gridItems.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Render the carousel navigation UI
+  const renderCarouselNavigation = () => (
+    <div className="flex items-center justify-between px-4 mt-4 mb-4">
+      <button
+        onClick={prevCard}
+        className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
+        aria-label="Previous card"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+      <div className="text-sm text-gray-600">
+        {activeCardIndex + 1} / {gridItems.length}
+      </div>
+      <button
+        onClick={nextCard}
+        className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
+        aria-label="Next card"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+
+  // Render dots for carousel navigation
+  const renderCarouselDots = () => (
+    <div className="flex justify-center mt-2 mb-4">
+      {gridItems.map((_, index) => (
+        <button
+          key={`dot-${index}`}
+          onClick={() => setActiveCardIndex(index)}
+          className={`w-2 h-2 mx-1 rounded-full transition-colors ${
+            index === activeCardIndex ? "bg-blue-500" : "bg-gray-300"
+          }`}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+  );
+
+  // Get the current grid columns count based on screen size
+  const gridColumns = getGridColumns();
+
+  // Calculate the maximum width of the grid container based on screen size and columns
+  const getGridContainerStyle = () => {
+    // For mobile view (carousel), we'll use full width
+    if (isMobileView) {
+      return {
+        width: "100%",
+        maxWidth: "100%",
+        margin: "0 auto",
+      };
+    }
+
+    // For desktop view, calculate based on number of columns
+    const totalWidth =
+      gridColumns * CARD_BASE_WIDTH + (gridColumns - 1) * GRID_GAP;
+
+    // Ensure the grid doesn't get too wide on very large screens
+    const maxWidth = Math.min(totalWidth, windowWidth * 0.95);
+
+    return {
+      display: "grid",
+      gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))`,
+      gap: `${GRID_GAP}px`,
+      width: "100%",
+      maxWidth: `${maxWidth}px`,
+      margin: "0 auto",
+    };
+  };
+
+  // Get style for mobile menu position
+  const getWidgetMenuPosition = () => {
+    if (windowWidth < SCREEN_MD) {
+      // Mobile view
+      return {
+        position: "relative" as const,
+        zIndex: 999,
+        margin: "0 auto",
+        width: "100%",
+        justifyContent: "center",
+        padding: "0 1rem",
+      };
+    } else if (windowWidth < SCREEN_XL) {
+      // Tablet view
+      return {
+        position: "relative" as const,
+        zIndex: 999,
+        margin: "0 auto",
+        marginLeft: "2rem",
+      };
+    } else {
+      // Desktop view
+      return {
+        position: "relative" as const,
+        zIndex: 999,
+        marginLeft: Math.min(800, windowWidth * 0.4) + "px",
+      };
+    }
+  };
+
   return (
     <Provider store={store}>
       <DndContext
@@ -418,15 +604,15 @@ const App: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <ToastContainer />
-        <div className="relative w-full min-h-screen pt-12 bg-[#F4F5FB]">
+        <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
           {/* Widget menu - Moved OUTSIDE and BEFORE the grid container */}
           <div
-            className="relative flex mx-auto mb-4 transform z-50 ml-[800px]"
+            className="relative z-50 flex mx-auto mb-4 transform"
             ref={widgetRef}
-            style={{ position: "relative", zIndex: 999 }}
+            style={getWidgetMenuPosition()}
           >
             {/* Widgets button - separated from other buttons */}
-            <div>
+            <div className="flex-shrink-0">
               <button
                 onClick={() => setIsWidgetMenuOpen(!isWidgetMenuOpen)}
                 className="flex items-center p-2 space-x-2 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50"
@@ -436,9 +622,11 @@ const App: React.FC = () => {
               </button>
             </div>
 
-            {/* Separate continuous strip for other buttons */}
-            <div className="ml-6 bg-white border border-gray-200 rounded-md shadow-sm">
-              <div className="flex">
+            {/* Separate continuous strip for other buttons - hide on mobile */}
+            <div
+              className={`${isMobileView ? "hidden" : "ml-6"} bg-white border border-gray-200 rounded-md shadow-sm`}
+            >
+              <div className="flex flex-wrap">
                 <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
                   <span>Client Info</span>
                 </button>
@@ -473,13 +661,13 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Widget menu dropdown - Adjusted z-index */}
+            {/* Widget menu dropdown - Adjusted z-index and positioning for mobile */}
             <div
-              className={`absolute top-full left-0 mt-2 p-4 w-[500px] bg-white rounded-md shadow-lg transition-transform duration-300 ${
+              className={`absolute top-full mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
                 isWidgetMenuOpen
                   ? "scale-100 opacity-100"
                   : "scale-95 opacity-0 pointer-events-none"
-              }`}
+              } ${isMobileView ? "left-0 right-0 w-[90vw] mx-auto" : "left-0 w-[500px]"}`}
               style={{ zIndex: 1000 }}
             >
               {/* Search input */}
@@ -494,8 +682,10 @@ const App: React.FC = () => {
                 />
               </div>
 
-              {/* Widget grid */}
-              <div className="grid grid-cols-2 gap-4 mt-4">
+              {/* Widget grid - adapt to mobile with flex-col */}
+              <div
+                className={`${isMobileView ? "flex flex-col space-y-4" : "grid grid-cols-2 gap-4"} mt-4`}
+              >
                 {/* Add Widgets list */}
                 <div>
                   <h3 className="pb-1 mb-2 font-bold">Add Widgets</h3>
@@ -571,24 +761,31 @@ const App: React.FC = () => {
           {/* Grid Container - Lower z-index */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
             <div className="container p-4 mx-auto">
+              {/* For mobile view - show carousel navigation */}
+              {isMobileView &&
+                gridItems.length > 0 &&
+                renderCarouselNavigation()}
+
+              {/* Responsive grid container */}
               <div
-                className="relative grid-container"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))`,
-                  gap: `${GRID_GAP}px`,
-                  width: `calc(${GRID_COLUMNS} * ${CARD_WIDTH}px + ${(GRID_COLUMNS - 1) * GRID_GAP}px)`,
-                  margin: "0 auto",
-                }}
+                className={`relative grid-container ${isMobileView ? "carousel-container" : ""}`}
+                style={getGridContainerStyle()}
               >
                 <SortableContext
                   items={gridItems}
                   strategy={rectSortingStrategy}
                 >
-                  {/* Render the cards */}
-                  {gridItems.map((item) => {
+                  {/* Render the cards - carousel for mobile, grid for desktop */}
+                  {gridItems.map((item, index) => {
                     const widget = widgetOptions.find((w) => w.key === item.id);
                     if (!widget) return null;
+
+                    // For mobile view, only show the active card in the carousel
+                    const isVisibleInCarousel = isMobileView
+                      ? index === activeCardIndex
+                      : true;
+
+                    if (!isVisibleInCarousel) return null;
 
                     return (
                       <Card
@@ -621,16 +818,21 @@ const App: React.FC = () => {
                   })}
                 </SortableContext>
               </div>
+
+              {/* Show dots navigation for mobile carousel */}
+              {isMobileView && gridItems.length > 1 && renderCarouselDots()}
             </div>
           </div>
 
-          {/* Modal */}
+          {/* Modal - Make it responsive for mobile */}
           {modal.isOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 z-200 modal backdrop-blur-sm">
-              <div className="relative bg-white p-4 rounded-lg shadow-lg w-[80%] h-[80%] flex flex-col">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black bg-opacity-50 modal backdrop-blur-sm">
+              <div className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-[80%] h-[90%] md:h-[80%] flex flex-col">
                 {/* Modal Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">{modal.title}</h2>
+                <div className="flex items-center justify-between mb-2 md:mb-4">
+                  <h2 className="text-lg font-semibold md:text-xl">
+                    {modal.title}
+                  </h2>
                   <button
                     onClick={closeModal}
                     className="text-lg text-gray-600 hover:text-gray-900"
@@ -651,3 +853,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
