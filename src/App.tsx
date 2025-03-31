@@ -52,7 +52,7 @@ interface GridItem {
 }
 
 // Screen size breakpoints (in pixels)
-const SCREEN_SM = 640;  // Mobile
+// const SCREEN_SM = 640;  // Mobile
 const SCREEN_MD = 768;  // Small tablet
 const SCREEN_LG = 1024; // Large tablet
 const SCREEN_XL = 1280; // Small desktop
