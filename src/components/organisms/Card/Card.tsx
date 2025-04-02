@@ -71,6 +71,22 @@ const Card: React.FC<CardProps> = ({
     zIndex: isDragging ? 110 : 100,
   };
 
+  // Effect to manage modal state changes
+  useEffect(() => {
+    // When modal state changes, dispatch the appropriate event
+    if (isModalOpen) {
+      const modalOpenEvent = new CustomEvent("modalStateChange", {
+        detail: { isOpen: true },
+      });
+      document.dispatchEvent(modalOpenEvent);
+    } else {
+      const modalCloseEvent = new CustomEvent("modalStateChange", {
+        detail: { isOpen: false },
+      });
+      document.dispatchEvent(modalCloseEvent);
+    }
+  }, [isModalOpen]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -173,12 +189,30 @@ const Card: React.FC<CardProps> = ({
     if (e) {
       e.stopPropagation();
     }
+    // Close kebab menu when opening modal to prevent overlap
+    setIsKebabMenuOpen(false);
     setIsModalOpen(true);
+
+    // Dispatch a custom event to notify App component that a modal is open
+    const modalOpenEvent = new CustomEvent("modalStateChange", {
+      detail: { isOpen: true },
+    });
+    document.dispatchEvent(modalOpenEvent);
   };
 
   const handleCloseModal = (e: React.MouseEvent) => {
+    // Prevent the event from reaching the document click handler
+    e.stopPropagation();
+
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       setIsModalOpen(false);
+
+      // Always dispatch the close event when closing the modal
+      // regardless of the condition above
+      const modalCloseEvent = new CustomEvent("modalStateChange", {
+        detail: { isOpen: false },
+      });
+      document.dispatchEvent(modalCloseEvent);
     }
   };
 
@@ -224,137 +258,152 @@ const Card: React.FC<CardProps> = ({
     transition: isResizing.current ? "none" : transition,
   };
 
-  return (
-    <>
-      {isModalOpen && (
-        <div
-          data-testid="modal"
-          className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal"
-          onClick={handleCloseModal}
-        >
-          <div
-            ref={modalRef}
-            className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
-          >
-            <div className="flex items-center justify-between pb-2 pr-10">
-              <span className="font-semibold">{title}</span>
-              <div className="flex items-center gap-4">
-                <button>
-                  <Icons variant="print" />
-                </button>
-                <button>
-                  <Icons variant="share" />
-                </button>
-                <button>
-                  <Icons variant="download" />
-                </button>
-                <button>
-                  <Icons variant="delete" />
-                </button>
-                <button
-                  data-testid="modal-close"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <Icons variant="close" />
-                </button>
-              </div>
-            </div>
-            <div className="relative flex flex-col flex-1 overflow-hidden">
-              <div className="flex-1 p-4 overflow-y-auto">{children}</div>
-              {footer && (
-                <div className="mt-auto">
-                  {true ? (
-                    <CardFooter
-                      category={category}
-                      onAction={onAction}
-                      patientId={patientId}
-                    />
-                  ) : (
-                    <div className="h-8 bg-gray-100 animate-pulse" />
-                  )}
-                </div>
-              )}
-            </div>
+  // Updated modal component to prevent event propagation issues
+  const modalComponent = isModalOpen ? (
+    <div
+      data-testid="modal"
+      className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal"
+      onClick={handleCloseModal}
+      // Prevent clicks on the modal background from affecting other components
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <div
+        ref={modalRef}
+        className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between pb-2 pr-10">
+          <span className="font-semibold">{title}</span>
+          <div className="flex items-center gap-4">
+            <button onClick={(e) => e.stopPropagation()}>
+              <Icons variant="print" />
+            </button>
+            <button onClick={(e) => e.stopPropagation()}>
+              <Icons variant="share" />
+            </button>
+            <button onClick={(e) => e.stopPropagation()}>
+              <Icons variant="download" />
+            </button>
+            <button onClick={(e) => e.stopPropagation()}>
+              <Icons variant="delete" />
+            </button>
+            <button
+              data-testid="modal-close"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(false);
+
+                // Dispatch a custom event to notify App component that a modal is closed
+                const modalCloseEvent = new CustomEvent("modalStateChange", {
+                  detail: { isOpen: false },
+                });
+                document.dispatchEvent(modalCloseEvent);
+              }}
+            >
+              <Icons variant="close" />
+            </button>
           </div>
         </div>
-      )}
-      {!isModalOpen && (
-        <div
-          ref={setNodeRef}
-          data-testid="draggable-card"
-          className="m-2 bg-white border border-gray-200 rounded-lg shadow-lg"
-          style={{
-            ...cardStyles,
-            ...style,
-          }}
-        >
-          <div className="flex flex-col h-full">
-            {/* Header is always visible */}
-            <div
-              ref={headerRef}
-              className="cursor-grab active:cursor-grabbing"
-              {...attributes}
-              {...listeners}
-            >
-              <Header
-                title={title}
-                isCollapsed={isCollapsed}
-                handleCollapse={handleCollapse}
-                handleExpandModal={(e: any) => handleExpandModal(e)}
-                isKebabMenuOpen={isKebabMenuOpen}
-                toggleKebabMenu={toggleKebabMenu}
-                kebabMenuRef={kebabMenuRef}
-                icon={icon}
-                onMouseDown={() => {}} // dnd-kit handles this now
-                isDragging={isDragging}
-                iconBgColor={iconBgColor}
-              />
-            </div>
-
-            {/* Content is only shown when not collapsed */}
-            {!isCollapsed && (
-              <>
-                <CustomScroll heightRelativeToParent="calc(100% - 100px)">
-                  <div className="flex-1 p-4 overflow-y-auto">{children}</div>
-                </CustomScroll>
-              </>
-            )}
-
-            {/* Footer is only shown when not collapsed */}
-            {!isCollapsed && footer && (
-              <div
-                className="mt-auto"
-                style={{ display: isCollapsed ? "none" : "block" }}
-              >
+        <div className="relative flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 p-4 overflow-y-auto">{children}</div>
+          {footer && (
+            <div className="mt-auto">
+              {true ? (
                 <CardFooter
                   category={category}
-                  patientId={patientId}
                   onAction={onAction}
+                  patientId={patientId}
                 />
-              </div>
-            )}
-          </div>
-
-          {/* Resize handles are only shown when not collapsed */}
-          {!isCollapsed && (
-            <>
-              {/* Only show vertical resize handles since width is controlled by grid */}
-              <div
-                className="absolute top-0 left-0 w-full h-2 cursor-ns-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("top")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "top")}
-              />
-              <div
-                className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
-                onMouseEnter={() => handleMouseEnterResizeHandle("bottom")}
-                onMouseLeave={handleMouseLeaveResizeHandle}
-                onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
-              />
-            </>
+              ) : (
+                <div className="h-8 bg-gray-100 animate-pulse" />
+              )}
+            </div>
           )}
         </div>
-      )}
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <>
+      {/* Render modal as a portal-like element at the end to avoid widget menu conflicts */}
+      {modalComponent}
+
+      <div
+        ref={setNodeRef}
+        data-testid="draggable-card"
+        className="m-2 bg-white border border-gray-200 rounded-lg shadow-lg"
+        style={{
+          ...cardStyles,
+          ...style,
+        }}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header is always visible */}
+          <div
+            ref={headerRef}
+            className="cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <Header
+              title={title}
+              isCollapsed={isCollapsed}
+              handleCollapse={handleCollapse}
+              handleExpandModal={handleExpandModal}
+              isKebabMenuOpen={isKebabMenuOpen}
+              toggleKebabMenu={toggleKebabMenu}
+              kebabMenuRef={kebabMenuRef}
+              icon={icon}
+              onMouseDown={() => {}} // dnd-kit handles this now
+              isDragging={isDragging}
+              iconBgColor={iconBgColor}
+            />
+          </div>
+
+          {/* Content is only shown when not collapsed */}
+          {!isCollapsed && (
+            <>
+              <CustomScroll heightRelativeToParent="calc(100% - 100px)">
+                <div className="flex-1 p-4 overflow-y-auto">{children}</div>
+              </CustomScroll>
+            </>
+          )}
+
+          {/* Footer is only shown when not collapsed */}
+          {!isCollapsed && footer && (
+            <div
+              className="mt-auto"
+              style={{ display: isCollapsed ? "none" : "block" }}
+            >
+              <CardFooter
+                category={category}
+                patientId={patientId}
+                onAction={onAction}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Resize handles are only shown when not collapsed */}
+        {!isCollapsed && (
+          <>
+            {/* Only show vertical resize handles since width is controlled by grid */}
+            <div
+              className="absolute top-0 left-0 w-full h-2 cursor-ns-resize"
+              onMouseEnter={() => handleMouseEnterResizeHandle("top")}
+              onMouseLeave={handleMouseLeaveResizeHandle}
+              onMouseDown={(e) => handleResizeMouseDown(e, "top")}
+            />
+            <div
+              className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
+              onMouseEnter={() => handleMouseEnterResizeHandle("bottom")}
+              onMouseLeave={handleMouseLeaveResizeHandle}
+              onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
+            />
+          </>
+        )}
+      </div>
     </>
   );
 };

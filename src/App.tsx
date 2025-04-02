@@ -217,6 +217,7 @@ const App: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   // State for window width to determine the number of columns
   const [windowWidth, setWindowWidth] = useState(
@@ -281,6 +282,29 @@ const App: React.FC = () => {
     setGridItems(items);
   }, [visibleWidgets]);
 
+  useEffect(() => {
+    const handleModalStateChange = (
+      event: CustomEvent<{ isOpen: boolean }>
+    ) => {
+      const { isOpen } = event.detail;
+      console.log("Modal state changed:", isOpen); // Add debug logging
+      setIsAnyModalOpen(isOpen);
+    };
+
+    // Add event listener for custom modal state change events
+    document.addEventListener(
+      "modalStateChange",
+      handleModalStateChange as EventListener
+    );
+
+    return () => {
+      document.removeEventListener(
+        "modalStateChange",
+        handleModalStateChange as EventListener
+      );
+    };
+  }, []);
+
   // Add event listener for window resize
   useEffect(() => {
     const handleResize = () => {
@@ -319,7 +343,17 @@ const App: React.FC = () => {
   };
 
   const closeModal = () => {
+    // First dispatch the event before changing the state
+    const modalCloseEvent = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(modalCloseEvent);
+
+    // Then update the modal state
     setModal((prev) => ({ ...prev, isOpen: false }));
+
+    // Ensure the widget ref z-index is reset by directly setting state
+    setIsAnyModalOpen(false);
   };
 
   useEffect(() => {
@@ -342,7 +376,13 @@ const App: React.FC = () => {
     }
 
     const handleClickOutside = (event: MouseEvent) => {
+      // Check if a modal is currently open - we can do this by checking
+      // if there's an element with the class 'modal' in the DOM
+      const modalIsOpen = document.querySelector(".modal");
+
+      // Only close the widget menu if no modal is open
       if (
+        !modalIsOpen &&
         widgetRef.current &&
         !widgetRef.current.contains(event.target as Node)
       ) {
@@ -571,7 +611,6 @@ const App: React.FC = () => {
       // Mobile view
       return {
         position: "relative" as const,
-        zIndex: 999,
         margin: "0 auto",
         width: "100%",
         justifyContent: "center",
@@ -581,7 +620,6 @@ const App: React.FC = () => {
       // Tablet view
       return {
         position: "relative" as const,
-        zIndex: 999,
         margin: "0 auto",
         marginLeft: "2rem",
       };
@@ -589,7 +627,6 @@ const App: React.FC = () => {
       // Desktop view
       return {
         position: "relative" as const,
-        zIndex: 999,
         marginLeft: Math.min(800, windowWidth * 0.4) + "px",
       };
     }
@@ -607,7 +644,7 @@ const App: React.FC = () => {
         <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
           {/* Widget menu - Moved OUTSIDE and BEFORE the grid container */}
           <div
-            className="relative z-50 flex mx-auto mb-4 transform"
+            className={`relative flex mx-auto mb-4 transform ${isAnyModalOpen ? "z-10" : "z-50"}`}
             ref={widgetRef}
             style={getWidgetMenuPosition()}
           >
@@ -826,8 +863,18 @@ const App: React.FC = () => {
 
           {/* Modal - Make it responsive for mobile */}
           {modal.isOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black bg-opacity-50 modal backdrop-blur-sm">
-              <div className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-[80%] h-[90%] md:h-[80%] flex flex-col">
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black bg-opacity-50 modal backdrop-blur-sm"
+              onClick={(e) => {
+                // Stop propagation to prevent any other handlers from firing
+                e.stopPropagation();
+                closeModal();
+              }}
+            >
+              <div
+                className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-[80%] h-[90%] md:h-[80%] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* Modal Header */}
                 <div className="flex items-center justify-between mb-2 md:mb-4">
                   <h2 className="text-lg font-semibold md:text-xl">
