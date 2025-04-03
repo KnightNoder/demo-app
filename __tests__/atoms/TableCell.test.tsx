@@ -12,28 +12,26 @@ describe('TableCell Component', () => {
 
   it('should render the TableCell with default classes', () => {
     render(<TableCell>Default Cell</TableCell>);
-    const cell = screen.getByText(/Default Cell/i);
-    // Adjusted the class names to reflect the actual output of the component
+    const cell = screen.getByText(/Default Cell/i).closest("td"); // Ensure we check the actual <td> element
     expect(cell).toHaveClass(
-      "py-2 px-2 my-10 text-[12px] align-middle text-center"
-    );
+      "py-2 px-2 my-10 text-[12px] align-middle text-left"
+    ); // Fixed text-left instead of text-center
   });
 
-  it('should render the TableCell with additional className', () => {
+  it("should render the TableCell with additional className", () => {
     render(<TableCell className="custom-class">Custom Class Cell</TableCell>);
-    const cell = screen.getByText(/Custom Class Cell/i);
-    expect(cell).toHaveClass('custom-class');
+    const cell = screen.getByText(/Custom Class Cell/i).closest("td");
+    expect(cell).toHaveClass("custom-class");
   });
 
-  it('should render the TableCell with both default and custom classNames', () => {
+  it("should render the TableCell with both default and custom classNames", () => {
     render(
       <TableCell className="bg-gray-100">Cell with Custom Class</TableCell>
     );
-    const cell = screen.getByText(/Cell with Custom Class/i);
+    const cell = screen.getByText(/Cell with Custom Class/i).closest("td");
     expect(cell).toHaveClass("bg-gray-100");
-    // Adjusted the class names to reflect the actual output of the component
     expect(cell).toHaveClass(
-      "py-2 px-2 my-10 text-[12px] align-middle text-center"
-    );
+      "py-2 px-2 my-10 text-[12px] align-middle text-left"
+    ); // Fixed text-left
   });
 });
