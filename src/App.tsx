@@ -64,102 +64,119 @@ const widgetOptions = [
     component: AllergyCard,
     icon: "allergies",
     iconBgColor: "bg-rose-100",
+    hasWritePermission: true,
   },
   {
     key: "Diagnosis",
     component: DiagnosisCard,
     icon: "diagnosis",
     iconBgColor: "bg-indigo-100",
+    hasWritePermission: true,
   },
   {
     key: "Medications",
     component: MedicationsCard,
     icon: "medications",
     iconBgColor: "bg-orange-100",
+    hasWritePermission: true,
   },
   {
     key: "Clinical Notes",
     component: ClinicalNotesCard,
     icon: "clinicalNotes",
     iconBgColor: "bg-emerald-100",
+    hasWritePermission: true,
   },
   {
     key: "Insurance",
     component: InsuranceCard,
     iconBgColor: "bg-blue-100",
     icon: "insurance",
+    hasWritePermission: true,
   },
   {
     key: "Lab Reports",
     component: LabReportsCard,
     iconBgColor: "bg-blue-100",
     icon: "lab-results",
+    hasWritePermission: true,
   },
   {
     key: "Prescriptions",
     component: PrescriptionCard,
     iconBgColor: "bg-orange-100",
     icon: "prescriptions",
+    hasWritePermission: true,
   },
   {
     key: "Documents",
     component: DocumentsCard,
     iconBgColor: "bg-orange-100",
     icon: "document",
+    hasWritePermission: true,
   },
   {
     key: "Appointments",
     component: AppointmentsCard,
     iconBgColor: "bg-violet-100",
     icon: "appointments",
+    hasWritePermission: true,
   },
   {
     key: "Notifications",
     component: NotificationCard,
     iconBgColor: "bg-amber-100",
     icon: "notifications",
+    hasWritePermission: true,
   },
   {
     key: "Demographics",
     component: DemographicsCard,
     iconBgColor: "bg-green-100",
     icon: "demographics",
+    hasWritePermission: true,
   },
   {
     key: "ID/Card Photos",
     component: PhotosCard,
     iconBgColor: "bg-purple-100",
     icon: "id-card",
+    hasWritePermission: true,
   },
   {
     key: "Vitals",
     component: VitalsCard,
     iconBgColor: "bg-red-100",
     icon: "vitals",
+    hasWritePermission: true,
   },
   {
     key: "Disclosures",
     component: DisclosuresCard,
     iconBgColor: "bg-teal-100",
     icon: "disclosures",
+    hasWritePermission: true,
   },
   {
     key: "Functional Status",
     component: FunctionalStatusCard,
     iconBgColor: "bg-slate-100",
     icon: "functional-status",
+    hasWritePermission: true,
   },
   {
     key: "Cognitive Status",
     component: CognitiveStatusCard,
     iconBgColor: "bg-slate-100",
     icon: "cognitive-status",
+    hasWritePermission: true,
   },
   {
     key: "Advanced Directives",
     component: AdvancedDirectivesCard,
     iconBgColor: "bg-purple-100",
     icon: "advanced-directives",
+    hasWritePermission: true,
   },
 ];
 
@@ -204,11 +221,13 @@ interface ModalInfo {
 const App: React.FC = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
+  const [insuranceWritePermission, setInsuranceWritePermission] =
+    useState(false);
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-    "Allergies",
     "Diagnosis",
     "Medications",
     "Insurance",
+    "Appointments",
     "Lab Reports",
     "Prescriptions",
     "Documents",
@@ -396,6 +415,50 @@ const App: React.FC = () => {
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isWidgetMenuOpen]);
+
+  const fetchInsurancePermissions = async () => {
+    const myHeaders = new Headers();
+    myHeaders.append("sitename", "current");
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow" as RequestRedirect,
+    };
+
+    try {
+      const response = await fetch(
+        "https://qa-phoenix.drcloudemr.com/api/acl?username=anil",
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(result, "permissions");
+
+      // Check if the user has write permission for insurance and return the result
+      return result.permissions.some(
+        (permission: any) =>
+          permission.section === "patients" && permission.object === "insurance"
+      );
+    } catch (error) {
+      console.error("Error fetching permissions:", error);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    const getPermissions = async () => {
+      const hasPermission = await fetchInsurancePermissions();
+      console.log(hasPermission, "has permission");
+      setInsuranceWritePermission(hasPermission);
+    };
+
+    getPermissions();
+  }, []);
 
   const showWidgetToast = (widgetKey: string, isAdding: boolean) => {
     toast(
@@ -846,6 +909,11 @@ const App: React.FC = () => {
                         }}
                         patientId={patientId}
                         iconBgColor={widget?.iconBgColor}
+                        hasWritePermission={
+                          widget.key === "Insurance"
+                            ? insuranceWritePermission
+                            : widget.hasWritePermission
+                        }
                       >
                         {widget.component && (
                           <widget.component patientId={patientId} />

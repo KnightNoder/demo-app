@@ -21,6 +21,7 @@ interface CardProps {
   id: string; // Required for dnd-kit
   order?: number; // Order in the grid for sorting
   iconBgColor?: string;
+  hasWritePermission?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -35,6 +36,7 @@ const Card: React.FC<CardProps> = ({
   id,
   order,
   iconBgColor,
+  hasWritePermission,
 }) => {
   const [size, setSize] = useState({ width: "100%", height: 500 });
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -313,6 +315,7 @@ const Card: React.FC<CardProps> = ({
                   category={category}
                   onAction={onAction}
                   patientId={patientId}
+                  hasWritePermission={hasWritePermission}
                 />
               ) : (
                 <div className="h-8 bg-gray-100 animate-pulse" />
@@ -380,6 +383,7 @@ const Card: React.FC<CardProps> = ({
                 category={category}
                 patientId={patientId}
                 onAction={onAction}
+                hasWritePermission={hasWritePermission}
               />
             </div>
           )}
