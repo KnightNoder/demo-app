@@ -271,7 +271,7 @@ const Card: React.FC<CardProps> = ({
     >
       <div
         ref={modalRef}
-        className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
+        className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[50%] h-[80%] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-2 pr-10">
