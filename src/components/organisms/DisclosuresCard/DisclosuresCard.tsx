@@ -1,90 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosClient from "../../../../src/api/axiosClient";
 import GenericTableRow from "../../molecules/Row/Row";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import Table from "../Table/Table";
 
-interface ConsentForm {
-  name: string;
-  type: string;
-  status: string;
-  signedBy: string;
-  signedDate: string;
-  expiration: string;
-  notes?: string;
+interface ConsentForm2 {
+  id: number;
+  date: string;
+  event: string;
+  recipient: string;
+  description: string;
+  patient_name: string;
+  user_name: string;
 }
 
-const DisclosuresCard = () => {
+interface ColumnConfig<T> {
+  key: keyof T;
+  label: string;
+  render?: (value: any) => JSX.Element;
+}
+
+const DisclosuresCard = ({ patientId }: { patientId: string }) => {
   const [activeTab, setActiveTab] = useState("Active");
+  const [consentData, setConsentData] = useState<ConsentForm2[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const tabs = [
     { label: "Active", count: 6 },
     { label: "Expired", count: 1 },
     { label: "Revoked", count: 1 },
     { label: "All", count: 8 },
   ];
-  const consentData: ConsentForm[] = [
-    {
-      name: "Notice of Privacy Practices Acknowledgment",
-      type: "Hipaa",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "1/15/2024",
-      expiration: "about 2 months ago",
-      notes: "Annual renewal required",
-    },
-    {
-      name: "Authorization to Release Information to Family Members",
-      type: "Authorization",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "1/15/2024",
-      expiration: "about 2 months ago",
-      notes: "Authorized: Spouse - Jane Doe",
-    },
-    {
-      name: "General Consent for Treatment",
-      type: "Consent",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "1/15/2024",
-      expiration: "about 2 months ago",
-    },
-    {
-      name: "Financial Responsibility Agreement",
-      type: "Acknowledgment",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "1/15/2024",
-      expiration: "about 2 months ago",
-    },
-    {
-      name: "Advance Directive / Living Will",
-      type: "Directive",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "6/15/2023",
-      expiration: "in over 3 years",
-      notes: "Full code status",
-    },
-    {
-      name: "Telehealth Consent",
-      type: "Authorization",
-      status: "active",
-      signedBy: "John Doe",
-      signedDate: "1/15/2024",
-      expiration: "about 2 months ago",
-    },
-  ];
 
-  interface ColumnConfig<T> {
-    key: keyof T;
-    label: string;
-    render?: (value: any) => JSX.Element;
-  }
+  useEffect(() => {
+    const fetchDisclosures = async () => {
+      setLoading(true);
+      try {
+        const response = await axiosClient.get(
+          `/disclosures?patient_id=${patientId}`
+        );
+        setConsentData(response.data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDisclosures();
+  }, [patientId]);
 
-  const columnConfig: ColumnConfig<ConsentForm>[] = [
-    { key: "name", label: "NAME" },
+  const columnConfig: ColumnConfig<ConsentForm2>[] = [
+    { key: "description", label: "NAME" },
     {
-      key: "type",
+      key: "event",
       label: "TYPE",
       render: (value) => (
         <span className="px-2 py-1 text-xs text-gray-600 border rounded-full">
@@ -93,7 +62,7 @@ const DisclosuresCard = () => {
       ),
     },
     {
-      key: "status",
+      key: "description",
       label: "STATUS",
       render: (value) => (
         <span className="px-2 py-1 text-xs text-green-700 bg-green-100 rounded-full">
@@ -101,31 +70,11 @@ const DisclosuresCard = () => {
         </span>
       ),
     },
-    { key: "signedBy", label: "SIGNED BY" },
-    { key: "signedDate", label: "SIGNED DATE" },
-    {
-      key: "expiration",
-      label: "EXPIRATION",
-      render: (value) => {
-        const isExpired = value.includes("ago");
-        const isFuture = value.includes("over");
-        return (
-          <span
-            className={`text-xs ${
-              isExpired
-                ? "text-red-500"
-                : isFuture
-                  ? "text-green-500"
-                  : "text-gray-600"
-            }`}
-          >
-            {value}
-          </span>
-        );
-      },
-    },
-    { key: "notes", label: "NOTES" },
+    { key: "recipient", label: "SIGNED BY" },
+    { key: "date", label: "SIGNED DATE" },
+    { key: "description", label: "NOTES" },
   ];
+
   return (
     <div className="bg-white rounded-lg">
       <TabListHeader
@@ -133,10 +82,11 @@ const DisclosuresCard = () => {
         activeTab={activeTab}
         onTabClick={setActiveTab}
       />
+      {error && <p className="text-red-500">{error}</p>}
       <Table
         headers={columnConfig.map((col) => col.label ?? "")}
         data={consentData}
-        loading={false}
+        loading={loading}
         renderRow={(row, index) => (
           <GenericTableRow key={index} data={row} columnConfig={columnConfig} />
         )}

@@ -29,26 +29,24 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm">
-			<div
-				ref={modalRef}
-				className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
-			>
-				<div className="flex items-center justify-between pb-2 pr-10">
-					<span className="font-semibold">{title}</span>
-					<div className="flex items-center gap-4">
-						<button onClick={onClose}>
-							<Icons variant="close" />
-						</button>
-					</div>
-				</div>
-				<div className="relative flex-1 p-4 overflow-y-auto">
-					{children}
-				</div>
-				{footer && <div className="">{footer}</div>}
-			</div>
-		</div>
-	);
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm">
+      <div
+        ref={modalRef}
+        className="bg-[#F4F5FB] p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
+      >
+        <div className="flex items-center justify-between pb-2 pr-10">
+          <span className="font-semibold">{title}</span>
+          <div className="flex items-center gap-4">
+            <button onClick={onClose}>
+              <Icons variant="close" />
+            </button>
+          </div>
+        </div>
+        <div className="relative flex-1 p-4 overflow-y-auto">{children}</div>
+        {footer && <div className="">{footer}</div>}
+      </div>
+    </div>
+  );
 };
 
 export default Modal;

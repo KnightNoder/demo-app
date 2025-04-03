@@ -209,10 +209,10 @@ const App: React.FC = () => {
     "Diagnosis",
     "Medications",
     "Insurance",
-    "Clinical Notes",
     "Lab Reports",
     "Prescriptions",
     "Documents",
+    "Disclosures",
   ]);
 
   const [searchTerm, setSearchTerm] = useState("");

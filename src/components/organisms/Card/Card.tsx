@@ -332,7 +332,7 @@ const Card: React.FC<CardProps> = ({
       <div
         ref={setNodeRef}
         data-testid="draggable-card"
-        className="m-2 bg-white border border-gray-200 rounded-lg shadow-lg"
+        className="m-2 bg-white border border-gray-200 rounded-lg shadow-md"
         style={{
           ...cardStyles,
           ...style,

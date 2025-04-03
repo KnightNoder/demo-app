@@ -12,7 +12,7 @@ interface TableProps<T> {
 
 const Table = <T,>({ headers, data, loading, renderRow }: TableProps<T>) => {
   return (
-    <div className="w-full overflow-x-auto rounded-md">
+    <div className="w-full mt-4 overflow-x-auto rounded-md">
       <table className="w-full text-xs">
         <thead className="top-0 bg-gray-50">
           <tr>
@@ -24,14 +24,14 @@ const Table = <T,>({ headers, data, loading, renderRow }: TableProps<T>) => {
         <tbody>
           {loading
             ? [...Array(5)].map((_, index) => (
-              <tr key={index}>
-                {headers.map((_, colIndex) => (
-                  <td key={colIndex}>
-                    <Skeleton width={100} />
-                  </td>
-                ))}
-              </tr>
-            ))
+                <tr key={index}>
+                  {headers.map((_, colIndex) => (
+                    <td key={colIndex}>
+                      <Skeleton width={100} />
+                    </td>
+                  ))}
+                </tr>
+              ))
             : data.map(renderRow)}
         </tbody>
       </table>
