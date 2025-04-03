@@ -43,7 +43,7 @@ body {
 
 @media (max-width: 767px) {
   .grid-container {
-    display: block;
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .carousel-container {
