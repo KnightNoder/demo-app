@@ -1,12 +1,31 @@
+import React from "react";
+
 type Severity = "NORMAL" | "WARNING" | "CRITICAL";
 
-const severityStyles: Record<Severity, { color: string; bg: string; bar: string; width: string }> = {
-  NORMAL: { color: "text-green-600", bg: "bg-green-100", bar: "bg-green-500", width: "w-1/4" },
-  WARNING: { color: "text-orange-600", bg: "bg-orange-100", bar: "bg-orange-500", width: "w-1/2" },
-  CRITICAL: { color: "text-red-600", bg: "bg-red-100", bar: "bg-red-500", width: "w-full" },
+const severityStyles: Record<
+  Severity,
+  { color: string; bg: string; bar: string; width: string }
+> = {
+  NORMAL: {
+    color: "text-green-600",
+    bg: "bg-green-100",
+    bar: "bg-green-500",
+    width: "w-1/4",
+  },
+  WARNING: {
+    color: "text-orange-600",
+    bg: "bg-orange-100",
+    bar: "bg-orange-500",
+    width: "w-1/2",
+  },
+  CRITICAL: {
+    color: "text-red-600",
+    bg: "bg-red-100",
+    bar: "bg-red-500",
+    width: "w-full",
+  },
 };
 
-// Define type for vitals data
 interface Vital {
   label: string;
   value: string;
@@ -104,7 +123,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
       label: "Respiratory Rate",
       value: `${vitalData?.respiration} breaths/min`,
       change: "+1.0",
-      severity: "CRITICAL", // No conditions were provided, so keeping it as "CRITICAL"
+      severity: "CRITICAL",
     },
     {
       label: "Pain Score",
@@ -115,9 +134,8 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      {/* Vitals Grid */}
-      <div className="grid grid-cols-3 gap-4">
+    <div className="p-4 bg-white rounded-lg shadow-md md:p-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-1">
         {vitalsData.map((vital, index) => {
           const { color, bg, bar, width } = severityStyles[vital.severity];
 
@@ -136,69 +154,21 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
                   {vital.severity}
                 </span>
               </div>
-              <p className="mt-1 text-xl font-medium text-gray-900">
+              <p className="mt-1 text-lg font-medium text-gray-900 sm:text-xl">
                 {vital.value}
               </p>
               <p className="mt-1 text-sm text-gray-500">
                 {vital.change} from last
               </p>
-
-              {/* Severity Indicator Bar */}
-              <div
-                className="absolute bottom-0 left-0 h-1 rounded-b-lg"
-                style={{ width: "100%" }}
-              >
+              <div className="absolute bottom-0 left-0 w-full h-1 rounded-b-lg">
                 <div className={`h-full ${bar} ${width} rounded-b-lg`} />
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* Critical Alerts */}
-      <div className="p-4 mt-6 bg-gray-100 border border-gray-300 rounded-lg">
-        <p className="text-sm font-medium text-gray-700">Critical Alerts</p>
-        <div className="flex items-center mt-2 text-sm text-gray-800">
-          <span className="inline-block w-3 h-3 mr-2 bg-red-600 rounded-full"></span>
-          {vitalData.SP02_room_air_without_oxygen !== null &&
-          vitalData.SP02_room_air_without_oxygen < 95
-            ? "SpO2 below 95% - Consider supplemental oxygen assessment"
-            : "No critical alerts"}
-        </div>
-      </div>
-
-      {/* Clinical Context */}
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <p className="text-sm font-medium text-gray-700">Baseline Vitals</p>
-          <div className="flex justify-between mt-1 text-sm text-gray-900">
-            <span className="text-gray-500">BP</span>
-            <span className="font-medium">
-              {vitalData.BP_systolic}/{vitalData.BP_diastolic} mmHg
-            </span>
-          </div>
-          <div className="flex justify-between mt-1 text-sm text-gray-900">
-            <span className="text-gray-500">HR</span>
-            <span className="font-medium">{vitalData.pulse} bpm</span>
-          </div>
-        </div>
-        <div className="p-4 border border-gray-200 rounded-lg">
-          <p className="text-sm font-medium text-gray-700">
-            Relevant Conditions
-          </p>
-          <div className="flex justify-between mt-1 text-sm text-gray-900">
-            <span className="text-gray-500">HTN</span>
-            <span className="font-medium">Active</span>
-          </div>
-          <div className="flex justify-between mt-1 text-sm text-gray-900">
-            <span className="text-gray-500">DM Type 2</span>
-            <span className="font-medium">Well-controlled</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
 
 export default VitalsOverview;
-

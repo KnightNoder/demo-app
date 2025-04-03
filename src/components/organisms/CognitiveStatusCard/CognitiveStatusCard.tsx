@@ -85,7 +85,7 @@ const AssessmentList: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-full px-12 mx-auto space-y-4">
+    <div className="max-w-full  mx-auto space-y-4">
       {assessments.map((item, index) => (
         <AssessmentCard key={index} {...item} />
       ))}

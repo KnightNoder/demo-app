@@ -45,19 +45,23 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
   return (
     <div className="space-y-4">
       {insurances?.map((insurance, index) => (
-        <div key={index} className="p-4 mx-4 my-4 rounded-lg">
+        <div key={index} className="p-4 my-4 rounded-lg">
           <div className="flex justify-between">
             <h2 className="flex items-center text-lg font-semibold">
-              {insurance.insurance_company.name} <span
+              {insurance.insurance_company.name}{" "}
+              <span
                 className={`px-2 py-1 ml-2 text-xs rounded 
                   ${capitalizeWord(insurance.type) === "Secondary" ? "text-purple-800 bg-purple-100" : "text-blue-800 bg-blue-200"}`}
               >
                 {capitalizeWord(insurance.type)}
               </span>
-
             </h2>
-            {insurance.status && <Pill text={insurance.status} className="px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded">
-            </Pill>}
+            {insurance.status && (
+              <Pill
+                text={insurance.status}
+                className="px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded"
+              ></Pill>
+            )}
           </div>
           <p className="text-gray-600">{insurance.plan_name}</p>
 
@@ -75,18 +79,35 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             <div className="flex justify-between my-2">
               <div>
                 <p>Subscriber ID: </p>
-                <p className="font-semibold">{insurance.subscriber.first_name}</p>
+                <p className="font-semibold">
+                  {insurance.subscriber.first_name}
+                </p>
               </div>
               <div className="mr-40">
                 <p>Relationship to Subscriber </p>
-                <p className="font-semibold">{capitalizeWord(insurance.subscriber.relationship)}</p>
+                <p className="font-semibold">
+                  {capitalizeWord(insurance.subscriber.relationship)}
+                </p>
               </div>
             </div>
             <div className="flex my-2">
-              <Icons variant="calender" /> <span className="ml-2">{formatToDashDate(insurance.effective_date)} - {formatToDashDate(insurance.termination_date)}</span>
+              <Icons variant="calender" />{" "}
+              <span className="ml-2">
+                {formatToDashDate(insurance.effective_date)} -{" "}
+                {formatToDashDate(insurance.termination_date)}
+              </span>
             </div>
-            <p className="flex my-2"><Icons variant="phone" /> <span className="ml-2">{insurance.subscriber.phone}</span> </p>
-            <p className="flex my-2"> <Icons variant="document" /> <span className="ml-2">Last Verified: {insurance.lastVerified}</span></p>
+            <p className="flex my-2">
+              <Icons variant="phone" />{" "}
+              <span className="ml-2">{insurance.subscriber.phone}</span>{" "}
+            </p>
+            <p className="flex my-2">
+              {" "}
+              <Icons variant="document" />{" "}
+              <span className="ml-2">
+                Last Verified: {insurance.lastVerified}
+              </span>
+            </p>
           </div>
 
           <div className="mt-4">
@@ -97,21 +118,30 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             <div className="flex justify-between gap-2 mt-1">
               <div className="w-1/2">
                 <div className="h-2 bg-gray-200 rounded-full">
-                  <div className="h-2 bg-blue-500 rounded-full" style={{ width: "50%" }}></div>
+                  <div
+                    className="h-2 bg-blue-500 rounded-full"
+                    style={{ width: "50%" }}
+                  ></div>
                 </div>
-                <p className="text-sm text-gray-700">{insurance.deductibleRemaining}</p>
+                <p className="text-sm text-gray-700">
+                  {insurance.deductibleRemaining}
+                </p>
               </div>
               <div className="w-1/2">
                 <div className="h-2 bg-gray-200 rounded-full">
-                  <div className="h-2 bg-blue-500 rounded-full" style={{ width: "70%" }}></div>
+                  <div
+                    className="h-2 bg-blue-500 rounded-full"
+                    style={{ width: "70%" }}
+                  ></div>
                 </div>
-                <p className="text-sm text-gray-700">{insurance.outOfPocketRemaining}</p>
+                <p className="text-sm text-gray-700">
+                  {insurance.outOfPocketRemaining}
+                </p>
               </div>
             </div>
           </div>
         </div>
-      ))
-      }
+      ))}
     </div>
   );
 };

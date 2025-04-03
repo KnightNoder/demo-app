@@ -74,7 +74,7 @@ const ICD10List: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-full px-12 mx-auto space-y-4">
+    <div className="max-w-full  mx-auto space-y-4">
       {icdData.map((item, index) => (
         <ICD10Card key={index} {...item} />
       ))}

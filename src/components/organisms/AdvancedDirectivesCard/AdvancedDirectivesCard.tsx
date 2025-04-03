@@ -27,7 +27,7 @@ export default function HealthcareDocuments() {
   ];
 
   return (
-    <div className="max-w-full px-12 mx-auto space-y-4">
+    <div className="max-w-full mx-auto space-y-4">
       {documents.map((doc, index) => (
         <div
           key={index}
@@ -53,7 +53,9 @@ export default function HealthcareDocuments() {
           <p className="mt-2 text-xs text-gray-500">
             Verified by: {doc.verifiedBy}
           </p>
-          <p className="text-xs text-gray-500">Last reviewed: {doc.lastReviewed}</p>
+          <p className="text-xs text-gray-500">
+            Last reviewed: {doc.lastReviewed}
+          </p>
         </div>
       ))}
     </div>

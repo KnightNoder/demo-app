@@ -70,7 +70,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
-    <div className="p-4 mx-auto rounded-lg shadow-md">
+    <div className="mx-auto rounded-lg shadow-md">
       {tabs.length > 0 ? (
         <>
           <TabListHeader

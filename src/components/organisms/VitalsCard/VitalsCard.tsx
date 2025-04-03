@@ -22,7 +22,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
       setLoading(true);
 
       axiosClient
-        .get(`/api/vitals?pid=${patientId}`)
+        .get(`/vitals?pid=${patientId}`)
         .then((response) => {
           console.log("Vitals API Response:", response.data);
           if (Array.isArray(response.data.data)) {
@@ -42,14 +42,14 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg">
-        <div className="flex mb-4 gap-1.5 justify-between">
+      <div className="p-4 bg-white rounded-lg md:p-6">
+        <div className="flex flex-col md:flex-row mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
         </div>
         <div className="mt-4">
-          <Skeleton height={120} style={{ marginTop: "10px" }} />
-          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={120} className="mt-2" />
+          <Skeleton height={120} className="mt-2" />
         </div>
       </div>
     );
@@ -57,7 +57,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
+      <div className="flex flex-col items-center justify-center p-4 px-4 pb-4 mx-auto bg-white rounded-lg md:p-6">
         <div className="mt-4 text-center">
           <p className="text-lg font-semibold text-red-500">
             Oops! Something went wrong.
@@ -76,7 +76,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
   ];
 
   return (
-    <div className="bg-white rounded-lg">
+    <div className="p-4 bg-white rounded-lg md:p-6">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

@@ -73,36 +73,46 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
   // }
 
   return (
-    <div className="mx-4">
+    <div className="">
       <TabListHeader
         tabs={[
           { label: "Summary" },
           { label: "Coverage" },
-          { label: "Financials" }
+          { label: "Financials" },
         ]}
         activeTab={activeTab}
-        onTabClick={(label) => setActiveTab(label as "Summary" | "Coverage" | "Financials")}   
+        onTabClick={(label) =>
+          setActiveTab(label as "Summary" | "Coverage" | "Financials")
+        }
       />
-      {insuranceData.length ? <>
-      {activeTab === "Summary" && <InsuranceSection insurances={insuranceData} />}
-      {activeTab === "Coverage" && <CoverageDetails insurances={insuranceData} />}
-      {activeTab === "Financials" && (
-        <Financials
-          deductible={{
-            individual: 2000,
-            family: 4000,
-            remaining: 1500
-          }}
-          outOfPocket={{
-            individual: 5000,
-            family: 10000,
-            remaining: 4000
-          }}
-        />
+      {insuranceData.length ? (
+        <>
+          {activeTab === "Summary" && (
+            <InsuranceSection insurances={insuranceData} />
+          )}
+          {activeTab === "Coverage" && (
+            <CoverageDetails insurances={insuranceData} />
+          )}
+          {activeTab === "Financials" && (
+            <Financials
+              deductible={{
+                individual: 2000,
+                family: 4000,
+                remaining: 1500,
+              }}
+              outOfPocket={{
+                individual: 5000,
+                family: 10000,
+                remaining: 4000,
+              }}
+            />
+          )}
+        </>
+      ) : (
+        <div className="w-full p-4 text-center text-gray-500">
+          No Insurances found
+        </div>
       )}
-      </> : <div className="w-full p-4 text-center text-gray-500">
-        No Insurances found
-      </div>}
     </div>
   );
 };
