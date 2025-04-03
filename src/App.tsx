@@ -20,6 +20,7 @@ import "./index.css";
 import IframeModal from "./components/molecules/Modal/IframeModal";
 import { setAuthToken } from "./services/api";
 import Icons from "./assets/Icons/Icons";
+import { jwtDecode } from "jwt-decode";
 
 // Import all your card components
 import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
@@ -51,9 +52,18 @@ interface GridItem {
   order: number;
 }
 
+interface DecodedToken {
+  sub: string;
+  name?: string;
+  email?: string;
+  exp: number;
+  iat: number;
+  [key: string]: any; // For other possible claims
+}
+
 // Screen size breakpoints (in pixels)
 // const SCREEN_SM = 640;  // Mobile
-const SCREEN_MD = 768;  // Small tablet
+const SCREEN_MD = 768; // Small tablet
 const SCREEN_LG = 1024; // Large tablet
 const SCREEN_XL = 1280; // Small desktop
 const SCREEN_2XL = 1536; // Large desktop
@@ -426,9 +436,18 @@ const App: React.FC = () => {
       redirect: "follow" as RequestRedirect,
     };
 
+    const token = localStorage.getItem("JWT_AUTH_TOKEN");
+    let username = "";
+    if (token) {
+      const decoded = jwtDecode<DecodedToken>(token);
+      username = decoded.username;
+    } else {
+      console.error("No JWT token found in localStorage");
+    }
+
     try {
       const response = await fetch(
-        "https://qa-phoenix.drcloudemr.com/api/acl?username=anil",
+        `https://qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
         requestOptions
       );
 
