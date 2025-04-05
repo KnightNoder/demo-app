@@ -302,7 +302,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
             </svg>
             New Document
           </button>
-          <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 border border-gray-300 text-[#0093D3] bg-white hover:text-accent-foreground h-8 text-xs gap-2 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+          <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transform-gpu hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 border border-gray-300 text-primary-foreground bg-white hover:text-accent-foreground h-8 text-xs gap-2 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
             <svg
               width="12"
               height="12"

@@ -62,7 +62,7 @@ interface DecodedToken {
 }
 
 // Screen size breakpoints (in pixels)
-// const SCREEN_SM = 640;  // Mobile
+const SCREEN_SM = 640; // Mobile
 const SCREEN_MD = 768; // Small tablet
 const SCREEN_LG = 1024; // Large tablet
 const SCREEN_XL = 1280; // Small desktop
@@ -234,7 +234,7 @@ const App: React.FC = () => {
   const [insuranceWritePermission, setInsuranceWritePermission] =
     useState(false);
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-    "Diagnosis",
+    "Cognitive Status",
     "Medications",
     "Insurance",
     "Appointments",
@@ -458,7 +458,6 @@ const App: React.FC = () => {
       const result = await response.json();
       console.log(result, "permissions");
 
-      // Check if the user has write permission for insurance and return the result
       return result.permissions.some(
         (permission: any) =>
           permission.section === "patients" && permission.object === "insurance"
@@ -879,7 +878,7 @@ const App: React.FC = () => {
 
           {/* Grid Container - Lower z-index */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
-            <div className="container p-4 mx-auto">
+            <div className="container mx-auto">
               {/* For mobile view - show carousel navigation */}
               {isMobileView &&
                 gridItems.length > 0 &&
@@ -887,7 +886,7 @@ const App: React.FC = () => {
 
               {/* Responsive grid container */}
               <div
-                className={`relative grid-container ${isMobileView ? "carousel-container" : ""}`}
+                className={`relative widget-grid-container ${isMobileView ? "widget-carousel-container" : ""}`}
                 style={getGridContainerStyle()}
               >
                 <SortableContext

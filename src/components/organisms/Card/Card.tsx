@@ -7,7 +7,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 // Define grid size for snapping
-const GRID_SIZE = 20; // Size in pixels for the grid
+const GRID_SIZE = 10; // Size in pixels for the grid
 
 interface CardProps {
   title: string;
