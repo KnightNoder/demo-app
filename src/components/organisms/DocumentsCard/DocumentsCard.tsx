@@ -15,6 +15,7 @@ interface Document {
 
 interface DocumentsComponentProps {
   patientId: string | null;
+  isAnyModalOpen?: boolean;
 }
 
 const DocumentsComponent: React.FC<DocumentsComponentProps> = ({

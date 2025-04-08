@@ -10,6 +10,20 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+:root {
+  --color-primary: #3b82f6; /* Tailwind's blue-500 */
+  --color-secondary: #fbbf24; /* Tailwind's yellow-400 */
+  --color-accent: #ef4444; /* Tailwind's red-500 */
+  --color-background: #f9fafb; /* Tailwind's gray-50 */
+  --color-text: #111827; /* Tailwind's gray-900 */
+  --color-border: #e5e7eb; /* Tailwind's gray-300 */
+  --text-item-header-color: #020817;
+  --font-feature-settings-rlig: "rlig", "calt";
+  --font-feature-settings-ligatures: "rlig", "calt";
+  --color-avocado-100: oklch(0.99 0 0);
+  --primary: 59, 130, 246;
+}
+
 /* .dragging-active::before {
   content: '';
   position: fixed;

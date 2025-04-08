@@ -1,5 +1,7 @@
 import React from "react";
 import Item from "../../molecules/Item/Item";
+import Icons from "../../../assets/Icons/Icons";
+
 interface ClinicalNoteItemProps {
   title: string;
   author: string;
@@ -15,11 +17,19 @@ const ClinicalNoteItem: React.FC<ClinicalNoteItemProps> = ({
 }) => (
   <Item>
     <div>
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="text-xs text-gray-500">
-        {author} • {time}
+      {/* Title with consistent font weight and size */}
+      <h2 className="text-sm font-normal text-[#020817]">{title}</h2>
+
+      {/* Author and time with icon */}
+      <p className="flex items-center gap-2 mt-2 text-xs font-light text-gray-500">
+        <Icons variant="doctor" />
+        <span className="text-[#020817]">
+          {author} • {time}
+        </span>
       </p>
-      <p className="w-[80%] mt-2 text-sm text-gray-700">{content}</p>
+
+      {/* Content */}
+      <p className="mt-2 text-xs font-light text-gray-600">{content}</p>
     </div>
   </Item>
 );

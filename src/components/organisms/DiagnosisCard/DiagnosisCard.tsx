@@ -7,7 +7,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css"; 
 
 interface MedicalProblemsListProps {
-  patientId: string | null
+  patientId?: string | null;
 }
 
 const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({ patientId }) => {

@@ -18,28 +18,52 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
 
   const iconMap = {
     ALERT: (
-      <svg className="w-5 h-5 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-4 h-4 text-yellow-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12" y2="16" />
       </svg>
     ),
     TASK: (
-      <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-4 h-4 text-blue-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <rect x="4" y="4" width="16" height="16" rx="2" />
         <line x1="8" y1="9" x2="16" y2="9" />
         <line x1="8" y1="13" x2="12" y2="13" />
       </svg>
     ),
     MESSAGE: (
-      <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-4 h-4 text-blue-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M4 4h16v12H5.5L4 18V4z" />
         <line x1="8" y1="8" x2="16" y2="8" />
         <line x1="8" y1="12" x2="12" y2="12" />
       </svg>
     ),
     REMINDER: (
-      <svg className="w-5 h-5 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        className="w-4 h-4 text-purple-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M12 8v4l2 2" />
         <circle cx="12" cy="12" r="10" />
       </svg>
@@ -54,45 +78,58 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
   };
 
   const priorityColors = {
-    High: "bg-red-200 text-red-700",
-    Medium: "bg-yellow-200 text-yellow-700",
-    Low: "bg-gray-200 text-gray-700",
+    High: "bg-red-50 text-red-600",
+    Medium: "bg-yellow-50 text-yellow-600",
+    Low: "bg-gray-100 text-gray-600",
   };
 
   return (
     <div
-      className={`relative flex my-4 flex-col p-4 bg-white rounded-md shadow-md border-l-4 transition-all duration-200 ${borderColor[notification.type]}`}
+      className={`relative flex my-3 flex-col p-4 bg-white rounded-lg shadow-sm border-l-4 transition-all duration-200 ${borderColor[notification.type]}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Header - Type and Priority */}
       <div className="flex items-center gap-2">
         {iconMap[notification.type]}
-        <span className="text-sm font-semibold text-gray-700">
+        <span className="text-xs font-normal text-[#020817]">
           {notification.type}
         </span>
         {notification.priority !== "Low" && (
-          <span className={`px-2 py-1 text-xs rounded-md ${priorityColors[notification.priority]}`}>
+          <span
+            className={`px-2 py-0.5 text-xs rounded-full font-extralight ${priorityColors[notification.priority]}`}
+          >
             {notification.priority} Priority
           </span>
         )}
       </div>
-      
-      <h3 className="mt-1 font-semibold text-gray-900">{notification.title}</h3>
-      <p className="text-sm text-gray-600">{notification.description}</p>
 
+      {/* Title */}
+      <h3 className="mt-2 text-sm font-normal text-[#020817]">
+        {notification.title}
+      </h3>
+
+      {/* Description */}
+      <p className="mt-1 text-xs font-light text-gray-600">
+        {notification.description}
+      </p>
+
+      {/* Footer - Time and Actions */}
       <div className="flex items-center justify-between mt-2">
-        <div className="text-xs text-gray-400">{notification.time}</div>
+        <div className="text-xs font-extralight text-gray-500">
+          {notification.time}
+        </div>
 
-        {/* Buttons (Smooth transition using opacity and scale) */}
+        {/* Buttons */}
         <div
           className={`flex gap-2 transition-all duration-300 ${
             isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
           }`}
         >
-          <button className="px-3 py-1 text-sm text-white transition-all duration-200 bg-blue-500 rounded-md hover:bg-blue-600">
+          <button className="px-2 py-0.5 text-xs text-white transition-all duration-200 bg-blue-500 rounded-md hover:bg-blue-600">
             Mark as Read
           </button>
-          <button className="px-3 py-1 text-sm text-blue-500 transition-all duration-200 border border-blue-500 rounded-md hover:bg-blue-100">
+          <button className="px-2 py-0.5 text-xs text-blue-500 transition-all duration-200 border border-blue-500 rounded-md hover:bg-blue-100">
             View Details
           </button>
         </div>

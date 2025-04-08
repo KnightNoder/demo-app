@@ -307,7 +307,7 @@ const Card: React.FC<CardProps> = ({
           </div>
         </div>
         <div className="relative flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 p-4 overflow-y-auto">{children}</div>
+          <div className="flex-1 px-4 pb-4 overflow-y-auto">{children}</div>
           {footer && (
             <div className="mt-auto">
               {true ? (

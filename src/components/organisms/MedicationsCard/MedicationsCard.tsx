@@ -69,13 +69,15 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   );
 
   return (
-    <div className="bg-white rounded-lg">
-      <TabListHeader
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabClick={setActiveTab}
-      />
-      <div className="mt-4 space-y-4">
+    <div className="bg-white rounded-lg overflow-y-auto relative">
+      <div className="sticky top-0 z-20 bg-white">
+        <TabListHeader
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabClick={setActiveTab}
+        />
+      </div>
+      <div className="mt-4 space-y-4 overflow-y-auto">
         {filteredMedications.length > 0 ? (
           filteredMedications.map((med, index) => (
             <MedicationItem key={index} medication={med} />

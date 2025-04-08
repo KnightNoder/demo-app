@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../../api/axiosClient";
+import { formatDate } from "../../../utils/utils";
 
 interface AssessmentListProps {
   patientId: null | string;
+  isAnyModalOpen?: boolean;
 }
 
 interface AssessmentCardComponentProps2 {
@@ -15,7 +17,10 @@ interface AssessmentCardComponentProps2 {
   reported_by_patient: boolean;
   type: "cognitive_status";
   score?: string; // Added score field to match the image
+  isAnyModalOpen?: boolean;
 }
+
+// Fix for the AssessmentCard component
 
 const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
   title,
@@ -23,16 +28,22 @@ const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
   enddate,
   comments,
   reported_by_patient,
-  score, // Added score parameter
+  score,
+  isAnyModalOpen,
 }) => {
+  // Explicit boolean check to handle undefined case properly
+  const isModalOpen = isAnyModalOpen === true;
+
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm">
+    <div className="p-4 rounded-lg border border-gray-200 bg-white">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <h3 className="text-blue-600 font-light text-base font-feature-settings-normal">
+          <h3
+            className={`text-blue-600 font-light text-base ${isModalOpen ? "max-w-[400px]" : "max-w-[100px] truncate"} font-feature-settings-[var(--font-feature-settings-rlig)] font-feature-settings-[var(--font-feature-settings-ligature)]`}
+          >
             {title}
           </h3>
-          <span className="ml-2 text-gray-800 text-sm">
+          <span className="ml-2 text-xs font-light text-gray-600">
             Score: {score || "N/A"}
           </span>
         </div>
@@ -41,34 +52,40 @@ const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
         </span>
       </div>
 
-      <p className="text-gray-500 text-sm mt-1">
-        Mini-Mental State Examination
-      </p>
+      {/* Rest of your component remains the same */}
+      <p className="text-gray-600 text-sm mt-1 font-light">{title}</p>
 
-      <div className="text-sm text-gray-500 mt-1">
+      <div className="text-xs text-gray-600 mt-1 font-light">
         Type: Cognitive Screening
       </div>
 
-      <div className="mt-2">
-        <div className="text-gray-500 text-sm">Comments:</div>
-        <div className="text-gray-800 text-sm">{comments}</div>
+      <div className="mt-2 flex gap-1">
+        <div className="text-gray-600 text-xs font-light">Comments: </div>
+        <div className="text-gray-800 text-xs font-light">
+          {comments || " N/A"}
+        </div>
       </div>
 
       <div className="flex justify-between mt-3 pt-2 border-t border-gray-200">
-        <div className="text-xs text-gray-500">
-          <div>Begin: {begdate}</div>
-          <div>End: {enddate || "N/A"}</div>
+        <div className="text-xs text-gray-600 font-light">
+          <div>Begin: {formatDate(begdate)}</div>
+          <div className="mt-2">Enc: N/A</div>
         </div>
-        <div className="text-xs text-gray-500 text-right">
-          <div>Reported by Client:</div>
-          <div>{reported_by_patient ? "Yes" : "No"}</div>
+        <div className="text-xs text-gray-500 text-right font-light">
+          <div>End: {enddate || "N/A"}</div>
+          <div className="mt-2">
+            Reported by Client: {reported_by_patient ? "Yes" : "No"}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const AssessmentList: React.FC<AssessmentListProps> = ({ patientId }) => {
+const AssessmentList: React.FC<AssessmentListProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [assessments, setAssessments] = useState<
     AssessmentCardComponentProps2[]
   >([]);
@@ -76,6 +93,8 @@ const AssessmentList: React.FC<AssessmentListProps> = ({ patientId }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log(isAnyModalOpen, "modal open in cog");
+
     if (patientId) {
       setLoading(true);
       axiosClient
@@ -115,7 +134,11 @@ const AssessmentList: React.FC<AssessmentListProps> = ({ patientId }) => {
   return (
     <div className="w-full mx-auto space-y-3 md:space-y-4">
       {assessments.map((item) => (
-        <AssessmentCard key={item.id} {...item} />
+        <AssessmentCard
+          key={item.id}
+          {...item}
+          isAnyModalOpen={isAnyModalOpen}
+        />
       ))}
     </div>
   );

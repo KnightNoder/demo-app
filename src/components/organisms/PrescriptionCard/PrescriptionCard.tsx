@@ -107,7 +107,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
     { label: "All", count: 3 },
   ];
   return (
-    <div className="bg-white rounded-lg shadow-md">
+    <div className="bg-white rounded-lg overflow-y-auto relative">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

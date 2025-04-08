@@ -54,7 +54,7 @@ export const timeAgoFromToday = (dateString: string | number | Date) => {
 };
 
 
-const calculateAge = (dobString: string): number => {
+export const calculateAge = (dobString: string): number => {
   const dob = new Date(dobString);
   const today = new Date();
 
@@ -70,4 +70,8 @@ const calculateAge = (dobString: string): number => {
   return age;
 };
 
-export default calculateAge;
+export const capitalize = (str: string): string => {
+  if (!str) return "";
+  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+};
+

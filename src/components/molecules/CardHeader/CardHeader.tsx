@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Icons variant={icon} />
         </div>
-        <span className="ml-2"> {title}</span>
+        <span className="ml-2 font-light"> {title}</span>
       </h3>
       <div className="flex items-center gap-1">
         <button

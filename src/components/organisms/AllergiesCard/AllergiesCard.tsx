@@ -8,21 +8,31 @@ import { fetchAllergies } from "../../../features/allergySlice/allergyThunk";
 
 interface AllergyCardProps {
   patientId: string | null;
+  isAnyModalOpen?: boolean;
 }
 
 const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
   const dispatch = useAppDispatch();
-  const { allergies, loading, error } = useAppSelector((state) => state.allergies); 
+  const { allergies, loading, error } = useAppSelector(
+    (state) => state.allergies
+  );
 
   const [activeTab, setActiveTab] = useState("Active");
 
   const tabs = [
     { label: "Active", count: allergies.length },
-    { label: "Allergy", count: allergies.length }, 
+    { label: "Allergy", count: allergies.length },
     { label: "Others", count: 0 },
   ];
 
-  const tableHeaders = ["Allergen", "Severity", "Status", "Reactions", "Onset Date", "Last Updated"]; // Define headers
+  const tableHeaders = [
+    "Allergen",
+    "Severity",
+    "Status",
+    "Reactions",
+    "Onset Date",
+    "Last Updated",
+  ]; // Define headers
 
   useEffect(() => {
     if (patientId) {

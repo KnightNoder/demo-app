@@ -1,4 +1,5 @@
 import React from "react";
+import Icons from "../../../assets/Icons/Icons";
 
 interface Appointment {
   id: number;
@@ -28,80 +29,66 @@ interface AppointmentItemProps {
 
 const AppointmentItem: React.FC<AppointmentItemProps> = ({ appointment }) => {
   return (
-    <div className="p-4 bg-white border border-gray-300 rounded-lg shadow-sm">
+    <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+      {/* Header row with title and category tags */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h4 className="text-sm font-normal text-[#020817]">
           {appointment.title}
-        </h2>
-        <div className="flex space-x-2">
-          {appointment.status?.map((status) => (
+        </h4>
+        <div className="flex space-x-1">
+          {/* {appointment.category && (
+            <span className="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded-md">
+              {appointment.category.name}
+            </span>
+          )} */}
+          {/* {appointment.status?.map((status) => (
             <span
               key={status}
-              className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-full"
+              className="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded-md"
             >
               {status}
             </span>
-          ))}
+          ))} */}
         </div>
       </div>
 
+      {/* Date and time row */}
       <div className="flex items-center mt-2 text-sm text-gray-600">
-        <svg
-          className="w-4 h-4 mr-2 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8 7v4m8-4v4M4 10h16M4 6h16M4 14h16M4 18h16M8 14h8M8 18h8"
-          ></path>
-        </svg>
-        {appointment.event_date} at {appointment.start_time}
+        <Icons variant="appointment-calender" />
+        <span className="ml-2 text-xs font-light text-[#020817]">
+          {appointment.event_date} at {appointment.start_time}
+        </span>
       </div>
 
-      <div className="flex items-center mt-2 text-sm text-gray-700">
-        <svg
-          className="w-4 h-4 mr-2 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 14c4 0 6 2 6 6M6 20c0-4 2-6 6-6m0-6a3 3 0 110-6 3 3 0 010 6z"
-          ></path>
-        </svg>
-        Dr. {appointment.provider.first_name} {appointment.provider.last_name}
-        {appointment.provider.specialization &&
-          ` • ${appointment.provider.specialization}`}
+      {/* Provider row */}
+      <div className="flex items-center mt-2 text-sm text-gray-600">
+        <Icons variant="doctor" />
+        <span className="ml-2 text-xs font-light text-[#020817]">
+          Dr. {appointment.provider.first_name} {appointment.provider.last_name}
+          {appointment.provider.specialization &&
+            ` • ${appointment.provider.specialization}`}
+        </span>
       </div>
 
-      <div className="flex items-center mt-2 text-sm text-gray-700">
-        <svg
-          className="w-4 h-4 mr-2 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 2C8 2 5 5 5 9c0 4.5 7 11 7 11s7-6.5 7-11c0-4-3-7-7-7z"
-          ></path>
-          <circle cx="12" cy="9" r="2"></circle>
-        </svg>
-        {appointment.facility.name}
-        {appointment.facility.room && ` - ${appointment.facility.room}`}
+      {/* Location row */}
+      <div className="flex items-center mt-2 text-sm text-gray-600">
+        <Icons variant="location" className="!w-3 !h-3" />
+        <span className="ml-2 text-xs font-extralight text-gray-500">
+          {appointment.facility.name}
+          {appointment.facility.room && ` - ${appointment.facility.room}`}
+        </span>
       </div>
-
+      <div className="flex items-center mt-2 text-sm text-gray-600">
+        <span className="text-xs font-light text-[#020817]">
+          Note:
+          {appointment.facility.room && ` - ${appointment.facility.room}`}
+        </span>
+      </div>
+      {/* Note section - only shown if there's a note */}
       {appointment.note && (
-        <p className="mt-2 text-xs text-gray-500">{appointment.note}</p>
+        <div className="mt-3 text-xs text-gray-500">
+          <span className="font-medium">Note:</span> {appointment.note}
+        </div>
       )}
     </div>
   );

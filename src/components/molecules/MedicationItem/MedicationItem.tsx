@@ -1,7 +1,10 @@
 import Icons from "../../../assets/Icons/Icons";
-import { capitalizeWord, timeAgoFromToday } from "../../../utils/utils";
+import {
+  capitalize,
+  capitalizeWord,
+  timeAgoFromToday,
+} from "../../../utils/utils";
 import Item from "../../molecules/Item/Item";
-
 
 interface Medication {
   title: string;
@@ -14,7 +17,7 @@ interface Medication {
   dosage: string;
   interval: string;
   isActive: boolean;
-  size_type: string
+  size_type: string;
 }
 
 interface Medication {
@@ -31,11 +34,13 @@ interface Medication {
   size_type: string;
 }
 
-const MedicationItem: React.FC<{ medication: Medication }> = ({ medication }) => {
+const MedicationItem: React.FC<{ medication: Medication }> = ({
+  medication,
+}) => {
   return (
     <Item>
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{medication.title}</h2>
+      <div className="flex items-center justify-between  ">
+        <h2 className="text-sm font-normal">{medication.title}</h2>
         {medication.isActive && (
           <div className="flex justify-end">
             <span className="px-2 py-1 text-xs text-gray-600 bg-gray-200 rounded-full">
@@ -44,25 +49,38 @@ const MedicationItem: React.FC<{ medication: Medication }> = ({ medication }) =>
           </div>
         )}
       </div>
-      <p className="flex items-center text-sm text-gray-500">
+      <p className="flex mt-2 gap-1 items-center text-xs text-gray-600 font-light">
         <Icons variant="dosage" />
-        {medication.quantity}
-        {medication.size_type} · {medication.route}
+        <span className="text-[#020817] ml-1">
+          {medication.quantity}
+          {medication.size_type} · {capitalize(medication.route)}
+        </span>
       </p>
       <div className="mt-2">
-        <p className="flex items-center gap-2 text-sm text-gray-500">
+        <p className="flex items-center gap-2 text-xs text-gray-500 font-light">
           <Icons variant="frequency" />
-          <span className="text-gray-800"> {capitalizeWord(medication.interval)}</span>
+          <span className="text-[#020817]">
+            {" "}
+            {capitalizeWord(medication.interval)}
+          </span>
         </p>
-        <p className="flex items-center gap-2 text-sm text-gray-500">
-          <Icons variant="doctor" /> Dr.{capitalizeWord(medication.ordered_by)}
+        <p className=" mt-2 flex items-center gap-2 text-xs font-light text-gray-500 ">
+          <Icons variant="doctor" />
+          <span className="text-[#020817]">
+            Dr.{capitalizeWord(medication.ordered_by)}
+          </span>
         </p>
-        <p className="flex items-center gap-2 text-sm text-gray-500">
-          <Icons variant="calender" /> Prescribed about {timeAgoFromToday(medication.begdate)}
+        <p className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+          <Icons variant="calender" />
+          <span className="text-[#020817] font-extralight">
+            Prescribed about {timeAgoFromToday(medication.begdate)}
+          </span>
         </p>
       </div>
-      <div className="p-2 mt-3 text-xs text-gray-600 bg-gray-100 rounded-md w-fit">
-        {medication.refill} refills remaining
+      <div className="p-2 mt-3 text-[10px] text-gray-500 bg-[#F9FAFB] rounded-md w-fit">
+        <span className="text-[#020817] font-extralight">
+          {medication.refill} refills remaining
+        </span>
       </div>
     </Item>
   );

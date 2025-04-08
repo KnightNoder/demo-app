@@ -1,85 +1,120 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axiosClient from "../../../api/axiosClient";
 
-interface ICD10CardProps {
-  code: string;
-  description: string;
-  comments: string;
-  begin: string;
-  end: string;
-  reportedByClient: boolean;
+interface FunctionalStatusCardComponentProps {
+  patientId: null | string;
+  isAnyModalOpen?: boolean;
 }
 
-const ICD10Card: React.FC<ICD10CardProps> = ({
-  code,
+interface FunctionalStatusCardProps {
+  title: string;
+  description?: string;
+  comments: string;
+  begdate: string;
+  enddate: string;
+  reported_by_patient: boolean;
+}
+
+interface FunctionalStatusData {
+  title: string;
+  description?: string;
+  comments: string;
+  begdate: string;
+  enddate: string;
+  reported_by_patient: boolean;
+}
+
+const FunctionalStatusCard: React.FC<FunctionalStatusCardProps> = ({
+  title,
   description,
   comments,
-  begin,
-  end,
-  reportedByClient,
+  begdate,
+  enddate,
+  reported_by_patient,
 }) => {
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      <div className="flex items-center justify-between">
-        <a href="#" className="font-semibold text-blue-600">
-          {code}
+    <div className="p-4 rounded-lg border border-gray-200 bg-white">
+      <div className="flex items-center justify-between text-sm font-normal">
+        <a href="#" className="font-normal  text-primary">
+          {title}
         </a>
         <span className="px-2 py-1 text-xs text-green-700 bg-green-100 rounded-full">
           Active
         </span>
       </div>
-      <p className="mt-1 text-gray-700">{description}</p>
-      <p className="mt-2 text-sm text-gray-500">Comments: {comments}</p>
-      <p className="text-sm text-gray-500">Begin: {begin}</p>
-      <p className="text-sm text-gray-500">End: {end}</p>
-      <p className="text-sm text-gray-500">Reported by Client: {reportedByClient ? "Yes" : "No"}</p>
+      {description && (
+        <p className="mt-1 text-gray-700">{description || "N/A"}</p>
+      )}
+      <p className="mt-2 text-sm  text-[#020817]">Comments: {comments}</p>
+      <p className="mt-2 text-xs font-light text-[#020817]">Begin: {begdate}</p>
+      <p className="mt-2 text-xs font-light text-[#020817]">End: {enddate}</p>
+      <p className="mt-2 text-xs font-light text-[#020817]">
+        Reported by Patient: {reported_by_patient ? "Yes" : "No"}
+      </p>
     </div>
   );
 };
 
-const ICD10List: React.FC = () => {
-  const icdData = [
-    {
-      code: "ICD10:P05.04",
-      description: "Newborn light for gestational age, 1000-1249 grams",
-      comments: "Dummy Status",
-      begin: "03/17/2025 16:51:52",
-      end: "03/24/2025 16:51:55",
-      reportedByClient: false,
-    },
-    {
-      code: "ICD10:S43.121A",
-      description:
-        "Dislocation of right acromioclavicular joint, 100%-200% displacement, initial encounter",
-      comments: "",
-      begin: "03/18/2025 17:33:40",
-      end: "03/26/2025 17:33:42",
-      reportedByClient: false,
-    },
-    {
-      code: "ICD10:R26.2",
-      description: "Difficulty in walking, not elsewhere classified",
-      comments: "Requires assistance",
-      begin: "03/19/2025 09:15:30",
-      end: "03/27/2025 09:15:30",
-      reportedByClient: true,
-    },
-    {
-      code: "ICD10:R27.0",
-      description: "Ataxia, unspecified",
-      comments: "Under evaluation",
-      begin: "03/20/2025 14:22:10",
-      end: "03/28/2025 14:22:10",
-      reportedByClient: false,
-    },
-  ];
+// p-4 rounded-lg border border-gray-200 bg-white
+const FunctionalStatusList: React.FC<FunctionalStatusCardComponentProps> = ({
+  patientId,
+}) => {
+  const [functionalStatusData, setFunctionalStatusData] = useState<
+    FunctionalStatusData[]
+  >([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFunctionalStatus = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosClient.get(
+          `/functional-status?pid=${patientId}`
+        );
+        console.log(response, "func data");
+        setFunctionalStatusData(response.data.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching functional status data:", err);
+        setError(
+          "Failed to load functional status data. Please try again later."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (patientId) {
+      fetchFunctionalStatus();
+    }
+  }, [patientId]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-4">Loading functional status data...</div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-center py-4 text-red-500">{error}</div>;
+  }
+
+  if (functionalStatusData.length === 0) {
+    return (
+      <div className="text-center py-4">
+        No functional status data available.
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-full  mx-auto space-y-4">
-      {icdData.map((item, index) => (
-        <ICD10Card key={index} {...item} />
+    <div className="max-w-full mx-auto space-y-4">
+      {functionalStatusData.map((item, index) => (
+        <FunctionalStatusCard key={index} {...item} />
       ))}
     </div>
   );
 };
 
-export default ICD10List;
+export default FunctionalStatusList;

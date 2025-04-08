@@ -62,7 +62,7 @@ interface DecodedToken {
 }
 
 // Screen size breakpoints (in pixels)
-const SCREEN_SM = 640; // Mobile
+// const SCREEN_SM = 640; // Mobile
 const SCREEN_MD = 768; // Small tablet
 const SCREEN_LG = 1024; // Large tablet
 const SCREEN_XL = 1280; // Small desktop
@@ -196,27 +196,27 @@ const getCategoryUrl = (
 ): string => {
   switch (category) {
     case "Allergies":
-      return `https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
+      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
     case "Appointments":
-      return `https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
+      return `${import.meta.env.V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
     case "Diagnosis":
-      return `https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
+      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
     case "Advanced Directive":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/advancedirectives.php";
+      return `${import.meta.env.V1_URL}/patient_file/summary/advancedirectives.php`;
     case "Medications":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication";
+      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
     case "Insurance":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix//interface/patient_file/summary/add_insurance.php";
+      return `https://qa-linux-01.drcloudemr.com/qa-phoenix//interface/patient_file/summary/add_insurance.php`;
     case "Prescriptions":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/rx_frameset.php";
+      return `${import.meta.env.V1_URL}/patient_file/summary/rx_frameset.php`;
     case "Demographics":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/demographics_full.php?curr_tab=Who";
+      return `${import.meta.env.V1_URL}/patient_file/summary/demographics_full.php?curr_tab=Who`;
     case "Functional Status":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status";
+      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
     case "Cognitive Status":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status";
+      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
     case "Advanced Directives":
-      return "https://qa-linux-01.drcloudemr.com/qa-phoenix/interface/patient_file/summary/advancedirectives.php";
+      return `${import.meta.env.V1_URL}/patient_file/summary/advancedirectives.php`;
     default:
       return "";
   }
@@ -233,16 +233,21 @@ const App: React.FC = () => {
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
   const [insuranceWritePermission, setInsuranceWritePermission] =
     useState(false);
-  const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-    "Cognitive Status",
-    "Medications",
-    "Insurance",
-    "Appointments",
-    "Lab Reports",
-    "Prescriptions",
-    "Documents",
-    "Disclosures",
-  ]);
+  // const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
+  //   "Appointments",
+  //   "Prescriptions",
+  //   "Cognitive Status",
+  //   "Medications",
+  //   "Functional Status",
+  //   "Advanced Directives",
+  //   "Lab Reports",
+  //   "Documents",
+  //   "Diagnosis",
+  // ]);
+
+  const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
+    widgetOptions.map((widget) => widget.key)
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
@@ -934,7 +939,10 @@ const App: React.FC = () => {
                         }
                       >
                         {widget.component && (
-                          <widget.component patientId={patientId} />
+                          <widget.component
+                            patientId={patientId}
+                            isAnyModalOpen={isAnyModalOpen}
+                          />
                         )}
                       </Card>
                     );
