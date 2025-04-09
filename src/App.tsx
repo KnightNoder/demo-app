@@ -233,21 +233,21 @@ const App: React.FC = () => {
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
   const [insuranceWritePermission, setInsuranceWritePermission] =
     useState(false);
-  // const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-  //   "Appointments",
-  //   "Prescriptions",
-  //   "Cognitive Status",
-  //   "Medications",
-  //   "Functional Status",
-  //   "Advanced Directives",
-  //   "Lab Reports",
-  //   "Documents",
-  //   "Diagnosis",
-  // ]);
+  const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
+    "Diagnosis",
+    "Prescriptions",
+    "Cognitive Status",
+    "Functional Status",
+    "Medications",
+    "Notifications",
+    "Advanced Directives",
+    "Appointments",
+    "Clinical Notes",
+  ]);
 
-  const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
-    widgetOptions.map((widget) => widget.key)
-  );
+  // const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
+  //   widgetOptions.map((widget) => widget.key)
+  // );
 
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
