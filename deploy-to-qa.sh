@@ -19,6 +19,9 @@ DIST_DIR="dist"  # the local build output directory
 # Use the full path to the SSH key in the Jenkins home directory
 SSH_KEY_PATH="/var/lib/jenkins/.ssh/id_rsa_qa-01-linux_jenkins"
 
+echo "Current working directory: $(pwd)"
+echo "DIST_DIR: $DIST_DIR"
+echo "Complete path: $(pwd)/$DIST_DIR"
 
 #####################################################
 #### DOWNLOAD THE CURRENT HTML FILE FROM QA SERVER ####
@@ -52,12 +55,16 @@ echo "Existing CSS in index_v2.php on QA server: $EXISTING_CSS_FILENAME"
 
 # Step 2: Find the latest JS and CSS files from the build
 echo "Finding latest assets from build..."
+
+
+
 if [ ! -d "$DIST_DIR" ]; then
     echo "Error: Build directory '$DIST_DIR' not found."
     echo "Make sure to run npm build before running this script."
     exit 1
 fi
 
+echo "The build directory is: $(pwd)/$DIST_DIR"
 # Find the latest JS and CSS files in the dist directory on the jenkins server
 LATEST_JS_PATH=$(find ${DIST_DIR}/assets -name "index-*.js" -type f -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2- -d' ')
 LATEST_CSS_PATH=$(find ${DIST_DIR}/assets -name "index-*.css" -type f -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2- -d' ')
