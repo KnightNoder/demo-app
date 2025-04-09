@@ -15,8 +15,14 @@ interface InsuranceCardProps {
 
 const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { data: insuranceData, loading, error } = useSelector((state: RootState) => state.insurance);
-  const [activeTab, setActiveTab] = React.useState<"Summary" | "Coverage" | "Financials">("Summary");
+  const {
+    data: insuranceData,
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.insurance);
+  const [activeTab, setActiveTab] = React.useState<
+    "Summary" | "Coverage" | "Financials"
+  >("Summary");
 
   useEffect(() => {
     if (patientId) {
@@ -54,23 +60,15 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">
+          <p className="text-sm font-normal text-red-500">
             Oops! Something went wrong.
           </p>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
       </div>
     );
   }
-
-  // if (!insuranceData.length) {
-  //   return (
-  //     <div className="w-full p-4 text-center text-gray-500">
-  //       No Insurances found
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="">
@@ -109,7 +107,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           )}
         </>
       ) : (
-        <div className="w-full p-4 text-center text-gray-500">
+        <div className="w-full p-4 text-center text-xs font-light text-gray-500">
           No Insurances found
         </div>
       )}

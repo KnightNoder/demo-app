@@ -32,7 +32,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
             }
             return { key, label };
           });
-
+          console.log(extractedTabs, "tabs");
           setTabs(extractedTabs);
 
           // Extract "1Who" data (now called "Basic") and store it
@@ -66,8 +66,10 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
     setActiveTab(key);
   };
 
-  if (loading) return <p>Loading tabs...</p>;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (loading)
+    return <p className="text-xs font-light text-gray-600">Loading tabs...</p>;
+  if (error)
+    return <p className="text-xs font-light text-red-500">Error: {error}</p>;
 
   return (
     <div className="mx-auto rounded-lg shadow-md">
@@ -89,7 +91,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
           </div>
         </>
       ) : (
-        <p>No tabs available</p>
+        <p className="text-xs font-light text-gray-600">No tabs available</p>
       )}
     </div>
   );
@@ -121,7 +123,7 @@ const renderTabContent = (
             </div>
           </div>
           <div className="mt-4 text-center">
-            <p className="text-lg font-semibold text-red-500">
+            <p className="text-sm font-normal text-red-500">
               Content for {tabKey} not available
             </p>
           </div>
@@ -146,111 +148,166 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
     data.find((item) => item.id === "client_birthplace")?.value || "";
 
   return (
-    <div className="grid grid-cols-2 gap-6 text-sm text-gray-800">
+    <div className="grid grid-cols-2 gap-6">
       {/* Personal Information */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Personal Information
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Name:</strong> {firstName} {lastName}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">Name:</span>{" "}
+            {firstName} {lastName}
           </p>
-          <p>
-            <strong>Preferred:</strong> {preferredName}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Preferred:
+            </span>{" "}
+            {preferredName}
           </p>
-          <p>
-            <strong>Place of Birth:</strong> {placeOfBirth}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Place of Birth:
+            </span>{" "}
+            {placeOfBirth}
           </p>
-          <p>
-            <strong>DOB:</strong> {age}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">DOB:</span>{" "}
+            {age}
           </p>
         </div>
       </div>
 
       {/* Gender & Identity */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Gender & Identity
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Birth Sex:</strong> {sex}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Birth Sex:
+            </span>{" "}
+            {sex}
           </p>
-          <p>
-            <strong>Gender Identity:</strong> {gender}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Gender Identity:
+            </span>{" "}
+            {gender}
           </p>
-          <p>
-            <strong>Pronouns:</strong> They/Them
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Pronouns:
+            </span>{" "}
+            They/Them
           </p>
-          <p>
-            <strong>Race/Ethnicity:</strong> {race}
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Race/Ethnicity:
+            </span>{" "}
+            {race}
           </p>
         </div>
       </div>
 
       {/* Language & Culture */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Language & Culture
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Language:</strong> English
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Language:
+            </span>{" "}
+            English
           </p>
-          <p>
-            <strong>Religion:</strong> Buddhist
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Religion:
+            </span>{" "}
+            Buddhist
           </p>
         </div>
       </div>
 
       {/* Social Status */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Social Status
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Marital Status:</strong> Married
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Marital Status:
+            </span>{" "}
+            Married
           </p>
-          <p>
-            <strong>Living Arrangement:</strong> Lives with Family
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Living Arrangement:
+            </span>{" "}
+            Lives with Family
           </p>
         </div>
       </div>
 
       {/* Employment & Education */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Employment & Education
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Employment:</strong> Full-time
-          </p>
-          <p>Software Engineer</p>
-          <p>
-            <strong>Company:</strong> Tech Company Inc.
-          </p>
-          <p>
-            <strong>Education:</strong> Bachelor's Degree
-          </p>
-          <p>University of Illinois</p>
-          <p>Class of 2020</p>
+          <div>
+            <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+              <span className="text-xs font-normal text-[#020817]">
+                Employment:
+              </span>{" "}
+              Full-time
+            </p>
+            <p className="ml-4 text-xs font-light text-gray-600">
+              Software Engineer
+            </p>
+            <p className="flex items-start gap-2 text-xs font-light text-gray-600 mt-2">
+              <span className="text-xs font-normal text-[#020817]">
+                Company:
+              </span>{" "}
+              Tech Company Inc.
+            </p>
+          </div>
+          <div>
+            <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+              <span className="text-xs font-normal text-[#020817]">
+                Education:
+              </span>{" "}
+              Bachelor's Degree
+            </p>
+            <p className="ml-4 text-xs font-light text-gray-600">
+              University of Illinois
+            </p>
+            <p className="ml-4 text-xs font-light text-gray-600">
+              Class of 2020
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Emergency Contact */}
       <div className="col-span-2">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+        <h2 className="mb-3 text-sm font-normal text-[#020817]">
           Emergency Contact
         </h2>
         <div className="grid grid-cols-2 gap-4">
-          <p>
-            <strong>Name & Relationship:</strong> Jane Doe (Spouse)
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">
+              Name & Relationship:
+            </span>{" "}
+            Jane Doe (Spouse)
           </p>
-          <p>
-            <strong>Phone:</strong> 777-777-7777
+          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+            <span className="text-xs font-normal text-[#020817]">Phone:</span>{" "}
+            777-777-7777
           </p>
         </div>
       </div>
@@ -272,19 +329,21 @@ const ContactInfo = ({ data }: { data: any[] }) => {
 
   return (
     <div>
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">
+      <h2 className="mb-3 text-sm font-normal text-[#020817]">
         Contact Information
       </h2>
       <div className="grid grid-cols-2 gap-4">
-        <p>
-          <strong>Address:</strong> {street2}, {street}, {city}, {clientCounty},{" "}
-          {state}, {postalCode}
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">Address:</span>{" "}
+          {street2}, {street}, {city}, {clientCounty}, {state}, {postalCode}
         </p>
-        <p>
-          <strong>Mobile:</strong> {mobileNumber}
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">Mobile:</span>{" "}
+          {mobileNumber}
         </p>
-        <p>
-          <strong>Email:</strong> kgollapudi@drcloudehr.com
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">Email:</span>{" "}
+          kgollapudi@drcloudehr.com
         </p>
       </div>
     </div>
@@ -297,18 +356,23 @@ const IDsInfo = ({ data }: { data: any[] }) => {
 
   return (
     <div>
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">
+      <h2 className="mb-3 text-sm font-normal text-[#020817]">
         Identification Information
       </h2>
       <div className="grid grid-cols-2 gap-4">
-        <p>
-          <strong>MRN:</strong> 74516900
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">MRN:</span>{" "}
+          74516900
         </p>
-        <p>
-          <strong>SSN:</strong> XXX-XX-8999
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">SSN:</span>{" "}
+          XXX-XX-8999
         </p>
-        <p>
-          <strong>Medicaid ID:</strong> {medicadId}
+        <p className="flex items-start gap-2 text-xs font-light text-gray-600">
+          <span className="text-xs font-normal text-[#020817]">
+            Medicaid ID:
+          </span>{" "}
+          {medicadId}
         </p>
       </div>
     </div>

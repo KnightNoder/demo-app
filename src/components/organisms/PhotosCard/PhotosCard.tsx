@@ -70,10 +70,10 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
     return (
       <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">
+          <p className="text-sm font-normal text-red-500">
             Oops! Something went wrong.
           </p>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
       </div>

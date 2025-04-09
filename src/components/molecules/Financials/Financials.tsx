@@ -29,51 +29,69 @@ const Financials: React.FC<FinancialsProps> = ({ deductible, outOfPocket }) => {
     <div className="p-6 space-y-8">
       {/* Deductible Section */}
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Deductible</h3>
+        <h3 className="text-sm font-normal text-[#020817]">Deductible</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-gray-600">Individual</p>
-            <p className="text-lg font-medium">{formatCurrency(deductible.individual)}</p>
+            <p className="text-xs font-light text-gray-600">Individual</p>
+            <p className="text-xs font-normal text-[#020817]">
+              {formatCurrency(deductible.individual)}
+            </p>
           </div>
           <div>
-            <p className="text-gray-600">Family</p>
-            <p className="text-lg font-medium">{formatCurrency(deductible.family)}</p>
+            <p className="text-xs font-light text-gray-600">Family</p>
+            <p className="text-xs font-normal text-[#020817]">
+              {formatCurrency(deductible.family)}
+            </p>
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-gray-600">Remaining</p>
+          <p className="text-xs font-light text-gray-600">Remaining</p>
           <div className="h-2 bg-gray-200 rounded-full">
             <div
               className="h-full bg-blue-600 rounded-full"
-              style={{ width: `${calculateProgress(deductible.remaining, deductible.individual)}%` }}
+              style={{
+                width: `${calculateProgress(deductible.remaining, deductible.individual)}%`,
+              }}
             />
           </div>
-          <p className="text-lg font-medium">{formatCurrency(deductible.remaining)}</p>
+          <p className="text-xs font-normal text-[#020817]">
+            {formatCurrency(deductible.remaining)}
+          </p>
         </div>
       </div>
 
       {/* Out of Pocket Maximum Section */}
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Out of Pocket Maximum</h3>
+        <h3 className="text-sm font-normal text-[#020817]">
+          Out of Pocket Maximum
+        </h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-gray-600">Individual</p>
-            <p className="text-lg font-medium">{formatCurrency(outOfPocket.individual)}</p>
+            <p className="text-xs font-light text-gray-600">Individual</p>
+            <p className="text-xs font-normal text-[#020817]">
+              {formatCurrency(outOfPocket.individual)}
+            </p>
           </div>
           <div>
-            <p className="text-gray-600">Family</p>
-            <p className="text-lg font-medium">{formatCurrency(outOfPocket.family)}</p>
+            <p className="text-xs font-light text-gray-600">Family</p>
+            <p className="text-xs font-normal text-[#020817]">
+              {formatCurrency(outOfPocket.family)}
+            </p>
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-gray-600">Remaining</p>
+          <p className="text-xs font-light text-gray-600">Remaining</p>
           <div className="h-2 bg-gray-200 rounded-full">
             <div
               className="h-full bg-blue-600 rounded-full"
-              style={{ width: `${calculateProgress(outOfPocket.remaining, outOfPocket.individual)}%` }}
+              style={{
+                width: `${calculateProgress(outOfPocket.remaining, outOfPocket.individual)}%`,
+              }}
             />
           </div>
-          <p className="text-lg font-medium">{formatCurrency(outOfPocket.remaining)}</p>
+          <p className="text-xs font-normal text-[#020817]">
+            {formatCurrency(outOfPocket.remaining)}
+          </p>
         </div>
       </div>
     </div>

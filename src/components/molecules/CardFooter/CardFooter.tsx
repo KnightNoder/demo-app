@@ -29,7 +29,7 @@ const CardFooter: React.FC<CardFooterProps> = ({
 
   return (
     <div role="contentinfo" data-testid="card-content" className="w-full">
-      <div className="footer h-14 bg-white/95 backdrop-blur">
+      <div className="footer h-14 bg-white/95 backdrop-blur rounded-b-lg">
         <div className="relative h-full">
           <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
             {hasWritePermission && (

@@ -48,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between p-4 bg-white header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      className={`rounded-4xl flex items-center justify-between p-4 bg-white header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
       onMouseDown={onMouseDown}
     >
       <h3 className="flex items-center justify-center font-medium">

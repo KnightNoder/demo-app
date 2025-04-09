@@ -13,8 +13,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Patient Photos</h2>
-        <button className="flex items-center px-4 py-2 text-sm text-white bg-blue-500 rounded">
+        <h2 className="text-sm font-normal text-[#020817]">Patient Photos</h2>
+        <button className="flex items-center px-4 py-2 text-xs font-normal text-white bg-blue-500 rounded">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-4 h-4 mr-2"
@@ -32,13 +32,12 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
       </div>
       <div className="grid grid-cols-3 gap-4">
         {photos.map((photo) => (
-          <div key={photo.id} className="relative overflow-hidden rounded-lg shadow-md">
-            <img
-              src={photo.src}
-              className="object-cover w-full h-48"
-            />
-            <span className="absolute px-2 py-1 text-xs text-white bg-black rounded top-2 left-2">
-            </span>
+          <div
+            key={photo.id}
+            className="relative overflow-hidden rounded-lg shadow-md"
+          >
+            <img src={photo.src} className="object-cover w-full h-48" />
+            <span className="absolute px-2 py-1 text-xs font-light text-white bg-black rounded top-2 left-2"></span>
           </div>
         ))}
       </div>

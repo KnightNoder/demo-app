@@ -52,14 +52,14 @@ interface InsuranceSectionProps {
 
 const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
   return (
-    <div className="bg-white rounded-lg shadow ">
+    <div className="bg-white rounded-lg shadow">
       {insurances.length > 0 ? (
         insurances.map((insurance, index) => (
           <div
             key={index}
             className="p-4 mb-6 border border-gray-300 rounded-lg"
           >
-            <h2 className="flex items-center text-xl font-bold">
+            <h2 className="flex items-center text-sm font-normal text-[#020817]">
               {insurance?.insurance_company?.name}{" "}
               <span className="px-2 py-1 ml-2 text-xs text-blue-800 bg-blue-200 rounded">
                 {capitalizeWord(insurance?.type)}
@@ -67,25 +67,37 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             </h2>
 
             <div className="mt-4">
-              <h3 className="font-semibold">Copays</h3>
-              <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+              <h3 className="text-sm font-normal text-[#020817]">Copays</h3>
+              <div className="grid grid-cols-2 gap-4 mt-2">
                 <div>
-                  <p>Primary Care Visit</p>
-                  <p className="font-bold">{insurance?.copays?.primaryCare}</p>
+                  <p className="text-xs font-light text-gray-600">
+                    Primary Care Visit
+                  </p>
+                  <p className="text-xs font-normal text-[#020817]">
+                    {insurance?.copays?.primaryCare}
+                  </p>
                 </div>
                 <div>
-                  <p>Specialist Visit</p>
-                  <p className="font-bold">
+                  <p className="text-xs font-light text-gray-600">
+                    Specialist Visit
+                  </p>
+                  <p className="text-xs font-normal text-[#020817]">
                     {insurance?.copays?.specialistVisit}
                   </p>
                 </div>
                 <div>
-                  <p>Urgent Care</p>
-                  <p className="font-bold">{insurance?.copays?.urgentCare}</p>
+                  <p className="text-xs font-light text-gray-600">
+                    Urgent Care
+                  </p>
+                  <p className="text-xs font-normal text-[#020817]">
+                    {insurance?.copays?.urgentCare}
+                  </p>
                 </div>
                 <div>
-                  <p>Emergency Room</p>
-                  <p className="font-bold">
+                  <p className="text-xs font-light text-gray-600">
+                    Emergency Room
+                  </p>
+                  <p className="text-xs font-normal text-[#020817]">
                     {insurance?.copays?.emergencyRoom}
                   </p>
                 </div>
@@ -93,7 +105,9 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             </div>
 
             <div className="mt-4">
-              <h3 className="font-semibold">Coverage Details</h3>
+              <h3 className="text-sm font-normal text-[#020817]">
+                Coverage Details
+              </h3>
               <ul className="mt-2">
                 {insurance?.coverage &&
                   insurance?.coverage.map((item, coverageIndex) => (
@@ -102,14 +116,14 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
                       className="flex justify-between py-2 border-b"
                     >
                       <span
-                        className={`flex items-center ${
+                        className={`flex items-center text-xs font-light ${
                           item?.covered ? "text-green-600" : "text-red-600"
                         }`}
                       >
                         {item?.covered ? "✅" : "❌"} {item?.name}
                       </span>
                       {item?.note && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-xs font-light text-gray-500">
                           {item?.note}
                         </span>
                       )}
@@ -120,7 +134,7 @@ const CoverageDetails: React.FC<InsuranceSectionProps> = ({ insurances }) => {
           </div>
         ))
       ) : (
-        <div className="w-full p-4 text-center text-gray-500">
+        <div className="w-full p-4 text-center text-xs font-light text-gray-500">
           No insurance coverage found
         </div>
       )}

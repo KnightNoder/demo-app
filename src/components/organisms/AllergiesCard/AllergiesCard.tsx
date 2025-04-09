@@ -11,7 +11,10 @@ interface AllergyCardProps {
   isAnyModalOpen?: boolean;
 }
 
-const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
+const AllergiesCard: React.FC<AllergyCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const dispatch = useAppDispatch();
   const { allergies, loading, error } = useAppSelector(
     (state) => state.allergies
@@ -92,6 +95,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({ patientId }) => {
           allergies={allergies}
           loading={false}
           tableHeaders={tableHeaders}
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     </div>

@@ -23,9 +23,15 @@ interface AllergyTableProps {
   }>;
   loading: boolean;
   tableHeaders: string[];
+  isAnyModalOpen?: boolean;
 }
 
-const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHeaders }) => {
+const AllergyTable: React.FC<AllergyTableProps> = ({
+  allergies,
+  loading,
+  tableHeaders,
+  isAnyModalOpen,
+}) => {
   if (!Array.isArray(allergies)) {
     return (
       <div className="w-full p-4 text-center text-red-600">
@@ -56,13 +62,27 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHe
           <tbody>
             {[...Array(5)].map((_, index) => (
               <tr key={index}>
-                <td><Skeleton width={150} /></td>
-                <td><Skeleton width={100} /></td>
-                <td><Skeleton width={80} /></td>
-                <td><Skeleton width={80} /></td>
-                <td><Skeleton width={120} /></td>
-                <td><Skeleton width={100} /></td>
-                <td><Skeleton width={100} /></td>
+                <td>
+                  <Skeleton width={150} />
+                </td>
+                <td>
+                  <Skeleton width={100} />
+                </td>
+                <td>
+                  <Skeleton width={80} />
+                </td>
+                <td>
+                  <Skeleton width={80} />
+                </td>
+                <td>
+                  <Skeleton width={120} />
+                </td>
+                <td>
+                  <Skeleton width={100} />
+                </td>
+                <td>
+                  <Skeleton width={100} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -83,7 +103,11 @@ const AllergyTable: React.FC<AllergyTableProps> = ({ allergies, loading, tableHe
         </thead>
         <tbody className="mt-6">
           {allergies.map((allergy) => (
-            <AllergyRow key={allergy.id} allergy={allergy} />
+            <AllergyRow
+              key={allergy.id}
+              allergy={allergy}
+              isAnyModalOpen={isAnyModalOpen}
+            />
           ))}
         </tbody>
       </table>

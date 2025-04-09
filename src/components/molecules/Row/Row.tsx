@@ -10,11 +10,13 @@ interface ColumnConfig<T> {
 interface GenericTableRowProps<T> {
   data: T;
   columnConfig: ColumnConfig<T>[];
+  isAnyModalOpen?: boolean;
 }
 
 const GenericTableRow = <T,>({
   data,
   columnConfig,
+  isAnyModalOpen,
 }: GenericTableRowProps<T>) => {
   return (
     <tr className="!py-10 !mt-10 transition-colors hover:bg-muted/50">
@@ -22,7 +24,7 @@ const GenericTableRow = <T,>({
         const value = data[key];
 
         return (
-          <TableCell key={index}>
+          <TableCell key={index} isAnyModalOpen={isAnyModalOpen}>
             {render ? render(value, data) : String(value) || "N/A"}
           </TableCell>
         );
