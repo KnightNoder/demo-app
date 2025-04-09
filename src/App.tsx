@@ -196,27 +196,27 @@ const getCategoryUrl = (
 ): string => {
   switch (category) {
     case "Allergies":
-      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
     case "Appointments":
-      return `${import.meta.env.V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
+      return `${import.meta.env.VITE_V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
     case "Diagnosis":
-      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
     case "Advanced Directive":
-      return `${import.meta.env.V1_URL}/patient_file/summary/advancedirectives.php`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/advancedirectives.php`;
     case "Medications":
-      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
     case "Insurance":
       return `https://qa-linux-01.drcloudemr.com/qa-phoenix//interface/patient_file/summary/add_insurance.php`;
     case "Prescriptions":
-      return `${import.meta.env.V1_URL}/patient_file/summary/rx_frameset.php`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/rx_frameset.php`;
     case "Demographics":
-      return `${import.meta.env.V1_URL}/patient_file/summary/demographics_full.php?curr_tab=Who`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/demographics_full.php?curr_tab=Who`;
     case "Functional Status":
-      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
     case "Cognitive Status":
-      return `${import.meta.env.V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
     case "Advanced Directives":
-      return `${import.meta.env.V1_URL}/patient_file/summary/advancedirectives.php`;
+      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/advancedirectives.php`;
     default:
       return "";
   }
