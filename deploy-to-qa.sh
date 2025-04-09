@@ -208,7 +208,7 @@ fi
 
 # Move the file to final destination using sudo
 echo "Moving index_v2.php to final destination..."
-MOVE_OUTPUT_HTML=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mv ${TEMP_DIR}/index_v2.php ${QA_DEPLOY_PATH}/")
+MOVE_OUTPUT_HTML=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n mv ${TEMP_DIR}/index_v2.php ${QA_DEPLOY_PATH}/")
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move index_v2.php to final destination."
     exit 1
@@ -224,7 +224,7 @@ fi
 
 # Move the JS file to final destination using sudo
 echo "Moving JS file to final destination..."
-MOVE_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mv ${TEMP_DIR}/${LATEST_JS_FILENAME} ${QA_DEPLOY_PATH}/")
+MOVE_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n mv ${TEMP_DIR}/${LATEST_JS_FILENAME} ${QA_DEPLOY_PATH}/")
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move JS file to final destination."
     exit 1
@@ -240,7 +240,7 @@ fi
 
 # Move the CSS file to final destination using sudo
 echo "Moving CSS file to final destination..."
-MOVE_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mv ${TEMP_DIR}/${LATEST_CSS_FILENAME} ${QA_DEPLOY_PATH}/")
+MOVE_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n mv ${TEMP_DIR}/${LATEST_CSS_FILENAME} ${QA_DEPLOY_PATH}/")
 if [ $? -ne 0 ]; then
     echo "Error: Failed to move CSS file to final destination."
     exit 1
@@ -259,7 +259,7 @@ fi
 # Change the permissions of the JS,CSS and index_v2.php files to 644
 echo "Changing permissions of JS,CSS and index_v2.php files to 644"
 #capture the output of the command below and save it to a variable
-CHANGE_PERMISSIONS_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chmod 644 ${QA_DEPLOY_PATH}/${LATEST_JS_FILENAME}")
+CHANGE_PERMISSIONS_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chmod 644 ${QA_DEPLOY_PATH}/${LATEST_JS_FILENAME}")
 
 echo "Change permissions output of JS file: $CHANGE_PERMISSIONS_OUTPUT_JS" 
 if [ $? -ne 0 ]; then
@@ -268,7 +268,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #capture the output of the command below and save it to a variable
-CHANGE_PERMISSIONS_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chmod 644 ${QA_DEPLOY_PATH}/${LATEST_CSS_FILENAME}")
+CHANGE_PERMISSIONS_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chmod 644 ${QA_DEPLOY_PATH}/${LATEST_CSS_FILENAME}")
 
 echo "Change permissions output of CSS file: $CHANGE_PERMISSIONS_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
@@ -277,7 +277,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #capture the output of the command below and save it to a variable
-CHANGE_PERMISSIONS_OUTPUT_INDEX_V2_PHP=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chmod 644 ${QA_DEPLOY_PATH}/${QA_HTML_FILE}")
+CHANGE_PERMISSIONS_OUTPUT_INDEX_V2_PHP=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chmod 644 ${QA_DEPLOY_PATH}/${QA_HTML_FILE}")
 echo "Change permissions output of index_v2.php file: $CHANGE_PERMISSIONS_OUTPUT_INDEX_V2_PHP"
 if [ $? -ne 0 ]; then
     echo "Error: Failed to change permissions of index_v2.php file on QA server."
@@ -290,7 +290,7 @@ fi
 #####################################################
 #change the ownership of the index_v2.php file to www-data:www-data
 echo "Changing ownership of index_v2.php file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chown www-data:www-data ${QA_DEPLOY_PATH}/${QA_HTML_FILE}")
+CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chown www-data:www-data ${QA_DEPLOY_PATH}/${QA_HTML_FILE}")
 
 echo "Change ownership output of index_v2.php file: $CHANGE_OWNERSHIP_OUTPUT_INDEX_V2_PHP"
 if [ $? -ne 0 ]; then
@@ -300,7 +300,7 @@ fi
 
 #change the ownership of the JS file to www-data:www-data
 echo "Changing ownership of JS file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chown www-data:www-data ${QA_DEPLOY_PATH}/${LATEST_JS_FILENAME}")
+CHANGE_OWNERSHIP_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chown www-data:www-data ${QA_DEPLOY_PATH}/${LATEST_JS_FILENAME}")
 
 echo "Change ownership output of JS file: $CHANGE_OWNERSHIP_OUTPUT_JS"
 if [ $? -ne 0 ]; then
@@ -310,7 +310,7 @@ fi
 
 #change the ownership of the CSS file to www-data:www-data
 echo "Changing ownership of CSS file to www-data:www-data"
-CHANGE_OWNERSHIP_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo chown www-data:www-data ${QA_DEPLOY_PATH}/${LATEST_CSS_FILENAME}")
+CHANGE_OWNERSHIP_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo -n chown www-data:www-data ${QA_DEPLOY_PATH}/${LATEST_CSS_FILENAME}")
 
 echo "Change ownership output of CSS file: $CHANGE_OWNERSHIP_OUTPUT_CSS"
 if [ $? -ne 0 ]; then
