@@ -194,9 +194,9 @@ echo "Uploading updated files to QA server..."
 # Create a temporary directory for uploads
 TEMP_DIR="/tmp/deploy_$(date +%s)"
 
-# First create the temp directory on the remote server
+# First create the temp directory on the remote server (no sudo needed for /tmp)
 echo "Creating temp directory on QA server..."
-ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mkdir -p ${TEMP_DIR} && sudo chown ${QA_SERVER_USER}:${QA_SERVER_USER} ${TEMP_DIR}"
+ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "mkdir -p ${TEMP_DIR}"
 
 # Upload the HTML file to temp directory first
 echo "Uploading updated index_v2.php to QA server temp directory..."
@@ -248,7 +248,7 @@ fi
 
 # Clean up temp directory
 echo "Cleaning up temp directory..."
-CLEANUP_OUTPUT=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo rm -rf ${TEMP_DIR}")
+CLEANUP_OUTPUT=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "rm -rf ${TEMP_DIR}")
 if [ $? -ne 0 ]; then
     echo "Warning: Failed to clean up temp directory."
 fi
