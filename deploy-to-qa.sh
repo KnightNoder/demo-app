@@ -191,36 +191,62 @@ fi
 #####################################################
 echo "Uploading updated files to QA server..."
 
-# Upload the HTML file
-echo "Uploading updated index_v2.php to QA server..."
-#capture the output of the command below and save it to a variable
-UPLOAD_OUTPUT_HTML=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 ./index_v2.php "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${QA_HTML_FILE}")
-echo "Upload HTML output: $UPLOAD_OUTPUT_HTML"
+# Create a temporary directory for uploads
+TEMP_DIR="/tmp/deploy_$(date +%s)"
+
+# Upload the HTML file to temp directory first
+echo "Uploading updated index_v2.php to QA server temp directory..."
+UPLOAD_OUTPUT_HTML=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 ./index_v2.php "${QA_SERVER_USER}@${QA_SERVER_HOST}:${TEMP_DIR}/")
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to upload updated index_v2.php to QA server."
+    echo "Error: Failed to upload updated index_v2.php to QA server temp directory."
     exit 1
 fi
 
-# Upload the JS file
-#capture the output of the command below and save it to a variable
-echo "Uploading updated JS file to QA server..."
-UPLOAD_OUTPUT_JS=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${LATEST_JS_PATH}" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${LATEST_JS_FILENAME}")
-
-echo "Upload JS output: $UPLOAD_OUTPUT_JS"
+# Move the file to final destination using sudo
+echo "Moving index_v2.php to final destination..."
+MOVE_OUTPUT_HTML=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mkdir -p ${TEMP_DIR} && sudo mv ${TEMP_DIR}/index_v2.php ${QA_DEPLOY_PATH}/")
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to upload JS file to QA server."
+    echo "Error: Failed to move index_v2.php to final destination."
     exit 1
 fi
 
-# Upload the CSS file
-#capture the output of the command below and save it to a variable
-echo "Uploading updated CSS file to QA server..."
-UPLOAD_OUTPUT_CSS=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${LATEST_CSS_PATH}" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${QA_DEPLOY_PATH}/${LATEST_CSS_FILENAME}")
-
-echo "Upload CSS output: $UPLOAD_OUTPUT_CSS"
+# Upload the JS file to temp directory
+echo "Uploading updated JS file to QA server temp directory..."
+UPLOAD_OUTPUT_JS=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${LATEST_JS_PATH}" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${TEMP_DIR}/")
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to upload CSS file to QA server."
+    echo "Error: Failed to upload JS file to QA server temp directory."
     exit 1
+fi
+
+# Move the JS file to final destination using sudo
+echo "Moving JS file to final destination..."
+MOVE_OUTPUT_JS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mv ${TEMP_DIR}/${LATEST_JS_FILENAME} ${QA_DEPLOY_PATH}/")
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to move JS file to final destination."
+    exit 1
+fi
+
+# Upload the CSS file to temp directory
+echo "Uploading updated CSS file to QA server temp directory..."
+UPLOAD_OUTPUT_CSS=$(scp -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -P 4993 "${LATEST_CSS_PATH}" "${QA_SERVER_USER}@${QA_SERVER_HOST}:${TEMP_DIR}/")
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to upload CSS file to QA server temp directory."
+    exit 1
+fi
+
+# Move the CSS file to final destination using sudo
+echo "Moving CSS file to final destination..."
+MOVE_OUTPUT_CSS=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo mv ${TEMP_DIR}/${LATEST_CSS_FILENAME} ${QA_DEPLOY_PATH}/")
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to move CSS file to final destination."
+    exit 1
+fi
+
+# Clean up temp directory
+echo "Cleaning up temp directory..."
+CLEANUP_OUTPUT=$(ssh -i "${SSH_KEY_PATH}" -o StrictHostKeyChecking=no -p 4993 "${QA_SERVER_USER}@${QA_SERVER_HOST}" "sudo rm -rf ${TEMP_DIR}")
+if [ $? -ne 0 ]; then
+    echo "Warning: Failed to clean up temp directory."
 fi
 
 #####################################################
