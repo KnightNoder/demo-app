@@ -16,12 +16,12 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({ patientId }) 
     (state) => state.diagnosis
   );
 
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState("Active");
 
   const tabs = [
     { label: "Active", count: diagnosis?.length },
     { label: "Resolved", count: diagnosis?.length },
-    { label: "All", count: 0 },
+    { label: "All", count: 10 },
   ];
 
   useEffect(() => {
