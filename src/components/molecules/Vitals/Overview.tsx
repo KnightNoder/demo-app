@@ -31,6 +31,7 @@ interface Vital {
   value: string;
   change: string;
   severity: Severity;
+  unit: string;
 }
 
 interface Patient {
@@ -72,12 +73,11 @@ interface VitalsOverviewProps {
 }
 
 const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
-  console.log(vitalData, "vital Data");
-
   const vitalsData: Vital[] = [
     {
       label: "Blood Pressure",
-      value: `${vitalData?.BP_systolic} / ${vitalData?.BP_diastolic} mmHg`,
+      value: `${vitalData?.BP_systolic} / ${vitalData?.BP_diastolic}`,
+      unit: "mmHg",
       change: "0.0",
       severity:
         vitalData?.BP_systolic < 50 || vitalData?.BP_systolic > 200
@@ -88,7 +88,8 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
     },
     {
       label: "Heart Rate",
-      value: `${vitalData?.pulse} bpm`,
+      value: `${vitalData?.pulse}`,
+      unit: "bpm",
       change: "+2.0",
       severity:
         vitalData?.pulse < 40 || vitalData?.pulse > 160
@@ -99,7 +100,8 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
     },
     {
       label: "Temperature",
-      value: `${vitalData?.temperature} °F`,
+      value: `${vitalData?.temperature}`,
+      unit: "°F",
       change: "+0.1",
       severity:
         vitalData?.temperature < 92 || vitalData?.temperature > 103
@@ -110,7 +112,8 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
     },
     {
       label: "SpO2",
-      value: `${vitalData?.SP02_room_air_without_oxygen} %`,
+      value: `${vitalData?.SP02_room_air_without_oxygen}`,
+      unit: "%",
       change: "0.0",
       severity:
         vitalData?.SP02_room_air_without_oxygen < 90
@@ -121,31 +124,36 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
     },
     {
       label: "Respiratory Rate",
-      value: `${vitalData?.respiration} breaths/min`,
+      value: `${vitalData?.respiration}`,
+      unit: "breaths/min",
       change: "+1.0",
-      severity: "CRITICAL",
+      severity:
+        vitalData?.respiration < 12 || vitalData?.respiration > 20
+          ? "WARNING"
+          : "NORMAL",
     },
     {
       label: "Pain Score",
-      value: `${vitalData?.pain ?? "N/A"} / 10`,
+      value: `${vitalData?.pain ?? "N/A"}`,
+      unit: "/10",
       change: "0.0",
-      severity: "NORMAL",
+      severity: vitalData?.pain && vitalData?.pain > 5 ? "WARNING" : "NORMAL",
     },
   ];
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md md:p-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-1">
+    <div className="p-2 md:p-4 bg-white rounded-lg">
+      <div className="grid grid-cols-3 gap-3">
         {vitalsData.map((vital, index) => {
-          const { color, bg, bar, width } = severityStyles[vital.severity];
+          const { color, bg, bar } = severityStyles[vital.severity];
 
           return (
             <div
               key={index}
-              className="relative p-4 border border-gray-200 rounded-lg shadow-sm"
+              className="relative p-3 border border-gray-200 rounded-lg"
             >
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-gray-500 uppercase">
+                <p className="text-xs font-medium text-gray-500 truncate w-24">
                   {vital.label}
                 </p>
                 <span
@@ -154,14 +162,19 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
                   {vital.severity}
                 </span>
               </div>
-              <p className="mt-1 text-lg font-medium text-gray-900 sm:text-xl">
-                {vital.value}
-              </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <div className="flex items-baseline mt-1">
+                <p className="text-xl font-medium text-gray-900">
+                  {vital.value}
+                </p>
+                <span className="ml-1 text-xs text-gray-500">{vital.unit}</span>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
                 {vital.change} from last
               </p>
-              <div className="absolute bottom-0 left-0 w-full h-1 rounded-b-lg">
-                <div className={`h-full ${bar} ${width} rounded-b-lg`} />
+              <div className="absolute bottom-0 left-0 w-full h-1">
+                <div
+                  className={`h-full ${bar} ${vital.severity === "NORMAL" ? "w-full" : vital.severity === "WARNING" ? "w-full" : "w-full"} rounded-b-lg`}
+                />
               </div>
             </div>
           );

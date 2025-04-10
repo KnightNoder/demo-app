@@ -42,10 +42,6 @@ import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/Cogn
 import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 import "./App.css";
 
-// Define grid gap
-const GRID_GAP = 20;
-const CARD_BASE_WIDTH = 650; // Base card width for calculating responsive widths
-
 // Define the interface for grid items
 interface GridItem {
   id: string;
@@ -60,13 +56,6 @@ interface DecodedToken {
   iat: number;
   [key: string]: any; // For other possible claims
 }
-
-// Screen size breakpoints (in pixels)
-// const SCREEN_SM = 640; // Mobile
-const SCREEN_MD = 768; // Small tablet
-const SCREEN_LG = 1024; // Large tablet
-const SCREEN_XL = 1280; // Small desktop
-const SCREEN_2XL = 1536; // Large desktop
 
 const widgetOptions = [
   {
@@ -196,27 +185,27 @@ const getCategoryUrl = (
 ): string => {
   switch (category) {
     case "Allergies":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
     case "Appointments":
       return `${import.meta.env.VITE_V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
     case "Diagnosis":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
     case "Advanced Directive":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/advancedirectives.php`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/advancedirectives.php`;
     case "Medications":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
     case "Insurance":
-      return `https://qa-linux-01.drcloudemr.com/qa-phoenix//interface/patient_file/summary/add_insurance.php`;
+      return `${import.meta.env.VITE_V1_URL}//interface/patient_file/summary/add_insurance.php`;
     case "Prescriptions":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/rx_frameset.php`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/rx_frameset.php`;
     case "Demographics":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/demographics_full.php?curr_tab=Who`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/demographics_full.php?curr_tab=Who`;
     case "Functional Status":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
     case "Cognitive Status":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
     case "Advanced Directives":
-      return `${import.meta.env.VITE_V1_URL}/patient_file/summary/advancedirectives.php`;
+      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/advancedirectives.php`;
     default:
       return "";
   }
@@ -245,49 +234,32 @@ const App: React.FC = () => {
     "Clinical Notes",
   ]);
 
-  // const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
-  //   widgetOptions.map((widget) => widget.key)
-  // );
-
   const [searchTerm, setSearchTerm] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
-  // State for window width to determine the number of columns
+  // State for window width to determine mobile view
   const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : SCREEN_LG
+    typeof window !== "undefined" ? window.innerWidth : 768
   );
+
+  // Mobile view check
+  const isMobileView = windowWidth < 768;
 
   // State for current carousel card index (for mobile view)
   const [activeCardIndex, setActiveCardIndex] = useState(0);
 
-  // State for active dragging widget
-  const [, setActiveDragWidget] = useState<string | null>(null);
-
   // State for grid items
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
-
-  // Determine whether to show carousel based on screen width
-  const isMobileView = windowWidth < SCREEN_MD;
-
-  // Determine number of columns based on screen width
-  const getGridColumns = () => {
-    if (windowWidth >= SCREEN_2XL) return 4;
-    if (windowWidth >= SCREEN_XL) return 3;
-    if (windowWidth >= SCREEN_MD) return 2;
-    return 1; // Mobile will use carousel
-  };
 
   // Configure sensors for dragging
   const sensors = useSensors(
     useSensor(MouseSensor, {
-      // Require the mouse to move by 5 pixels before activating
       activationConstraint: {
         distance: 5,
       },
     }),
     useSensor(TouchSensor, {
-      // Press delay of 250ms, with tolerance of 5px of movement
       activationConstraint: {
         delay: 250,
         tolerance: 5,
@@ -295,7 +267,7 @@ const App: React.FC = () => {
     }),
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Require 8px of movement before drag starts
+        distance: 8,
       },
     })
   );
@@ -321,11 +293,10 @@ const App: React.FC = () => {
       event: CustomEvent<{ isOpen: boolean }>
     ) => {
       const { isOpen } = event.detail;
-      console.log("Modal state changed:", isOpen); // Add debug logging
+      console.log("Modal state changed:", isOpen);
       setIsAnyModalOpen(isOpen);
     };
 
-    // Add event listener for custom modal state change events
     document.addEventListener(
       "modalStateChange",
       handleModalStateChange as EventListener
@@ -347,7 +318,8 @@ const App: React.FC = () => {
 
     window.addEventListener("resize", handleResize);
 
-    // Initial call to set the correct width
+    // Initial call to set the correct
+
     handleResize();
 
     return () => {
@@ -410,8 +382,7 @@ const App: React.FC = () => {
     }
 
     const handleClickOutside = (event: MouseEvent) => {
-      // Check if a modal is currently open - we can do this by checking
-      // if there's an element with the class 'modal' in the DOM
+      // Check if a modal is currently open
       const modalIsOpen = document.querySelector(".modal");
 
       // Only close the widget menu if no modal is open
@@ -533,7 +504,7 @@ const App: React.FC = () => {
   // Handler for drag start
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    setActiveDragWidget(active.id as string);
+    // No need for state for active drag widget
 
     // Add a class to body to indicate dragging is active
     document.body.classList.add("dragging-active");
@@ -575,8 +546,6 @@ const App: React.FC = () => {
       }
     }
 
-    setActiveDragWidget(null);
-
     // Remove the body class
     document.body.classList.remove("dragging-active");
   };
@@ -603,20 +572,7 @@ const App: React.FC = () => {
         className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
         aria-label="Previous card"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
+        <Icons variant="carousel-prev" />
       </button>
       <div className="text-sm text-gray-600">
         {activeCardIndex + 1} / {gridItems.length}
@@ -626,27 +582,14 @@ const App: React.FC = () => {
         className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
         aria-label="Next card"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
+        <Icons variant="carousel-next" />
       </button>
     </div>
   );
 
   // Render dots for carousel navigation
   const renderCarouselDots = () => (
-    <div className="flex justify-center mt-2 mb-4">
+    <div className="flex justify-center mt-14 mb-4">
       {gridItems.map((_, index) => (
         <button
           key={`dot-${index}`}
@@ -660,64 +603,6 @@ const App: React.FC = () => {
     </div>
   );
 
-  // Get the current grid columns count based on screen size
-  const gridColumns = getGridColumns();
-
-  // Calculate the maximum width of the grid container based on screen size and columns
-  const getGridContainerStyle = () => {
-    // For mobile view (carousel), we'll use full width
-    if (isMobileView) {
-      return {
-        width: "100%",
-        maxWidth: "100%",
-        margin: "0 auto",
-      };
-    }
-
-    // For desktop view, calculate based on number of columns
-    const totalWidth =
-      gridColumns * CARD_BASE_WIDTH + (gridColumns - 1) * GRID_GAP;
-
-    // Ensure the grid doesn't get too wide on very large screens
-    const maxWidth = Math.min(totalWidth, windowWidth * 0.95);
-
-    return {
-      display: "grid",
-      gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))`,
-      gap: `${GRID_GAP}px`,
-      width: "100%",
-      maxWidth: `${maxWidth}px`,
-      margin: "0 auto",
-    };
-  };
-
-  // Get style for mobile menu position
-  const getWidgetMenuPosition = () => {
-    if (windowWidth < SCREEN_MD) {
-      // Mobile view
-      return {
-        position: "relative" as const,
-        margin: "0 auto",
-        width: "100%",
-        justifyContent: "center",
-        padding: "0 1rem",
-      };
-    } else if (windowWidth < SCREEN_XL) {
-      // Tablet view
-      return {
-        position: "relative" as const,
-        margin: "0 auto",
-        marginLeft: "2rem",
-      };
-    } else {
-      // Desktop view
-      return {
-        position: "relative" as const,
-        marginLeft: Math.min(800, windowWidth * 0.4) + "px",
-      };
-    }
-  };
-
   return (
     <Provider store={store}>
       <DndContext
@@ -730,9 +615,8 @@ const App: React.FC = () => {
         <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
           {/* Widget menu - Moved OUTSIDE and BEFORE the grid container */}
           <div
-            className={`relative flex mx-auto mb-4 transform ${isAnyModalOpen ? "z-10" : "z-50"}`}
+            className={`relative flex justify-end mx-auto mb-4 transform mr-[36px]  ${isAnyModalOpen ? "z-10" : "z-50"}`}
             ref={widgetRef}
-            style={getWidgetMenuPosition()}
           >
             {/* Widgets button - separated from other buttons */}
             <div className="flex-shrink-0">
@@ -741,7 +625,7 @@ const App: React.FC = () => {
                 className="flex items-center p-2 space-x-2 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50"
               >
                 <Icons variant="widgets" />
-                <span>Widgets</span>
+                <span className="font-light">Widgets</span>
               </button>
             </div>
 
@@ -750,47 +634,47 @@ const App: React.FC = () => {
               className={`${isMobileView ? "hidden" : "ml-6"} bg-white border border-gray-200 rounded-md shadow-sm`}
             >
               <div className="flex flex-wrap">
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light">
                   <span>Client Info</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light">
                   <span>Clinical</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light ">
                   <span>Documents</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light ">
                   <span>Reports</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light ">
                   <span>Other</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light ">
                   <span>EDI</span>
                 </button>
 
-                <button className="flex items-center p-2 border-r border-gray-200 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light ">
                   <span>External Links</span>
                 </button>
 
-                <button className="flex items-center p-2 hover:bg-gray-50">
+                <button className="flex items-center py-2 px-4 font-light hover:bg-gray-50">
                   <span>More Options</span>
                 </button>
               </div>
             </div>
 
-            {/* Widget menu dropdown - Adjusted z-index and positioning for mobile */}
+            {/* Widget menu dropdown */}
             <div
-              className={`absolute top-full mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+              className={`absolute top-full right-[380px] mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
                 isWidgetMenuOpen
                   ? "scale-100 opacity-100"
                   : "scale-95 opacity-0 pointer-events-none"
-              } ${isMobileView ? "left-0 right-0 w-[90vw] mx-auto" : "left-0 w-[500px]"}`}
+              } ${isMobileView ? "w-[90vw] mx-auto left-0 right-0" : "w-[500px]"}`}
               style={{ zIndex: 1000 }}
             >
               {/* Search input */}
@@ -883,72 +767,134 @@ const App: React.FC = () => {
 
           {/* Grid Container - Lower z-index */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
-            <div className="container mx-auto">
+            <div className={`${isMobileView ? "" : "mx-[50px]"}`}>
               {/* For mobile view - show carousel navigation */}
               {isMobileView &&
                 gridItems.length > 0 &&
                 renderCarouselNavigation()}
 
-              {/* Responsive grid container */}
-              <div
-                className={`relative widget-grid-container ${isMobileView ? "widget-carousel-container" : ""}`}
-                style={getGridContainerStyle()}
-              >
-                <SortableContext
-                  items={gridItems}
-                  strategy={rectSortingStrategy}
-                >
-                  {/* Render the cards - carousel for mobile, grid for desktop */}
-                  {gridItems.map((item, index) => {
-                    const widget = widgetOptions.find((w) => w.key === item.id);
-                    if (!widget) return null;
+              {/* Responsive grid container using Tailwind classes */}
+              {isMobileView ? (
+                /* Mobile Carousel View */
+                <div className="px-2">
+                  <SortableContext
+                    items={gridItems}
+                    strategy={rectSortingStrategy}
+                  >
+                    {gridItems.length > 0 &&
+                      gridItems.map((item, index) => {
+                        const widget = widgetOptions.find(
+                          (w) => w.key === item.id
+                        );
+                        if (!widget) return null;
 
-                    // For mobile view, only show the active card in the carousel
-                    const isVisibleInCarousel = isMobileView
-                      ? index === activeCardIndex
-                      : true;
+                        // Only show active card
+                        if (index !== activeCardIndex) return null;
 
-                    if (!isVisibleInCarousel) return null;
-
-                    return (
-                      <Card
-                        key={widget.key}
-                        id={widget.key}
-                        title={widget.key}
-                        footer={true}
-                        category={widget.key}
-                        order={item.order}
-                        initialPosition={{ x: 0, y: 0 }} // Position is handled by grid layout
-                        icon={widget.icon}
-                        onAction={(action, category) => {
-                          console.log(action, category, "clicked in app");
-                          if (action === "add") {
-                            console.log(action, "action add");
-                            openModal(category, patientId);
-                          } else if (action === "view") {
-                            // Handle view history action
-                            console.log(`View history for ${category}`);
-                          }
-                        }}
-                        patientId={patientId}
-                        iconBgColor={widget?.iconBgColor}
-                        hasWritePermission={
-                          widget.key === "Insurance"
-                            ? insuranceWritePermission
-                            : widget.hasWritePermission
-                        }
-                      >
-                        {widget.component && (
-                          <widget.component
+                        return (
+                          <Card
+                            key={widget.key}
+                            id={widget.key}
+                            title={widget.key}
+                            footer={true}
+                            category={widget.key}
+                            order={item.order}
+                            initialPosition={{ x: 0, y: 0 }}
+                            icon={widget.icon}
+                            onAction={(action, category) => {
+                              console.log(action, category, "clicked in app");
+                              if (action === "add") {
+                                console.log(action, "action add");
+                                openModal(category, patientId);
+                              } else if (action === "view") {
+                                console.log(`View history for ${category}`);
+                              }
+                            }}
                             patientId={patientId}
-                            isAnyModalOpen={isAnyModalOpen}
-                          />
-                        )}
-                      </Card>
-                    );
-                  })}
-                </SortableContext>
-              </div>
+                            iconBgColor={widget?.iconBgColor}
+                            hasWritePermission={
+                              widget.key === "Insurance"
+                                ? insuranceWritePermission
+                                : widget.hasWritePermission
+                            }
+                          >
+                            {widget.component && (
+                              <widget.component
+                                patientId={patientId}
+                                isAnyModalOpen={isAnyModalOpen}
+                              />
+                            )}
+                          </Card>
+                        );
+                      })}
+                  </SortableContext>
+                </div>
+              ) : (
+                /* Desktop Grid View - Using Tailwind's built-in grid system */
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 max-w-full"
+                  style={{
+                    gridTemplateColumns:
+                      window.innerWidth >= 2200
+                        ? "repeat(5, calc(20%))" // 2xl breakpoint - 5 cards
+                        : window.innerWidth >= 1680
+                          ? "repeat(4, calc(25%))" // xl breakpoint
+                          : window.innerWidth >= 1280
+                            ? "repeat(3, calc(33.33%))" // lg breakpoint
+                            : window.innerWidth >= 768
+                              ? "repeat(2, calc(50%))" // md breakpoint
+                              : "100%",
+                  }}
+                >
+                  <SortableContext
+                    items={gridItems}
+                    strategy={rectSortingStrategy}
+                  >
+                    {gridItems.map((item) => {
+                      const widget = widgetOptions.find(
+                        (w) => w.key === item.id
+                      );
+                      if (!widget) return null;
+
+                      return (
+                        <Card
+                          key={widget.key}
+                          id={widget.key}
+                          title={widget.key}
+                          footer={true}
+                          category={widget.key}
+                          order={item.order}
+                          initialPosition={{ x: 0, y: 0 }}
+                          icon={widget.icon}
+                          onAction={(action, category) => {
+                            console.log(action, category, "clicked in app");
+                            if (action === "add") {
+                              console.log(action, "action add");
+                              openModal(category, patientId);
+                            } else if (action === "view") {
+                              console.log(`View history for ${category}`);
+                            }
+                          }}
+                          patientId={patientId}
+                          iconBgColor={widget?.iconBgColor}
+                          hasWritePermission={
+                            widget.key === "Insurance"
+                              ? insuranceWritePermission
+                              : widget.hasWritePermission
+                          }
+                        >
+                          {widget.component && (
+                            <widget.component
+                              patientId={patientId}
+                              isAnyModalOpen={isAnyModalOpen}
+                            />
+                          )}
+                        </Card>
+                      );
+                    })}
+                  </SortableContext>
+                </div>
+              )}
 
               {/* Show dots navigation for mobile carousel */}
               {isMobileView && gridItems.length > 1 && renderCarouselDots()}
@@ -966,7 +912,7 @@ const App: React.FC = () => {
               }}
             >
               <div
-                className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-[80%] h-[90%] md:h-[80%] flex flex-col"
+                className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-4/5 h-[90%] md:h-4/5 flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
@@ -994,4 +940,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

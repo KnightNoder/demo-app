@@ -55,7 +55,7 @@ body {
 
 
 
-@media (max-width: 767px) {
+/* @media (max-width: 767px) {
   .grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -107,4 +107,4 @@ body {
   .grid-container {
     grid-template-columns: repeat(4, 1fr);
   }
-}
+} */
