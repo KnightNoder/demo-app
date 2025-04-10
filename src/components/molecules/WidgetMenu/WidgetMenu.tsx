@@ -106,11 +106,11 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
       {/* Widget menu dropdown */}
       <div
-        className={`absolute top-full right-[380px] mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+        className={`absolute top-full ${isMobileView ? "" : "right-[380px]"} mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
           isWidgetMenuOpen
             ? "scale-100 opacity-100"
             : "scale-95 opacity-0 pointer-events-none"
-        } ${isMobileView ? "w-[90vw] mx-auto left-0 right-0" : "w-[500px]"}`}
+        } ${isMobileView ? "w-[300px] mx-auto left-0 right-0" : "w-[500px]"}`}
         style={{ zIndex: 1000 }}
       >
         {/* Search input */}

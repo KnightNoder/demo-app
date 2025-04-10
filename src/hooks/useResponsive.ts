@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 export const useResponsive = () => {
   // State for window width to determine mobile view
   const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 768
+    typeof window !== "undefined" ? window.innerWidth : 808
   );
 
   // Mobile view check
