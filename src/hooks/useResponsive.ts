@@ -10,7 +10,7 @@ export const useResponsive = () => {
   );
 
   // Mobile view check
-  const isMobileView = windowWidth < 943;
+  const isMobileView = windowWidth < 808;
 
   // Add event listener for window resize
   useEffect(() => {
