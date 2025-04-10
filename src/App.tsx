@@ -5,7 +5,6 @@ import Card from "./components/organisms/Card/Card";
 import {
   DndContext,
   DragEndEvent,
-  DragStartEvent,
   useSensor,
   useSensors,
   PointerSensor,
@@ -502,8 +501,7 @@ const App: React.FC = () => {
   };
 
   // Handler for drag start
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
+  const handleDragStart = () => {
     // No need for state for active drag widget
 
     // Add a class to body to indicate dragging is active
