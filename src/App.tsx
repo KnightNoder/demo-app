@@ -243,7 +243,7 @@ const App: React.FC = () => {
   );
 
   // Mobile view check
-  const isMobileView = windowWidth < 768;
+  const isMobileView = windowWidth < 943;
 
   // State for current carousel card index (for mobile view)
   const [activeCardIndex, setActiveCardIndex] = useState(0);
