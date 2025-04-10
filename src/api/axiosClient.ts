@@ -5,8 +5,8 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
     sitename: "current",
-    Authorization: `Bearer ${localStorage.getItem("JWT_AUTH_TOKEN")}`,
-    // Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzQ0MzA0NDUxLCJleHAiOjE3NDQzMDgwNTF9.nOIw4L9bJRrdj9fnsQsC-SzaPhJzTenkHQ4YUJ3Vf38`,
+    // Authorization: `Bearer ${localStorage.getItem("JWT_AUTH_TOKEN")}`,
+    Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzQ0MzIwMDI3LCJleHAiOjE3NDQzMjM2Mjd9.fbsretcXR807I5ZwO8GZ2-pIdv2kA2BHDG5QvrFwXyQ`,
   },
 });
 

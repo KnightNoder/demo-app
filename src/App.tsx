@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Provider } from "react-redux";
 import store from "./store/store";
-import Card from "./components/organisms/Card/Card";
 import {
   DndContext,
   DragEndEvent,
@@ -12,244 +11,41 @@ import {
   MouseSensor,
   TouchSensor,
 } from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
-import IframeModal from "./components/molecules/Modal/IframeModal";
 import { setAuthToken } from "./services/api";
-import Icons from "./assets/Icons/Icons";
-import { jwtDecode } from "jwt-decode";
-
-// Import all your card components
-import DiagnosisCard from "./components/organisms/DiagnosisCard/DiagnosisCard";
-import AllergyCard from "./components/organisms/AllergiesCard/AllergiesCard";
-import MedicationsCard from "./components/organisms/MedicationsCard/MedicationsCard";
-import ClinicalNotesCard from "./components/organisms/ClinicalNotesCard/ClinicalNotesCard";
-import InsuranceCard from "./components/organisms/InsuranceCard/InsuranceCard";
-import LabReportsCard from "./components/organisms/LabReportsCard/LabReportsCard";
-import DocumentsCard from "./components/organisms/DocumentsCard/DocumentsCard";
-import PrescriptionCard from "./components/organisms/PrescriptionCard/PrescriptionCard";
-import AppointmentsCard from "./components/organisms/AppointmentsCard/AppointmentsCard";
-import NotificationCard from "./components/organisms/NotificationsCard/NotificationsCard";
-import DemographicsCard from "./components/organisms/Demographics/Demographics";
-import PhotosCard from "./components/organisms/PhotosCard/PhotosCard";
-import VitalsCard from "./components/organisms/VitalsCard/VitalsCard";
-import DisclosuresCard from "./components/organisms/DisclosuresCard/DisclosuresCard";
-import FunctionalStatusCard from "./components/organisms/FunctionalStatusCard/FunctionalStatusCard";
-import CognitiveStatusCard from "./components/organisms/CognitiveStatusCard/CognitiveStatusCard";
-import AdvancedDirectivesCard from "./components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 import "./App.css";
 
-// Define the interface for grid items
-interface GridItem {
-  id: string;
-  order: number;
-}
+// Import custom hooks
+import { usePermissions } from "./hooks/usePermissions";
+import { useWidgets } from "./hooks/useWidgets";
+import { useResponsive } from "./hooks/useResponsive";
+import { useModal } from "./hooks/useModal";
+import { useCarousel } from "./hooks/useCarousel";
 
-interface DecodedToken {
-  sub: string;
-  name?: string;
-  email?: string;
-  exp: number;
-  iat: number;
-  [key: string]: any; // For other possible claims
-}
+// Import components
+import WidgetMenu from "./components/molecules/WidgetMenu/WidgetMenu";
+import MobileView from "./components/organisms/MobileView/MobileView";
+import DesktopView from "./components/organisms/DesktopView/DesktopView";
+import AppModal from "./components/molecules/Modal/AppModal";
 
-const widgetOptions = [
-  {
-    key: "Allergies",
-    component: AllergyCard,
-    icon: "allergies",
-    iconBgColor: "bg-rose-100",
-    hasWritePermission: true,
-  },
-  {
-    key: "Diagnosis",
-    component: DiagnosisCard,
-    icon: "diagnosis",
-    iconBgColor: "bg-indigo-100",
-    hasWritePermission: true,
-  },
-  {
-    key: "Medications",
-    component: MedicationsCard,
-    icon: "medications",
-    iconBgColor: "bg-orange-100",
-    hasWritePermission: true,
-  },
-  {
-    key: "Clinical Notes",
-    component: ClinicalNotesCard,
-    icon: "clinicalNotes",
-    iconBgColor: "bg-emerald-100",
-    hasWritePermission: true,
-  },
-  {
-    key: "Insurance",
-    component: InsuranceCard,
-    iconBgColor: "bg-blue-100",
-    icon: "insurance",
-    hasWritePermission: true,
-  },
-  {
-    key: "Lab Reports",
-    component: LabReportsCard,
-    iconBgColor: "bg-blue-100",
-    icon: "lab-results",
-    hasWritePermission: true,
-  },
-  {
-    key: "Prescriptions",
-    component: PrescriptionCard,
-    iconBgColor: "bg-orange-100",
-    icon: "prescriptions",
-    hasWritePermission: true,
-  },
-  {
-    key: "Documents",
-    component: DocumentsCard,
-    iconBgColor: "bg-orange-100",
-    icon: "document",
-    hasWritePermission: true,
-  },
-  {
-    key: "Appointments",
-    component: AppointmentsCard,
-    iconBgColor: "bg-violet-100",
-    icon: "appointments",
-    hasWritePermission: true,
-  },
-  {
-    key: "Notifications",
-    component: NotificationCard,
-    iconBgColor: "bg-amber-100",
-    icon: "notifications",
-    hasWritePermission: true,
-  },
-  {
-    key: "Demographics",
-    component: DemographicsCard,
-    iconBgColor: "bg-green-100",
-    icon: "demographics",
-    hasWritePermission: true,
-  },
-  {
-    key: "ID/Card Photos",
-    component: PhotosCard,
-    iconBgColor: "bg-purple-100",
-    icon: "id-card",
-    hasWritePermission: true,
-  },
-  {
-    key: "Vitals",
-    component: VitalsCard,
-    iconBgColor: "bg-red-100",
-    icon: "vitals",
-    hasWritePermission: true,
-  },
-  {
-    key: "Disclosures",
-    component: DisclosuresCard,
-    iconBgColor: "bg-teal-100",
-    icon: "disclosures",
-    hasWritePermission: true,
-  },
-  {
-    key: "Functional Status",
-    component: FunctionalStatusCard,
-    iconBgColor: "bg-slate-100",
-    icon: "functional-status",
-    hasWritePermission: true,
-  },
-  {
-    key: "Cognitive Status",
-    component: CognitiveStatusCard,
-    iconBgColor: "bg-slate-100",
-    icon: "cognitive-status",
-    hasWritePermission: true,
-  },
-  {
-    key: "Advanced Directives",
-    component: AdvancedDirectivesCard,
-    iconBgColor: "bg-purple-100",
-    icon: "advanced-directives",
-    hasWritePermission: true,
-  },
-];
-
-const getCategoryUrl = (
-  category: string | null,
-  patientId: string | null
-): string => {
-  switch (category) {
-    case "Allergies":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
-    case "Appointments":
-      return `${import.meta.env.VITE_V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
-    case "Diagnosis":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
-    case "Advanced Directive":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/advancedirectives.php`;
-    case "Medications":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medication`;
-    case "Insurance":
-      return `${import.meta.env.VITE_V1_URL}//interface/patient_file/summary/add_insurance.php`;
-    case "Prescriptions":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/rx_frameset.php`;
-    case "Demographics":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/demographics_full.php?curr_tab=Who`;
-    case "Functional Status":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=functional_status`;
-    case "Cognitive Status":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
-    case "Advanced Directives":
-      return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/advancedirectives.php`;
-    default:
-      return "";
-  }
-};
-
-interface ModalInfo {
-  isOpen: boolean;
-  url: string;
-  title: string;
-}
+// Import configuration
+import { widgetOptions } from "./config/widgets";
+import { CardActionHandler } from "./types";
 
 const App: React.FC = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
-  const [insuranceWritePermission, setInsuranceWritePermission] =
-    useState(false);
-  const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-    "Diagnosis",
-    "Prescriptions",
-    "Cognitive Status",
-    "Functional Status",
-    "Medications",
-    "Notifications",
-    "Advanced Directives",
-    "Appointments",
-    "Clinical Notes",
-  ]);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const widgetRef = useRef<HTMLDivElement | null>(null);
-  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
-
-  // State for window width to determine mobile view
-  const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 768
-  );
-
-  // Mobile view check
-  const isMobileView = windowWidth < 943;
-
-  // State for current carousel card index (for mobile view)
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
-
-  // State for grid items
-  const [gridItems, setGridItems] = useState<GridItem[]>([]);
+  // Use custom hooks
+  const { insuranceWritePermission } = usePermissions();
+  const { visibleWidgets, gridItems, setGridItems, toggleWidget } =
+    useWidgets();
+  const { isMobileView, getGridTemplateColumns } = useResponsive();
+  const { modal, isAnyModalOpen, openModal, closeModal } = useModal();
+  const { activeCardIndex, setActiveCardIndex, nextCard, prevCard } =
+    useCarousel(gridItems, isMobileView);
 
   // Configure sensors for dragging
   const sensors = useSensors(
@@ -271,96 +67,7 @@ const App: React.FC = () => {
     })
   );
 
-  // State for the modal
-  const [modal, setModal] = useState<ModalInfo>({
-    isOpen: false,
-    url: "",
-    title: "",
-  });
-
-  // Initialize grid items from visible widgets
-  useEffect(() => {
-    const items = visibleWidgets.map((widgetKey, index) => ({
-      id: widgetKey,
-      order: index,
-    }));
-    setGridItems(items);
-  }, [visibleWidgets]);
-
-  useEffect(() => {
-    const handleModalStateChange = (
-      event: CustomEvent<{ isOpen: boolean }>
-    ) => {
-      const { isOpen } = event.detail;
-      console.log("Modal state changed:", isOpen);
-      setIsAnyModalOpen(isOpen);
-    };
-
-    document.addEventListener(
-      "modalStateChange",
-      handleModalStateChange as EventListener
-    );
-
-    return () => {
-      document.removeEventListener(
-        "modalStateChange",
-        handleModalStateChange as EventListener
-      );
-    };
-  }, []);
-
-  // Add event listener for window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // Initial call to set the correct
-
-    handleResize();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  // Reset active card index when switching between mobile and desktop view
-  useEffect(() => {
-    if (isMobileView && activeCardIndex >= gridItems.length) {
-      setActiveCardIndex(0);
-    }
-  }, [isMobileView, gridItems.length, activeCardIndex]);
-
-  const openModal = (category: string | null, patientId: string | null) => {
-    const url = getCategoryUrl(category, patientId);
-    if (!url) {
-      console.warn(`No URL configured for category: ${category}`);
-      return;
-    }
-
-    setModal({
-      isOpen: true,
-      url,
-      title: category || "Content",
-    });
-  };
-
-  const closeModal = () => {
-    // First dispatch the event before changing the state
-    const modalCloseEvent = new CustomEvent("modalStateChange", {
-      detail: { isOpen: false },
-    });
-    document.dispatchEvent(modalCloseEvent);
-
-    // Then update the modal state
-    setModal((prev) => ({ ...prev, isOpen: false }));
-
-    // Ensure the widget ref z-index is reset by directly setting state
-    setIsAnyModalOpen(false);
-  };
-
+  // Get patient ID from input element
   useEffect(() => {
     const patientIdInput = document.querySelector<HTMLInputElement>(
       'input[name="patient_id"]'
@@ -370,8 +77,8 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Handle JWT token
   useEffect(() => {
-    // JWT token handling
     if ((window as any).JWT_AUTH_TOKEN) {
       setAuthToken((window as any).JWT_AUTH_TOKEN);
       console.log(
@@ -379,131 +86,21 @@ const App: React.FC = () => {
         (window as any).JWT_AUTH_TOKEN
       );
     }
-
-    const handleClickOutside = (event: MouseEvent) => {
-      // Check if a modal is currently open
-      const modalIsOpen = document.querySelector(".modal");
-
-      // Only close the widget menu if no modal is open
-      if (
-        !modalIsOpen &&
-        widgetRef.current &&
-        !widgetRef.current.contains(event.target as Node)
-      ) {
-        setIsWidgetMenuOpen(false);
-      }
-    };
-
-    if (isWidgetMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isWidgetMenuOpen]);
-
-  const fetchInsurancePermissions = async () => {
-    const myHeaders = new Headers();
-    myHeaders.append("sitename", "current");
-
-    const requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow" as RequestRedirect,
-    };
-
-    const token = localStorage.getItem("JWT_AUTH_TOKEN");
-    let username = "";
-    if (token) {
-      const decoded = jwtDecode<DecodedToken>(token);
-      username = decoded.username;
-    } else {
-      console.error("No JWT token found in localStorage");
-    }
-
-    try {
-      const response = await fetch(
-        `https://qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
-        requestOptions
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log(result, "permissions");
-
-      return result.permissions.some(
-        (permission: any) =>
-          permission.section === "patients" && permission.object === "insurance"
-      );
-    } catch (error) {
-      console.error("Error fetching permissions:", error);
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    const getPermissions = async () => {
-      const hasPermission = await fetchInsurancePermissions();
-      console.log(hasPermission, "has permission");
-      setInsuranceWritePermission(hasPermission);
-    };
-
-    getPermissions();
   }, []);
 
-  const showWidgetToast = (widgetKey: string, isAdding: boolean) => {
-    toast(
-      <div className="p-2">
-        <h3 className="text-lg font-bold">
-          {isAdding ? "Widget Added" : "Widget Removed"}
-        </h3>
-        <p className="font-semibold">{widgetKey}</p>
-        <p className="text-sm text-gray-600">
-          {isAdding
-            ? "The widget has been added to your dashboard. You can now view and interact with it."
-            : "The widget has been removed from your dashboard."}
-        </p>
-      </div>,
-      {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        className: "rounded-md shadow-lg bg-white",
-      }
-    );
-  };
-
-  const toggleWidget = (widgetKey: string) => {
-    setVisibleWidgets((prevWidgets) => {
-      const isAdding = !prevWidgets.includes(widgetKey);
-      showWidgetToast(widgetKey, isAdding);
-
-      if (isAdding) {
-        // Add the widget to the grid items with the next order number
-        const newOrder = gridItems.length;
-        setGridItems((prev) => [...prev, { id: widgetKey, order: newOrder }]);
-        return [...prevWidgets, widgetKey];
-      } else {
-        // Remove the widget from grid items
-        setGridItems((prev) => prev.filter((item) => item.id !== widgetKey));
-        // Reorder remaining items
-        setGridItems((prev) =>
-          prev.map((item, index) => ({ ...item, order: index }))
-        );
-        return prevWidgets.filter((w) => w !== widgetKey);
-      }
-    });
+  // Card action handler
+  const handleCardAction: CardActionHandler = (action, category) => {
+    console.log(action, category, "clicked in app");
+    if (action === "add") {
+      console.log(action, "action add");
+      openModal(category, patientId);
+    } else if (action === "view") {
+      console.log(`View history for ${category}`);
+    }
   };
 
   // Handler for drag start
   const handleDragStart = () => {
-    // No need for state for active drag widget
-
     // Add a class to body to indicate dragging is active
     document.body.classList.add("dragging-active");
   };
@@ -548,59 +145,6 @@ const App: React.FC = () => {
     document.body.classList.remove("dragging-active");
   };
 
-  // Move to the next card in the carousel
-  const nextCard = () => {
-    setActiveCardIndex((prevIndex) =>
-      prevIndex === gridItems.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  // Move to the previous card in the carousel
-  const prevCard = () => {
-    setActiveCardIndex((prevIndex) =>
-      prevIndex === 0 ? gridItems.length - 1 : prevIndex - 1
-    );
-  };
-
-  // Render the carousel navigation UI
-  const renderCarouselNavigation = () => (
-    <div className="flex items-center justify-between px-4 mt-4 mb-4">
-      <button
-        onClick={prevCard}
-        className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
-        aria-label="Previous card"
-      >
-        <Icons variant="carousel-prev" />
-      </button>
-      <div className="text-sm text-gray-600">
-        {activeCardIndex + 1} / {gridItems.length}
-      </div>
-      <button
-        onClick={nextCard}
-        className="flex items-center justify-center p-2 bg-gray-200 rounded-full hover:bg-gray-300"
-        aria-label="Next card"
-      >
-        <Icons variant="carousel-next" />
-      </button>
-    </div>
-  );
-
-  // Render dots for carousel navigation
-  const renderCarouselDots = () => (
-    <div className="flex justify-center mt-14 mb-4">
-      {gridItems.map((_, index) => (
-        <button
-          key={`dot-${index}`}
-          onClick={() => setActiveCardIndex(index)}
-          className={`w-2 h-2 mx-1 rounded-full transition-colors ${
-            index === activeCardIndex ? "bg-blue-500" : "bg-gray-300"
-          }`}
-          aria-label={`Go to slide ${index + 1}`}
-        />
-      ))}
-    </div>
-  );
-
   return (
     <Provider store={store}>
       <DndContext
@@ -611,330 +155,51 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
-          {/* Widget menu - Moved OUTSIDE and BEFORE the grid container */}
-          <div
-            className={`relative flex justify-end mx-auto mb-4 transform mr-[36px]  ${isAnyModalOpen ? "z-10" : "z-50"}`}
-            ref={widgetRef}
-          >
-            {/* Widgets button - separated from other buttons */}
-            <div className="flex-shrink-0">
-              <button
-                onClick={() => setIsWidgetMenuOpen(!isWidgetMenuOpen)}
-                className="flex items-center p-2 space-x-2 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50"
-              >
-                <Icons variant="widgets" />
-                <span className="font-light">Widgets</span>
-              </button>
-            </div>
+          {/* Widget menu */}
+          <WidgetMenu
+            widgetOptions={widgetOptions}
+            visibleWidgets={visibleWidgets}
+            toggleWidget={toggleWidget}
+            isWidgetMenuOpen={isWidgetMenuOpen}
+            setIsWidgetMenuOpen={setIsWidgetMenuOpen}
+            isMobileView={isMobileView}
+            isAnyModalOpen={isAnyModalOpen}
+          />
 
-            {/* Separate continuous strip for other buttons - hide on mobile */}
-            <div
-              className={`${isMobileView ? "hidden" : "ml-6"} bg-white border border-gray-200 rounded-md shadow-sm`}
-            >
-              <div className="flex flex-wrap">
-                <button className="flex items-center py-2 px-4 font-light">
-                  <span>Client Info</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light">
-                  <span>Clinical</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light ">
-                  <span>Documents</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light ">
-                  <span>Reports</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light ">
-                  <span>Other</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light ">
-                  <span>EDI</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light ">
-                  <span>External Links</span>
-                </button>
-
-                <button className="flex items-center py-2 px-4 font-light hover:bg-gray-50">
-                  <span>More Options</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Widget menu dropdown */}
-            <div
-              className={`absolute top-full right-[380px] mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
-                isWidgetMenuOpen
-                  ? "scale-100 opacity-100"
-                  : "scale-95 opacity-0 pointer-events-none"
-              } ${isMobileView ? "w-[90vw] mx-auto left-0 right-0" : "w-[500px]"}`}
-              style={{ zIndex: 1000 }}
-            >
-              {/* Search input */}
-              <div className="relative flex items-center">
-                <Icons variant="search" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search widgets..."
-                  className="w-full pl-8 pr-4 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50"
-                />
-              </div>
-
-              {/* Widget grid - adapt to mobile with flex-col */}
-              <div
-                className={`${isMobileView ? "flex flex-col space-y-4" : "grid grid-cols-2 gap-4"} mt-4`}
-              >
-                {/* Add Widgets list */}
-                <div>
-                  <h3 className="pb-1 mb-2 font-bold">Add Widgets</h3>
-                  <ul className="mt-4 overflow-auto max-h-60">
-                    {widgetOptions
-                      .filter(
-                        (w) =>
-                          !visibleWidgets.includes(w.key) &&
-                          w.key.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((widget) => (
-                        <li
-                          key={widget.key}
-                          className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
-                        >
-                          <span className="flex items-center space-x-2">
-                            <div
-                              className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor}`}
-                            >
-                              <Icons variant={widget.icon} />
-                            </div>
-                            <span>{widget.key}</span>
-                          </span>
-                          <button
-                            className="font-bold text-green-500"
-                            onClick={() => toggleWidget(widget.key)}
-                          >
-                            +
-                          </button>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-
-                {/* Remove Widgets list */}
-                <div>
-                  <h3 className="pb-1 mb-2 font-bold">Remove Widgets</h3>
-                  <ul className="overflow-auto max-h-60">
-                    {visibleWidgets
-                      .filter((key) =>
-                        key.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((key) => {
-                        const widget = widgetOptions.find((w) => w.key === key);
-                        return (
-                          <li
-                            key={key}
-                            className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
-                          >
-                            <span className="flex items-center space-x-2">
-                              <div
-                                className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor}`}
-                              >
-                                <Icons variant={widget?.icon || "default"} />
-                              </div>
-                              <span>{key}</span>
-                            </span>
-                            <button
-                              className="font-bold text-red-500"
-                              onClick={() => toggleWidget(key)}
-                            >
-                              -
-                            </button>
-                          </li>
-                        );
-                      })}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Grid Container - Lower z-index */}
+          {/* Grid Container */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
             <div className={`${isMobileView ? "" : "mx-[50px]"}`}>
-              {/* For mobile view - show carousel navigation */}
-              {isMobileView &&
-                gridItems.length > 0 &&
-                renderCarouselNavigation()}
-
-              {/* Responsive grid container using Tailwind classes */}
               {isMobileView ? (
                 /* Mobile Carousel View */
-                <div className="px-2">
-                  <SortableContext
-                    items={gridItems}
-                    strategy={rectSortingStrategy}
-                  >
-                    {gridItems.length > 0 &&
-                      gridItems.map((item, index) => {
-                        const widget = widgetOptions.find(
-                          (w) => w.key === item.id
-                        );
-                        if (!widget) return null;
-
-                        // Only show active card
-                        if (index !== activeCardIndex) return null;
-
-                        return (
-                          <Card
-                            key={widget.key}
-                            id={widget.key}
-                            title={widget.key}
-                            footer={true}
-                            category={widget.key}
-                            order={item.order}
-                            initialPosition={{ x: 0, y: 0 }}
-                            icon={widget.icon}
-                            onAction={(action, category) => {
-                              console.log(action, category, "clicked in app");
-                              if (action === "add") {
-                                console.log(action, "action add");
-                                openModal(category, patientId);
-                              } else if (action === "view") {
-                                console.log(`View history for ${category}`);
-                              }
-                            }}
-                            patientId={patientId}
-                            iconBgColor={widget?.iconBgColor}
-                            hasWritePermission={
-                              widget.key === "Insurance"
-                                ? insuranceWritePermission
-                                : widget.hasWritePermission
-                            }
-                          >
-                            {widget.component && (
-                              <widget.component
-                                patientId={patientId}
-                                isAnyModalOpen={isAnyModalOpen}
-                              />
-                            )}
-                          </Card>
-                        );
-                      })}
-                  </SortableContext>
-                </div>
+                <MobileView
+                  gridItems={gridItems}
+                  activeCardIndex={activeCardIndex}
+                  setActiveCardIndex={setActiveCardIndex}
+                  nextCard={nextCard}
+                  prevCard={prevCard}
+                  widgetOptions={widgetOptions}
+                  onAction={handleCardAction}
+                  patientId={patientId}
+                  isAnyModalOpen={isAnyModalOpen}
+                  insuranceWritePermission={insuranceWritePermission}
+                />
               ) : (
-                /* Desktop Grid View - Using Tailwind's built-in grid system */
-                <div
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 max-w-full"
-                  style={{
-                    gridTemplateColumns:
-                      // window.innerWidth >= 2200
-                      window.innerWidth >= 2375
-                        ? "repeat(5, calc(20%))" // 2xl breakpoint - 5 cards
-                        : window.innerWidth >= 1855
-                          ? // : window.innerWidth >= 1680
-                            "repeat(4, calc(25%))" // xl breakpoint
-                          : // : window.innerWidth >= 1280
-                            window.innerWidth >= 1455
-                            ? "repeat(3, calc(33.33%))" // lg breakpoint
-                            : // : window.innerWidth >= 768
-                              window.innerWidth >= 943
-                              ? "repeat(2, calc(50%))" // md breakpoint
-                              : "100%",
-                  }}
-                >
-                  <SortableContext
-                    items={gridItems}
-                    strategy={rectSortingStrategy}
-                  >
-                    {gridItems.map((item) => {
-                      const widget = widgetOptions.find(
-                        (w) => w.key === item.id
-                      );
-                      if (!widget) return null;
-
-                      return (
-                        <Card
-                          key={widget.key}
-                          id={widget.key}
-                          title={widget.key}
-                          footer={true}
-                          category={widget.key}
-                          order={item.order}
-                          initialPosition={{ x: 0, y: 0 }}
-                          icon={widget.icon}
-                          onAction={(action, category) => {
-                            console.log(action, category, "clicked in app");
-                            if (action === "add") {
-                              console.log(action, "action add");
-                              openModal(category, patientId);
-                            } else if (action === "view") {
-                              console.log(`View history for ${category}`);
-                            }
-                          }}
-                          patientId={patientId}
-                          iconBgColor={widget?.iconBgColor}
-                          hasWritePermission={
-                            widget.key === "Insurance"
-                              ? insuranceWritePermission
-                              : widget.hasWritePermission
-                          }
-                        >
-                          {widget.component && (
-                            <widget.component
-                              patientId={patientId}
-                              isAnyModalOpen={isAnyModalOpen}
-                            />
-                          )}
-                        </Card>
-                      );
-                    })}
-                  </SortableContext>
-                </div>
+                /* Desktop Grid View */
+                <DesktopView
+                  gridItems={gridItems}
+                  widgetOptions={widgetOptions}
+                  onAction={handleCardAction}
+                  patientId={patientId}
+                  isAnyModalOpen={isAnyModalOpen}
+                  insuranceWritePermission={insuranceWritePermission}
+                  gridTemplateColumns={getGridTemplateColumns()}
+                />
               )}
-
-              {/* Show dots navigation for mobile carousel */}
-              {isMobileView && gridItems.length > 1 && renderCarouselDots()}
             </div>
           </div>
 
-          {/* Modal - Make it responsive for mobile */}
-          {modal.isOpen && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black bg-opacity-50 modal backdrop-blur-sm"
-              onClick={(e) => {
-                // Stop propagation to prevent any other handlers from firing
-                e.stopPropagation();
-                closeModal();
-              }}
-            >
-              <div
-                className="relative bg-white p-2 md:p-4 rounded-lg shadow-lg w-full md:w-4/5 h-[90%] md:h-4/5 flex flex-col"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Modal Header */}
-                <div className="flex items-center justify-between mb-2 md:mb-4">
-                  <h2 className="text-lg font-semibold md:text-xl">
-                    {modal.title}
-                  </h2>
-                  <button
-                    onClick={closeModal}
-                    className="text-lg text-gray-600 hover:text-gray-900"
-                    aria-label="Close"
-                  >
-                    ✖
-                  </button>
-                </div>
-
-                <IframeModal modal={modal} closeModal={closeModal} />
-              </div>
-            </div>
-          )}
+          {/* Modal */}
+          <AppModal modal={modal} closeModal={closeModal} />
         </div>
       </DndContext>
     </Provider>
