@@ -833,13 +833,17 @@ const App: React.FC = () => {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 max-w-full"
                   style={{
                     gridTemplateColumns:
-                      window.innerWidth >= 2200
+                      // window.innerWidth >= 2200
+                      window.innerWidth >= 2375
                         ? "repeat(5, calc(20%))" // 2xl breakpoint - 5 cards
-                        : window.innerWidth >= 1680
-                          ? "repeat(4, calc(25%))" // xl breakpoint
-                          : window.innerWidth >= 1280
+                        : window.innerWidth >= 1855
+                          ? // : window.innerWidth >= 1680
+                            "repeat(4, calc(25%))" // xl breakpoint
+                          : // : window.innerWidth >= 1280
+                            window.innerWidth >= 1455
                             ? "repeat(3, calc(33.33%))" // lg breakpoint
-                            : window.innerWidth >= 768
+                            : // : window.innerWidth >= 768
+                              window.innerWidth >= 943
                               ? "repeat(2, calc(50%))" // md breakpoint
                               : "100%",
                   }}
