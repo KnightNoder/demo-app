@@ -19,11 +19,7 @@ interface VitalsTableProps {
   onViewAllClick?: () => void;
 }
 
-const VitalsTable: React.FC<VitalsTableProps> = ({
-  vitalsDataArray,
-  showAll = false,
-  onViewAllClick,
-}) => {
+const VitalsTable: React.FC<VitalsTableProps> = ({ vitalsDataArray }) => {
   // Format timestamp into separate time and date if needed
   const formatVitalData = (data: VitalData[]): VitalData[] => {
     return data.map((vital) => {
