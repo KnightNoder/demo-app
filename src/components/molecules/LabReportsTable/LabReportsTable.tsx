@@ -1,7 +1,7 @@
 import React from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import LabReportRow from "./LapReportRow";
+import LabReportRow from "../../molecules/LabReportsTable/LapReportRow";
 import TableHeader from "../../atoms/TableHeader/TableHeader";
 
 interface LabReportsTableProps {
@@ -89,7 +89,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-muted/30">
           {labReports.map((report) => (
             <LabReportRow key={report.id} labReport={report} />
           ))}

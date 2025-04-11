@@ -75,3 +75,26 @@ export const capitalize = (str: string): string => {
   return str[0].toUpperCase() + str.slice(1).toLowerCase();
 };
 
+
+// utils/formatDate.tsx
+
+export function formatToDDMMYYYY(datetime: string): string {
+  // Handle placeholder or invalid datetime
+  if (
+    !datetime || 
+    datetime === "0000-00-00 00:00:00" || 
+    isNaN(new Date(datetime.replace(" ", "T")).getTime())
+  ) {
+    return "Invalid Date";
+  }
+
+  const date = new Date(datetime.replace(" ", "T")); // Convert to ISO format
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
+

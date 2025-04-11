@@ -53,7 +53,7 @@ const labReportSlice = createSlice({
               : result.result === "NEGATIVE"
                 ? "abnormal"
                 : "critical",
-          ordered: report.date_ordered,
+          ordered: report.date_collected,
           reported: report.date_report,
         }))
       );

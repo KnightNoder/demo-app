@@ -1,6 +1,5 @@
 import React from "react";
-import Row from "../Row/Row";
-import Pill from "../../atoms/Pill/Pill";
+import { formatToDDMMYYYY } from "../../../utils/utils";
 
 interface LabReport {
   id: string;
@@ -13,35 +12,69 @@ interface LabReport {
 }
 
 const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
-  const columnConfig: {
-    key: keyof LabReport;
-    label: string;
-    render?: (value: any) => React.ReactNode;
-  }[] = [
-    { key: "test", label: "Test" },
-    { key: "result", label: "Result" },
-    { key: "range", label: "Range" },
-    {
-      key: "status",
-      label: "Status",
-      render: (value: LabReport["status"]) => (
-        <Pill
-          text={value}
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            value === "normal"
-              ? "text-green-600 bg-green-100"
-              : value === "abnormal"
-                ? "text-yellow-600 bg-yellow-100"
-                : "text-red-600 bg-red-100"
-          }`}
-        />
-      ),
-    },
-    { key: "ordered", label: "Ordered" },
-    { key: "reported", label: "Reported" },
-  ];
+  // Status pill styling based on the example
+  const getStatusPill = (status: LabReport["status"]) => {
+    let pillClasses =
+      "inline-flex items-center rounded-full px-2.5 py-0.5 font-light text-[#020817] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-[10px]";
 
-  return <Row data={labReport} columnConfig={columnConfig} />;
+    switch (status) {
+      case "normal":
+        return (
+          <div
+            className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
+          >
+            {status}
+          </div>
+        );
+      case "abnormal":
+        return (
+          <div
+            className={`${pillClasses} bg-gray-100 text-gray-700 hover:bg-gray-200`}
+          >
+            {status}
+          </div>
+        );
+      case "critical":
+        return (
+          <div
+            className={`${pillClasses} bg-red-50 text-red-700 hover:bg-red-100`}
+          >
+            {status}
+          </div>
+        );
+      default:
+        return (
+          <div
+            className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
+          >
+            {status}
+          </div>
+        );
+    }
+  };
+
+  return (
+    <tr className="transition-colors hover:bg-muted/50">
+      <td className="pl-1 pr-2 py-1 align-middle text-xs font-light text-[#020817]">
+        {labReport.test}
+      </td>
+      <td className="pl-1 pr-2 py-1 align-middle font-light text-[#020817] text-xs">
+        {labReport.result}
+      </td>
+      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+        {labReport.range}
+      </td>
+      <td className="pl-1 pr-2 py-1 align-middle text-xs">
+        {getStatusPill(labReport.status)}
+      </td>
+      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+        {formatToDDMMYYYY(labReport.ordered)}
+      </td>
+      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+        {formatToDDMMYYYY(labReport.reported)}
+      </td>
+    </tr>
+  );
 };
 
 export default LabReportRow;

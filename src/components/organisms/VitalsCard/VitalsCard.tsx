@@ -15,7 +15,21 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Current");
-  const [vitalsData, setVitalsData] = useState<any>(null);
+  const [vitalsData, setVitalsData] = useState<any[]>([]);
+
+  // Transform data to match VitalsTable expected format
+  const transformedVitalsData = vitalsData.map((item) => ({
+    timestamp: item.date,
+    time: item.time, // Add if available in your API response
+    date: item.date,
+    bp_systolic: item.BP_systolic,
+    bp_diastolic: item.BP_diastolic,
+    heart_rate: item.pulse,
+    temperature: item.temperature,
+    oxygen_saturation: item.SP02_room_air_without_oxygen,
+    respiratory_rate: item.respiration,
+    pain_level: item.pain,
+  }));
 
   useEffect(() => {
     if (patientId) {
@@ -69,6 +83,19 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
     );
   }
 
+  // Show a message if there's no data
+  if (vitalsData.length === 0) {
+    return (
+      <div className="bg-white rounded-lg md:p-6">
+        <div className="flex justify-center items-center p-8">
+          <p className="text-gray-500">
+            No vitals data available for this patient
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const tabs = [
     { label: "Current" },
     { label: "Trends" },
@@ -83,12 +110,12 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
         onTabClick={setActiveTab}
       />
       <div className="mt-4">
-        {activeTab === "Current" && vitalsData && vitalsData.length > 0 && (
+        {activeTab === "Current" && vitalsData.length > 0 && (
           <VitalsOverview vitalData={vitalsData[0]} />
         )}
-        {activeTab === "Trends" && <VitalsTrend interval={2000} />}
+        {activeTab === "Trends" && <VitalsTrend vitalsDataArray={vitalsData} />}
         {activeTab === "History" && (
-          <VitalsTable vitalsDataArray={vitalsData} />
+          <VitalsTable vitalsDataArray={transformedVitalsData} />
         )}
       </div>
     </div>
