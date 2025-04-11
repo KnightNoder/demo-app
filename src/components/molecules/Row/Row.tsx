@@ -4,7 +4,7 @@ interface ColumnConfig<T> {
   key: keyof T;
   label?: string;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
-  className?: string; // Added to allow custom styling per column
+  className?: string;
 }
 
 interface GenericTableRowProps<T> {
@@ -18,19 +18,14 @@ const GenericTableRow = <T,>({
   columnConfig,
 }: GenericTableRowProps<T>) => {
   return (
-    <tr className="transition-colors hover:bg-muted/50">
+    <tr className="transition-colors hover:bg-muted/50 my-2">
       {columnConfig.map(({ key, render, className = "" }, index) => {
         const value = data[key];
 
-        // Default cell styling based on example
-        const defaultCellClass = "pl-1 pr-2 py-1 align-middle text-xs";
-        // Add text-[#5B6B7A] for certain columns like Range, Ordered, Reported
-        const mutedColumns = ["range", "ordered", "reported"];
-        const isMuted = mutedColumns.includes(String(key));
-        // Add font-medium for test name column
-        const isBold = key === "test";
-
-        const cellClass = `${defaultCellClass} ${isMuted ? "text-[#5B6B7A]" : ""} ${isBold ? "font-light" : ""} ${className}`;
+        // Match the styling from AllergyRow
+        const cellClass =
+          "pl-1 pr-2 py-3 align-middle text-xs font-light text-[#020817] " +
+          className;
 
         return (
           <td key={index} className={cellClass}>

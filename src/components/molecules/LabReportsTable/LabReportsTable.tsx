@@ -42,7 +42,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
   if (loading) {
     return (
       <div className="w-full overflow-x-auto rounded-md">
-        <table className="w-full text-xs">
+        <table className="w-full text-xs border-spacing-y-2 border-separate">
           <thead className="top-0 bg-gray-50">
             <tr>
               {tableHeaders.map((header, index) => (
@@ -52,23 +52,23 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
           </thead>
           <tbody>
             {[...Array(5)].map((_, index) => (
-              <tr key={index}>
-                <td>
+              <tr key={index} className="my-2">
+                <td className="py-3">
                   <Skeleton width={150} />
                 </td>
-                <td>
+                <td className="py-3">
                   <Skeleton width={100} />
                 </td>
-                <td>
+                <td className="py-3">
                   <Skeleton width={80} />
                 </td>
-                <td>
+                <td className="py-3">
                   <Skeleton width={80} />
                 </td>
-                <td>
+                <td className="py-3">
                   <Skeleton width={120} />
                 </td>
-                <td>
+                <td className="py-3">
                   <Skeleton width={100} />
                 </td>
               </tr>
@@ -81,7 +81,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
 
   return (
     <div className="w-full overflow-x-auto rounded-md">
-      <table className="w-full text-xs">
+      <table className="w-full text-xs border-spacing-y-2 border-separate">
         <thead className="top-0 bg-gray-50">
           <tr>
             {tableHeaders.map((header, index) => (
@@ -89,7 +89,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
             ))}
           </tr>
         </thead>
-        <tbody className="[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-muted/30">
+        <tbody>
           {labReports.map((report) => (
             <LabReportRow key={report.id} labReport={report} />
           ))}

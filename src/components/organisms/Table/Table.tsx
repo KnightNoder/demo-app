@@ -22,17 +22,28 @@ const Table = <T,>({ headers, data, loading, renderRow }: TableProps<T>) => {
           </tr>
         </thead>
         <tbody>
-          {loading
-            ? [...Array(5)].map((_, index) => (
-                <tr key={index}>
-                  {headers.map((_, colIndex) => (
-                    <td key={colIndex}>
-                      <Skeleton width={100} />
-                    </td>
-                  ))}
-                </tr>
-              ))
-            : data.map(renderRow)}
+          {loading ? (
+            [...Array(5)].map((_, index) => (
+              <tr key={index} className="my-2">
+                {headers.map((_, colIndex) => (
+                  <td key={colIndex} className="pl-1 pr-2 py-3 align-middle">
+                    <Skeleton width={100} />
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : data.length > 0 ? (
+            data.map(renderRow)
+          ) : (
+            <tr>
+              <td
+                colSpan={headers.length}
+                className="py-6 text-center text-gray-500"
+              >
+                No data available
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

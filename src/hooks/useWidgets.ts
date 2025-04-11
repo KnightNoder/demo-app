@@ -10,11 +10,11 @@ interface GridItem {
 
 export const useWidgets = () => {
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>([
-    "Diagnosis",
-    "Prescriptions",
-    "Cognitive Status",
-    "Functional Status",
-    "Medications",
+    "Vitals",
+    "Lab Reports",
+    "Allergies",
+    "Disclosures",
+    "Demographics",
     "Notifications",
     "Advanced Directives",
     "Appointments",

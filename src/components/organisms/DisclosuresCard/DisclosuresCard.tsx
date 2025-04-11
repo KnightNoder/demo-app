@@ -4,6 +4,7 @@ import GenericTableRow from "../../molecules/Row/Row";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import Table from "../Table/Table";
 import Skeleton from "react-loading-skeleton";
+import { formatToDDMMYYYY } from "../../../utils/utils";
 
 interface ConsentForm2 {
   id: number;
@@ -18,7 +19,7 @@ interface ConsentForm2 {
 interface ColumnConfig<T> {
   key: keyof T;
   label: string;
-  render?: (value: any) => JSX.Element;
+  render?: (value: any, row: T) => JSX.Element;
 }
 
 interface DisclosuresCardProps {
@@ -55,29 +56,115 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
     fetchDisclosures();
   }, [patientId]);
 
+  // Reusable pill styling function similar to AllergyRow
+  const getPillStyle = (type: string, value: string) => {
+    // Base pill classes similar to AllergyRow
+    const pillClasses =
+      "font-normal inline-flex items-center rounded-full px-2.5 py-0.5 font-light text-[#020817] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-xs";
+
+    if (type === "type") {
+      return (
+        <div
+          className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
+        >
+          {value}
+        </div>
+      );
+    } else if (type === "status") {
+      // Status styling based on value
+      switch (value.toLowerCase()) {
+        case "active":
+          return (
+            <div
+              className={`${pillClasses} bg-green-50 text-green-700 hover:bg-green-100`}
+            >
+              {value}
+            </div>
+          );
+        case "expired":
+          return (
+            <div
+              className={`${pillClasses} bg-yellow-50 text-yellow-700 hover:bg-yellow-100`}
+            >
+              {value}
+            </div>
+          );
+        case "revoked":
+          return (
+            <div
+              className={`${pillClasses} bg-red-50 text-red-700 hover:bg-red-100`}
+            >
+              {value}
+            </div>
+          );
+        default:
+          return (
+            <div
+              className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
+            >
+              {value}
+            </div>
+          );
+      }
+    } else {
+      return (
+        <div
+          className={`${pillClasses} bg-gray-50 text-[#020817] hover:bg-gray-100`}
+        >
+          {value}
+        </div>
+      );
+    }
+  };
+
   const columnConfig: ColumnConfig<ConsentForm2>[] = [
     { key: "description", label: "NAME" },
     {
       key: "event",
       label: "TYPE",
+      render: (value) => getPillStyle("type", String(value)),
+    },
+    {
+      key: "description", // In a real app, this would be a status field
+      label: "STATUS",
+      // For demo purposes, mapping description to a status value
+      render: (row) => {
+        // Determine status based on activeTab or some logic
+        // This is just a placeholder - in a real app you'd use actual status data
+        let status = "Active";
+        if (row.id % 3 === 1) status = "Expired";
+        if (row.id % 5 === 0) status = "Revoked";
+
+        return getPillStyle("status", status);
+      },
+    },
+    {
+      key: "recipient",
+      label: "SIGNED BY",
       render: (value) => (
-        <span className="px-2 py-1 text-xs text-gray-600 border rounded-full">
-          {value}
+        <span className="text-xs text-[#020817] font-normal">
+          {String(value)}
+        </span>
+      ),
+    },
+    {
+      key: "date",
+      label: "SIGNED DATE",
+      render: (value) => (
+        <span className="text-xs text-[#020817] font-normal">
+          {String(formatToDDMMYYYY(value))}
         </span>
       ),
     },
     {
       key: "description",
-      label: "STATUS",
+      label: "NOTES",
       render: (value) => (
-        <span className="px-2 py-1 text-xs text-green-700 bg-green-100 rounded-full">
-          {value}
+        <span className="text-xs text-[#5B6B7A]">
+          {String(value).substring(0, 20)}...
         </span>
       ),
     },
-    { key: "recipient", label: "SIGNED BY" },
-    { key: "date", label: "SIGNED DATE" },
-    { key: "description", label: "NOTES" },
   ];
 
   return (

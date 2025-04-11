@@ -54,23 +54,23 @@ const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
   };
 
   return (
-    <tr className="transition-colors hover:bg-muted/50">
-      <td className="pl-1 pr-2 py-1 align-middle text-xs font-light text-[#020817]">
+    <tr className="transition-colors hover:bg-muted/50 my-2">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-[#020817]">
         {labReport.test}
       </td>
-      <td className="pl-1 pr-2 py-1 align-middle font-light text-[#020817] text-xs">
+      <td className="pl-1 pr-2 py-3 align-middle font-light text-[#020817] text-xs">
         {labReport.result}
       </td>
-      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
         {labReport.range}
       </td>
-      <td className="pl-1 pr-2 py-1 align-middle text-xs">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs">
         {getStatusPill(labReport.status)}
       </td>
-      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
         {formatToDDMMYYYY(labReport.ordered)}
       </td>
-      <td className="pl-1 pr-2 py-1 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
         {formatToDDMMYYYY(labReport.reported)}
       </td>
     </tr>
