@@ -896,7 +896,7 @@ const Icons: React.FC<IconsProps> = ({ variant, className }) => {
             />
           </svg>
         );
-      case "phone":
+      case "demo-phone":
         return (
           <svg
             xmlns="http://www.w3.org/2000/svg"
