@@ -44,7 +44,7 @@ export const usePermissions = () => {
 
       try {
         const response = await fetch(
-          `https://qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
+          `https://staging.qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
           requestOptions
         );
 
