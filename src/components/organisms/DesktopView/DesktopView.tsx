@@ -28,17 +28,12 @@ const DesktopView: React.FC<DesktopViewProps> = ({
 }) => {
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 max-w-full"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[18px] max-w-full"
       style={{ gridTemplateColumns }}
     >
-      <SortableContext
-        items={gridItems}
-        strategy={rectSortingStrategy}
-      >
+      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         {gridItems.map((item) => {
-          const widget = widgetOptions.find(
-            (w) => w.key === item.id
-          );
+          const widget = widgetOptions.find((w) => w.key === item.id);
           if (!widget) return null;
 
           return (

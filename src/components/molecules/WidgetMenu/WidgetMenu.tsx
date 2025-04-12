@@ -51,7 +51,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   return (
     <div
-      className={`relative flex ${isMobileView ? "justify-center" : "justify-end"} mx-auto mb-4 transform mr-[36px] ${isAnyModalOpen ? "z-10" : "z-50"}`}
+      className={`relative flex ${isMobileView ? "justify-center" : "justify-end"} mx-auto mb-12 transform mr-[36px] ${isAnyModalOpen ? "z-10" : "z-50"}`}
       ref={widgetRef}
     >
       {/* Widgets button */}

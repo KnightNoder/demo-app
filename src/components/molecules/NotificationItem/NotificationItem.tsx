@@ -126,10 +126,10 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
             isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"
           }`}
         >
-          <button className="px-2 py-0.5 text-xs text-white transition-all duration-200 bg-blue-500 rounded-md hover:bg-blue-600">
+          <button className="px-2 py-0.5 text-xs text-white transition-all duration-200 bg-[#00b8e6] rounded-md hover:bg-blue-600">
             Mark as Read
           </button>
-          <button className="px-2 py-0.5 text-xs text-blue-500 transition-all duration-200 border border-blue-500 rounded-md hover:bg-blue-100">
+          <button className="px-2 py-0.5 text-xs text-[#00b8e6] transition-all duration-200 border border-[#00b8e6] rounded-md hover:bg-blue-100">
             View Details
           </button>
         </div>
