@@ -25,8 +25,8 @@ const MobileView: React.FC<MobileViewProps> = ({
   gridItems,
   activeCardIndex,
   setActiveCardIndex,
-  nextCard,
-  prevCard,
+  // nextCard,
+  // prevCard,
   widgetOptions,
   onAction,
   patientId,
@@ -66,21 +66,21 @@ const MobileView: React.FC<MobileViewProps> = ({
       {gridItems.length > 0 && (
         <>
           {/* Navigation arrows positioned absolutely relative to the main container */}
-          <button
+          {/* <button
             onClick={prevCard}
             className="z-[100] absolute left-0 top-2/5 -translate-y-1/2 flex items-center justify-center p-1 bg-white/80 rounded-full shadow-md hover:bg-gray-200 transition-colors"
             aria-label="Previous card"
           >
             <Icons variant="carousel-prev" />
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             onClick={nextCard}
             className="z-[100] absolute right-0 top-2/5 -translate-y-1/2 flex items-center justify-center p-1 bg-white/80 rounded-full shadow-md hover:bg-gray-200 transition-colors"
             aria-label="Next card"
           >
             <Icons variant="carousel-next" />
-          </button>
+          </button> */}
         </>
       )}
 
