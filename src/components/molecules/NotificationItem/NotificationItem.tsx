@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface Notification {
-  id: number;
+  id: string;
   type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER";
   priority: "High" | "Medium" | "Low";
   title: string;

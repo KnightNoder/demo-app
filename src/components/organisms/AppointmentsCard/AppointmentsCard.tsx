@@ -61,6 +61,43 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
     }
   }, [patientId]);
 
+  const getFilteredAppointments = () => {
+    const now = new Date();
+
+    switch (activeTab) {
+      case "Upcoming":
+        return appointments.filter((appointment) => {
+          const eventDate = new Date(appointment.event_date);
+          return eventDate >= now;
+        });
+      case "Past":
+        return appointments.filter((appointment) => {
+          const eventDate = new Date(appointment.event_date);
+          return eventDate < now;
+        });
+      case "All":
+      default:
+        return appointments;
+    }
+  };
+
+  const filteredAppointments = getFilteredAppointments();
+
+  // Update tab counts based on filtered data
+  const upcomingCount = appointments.filter(
+    (appointment) => new Date(appointment.event_date) >= new Date()
+  ).length;
+
+  const pastCount = appointments.filter(
+    (appointment) => new Date(appointment.event_date) < new Date()
+  ).length;
+
+  const tabs = [
+    { label: "Upcoming", count: upcomingCount },
+    { label: "Past", count: pastCount },
+    { label: "All", count: appointments.length },
+  ];
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg">
@@ -91,12 +128,6 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
     );
   }
 
-  const tabs = [
-    { label: "Upcoming", count: appointments.length },
-    { label: "Past", count: 0 },
-    { label: "All", count: appointments.length },
-  ];
-
   return (
     <div className="bg-white rounded-lg">
       <TabListHeader
@@ -106,8 +137,8 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
       />
 
       <div className="mt-4 space-y-4">
-        {appointments.length > 0 ? (
-          appointments.map((appointment) => (
+        {filteredAppointments.length > 0 ? (
+          filteredAppointments.map((appointment) => (
             <AppointmentItem key={appointment.id} appointment={appointment} />
           ))
         ) : (

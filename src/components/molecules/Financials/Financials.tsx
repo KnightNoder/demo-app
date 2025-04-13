@@ -1,28 +1,53 @@
 import React from 'react';
 
+interface DeductibleInfo {
+  individual?: number | string;
+  family?: number | string;
+  remaining?: number | string;
+}
+
+interface OutOfPocketInfo {
+  individual?: number | string;
+  family?: number | string;
+  remaining?: number | string;
+}
+
 interface FinancialsProps {
-  deductible: {
-    individual: number;
-    family: number;
-    remaining: number;
-  };
-  outOfPocket: {
-    individual: number;
-    family: number;
-    remaining: number;
-  };
+  deductible: DeductibleInfo;
+  outOfPocket: OutOfPocketInfo;
 }
 
 const Financials: React.FC<FinancialsProps> = ({ deductible, outOfPocket }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+  // Format currency values or return placeholder
+  const formatCurrency = (amount?: number | string) => {
+    if (amount === undefined || amount === null || amount === "") return "--";
+
+    // If it's already a string and not a number, return it as is
+    if (typeof amount === "string" && isNaN(parseFloat(amount))) return amount;
+
+    // Convert string to number if needed
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(numAmount);
   };
 
-  const calculateProgress = (remaining: number, total: number) => {
-    return ((total - remaining) / total) * 100;
+  // Calculate progress percentage for the progress bar
+  const calculateProgress = (
+    remaining?: number | string,
+    total?: number | string
+  ) => {
+    if (remaining === undefined || total === undefined) return 0;
+
+    const numRemaining =
+      typeof remaining === "string" ? parseFloat(remaining) : remaining;
+    const numTotal = typeof total === "string" ? parseFloat(total) : total;
+
+    if (isNaN(numRemaining) || isNaN(numTotal) || numTotal === 0) return 0;
+
+    return ((numTotal - numRemaining) / numTotal) * 100;
   };
 
   return (
@@ -32,20 +57,20 @@ const Financials: React.FC<FinancialsProps> = ({ deductible, outOfPocket }) => {
         <h3 className="text-sm font-normal text-[#020817]">Deductible</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-light text-gray-600">Individual</p>
+            <p className="text-xs text-gray-600">Individual</p>
             <p className="text-xs font-normal text-[#020817]">
               {formatCurrency(deductible.individual)}
             </p>
           </div>
           <div>
-            <p className="text-xs font-light text-gray-600">Family</p>
+            <p className="text-xs text-gray-600">Family</p>
             <p className="text-xs font-normal text-[#020817]">
               {formatCurrency(deductible.family)}
             </p>
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-xs font-light text-gray-600">Remaining</p>
+          <p className="text-xs text-gray-600">Remaining</p>
           <div className="h-2 bg-gray-200 rounded-full">
             <div
               className="h-full bg-blue-600 rounded-full"
@@ -67,20 +92,20 @@ const Financials: React.FC<FinancialsProps> = ({ deductible, outOfPocket }) => {
         </h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-light text-gray-600">Individual</p>
+            <p className="text-xs text-gray-600">Individual</p>
             <p className="text-xs font-normal text-[#020817]">
               {formatCurrency(outOfPocket.individual)}
             </p>
           </div>
           <div>
-            <p className="text-xs font-light text-gray-600">Family</p>
+            <p className="text-xs text-gray-600">Family</p>
             <p className="text-xs font-normal text-[#020817]">
               {formatCurrency(outOfPocket.family)}
             </p>
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-xs font-light text-gray-600">Remaining</p>
+          <p className="text-xs text-gray-600">Remaining</p>
           <div className="h-2 bg-gray-200 rounded-full">
             <div
               className="h-full bg-blue-600 rounded-full"

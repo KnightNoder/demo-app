@@ -1,156 +1,159 @@
-import { useState, useEffect } from "react";
-import axiosClient from "../../../api/axiosClient";
+import React, { useEffect, useState } from "react";
 
 interface PatientCardProps {
-  patientImage: string;
+  patientImage?: string;
+}
+
+interface DecodedToken {
+  name?: string;
+  user_id?: string;
+  id?: string;
+  [key: string]: any;
 }
 
 const PatientCard: React.FC<PatientCardProps> = ({ patientImage }) => {
-  const [insuranceCard, setInsuranceCard] = useState<string | null>(null);
-  const [patientImageWithHeaders, setPatientImageWithHeaders] = useState<
-    string | null
-  >(null);
+  const [patientName, setPatientName] = useState<string>("--");
+  const [patientId, setPatientId] = useState<string>("--");
 
   useEffect(() => {
-    // Function to fetch image with axiosClient (which already has sitename: current in headers)
-    const fetchImageWithAxios = async () => {
-      try {
-        // Use axiosClient with responseType: 'blob' to get the image
-        const response = await axiosClient.get(
-          decodeURIComponent(patientImage),
-          {
-            responseType: "blob",
-          }
-        );
+    try {
+      // Get JWT token from localStorage
+      const token = localStorage.getItem("JWT_AUTH_TOKEN");
 
-        // Create an object URL from the blob response
-        const objectUrl = URL.createObjectURL(response.data);
-        setPatientImageWithHeaders(objectUrl);
-      } catch (error) {
-        console.error("Error fetching patient image:", error);
+      if (token) {
+        // Decode the JWT token
+        const decodedToken = decodeJWT(token);
+
+        // Set patient name and ID from the decoded token
+        if (decodedToken.username) {
+          setPatientName(decodedToken.username);
+        }
+
+        // Use user_id or id from the token
+        if (decodedToken.user_id) {
+          setPatientId(decodedToken.user_id);
+        } else if (decodedToken.id) {
+          setPatientId(decodedToken.id);
+        }
       }
-    };
-
-    if (patientImage) {
-      fetchImageWithAxios();
+    } catch (error) {
+      console.error("Error decoding JWT token:", error);
     }
+  }, []);
 
-    // Cleanup function to revoke object URL
-    return () => {
-      if (patientImageWithHeaders) {
-        URL.revokeObjectURL(patientImageWithHeaders);
+  // Function to decode JWT token
+  const decodeJWT = (token: string): DecodedToken => {
+    try {
+      // JWT tokens are three parts separated by dots
+      const parts = token.split(".");
+      if (parts.length !== 3) {
+        throw new Error("Invalid token format");
       }
-    };
-  }, [patientImage]);
 
-  const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => setInsuranceCard(reader.result as string);
-      reader.readAsDataURL(file);
+      // The second part of the token is the payload
+      const payload = parts[1];
+
+      // Base64Url decode and parse the payload
+      const decodedPayload = JSON.parse(
+        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+      );
+
+      return decodedPayload;
+    } catch (error) {
+      console.error("Failed to decode JWT:", error);
+      return {};
     }
   };
 
-  // This method was unused, so we're removing it and keeping just the handleUpload method below
-
   return (
-    <div className="flex flex-col items-center p-4 space-y-4">
-      {/* Patient Info Card */}
-      <div className="p-6 bg-white shadow-lg rounded-2xl w-96">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-lg">
-            {patientImageWithHeaders ? (
-              <img src={patientImageWithHeaders} alt="PatientImage" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <svg
-                  className="w-8 h-8"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-            )}
-          </div>
-          <div>
-            <h2 className="text-sm font-normal text-[#020817]">John Smith</h2>
-            <p className="text-xs font-light text-gray-500">ID NUMBER: 1</p>
-            <p className="text-xs font-light text-gray-500">
-              DATE OF BIRTH: 5/15/1990
-            </p>
-          </div>
-        </div>
-        <div className="pt-4 mt-4 border-t">
-          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
-            <span className="text-xs font-normal text-[#020817]">GENDER:</span>{" "}
-            Male
-          </p>
-          <p className="flex items-start gap-2 text-xs font-light text-gray-600">
-            <span className="text-xs font-normal text-[#020817]">
-              EMERGENCY CONTACT:
-            </span>{" "}
-            (555) 123-4567
-          </p>
-        </div>
+    <div className="w-full max-w-md aspect-[1.6/1] bg-slate-100 rounded-xl shadow-md relative overflow-hidden mb-6 mx-auto">
+      {/* Background layers */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-slate-100"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.2)_40%)]"></div>
+        <div className="absolute right-0 inset-y-0 w-1/2 bg-[radial-gradient(circle_at_70%_50%,rgba(59,130,246,0.1)_0%,transparent_60%)]"></div>
       </div>
 
-      {/* Insurance Card Upload Section */}
-      <div className="p-6 bg-white shadow-lg rounded-2xl w-96">
-        <h3 className="text-sm font-normal text-[#020817]">Insurance Card</h3>
-        <div className="flex flex-col items-center p-6 mt-4 bg-gray-100 border-2 border-gray-300 border-dashed rounded-lg">
-          {insuranceCard ? (
-            <img
-              src={insuranceCard}
-              alt="Insurance Card"
-              className="w-full h-auto rounded-lg"
-            />
-          ) : (
-            <div className="flex flex-col items-center">
-              <svg
-                className="w-10 h-10 text-gray-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="M21 15l-5-5L5 21" />
-              </svg>
-              <p className="mt-2 text-xs font-light text-gray-500">
-                No insurance card uploaded
-              </p>
-            </div>
-          )}
+      {/* Content */}
+      <div className="relative h-full p-5 flex flex-col">
+        {/* Header section */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-slate-800 font-semibold tracking-wide">
+              Kaiser Permanente
+            </h3>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Patient Identification
+            </p>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-white/80 shadow-sm backdrop-blur-sm flex items-center justify-center">
+            <span className="text-xl">🏥</span>
+          </div>
         </div>
-        <label className="flex items-center justify-center mt-4 space-x-2 text-xs font-normal text-blue-500 cursor-pointer">
-          <svg
-            className="w-4 h-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          <span>Upload New</span>
-          <input
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={handleUpload}
-          />
-        </label>
+
+        {/* Middle section */}
+        <div className="flex-1 flex items-center gap-4 my-3">
+          <div className="w-20 h-20 rounded-xl bg-white/80 shadow-sm backdrop-blur-sm flex items-center justify-center">
+            {patientImage ? (
+              <img
+                src={patientImage}
+                alt="Patient"
+                className="w-16 h-16 object-cover rounded-lg"
+              />
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+                className="w-10 h-10 text-slate-400"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                />
+              </svg>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-lg text-slate-800 font-medium tracking-wide truncate mb-2">
+              {patientName}
+            </h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">
+                  ID Number
+                </p>
+                <p className="text-sm text-slate-700 truncate">{patientId}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">
+                  Date of Birth
+                </p>
+                <p className="text-sm text-slate-700 truncate">--</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer section */}
+        <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+          {/* <div>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Gender
+            </p>
+            <p className="text-sm text-slate-700">--</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Emergency Contact
+            </p>
+            <p className="text-sm text-slate-700">--</p>
+          </div> */}
+        </div>
       </div>
     </div>
   );

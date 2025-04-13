@@ -72,7 +72,6 @@ const FunctionalStatusList: React.FC<FunctionalStatusCardComponentProps> = ({
         const response = await axiosClient.get(
           `/functional-status?pid=${patientId}`
         );
-        console.log(response, "func data");
         setFunctionalStatusData(response.data.data);
         setError(null);
       } catch (err) {

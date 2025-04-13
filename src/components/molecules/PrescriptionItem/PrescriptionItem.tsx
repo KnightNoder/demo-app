@@ -1,5 +1,4 @@
 import React from "react";
-import Icons from "../../../assets/Icons/Icons";
 import {
   capitalize,
   capitalizeWord,
@@ -7,15 +6,22 @@ import {
 } from "../../../utils/utils";
 
 interface Prescription {
+  id: number;
   drug_display: string;
   dosage: string;
   form: string;
   route: string;
   interval: string;
+  doseother: string;
   note: string;
+  quantity: string;
+  quantityunit: string;
+  active: number;
+  ndcid: string;
   refills: number;
   start_date: string;
   provider: {
+    id: number;
     name: string;
   };
 }
@@ -27,98 +33,128 @@ interface PrescriptionItemProps {
 const PrescriptionItem: React.FC<PrescriptionItemProps> = ({
   prescription,
 }) => {
+  // Determine if the prescription is active
+  const isActive = prescription.active === 1;
+
+  // Format start date if available
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "--";
+    try {
+      const date = new Date(dateString);
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Calculate next refill date (placeholder since it's not in the API)
+  const getNextRefillDate = () => {
+    return "--";
+  };
+
   return (
-    <div className="p-4 my-6 rounded-lg border border-gray-200  bg-white  shadow-sm">
-      {/* Header - Title and Status */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-normal">{prescription.drug_display}</h2>
-        <div className="flex justify-end">
-          <span className="px-2 py-1 text-xs text-gray-600 bg-gray-200 rounded-full">
-            Verified
-          </span>
-        </div>
-      </div>
-
-      {/* Tags row */}
-      <div className="flex flex-wrap gap-1 mt-2">
-        <span className="px-2 py-0.5 text-xs text-blue-600 bg-blue-100 rounded-md">
-          ACE Inhibitor
-        </span>
-        <span className="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded-md">
-          Routine
-        </span>
-      </div>
-
-      {/* Dosage Info */}
-      <p className="flex mt-2 gap-1 items-center text-xs text-gray-600 font-light">
-        <Icons variant="dosage" />
-        <span className="text-[#020817] ml-1">
-          {prescription.dosage} {prescription.form} ·{" "}
-          {capitalize(prescription.route)}
-        </span>
-      </p>
-
-      {/* Usage */}
-      <p className="mt-1 text-xs text-gray-500 font-light">For: Hypertension</p>
-
-      {/* Details */}
-      <div className="mt-2">
-        {/* Interval/Frequency */}
-        <p className="flex items-center gap-2 text-xs text-gray-500 font-light">
-          <Icons variant="frequency" />
-          <span className="text-[#020817]">
-            {capitalizeWord(prescription.interval)}
-          </span>
-        </p>
-
-        {/* Provider */}
-        <p className="mt-2 flex items-center gap-2 text-xs font-light text-gray-500">
-          <Icons variant="doctor" />
-          <span className="text-[#020817]">
-            Dr. {capitalizeWord(prescription.provider.name)}
-          </span>
-        </p>
-
-        {/* Date */}
-        <p className="mt-2 flex items-center gap-2 text-xs text-gray-500">
-          <Icons variant="appointment-calender" />
-          <span className="text-[#020817] font-extralight">
-            Prescribed about {timeAgoFromToday(prescription.start_date)}
-          </span>
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="flex gap-2 mt-3">
-        <div className="p-2 text-[10px] text-gray-500 bg-[#F9FAFB] rounded-md w-fit">
-          <span className="text-[#020817] font-extralight">
-            {prescription.refills} refills remaining
-          </span>
-        </div>
-        <div className="p-2 text-[10px] text-green-700 bg-green-50 rounded-md w-fit">
-          <span className="font-extralight">Adherence: 95%</span>
-        </div>
-      </div>
-
-      {/* Interactions - only if needed */}
-      {prescription.note && (
-        <div className="mt-3">
-          <p className="text-xs text-gray-500">Interactions</p>
-          <div className="flex flex-wrap gap-1 mt-1">
-            <span className="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded-md">
-              Potassium supplements
-            </span>
-            <span className="px-2 py-0.5 text-xs text-gray-600 bg-gray-100 rounded-md">
-              NSAIDs
-            </span>
+    <div className="border space-y-2 my-4 p-4 bg-white border border-gray-200 rounded-2xl">
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-normal text-[#020817]">
+              {prescription.drug_display || "--"}
+            </h4>
+            {prescription.ndcid && (
+              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-gray-200 hover:bg-gray-50">
+                {prescription.ndcid || "NDC ID"}
+              </div>
+            )}
+            <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 hover:bg-gray-100">
+              {isActive ? "routine" : "non-routine"}
+            </div>
           </div>
+
+          <div className="flex items-center gap-4 text-xs font-light text-gray-600">
+            <span>
+              {prescription.dosage || "--"} •{" "}
+              {prescription.interval
+                ? capitalizeWord(prescription.interval)
+                : "--"}{" "}
+              • {prescription.route ? capitalize(prescription.route) : "--"}
+            </span>
+            <span>For: {prescription.doseother || "--"}</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-gray-200 hover:bg-gray-50">
+              Adherence: --
+            </div>
+            <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 hover:bg-gray-100">
+              Next Refill: {getNextRefillDate()}
+            </div>
+          </div>
+        </div>
+
+        <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-100 hover:bg-gray-200">
+          {isActive ? "active" : "inactive"}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 text-xs">
+        <div>
+          <p className="text-xs font-light text-gray-600 mb-1">Prescribed by</p>
+          <p className="text-xs font-normal text-[#020817]">
+            {prescription.provider && prescription.provider.name
+              ? `Dr. ${capitalizeWord(prescription.provider.name)}`
+              : "--"}
+          </p>
+          <p className="text-xs font-light text-gray-600">
+            {prescription.start_date
+              ? `Updated ${timeAgoFromToday(prescription.start_date)}`
+              : "--"}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-light text-gray-600 mb-1">Dates</p>
+          <p className="text-xs font-normal text-[#020817]">
+            Start: {formatDate(prescription.start_date)}
+          </p>
+        </div>
+      </div>
+
+      {(prescription.note ||
+        (prescription.refills !== undefined && prescription.refills > 0)) && (
+        <div className="space-y-2 pt-2 border-t border-gray-200">
+          {/* Only show interactions if there's a note */}
+          {prescription.note && (
+            <div>
+              <p className="text-xs font-normal text-[#020817] mb-1">
+                Interactions
+              </p>
+              <div className="flex flex-wrap gap-1">
+                <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 hover:bg-gray-100">
+                  See note
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Show refills information if available */}
+          {prescription.refills !== undefined && prescription.refills > 0 && (
+            <div>
+              <p className="text-xs font-normal text-[#020817] mb-1">Refills</p>
+              <div className="flex flex-wrap gap-1">
+                <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-50 hover:bg-gray-100">
+                  {prescription.refills} remaining
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Note - only if provided */}
+      {/* Note section */}
       {prescription.note && (
-        <div className="mt-3 text-xs text-gray-500">
-          <span className="font-medium">Note:</span> {prescription.note}
+        <div className="pt-2 border-t border-gray-200">
+          <p className="text-xs font-light text-gray-600">
+            {prescription.note}
+          </p>
         </div>
       )}
     </div>

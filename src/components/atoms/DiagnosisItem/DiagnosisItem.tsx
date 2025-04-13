@@ -3,22 +3,28 @@ import { formatDate, capitalizeWord } from "../../../utils/utils";
 import Item from "../../molecules/Item/Item";
 import Icons from "../../../assets/Icons/Icons";
 
+interface DiagnosisUser {
+  id: number;
+  username: string;
+  fname: string;
+  mname: string;
+  lname: string;
+}
+
 interface DiagnosisItemProps {
   item: {
-    id: string;
-    type: string;
+    id: number;
     title: string;
     begdate: string;
-    enddate: string;
+    enddate?: string; // Making this optional since it wasn't in your example
+    outcome: number;
     diagnosis: string;
-    user: {
-      id: string;
-      username: string;
-      fname: string;
-      mname: string;
-      lname: string;
-    };
+    primary_diagnosis_code: number;
+    modified_by: string;
+    modified_on: string;
+    user: DiagnosisUser;
   };
+  isAnyModalOpen?: boolean;
 }
 
 export const DiagnosisItem: React.FC<DiagnosisItemProps> = ({ item }) => {

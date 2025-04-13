@@ -5,6 +5,7 @@ import { WidgetOption } from '../../../config/widgets';
 interface WidgetMenuProps {
   widgetOptions: WidgetOption[];
   visibleWidgets: string[];
+  authorizedWidgets: string[]; // Add authorizedWidgets prop
   toggleWidget: (widgetKey: string) => void;
   isWidgetMenuOpen: boolean;
   setIsWidgetMenuOpen: (isOpen: boolean) => void;
@@ -18,14 +19,22 @@ interface WidgetMenuProps {
 const WidgetMenu: React.FC<WidgetMenuProps> = ({
   widgetOptions,
   visibleWidgets,
+  authorizedWidgets, // New prop for authorized widgets from ACL
   toggleWidget,
   isWidgetMenuOpen,
   setIsWidgetMenuOpen,
   isMobileView,
-  isAnyModalOpen
+  isAnyModalOpen,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [activeButton, setActiveButton] = useState<string | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState<boolean>(false);
+  const [comingSoonPosition, setComingSoonPosition] = useState<{
+    top: number;
+    left: number;
+  }>({ top: 0, left: 0 });
   const widgetRef = useRef<HTMLDivElement | null>(null);
+  const comingSoonTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,16 +51,71 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsWidgetMenuOpen(false);
+        // Remove focus from any elements to prevent focus outline
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+
     if (isWidgetMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
     }
 
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isWidgetMenuOpen, setIsWidgetMenuOpen]);
+
+  // Handle mouse enter for strip buttons to show Coming Soon popup
+  const handleMouseEnter = (
+    buttonName: string,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    // Get button position
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    // Set position for the Coming Soon popup - position it closer to the button
+    setComingSoonPosition({
+      top: 45, // Just below the button
+      left: rect.left + window.scrollX + rect.width / 2 - 85, // Center the popup below the button
+    });
+
+    // Set active button
+    setActiveButton(buttonName);
+
+    // Show Coming Soon popup
+    setShowComingSoon(true);
+  };
+
+  // Handle mouse leave for strip buttons to hide Coming Soon popup
+  const handleMouseLeave = () => {
+    setShowComingSoon(false);
+    setActiveButton(null);
+  };
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (comingSoonTimeoutRef.current !== null) {
+        window.clearTimeout(comingSoonTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Filter widget options to only show authorized widgets
+  const authorizedWidgetOptions = widgetOptions.filter((widget) =>
+    authorizedWidgets.includes(widget.key)
+  );
 
   return (
     <div
-      className={`relative flex ${isMobileView ? "justify-center" : "justify-end"} mx-auto mb-12 transform mr-[36px] ${isAnyModalOpen ? "z-10" : "z-50"}`}
+      className={`relative flex ${isMobileView ? "justify-center" : "justify-end"} mx-auto mb-24 transform mr-[36px] ${isAnyModalOpen ? "z-10" : "z-50"}`}
       ref={widgetRef}
     >
       {/* Widgets button */}
@@ -70,39 +134,88 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         className={`${isMobileView ? "hidden" : "ml-6"} bg-white border border-gray-200 rounded-md shadow-sm`}
       >
         <div className="flex flex-wrap">
-          <button className="flex items-center py-2 px-4 font-light">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "Client Info" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("Client Info", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>Client Info</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "Clinical" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("Clinical", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>Clinical</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light ">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "Documents" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("Documents", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>Documents</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light ">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "Reports" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("Reports", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>Reports</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light ">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "Other" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("Other", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>Other</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light ">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "EDI" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("EDI", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>EDI</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light ">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "External Links" ? "bg-gray-200" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter("External Links", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>External Links</span>
           </button>
 
-          <button className="flex items-center py-2 px-4 font-light hover:bg-gray-50">
+          <button
+            className={`flex items-center py-2 px-4 font-light ${activeButton === "More Options" ? "bg-gray-200" : "hover:bg-gray-50"}`}
+            onMouseEnter={(e) => handleMouseEnter("More Options", e)}
+            onMouseLeave={handleMouseLeave}
+          >
             <span>More Options</span>
           </button>
         </div>
       </div>
+
+      {/* Coming Soon popup */}
+      {showComingSoon && (
+        <div
+          className="absolute flex cursor-default select-none items-center px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 bg-white border-2 border-gray-200 rounded-md shadow-md p-3 z-50 transition-opacity duration-300"
+          style={{
+            top: `${comingSoonPosition.top}px`,
+            left: `${comingSoonPosition.left}px`,
+            boxShadow:
+              "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+            minWidth: "170px",
+            textAlign: "center",
+          }}
+        >
+          <span className="font-light">Coming Soon...</span>
+        </div>
+      )}
 
       {/* Widget menu dropdown */}
       <div
@@ -129,11 +242,11 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         <div
           className={`${isMobileView ? "flex flex-col space-y-4" : "grid grid-cols-2 gap-4"} mt-4`}
         >
-          {/* Add Widgets list */}
+          {/* Add Widgets list - ONLY show authorized widgets */}
           <div>
             <h3 className="pb-1 mb-2 font-bold">Add Widgets</h3>
             <ul className="mt-4 overflow-auto max-h-60">
-              {widgetOptions
+              {authorizedWidgetOptions
                 .filter(
                   (w) =>
                     !visibleWidgets.includes(w.key) &&
@@ -163,7 +276,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
             </ul>
           </div>
 
-          {/* Remove Widgets list */}
+          {/* Remove Widgets list - only show authorized widgets */}
           <div>
             <h3 className="pb-1 mb-2 font-bold">Remove Widgets</h3>
             <ul className="overflow-auto max-h-60">
@@ -180,7 +293,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
                     >
                       <span className="flex items-center space-x-2">
                         <div
-                          className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor}`}
+                          className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md ${widget?.iconBgColor || ""}`}
                         >
                           <Icons variant={widget?.icon || "default"} />
                         </div>

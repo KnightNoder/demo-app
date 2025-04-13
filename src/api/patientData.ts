@@ -4,7 +4,7 @@ import axiosClient from "./axiosClient";
 export const getAllergyDataFromApi = async (patientId: string | null) => {
   try {
     const response = await axiosClient.get(`/allergies/${patientId}/`);
-    console.log(response.data, "resp data");
+    response.data, "resp data";
 
     return response.data;
   } catch (error) {
@@ -22,7 +22,7 @@ export const getAllergyDataFromApi = async (patientId: string | null) => {
 export const getDiagnosisDataFromApi = async (patientId: string | null) => {
   const response = await axiosClient.get(`/medical-problems?pid=${patientId}`);
 
-  console.log(response.data, "api response");
+  response.data, "api response";
   return response.data;
 };
 
@@ -65,7 +65,7 @@ export const getLabResultsDataFromApi = async (patientId: string | null) => {
     // return new Promise((resolve) => {
     //   setTimeout(() => {
     //     // reject("lol"); // Resolve with the diagnosis data
-    //     console.log(patientId);
+    //     (patientId);
     //     resolve(getLabReportsDataFromApi());
     //   }, 2000); // Simulate a 2-second delay
     // });

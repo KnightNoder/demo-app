@@ -7,7 +7,7 @@ export const fetchDiagnosis =
     dispatch(setLoading(true));
     try {
       const diagnosis = await getDiagnosisDataFromApi(patientId);
-      console.log(diagnosis.data, "diag data");
+      diagnosis.data, "diag data";
       dispatch(setDiagnoses(diagnosis));
     } catch (error: unknown) {
       if (error instanceof Error) {

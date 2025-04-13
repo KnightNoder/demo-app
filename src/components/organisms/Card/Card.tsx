@@ -232,6 +232,14 @@ const Card: React.FC<CardProps> = ({
     setHoveredEdge(null);
   };
 
+  const grabIndicatorStyle = {
+    height: "4px",
+    width: "40px",
+    backgroundColor: "#E2E8F0",
+    margin: "0 auto 4px auto",
+    borderRadius: "2px",
+  };
+
   const getResizeCursor = () => {
     switch (hoveredEdge) {
       case "top":
@@ -351,6 +359,12 @@ const Card: React.FC<CardProps> = ({
             {...attributes}
             {...listeners}
           >
+            <div
+              className="pt-2 flex justify-center"
+              style={{ cursor: "grab" }}
+            >
+              <div style={grabIndicatorStyle}></div>
+            </div>
             <Header
               title={title}
               isCollapsed={isCollapsed}

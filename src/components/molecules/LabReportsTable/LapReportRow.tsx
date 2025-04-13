@@ -6,24 +6,24 @@ interface LabReport {
   test: string;
   result: string;
   range: string;
-  status: "normal" | "abnormal" | "critical";
+  abnormal: "normal" | "abnormal" | "";
   ordered: string;
   reported: string;
 }
 
 const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
-  // Status pill styling based on the example
-  const getStatusPill = (status: LabReport["status"]) => {
+  // Status pill styling based on the ClinicalNoteItem styling patterns
+  const getStatusPill = (abnormal: LabReport["abnormal"]) => {
     let pillClasses =
-      "inline-flex items-center rounded-full px-2.5 py-0.5 font-light text-[#020817] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-[10px]";
+      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-light text-[#020817] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
 
-    switch (status) {
+    switch (abnormal) {
       case "normal":
         return (
           <div
             className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
           >
-            {status}
+            {abnormal}
           </div>
         );
       case "abnormal":
@@ -31,15 +31,7 @@ const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
           <div
             className={`${pillClasses} bg-gray-100 text-gray-700 hover:bg-gray-200`}
           >
-            {status}
-          </div>
-        );
-      case "critical":
-        return (
-          <div
-            className={`${pillClasses} bg-red-50 text-red-700 hover:bg-red-100`}
-          >
-            {status}
+            {abnormal}
           </div>
         );
       default:
@@ -47,7 +39,7 @@ const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
           <div
             className={`${pillClasses} bg-gray-50 text-gray-600 hover:bg-gray-100`}
           >
-            {status}
+            normal
           </div>
         );
     }
@@ -55,22 +47,22 @@ const LabReportRow: React.FC<{ labReport: LabReport }> = ({ labReport }) => {
 
   return (
     <tr className="transition-colors hover:bg-muted/50 my-2">
-      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-[#020817]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-normal text-[#020817]">
         {labReport.test}
       </td>
-      <td className="pl-1 pr-2 py-3 align-middle font-light text-[#020817] text-xs">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-normal text-[#020817]">
         {labReport.result}
       </td>
-      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-gray-600">
         {labReport.range}
       </td>
-      <td className="pl-1 pr-2 py-3 align-middle text-xs">
-        {getStatusPill(labReport.status)}
+      <td className="pl-1 pr-2 py-3 align-middle">
+        {getStatusPill(labReport.abnormal)}
       </td>
-      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-gray-600">
         {formatToDDMMYYYY(labReport.ordered)}
       </td>
-      <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
+      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-gray-600">
         {formatToDDMMYYYY(labReport.reported)}
       </td>
     </tr>

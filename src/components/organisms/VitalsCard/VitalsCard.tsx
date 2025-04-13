@@ -38,7 +38,6 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
       axiosClient
         .get(`/vitals?pid=${patientId}`)
         .then((response) => {
-          console.log("Vitals API Response:", response.data);
           if (Array.isArray(response.data.data)) {
             setVitalsData(response.data.data);
           } else {
@@ -73,10 +72,10 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
     return (
       <div className="flex flex-col items-center justify-center p-4 px-4 pb-4 mx-auto bg-white rounded-lg md:p-6">
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">
+          <p className="text-sm font-normal text-[#020817]">
             Oops! Something went wrong.
           </p>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
       </div>
@@ -88,7 +87,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
     return (
       <div className="bg-white rounded-lg md:p-6">
         <div className="flex justify-center items-center p-8">
-          <p className="text-gray-500">
+          <p className="text-xs font-light text-gray-600">
             No vitals data available for this patient
           </p>
         </div>

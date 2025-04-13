@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDate } from "../../../utils/utils";
+import { capitalize, formatDate } from "../../../utils/utils";
 
 interface Allergy {
   id: string;
@@ -23,7 +23,7 @@ interface AllergyRowProps {
   isAnyModalOpen?: boolean;
 }
 
-const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
+const AllergyRow: React.FC<AllergyRowProps> = ({ allergy, isAnyModalOpen }) => {
   // Check if allergy is active based on enddate
   const isActive = () => {
     if (!allergy.enddate) return true; // If no enddate, consider it active
@@ -33,7 +33,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
 
     return endDate >= currentDate; // Active if enddate is in the future
   };
-
+  const isModalOpen = isAnyModalOpen === true;
   // Activity status pill styling
   const getActivityPill = () => {
     let pillClasses =
@@ -118,8 +118,10 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy }) => {
 
   return (
     <tr className="transition-colors hover:bg-muted/50 my-2">
-      <td className="pl-1 pr-2 py-3 align-middle text-xs font-light text-[#020817]">
-        {allergy.title}
+      <td
+        className={`${isModalOpen ? "max-w-[400px]" : "max-w-[100px] truncate"} pl-1 pr-2 py-3 align-middle text-xs font-light text-[#020817]`}
+      >
+        {capitalize(allergy.title)}
       </td>
       <td className="pl-1 pr-2 py-3 align-middle text-xs">
         {getSeverityPill(allergy.severity)}

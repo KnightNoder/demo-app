@@ -10,7 +10,7 @@ interface LabReportsTableProps {
     test: string;
     result: string;
     range: string;
-    status: "normal" | "abnormal" | "critical";
+    abnormal: "normal" | "abnormal" | "";
     ordered: string;
     reported: string;
   }>;
@@ -25,7 +25,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
 }) => {
   if (!Array.isArray(labReports)) {
     return (
-      <div className="w-full p-4 text-center text-red-600">
+      <div className="w-full p-4 text-center text-xs font-normal text-red-600">
         Error: Expected an array of lab reports.
       </div>
     );
@@ -33,7 +33,7 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
 
   if (labReports.length === 0) {
     return (
-      <div className="w-full p-4 text-center text-gray-500">
+      <div className="w-full p-4 text-center text-xs font-light text-gray-600">
         No lab reports found
       </div>
     );
@@ -46,13 +46,13 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
           <thead className="top-0 bg-gray-50">
             <tr>
               {tableHeaders.map((header, index) => (
-                <TableHeader key={index}>{header}</TableHeader>
+                <TableHeader key={`header-${index}`}>{header}</TableHeader>
               ))}
             </tr>
           </thead>
           <tbody>
             {[...Array(5)].map((_, index) => (
-              <tr key={index} className="my-2">
+              <tr key={`skeleton-row-${index}`} className="my-2">
                 <td className="py-3">
                   <Skeleton width={150} />
                 </td>
@@ -85,13 +85,13 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
         <thead className="top-0 bg-gray-50">
           <tr>
             {tableHeaders.map((header, index) => (
-              <TableHeader key={index}>{header}</TableHeader>
+              <TableHeader key={`header-${index}`}>{header}</TableHeader>
             ))}
           </tr>
         </thead>
         <tbody>
-          {labReports.map((report) => (
-            <LabReportRow key={report.id} labReport={report} />
+          {labReports.map((report, index) => (
+            <LabReportRow key={`${report.id}-${index}`} labReport={report} />
           ))}
         </tbody>
       </table>

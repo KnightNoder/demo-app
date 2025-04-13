@@ -53,7 +53,6 @@ export const usePermissions = () => {
         }
 
         const result = await response.json();
-        console.log(result, "permissions");
 
         const hasPermission = result.permissions.some(
           (permission: any) =>

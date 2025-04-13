@@ -55,13 +55,13 @@ const AllergyTable: React.FC<AllergyTableProps> = ({
           <thead className="top-0 bg-gray-50">
             <tr>
               {tableHeaders.map((header, index) => (
-                <TableHeader key={index}>{header}</TableHeader>
+                <TableHeader key={`header-${index}`}>{header}</TableHeader>
               ))}
             </tr>
           </thead>
           <tbody>
             {[...Array(5)].map((_, index) => (
-              <tr key={index}>
+              <tr key={`skeleton-row-${index}`}>
                 <td>
                   <Skeleton width={150} />
                 </td>
@@ -97,14 +97,14 @@ const AllergyTable: React.FC<AllergyTableProps> = ({
         <thead className="top-0 bg-gray-50">
           <tr>
             {tableHeaders.map((header, index) => (
-              <TableHeader key={index}>{header}</TableHeader>
+              <TableHeader key={`header-${index}`}>{header}</TableHeader>
             ))}
           </tr>
         </thead>
         <tbody className="mt-6">
-          {allergies.map((allergy) => (
+          {allergies.map((allergy, index) => (
             <AllergyRow
-              key={allergy.id}
+              key={`${allergy.id}-${index}`}
               allergy={allergy}
               isAnyModalOpen={isAnyModalOpen}
             />

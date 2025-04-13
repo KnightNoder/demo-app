@@ -40,8 +40,13 @@ const App: React.FC = () => {
 
   // Use custom hooks
   const { insuranceWritePermission } = usePermissions();
-  const { visibleWidgets, gridItems, setGridItems, toggleWidget } =
-    useWidgets();
+  const {
+    visibleWidgets,
+    authorizedWidgets,
+    gridItems,
+    setGridItems,
+    toggleWidget,
+  } = useWidgets();
   const { isMobileView, getGridTemplateColumns } = useResponsive();
   const { modal, isAnyModalOpen, openModal, closeModal } = useModal();
   const { activeCardIndex, setActiveCardIndex, nextCard, prevCard } =
@@ -69,33 +74,42 @@ const App: React.FC = () => {
 
   // Get patient ID from input element
   useEffect(() => {
+    console.log(visibleWidgets, "visibleWidgets");
+    console.log(authorizedWidgets, "authorizedWidgets");
+
     const patientIdInput = document.querySelector<HTMLInputElement>(
       'input[name="patient_id"]'
     );
     if (patientIdInput) {
       setPatientId(patientIdInput.value);
     }
-  }, []);
+  }, [visibleWidgets, authorizedWidgets]);
 
   // Handle JWT token
   useEffect(() => {
     if ((window as any).JWT_AUTH_TOKEN) {
       setAuthToken((window as any).JWT_AUTH_TOKEN);
-      console.log(
-        "Token stored in localStorage:",
-        (window as any).JWT_AUTH_TOKEN
-      );
     }
   }, []);
 
   // Card action handler
   const handleCardAction: CardActionHandler = (action, category) => {
-    console.log(action, category, "clicked in app");
+    // Check if category is null
+    if (!category) {
+      console.warn("Category is null or undefined");
+      return;
+    }
+
+    // Only allow actions on authorized widgets
+    if (!authorizedWidgets.includes(category)) {
+      console.warn(`Widget ${category} is not authorized by ACL`);
+      return;
+    }
+
     if (action === "add") {
-      console.log(action, "action add");
       openModal(category, patientId);
     } else if (action === "view") {
-      console.log(`View history for ${category}`);
+      `View history for ${category}`;
     }
   };
 
@@ -155,10 +169,11 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
-          {/* Widget menu */}
+          {/* Widget menu - Pass the authorizedWidgets prop */}
           <WidgetMenu
             widgetOptions={widgetOptions}
             visibleWidgets={visibleWidgets}
+            authorizedWidgets={authorizedWidgets}
             toggleWidget={toggleWidget}
             isWidgetMenuOpen={isWidgetMenuOpen}
             setIsWidgetMenuOpen={setIsWidgetMenuOpen}
@@ -177,7 +192,9 @@ const App: React.FC = () => {
                   setActiveCardIndex={setActiveCardIndex}
                   nextCard={nextCard}
                   prevCard={prevCard}
-                  widgetOptions={widgetOptions}
+                  widgetOptions={widgetOptions.filter((opt) =>
+                    authorizedWidgets.includes(opt.key)
+                  )} // Filter to only authorized widgets
                   onAction={handleCardAction}
                   patientId={patientId}
                   isAnyModalOpen={isAnyModalOpen}
@@ -187,7 +204,9 @@ const App: React.FC = () => {
                 /* Desktop Grid View */
                 <DesktopView
                   gridItems={gridItems}
-                  widgetOptions={widgetOptions}
+                  widgetOptions={widgetOptions.filter((opt) =>
+                    authorizedWidgets.includes(opt.key)
+                  )} // Filter to only authorized widgets
                   onAction={handleCardAction}
                   patientId={patientId}
                   isAnyModalOpen={isAnyModalOpen}

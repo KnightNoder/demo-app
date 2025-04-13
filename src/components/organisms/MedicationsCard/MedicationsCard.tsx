@@ -12,13 +12,20 @@ interface MedicationsCardProps {
 
 const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   const dispatch = useAppDispatch();
-  const { medications, loading, error } = useAppSelector((state) => state.medications);
+  const { medications, loading, error } = useAppSelector(
+    (state) => state.medications
+  );
 
   const [activeTab, setActiveTab] = useState("Active");
 
+  // Filter medications based on refill value
+
+  const activeMedications = medications.filter((med) => med.refill === "0");
+  const otcMedications = medications.filter((med) => med.refill !== "0");
+
   const tabs = [
-    { label: "Active", count: medications.filter((med) => !med.isActive).length },
-    { label: "OTC", count: medications.filter((med) => med.isActive).length },
+    { label: "Active", count: activeMedications.length },
+    { label: "OTC", count: otcMedications.length },
   ];
 
   useEffect(() => {
@@ -56,7 +63,9 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">Oops! Something went wrong.</p>
+          <p className="text-lg font-semibold text-red-500">
+            Oops! Something went wrong.
+          </p>
           <p className="mt-2 text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
@@ -64,9 +73,9 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
     );
   }
 
-  const filteredMedications = medications.filter((med) =>
-    activeTab != "Active" ? med.isActive : !med.isActive
-  );
+  // Determine which medications to display based on active tab
+  const filteredMedications =
+    activeTab === "Active" ? activeMedications : otcMedications;
 
   return (
     <div className="bg-white rounded-lg overflow-y-auto relative">

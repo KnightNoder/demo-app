@@ -237,11 +237,11 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
               <div className="flex items-start justify-between gap-1.5">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-slate-500 truncate">
+                    <span className="text-xs font-normal text-[#020817] truncate">
                       {vital.label}
                     </span>
                     <div
-                      className={`inline-flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-gray-200 hover:bg-gray-50 rounded-md px-1 py-0.5 text-[8px] font-medium ml-1 whitespace-nowrap ${bg} ${color} ${ring}`}
+                      className={`inline-flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border border-gray-200 hover:bg-gray-50 rounded-md px-1 py-0.5 text-xs font-light ml-1 whitespace-nowrap ${bg} ${color} ${ring}`}
                     >
                       {vital.severity}
                     </div>
@@ -250,23 +250,23 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
                   {/* BP is special because it has two values */}
                   {vital.label === "Blood Pressure" ? (
                     <div className="flex items-baseline gap-0.5 mt-0.5">
-                      <span className="text-sm font-medium tracking-tight leading-none">
+                      <span className="text-sm font-normal text-[#020817] tracking-tight leading-none">
                         {vitalData?.BP_systolic || 120.7}
                       </span>
                       <span className="text-slate-300 mx-0.5">/</span>
-                      <span className="text-sm font-medium tracking-tight leading-none">
+                      <span className="text-sm font-normal text-[#020817] tracking-tight leading-none">
                         {vitalData?.BP_diastolic || 87.8}
                       </span>
-                      <span className="text-[8px] text-slate-500 ml-0.5 whitespace-nowrap">
+                      <span className="text-xs font-light text-gray-600 ml-0.5 whitespace-nowrap">
                         {vital.unit}
                       </span>
                     </div>
                   ) : (
                     <div className="flex items-baseline gap-0.5 mt-0.5">
-                      <span className="text-sm font-medium tracking-tight leading-none">
+                      <span className="text-sm font-normal text-[#020817] tracking-tight leading-none">
                         {vital.value}
                       </span>
-                      <span className="text-[8px] text-slate-500 ml-0.5 whitespace-nowrap">
+                      <span className="text-xs font-light text-gray-600 ml-0.5 whitespace-nowrap">
                         {vital.unit}
                       </span>
                     </div>
@@ -275,10 +275,10 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
               </div>
 
               <div className="flex items-center gap-0.5 mt-1">
-                {/* <span className="text-[10px] leading-none whitespace-nowrap text-slate-600">
+                {/* <span className="text-xs font-light text-gray-600 leading-none whitespace-nowrap">
                   {vital.change.split(" ")[0]}
                 </span>
-                <span className="text-[10px] text-slate-500 leading-none whitespace-nowrap">
+                <span className="text-xs font-light text-gray-600 leading-none whitespace-nowrap">
                   from last
                 </span> */}
               </div>
@@ -302,7 +302,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
 
       {/* Critical Alerts Section */}
       <div className="bg-white rounded-md mt-4 p-4 border border-gray-200 shadow-sm">
-        <h2 className="text-sm font-medium mb-3 text-gray-800">
+        <h2 className="text-sm font-normal text-[#020817] mb-3">
           Critical Alerts
         </h2>
         {criticalAlerts.length > 0 ? (
@@ -313,7 +313,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
             >
               <div className="h-2 w-2 rounded-full bg-rose-500 mt-1.5 mr-2"></div>
               <div>
-                <span className="text-sm font-light text-gray-800">
+                <span className="text-xs font-normal text-[#020817]">
                   {alert.message} -{" "}
                 </span>
                 <span className="text-xs font-light text-gray-600">
@@ -323,7 +323,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
             </div>
           ))
         ) : (
-          <div className="text-sm text-gray-600">
+          <div className="text-xs font-light text-gray-600">
             No critical alerts at this time.
           </div>
         )}
@@ -331,13 +331,13 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
 
       {/* Clinical Context Section */}
       <div className="bg-white rounded-md mt-4 p-4 border border-gray-200 shadow-sm">
-        <h2 className="text-sm font-medium mb-3 text-gray-800">
+        <h2 className="text-sm font-normal text-[#020817] mb-3">
           Clinical Context
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Baseline Vitals */}
           <div className="rounded-md p-4 border border-gray-200">
-            <h3 className="text-sm font-light mb-2 text-gray-800">
+            <h3 className="text-xs font-normal text-[#020817] mb-2">
               Baseline Vitals
             </h3>
             <div className="space-y-2">
@@ -346,7 +346,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
                   <span className="text-xs font-light text-gray-600">
                     {item.label}
                   </span>
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-xs font-normal text-[#020817]">
                     {item.value}
                   </span>
                 </div>
@@ -356,16 +356,16 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
 
           {/* Relevant Conditions */}
           <div className="rounded-md p-4 border border-gray-200">
-            <h3 className="text-xs font-light mb-2 text-gray-800">
+            <h3 className="text-xs font-normal text-[#020817] mb-2">
               Relevant Conditions
             </h3>
             <div className="space-y-2">
               {relevantConditions.map((item, index) => (
                 <div key={index} className="flex justify-between">
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-xs font-light text-gray-600">
                     {item.label}
                   </span>
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-xs font-normal text-[#020817]">
                     {item.value}
                   </span>
                 </div>

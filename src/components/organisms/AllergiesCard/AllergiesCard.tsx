@@ -22,10 +22,41 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({
 
   const [activeTab, setActiveTab] = useState("Active");
 
+  // Filter allergies based on end date
+  const today = new Date();
+
+  // Make sure we're working with a clean array by creating a new array
+  // This prevents issues if allergies are being mutated elsewhere
+  const sanitizedAllergies = [...allergies];
+
+  const activeAllergies = sanitizedAllergies.filter((allergy) => {
+    // If allergy has an end date and it's after today, or if it has no end date
+    return !allergy?.enddate || new Date(allergy?.enddate) > today;
+  });
+
+  const inactiveAllergies = sanitizedAllergies.filter((allergy) => {
+    // If allergy has an end date and it's before today
+    return allergy.enddate && new Date(allergy.enddate) <= today;
+  });
+
+  // Determine which allergies to display based on active tab
+  // Force this to be a NEW array reference each time to help with rendering
+  const allergiesForDisplay = (() => {
+    switch (activeTab) {
+      case "Active":
+        return [...activeAllergies];
+      case "Inactive":
+        return [...inactiveAllergies];
+      case "All":
+      default:
+        return [...sanitizedAllergies];
+    }
+  })();
+
   const tabs = [
-    { label: "Active", count: allergies.length },
-    { label: "Allergy", count: allergies.length },
-    { label: "Others", count: 0 },
+    { label: "Active", count: activeAllergies.length },
+    { label: "Inactive", count: inactiveAllergies.length },
+    { label: "All", count: sanitizedAllergies.length },
   ];
 
   const tableHeaders = [
@@ -35,7 +66,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({
     "Reactions",
     "Onset Date",
     "Last Updated",
-  ]; // Define headers
+  ];
 
   useEffect(() => {
     if (patientId) {
@@ -91,8 +122,10 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({
         onTabClick={setActiveTab}
       />
       <div className="mt-4">
+        {/* Add a key to force re-render when tab changes */}
         <AllergyTable
-          allergies={allergies}
+          key={`allergy-table-${activeTab}`}
+          allergies={allergiesForDisplay}
           loading={false}
           tableHeaders={tableHeaders}
           isAnyModalOpen={isAnyModalOpen}

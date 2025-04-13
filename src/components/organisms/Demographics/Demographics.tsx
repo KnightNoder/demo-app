@@ -10,7 +10,7 @@ interface DemographicsCardProps {
 
 const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
   const [tabs, setTabs] = useState<{ key: string; label: string }[]>([]);
-  const [activeTab, setActiveTab] = useState<string | null>("basic");
+  const [activeTab, setActiveTab] = useState<string | null>("Basic");
   const [basicInfoData, setBasicInfoData] = useState<any[]>([]);
   const [statsInfoData, setStatsInfoData] = useState<any[]>([]);
   const [contactInfoData, setContactInfoData] = useState<any[]>([]);
@@ -26,25 +26,39 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
         const data = response.data;
 
         if (data && typeof data === "object") {
+          // Map API's section keys to UI-friendly labels
+          const keyToLabelMap: Record<string, string> = {
+            "1Who": "Basic",
+            "2Contact": "Contact",
+            "3Choices": "Choices",
+            "4Employer": "Employment",
+            "5Stats": "Statistics",
+            "6Misc": "Miscellaneous",
+            "7Pregnancy": "Pregnancy",
+            // Add other mappings as needed
+          };
+
           const extractedTabs = Object.keys(data).map((key) => {
-            let label = key.length > 1 ? key.slice(1) : key;
-            if (key === "1Who") {
-              label = "Basic";
-            }
+            // Use our mapping or fallback to a cleaned-up version of the key
+            const label = keyToLabelMap[key] || key.replace(/^\d+/, "");
             return { key, label };
           });
+
           setTabs(extractedTabs);
 
-          // Extract data
+          // Store data by section
           if (data["1Who"]) {
             setBasicInfoData(data["1Who"]);
-            setStatsInfoData(data["5stats"]);
+          }
+          if (data["5Stats"]) {
+            setStatsInfoData(data["5Stats"]);
+          }
+          if (data["2Contact"]) {
             setContactInfoData(data["2Contact"]);
           }
 
-          if (extractedTabs.length > 0) {
-            setActiveTab(extractedTabs[0].key);
-          }
+          // Set initial active tab to "Basic" (which is stored as "1Who" in the API)
+          setActiveTab("Basic");
         } else {
           throw new Error("Invalid API response format");
         }
@@ -60,8 +74,12 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
     }
   }, [patientId]);
 
-  const handleTabClick = (key: string) => {
-    setActiveTab(key);
+  const handleTabClick = (label: string) => {
+    // Find the tab with the matching label to get its key
+    const tab = tabs.find((tab) => tab.label === label);
+    if (tab) {
+      setActiveTab(label);
+    }
   };
 
   if (loading)
@@ -101,13 +119,14 @@ const renderTabContent = (
   statsInfoData: any[],
   contactInfoData: any[]
 ) => {
+  // We now use the tab labels to determine which component to render
   switch (tabKey) {
-    case "1Who":
+    case "Basic":
       return <BasicInfo data={basicInfoData} statsData={statsInfoData} />;
-    case "2Contact":
+    case "Contact":
       return <ContactInfo data={contactInfoData} />;
-    case "3IDs":
-      return <IDsInfo data={contactInfoData} />;
+    case "Choices":
+      return <IDsInfo data={basicInfoData} />;
     default:
       return (
         <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
@@ -130,7 +149,6 @@ const renderTabContent = (
       );
   }
 };
-
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <p className="text-[10px] font-medium text-gray-600 mb-1">{children}</p>
@@ -158,20 +176,58 @@ const InfoItem = ({
 );
 
 const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
-  const firstName = data.find((item) => item.id === "fname")?.value || "";
-  const lastName = data.find((item) => item.id === "lname")?.value || "";
-  const preferredName = data.find((item) => item.id === "alias")?.value || "";
-  const dob = data.find((item) => item.id === "DOB")?.value || "";
-  const sex = data.find((item) => item.id === "sex")?.value || "";
-  const race = statsData?.find((item) => item?.id === "race")?.value || "";
+  // Extract available fields from API data
+  const firstName = data.find((item) => item.id === "fname")?.value || "--";
+  const lastName = data.find((item) => item.id === "lname")?.value || "--";
+  const preferredName = data.find((item) => item.id === "alias")?.value || "--";
+  const dob = data.find((item) => item.id === "DOB")?.value || "--";
+  const sex = data.find((item) => item.id === "sex")?.value || "--";
   const gender =
-    data.find((item) => item.id === "gender_identity")?.value || "";
-  const placeOfBirth =
-    data.find((item) => item.id === "client_birthplace")?.value || "";
+    data.find((item) => item.id === "gender_identity")?.value || "--";
+  const race = statsData?.find((item) => item?.id === "race")?.value || "--";
+  const ethnicity =
+    statsData?.find((item) => item?.id === "ethnicity")?.value || "--";
+  const language = data.find((item) => item.id === "language")?.value || "--";
+  const school = data.find((item) => item.id === "school_name")?.value || "--";
+  const courtRestriction =
+    data.find((item) => item.id === "court")?.value || "--";
+  const courtDate =
+    data.find((item) => item.id === "court_date")?.value || "--";
+
+  // Fields with no direct API mapping - using placeholders
+  const placeOfBirth = "--";
+  const citizenship = "US Citizen";
+  const religion = "--";
+  const maritalStatus = "--";
+  const livingArrangement = "--";
+  const familySize = "--";
+  const employment = "--";
+  const occupation = "--";
+  const education = "--";
+  const preferredProvider = "--";
+  const preferredPharmacy = "--";
+  const emergName = "--";
+  const emergRelation = "--";
+  const emergPhone = "--";
 
   const calculateAge = () => {
-    // Simple age calculation, in a real app you'd want more precise logic
-    return "14";
+    if (!dob || dob === "--") return "--";
+    try {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+
+      if (
+        monthDifference < 0 ||
+        (monthDifference === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+      return age.toString();
+    } catch (e) {
+      return "--";
+    }
   };
 
   return (
@@ -201,12 +257,12 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="globe" />}
               label="Place of Birth"
-              value={placeOfBirth || "Chicago, IL"}
+              value={placeOfBirth}
             />
             <InfoItem
               icon={<Icons variant="demo-id-card" />}
               label="Citizenship"
-              value="US Citizen"
+              value={citizenship}
             />
           </div>
         </div>
@@ -218,12 +274,12 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="demo-id-card" />}
               label="Birth Sex"
-              value={sex || "Male"}
+              value={sex}
             />
             <InfoItem
               icon={<Icons variant="demo-id-card" />}
               label="Gender"
-              value={gender || "Male"}
+              value={gender}
             />
             <InfoItem
               icon={<Icons variant="home" />}
@@ -234,8 +290,10 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="globe" />}
               label="Race/Ethnicity"
-              value={race || "Asian"}
-              subText="Not Hispanic or Latino"
+              value={race}
+              subText={
+                ethnicity !== "--" ? ethnicity : "Not Hispanic or Latino"
+              }
             />
           </div>
         </div>
@@ -247,12 +305,12 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="language" />}
               label="Language"
-              value="English"
+              value={language}
             />
             <InfoItem
               icon={<Icons variant="heart" />}
               label="Religion"
-              value="Buddhist"
+              value={religion}
             />
           </div>
         </div>
@@ -264,13 +322,13 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="heart" />}
               label="Marital Status"
-              value="Married"
+              value={maritalStatus}
             />
             <InfoItem
               icon={<Icons variant="home" />}
               label="Living Arrangement"
-              value="Lives with Family"
-              subText="Family Size: 4"
+              value={livingArrangement}
+              subText={`Family Size: ${familySize}`}
             />
           </div>
         </div>
@@ -282,14 +340,14 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="briefcase" />}
               label="Employment"
-              value="Full-time"
-              subText="Software Engineer"
+              value={employment}
+              subText={occupation}
             />
             <InfoItem
               icon={<Icons variant="graduation" />}
               label="Education"
-              value="Bachelor's Degree"
-              subText="University of Illinois"
+              value={education}
+              subText={school}
             />
           </div>
         </div>
@@ -301,12 +359,12 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="person" />}
               label="Preferred Provider"
-              value="Dr. Sarah Smith"
+              value={preferredProvider}
             />
             <InfoItem
               icon={<Icons variant="home" />}
               label="Preferred Pharmacy"
-              value="CVS Pharmacy - Downtown"
+              value={preferredPharmacy}
             />
           </div>
         </div>
@@ -318,42 +376,47 @@ const BasicInfo = ({ data, statsData }: { data: any[]; statsData: any[] }) => {
             <InfoItem
               icon={<Icons variant="person" />}
               label="Name & Relationship"
-              value="Jane Doe"
-              subText="Spouse"
+              value={emergName}
+              subText={emergRelation}
             />
             <InfoItem
               icon={<Icons variant="demo-phone" />}
               label="Phone"
-              value="777-777-7777"
+              value={emergPhone}
             />
           </div>
         </div>
 
         {/* Restrictions Section */}
-        <div className="col-span-2">
-          <div className="flex items-center gap-0.5">
-            <Icons variant="warning" />
-            <p className="text-[10px] text-red-500">
-              Firearm Restriction until 11/12/2024
-            </p>
+        {courtRestriction === "YES" && (
+          <div className="col-span-2">
+            <div className="flex items-center gap-0.5">
+              <Icons variant="warning" />
+              <p className="text-[10px] text-red-500">
+                Firearm Restriction{" "}
+                {courtDate !== "--" ? `until ${courtDate}` : ""}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
 const ContactInfo = ({ data }: { data: any[] }) => {
-  const street2 = data.find((item) => item.id === "street2")?.value || "";
+  // Extract available fields from API data
+  const street = data.find((item) => item.id === "street")?.value || "--";
+  const street2 = data.find((item) => item.id === "street2")?.value || "--";
+  const city = data.find((item) => item.id === "city")?.value || "--";
+  const state = data.find((item) => item.id === "state")?.value || "--";
   const postalCode =
-    data.find((item) => item.id === "postal_code")?.value || "";
-  const street = data.find((item) => item.id === "street")?.value || "";
-  const city = data.find((item) => item.id === "city")?.value || "";
-  const clientCounty =
-    data.find((item) => item.id === "client_county")?.value || "";
-  const state = data.find((item) => item.id === "state")?.value || "";
+    data.find((item) => item.id === "postal_code")?.value || "--";
+  const county =
+    data.find((item) => item.id === "client_county")?.value || "--";
   const mobileNumber =
-    data.find((item) => item.id === "phone_cell")?.value || "";
+    data.find((item) => item.id === "phone_cell")?.value || "--";
+  const email = data.find((item) => item.id === "email")?.value || "--";
 
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-4">
@@ -363,18 +426,18 @@ const ContactInfo = ({ data }: { data: any[] }) => {
           <InfoItem
             icon={<Icons variant="home" />}
             label="Address"
-            value={`${street2 ? street2 + ", " : ""}${street}, ${city}, ${state} ${postalCode}`}
-            subText={clientCounty ? `County: ${clientCounty}` : undefined}
+            value={`${street2 !== "--" ? street2 + ", " : ""}${street}, ${city}, ${state} ${postalCode}`}
+            subText={county !== "--" ? `County: ${county}` : undefined}
           />
           <InfoItem
             icon={<Icons variant="demo-phone" />}
             label="Mobile"
-            value={mobileNumber || "777-777-7777"}
+            value={mobileNumber}
           />
           <InfoItem
             icon={<Icons variant="language" />}
             label="Email"
-            value="kgollapudi@drcloudehr.com"
+            value={email}
           />
         </div>
       </div>
@@ -383,8 +446,11 @@ const ContactInfo = ({ data }: { data: any[] }) => {
 };
 
 const IDsInfo = ({ data }: { data: any[] }) => {
+  // Extract available fields from API data
+  const mrn = data.find((item) => item.id === "top_id")?.value || "--";
+  const ssn = data.find((item) => item.id === "ss")?.value || "--";
   const medicaidId =
-    data.find((item) => item.id === "Medicaid_OHP_ID")?.value || "";
+    data.find((item) => item.id === "Medicaid_OHP_ID")?.value || "--";
 
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-4">
@@ -394,17 +460,17 @@ const IDsInfo = ({ data }: { data: any[] }) => {
           <InfoItem
             icon={<Icons variant="demo-id-card" />}
             label="MRN"
-            value="74516900"
+            value={mrn !== "--" ? mrn : "74516900"}
           />
           <InfoItem
             icon={<Icons variant="demo-id-card" />}
             label="SSN"
-            value="XXX-XX-8999"
+            value={ssn}
           />
           <InfoItem
             icon={<Icons variant="demo-id-card" />}
             label="Medicaid ID"
-            value={medicaidId || "Not Available"}
+            value={medicaidId !== "--" ? medicaidId : "Not Available"}
           />
         </div>
       </div>

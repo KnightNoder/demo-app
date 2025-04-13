@@ -15,7 +15,6 @@ const CardFooter: React.FC<CardFooterProps> = ({
   hasWritePermission,
 }) => {
   const handleAddClick = () => {
-    console.log("clicked", onAction);
     if (onAction) {
       onAction("add", category ?? null);
     }

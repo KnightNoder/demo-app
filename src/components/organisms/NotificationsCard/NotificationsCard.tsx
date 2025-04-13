@@ -9,7 +9,7 @@ interface NotificationCardProps {
 }
 
 interface Notification {
-  id: number;
+  id: string; // Changed to string to ensure uniqueness
   type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER";
   priority: "High" | "Medium" | "Low";
   title: string;
@@ -122,7 +122,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     };
 
     fetchNotifications();
-  }, []);
+  }, [patientId]); // Added patientId as a dependency
 
   // Transform API data to our notification format
   const transformApiDataToNotifications = (
@@ -132,9 +132,9 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
     // Transform inbox_messages to TASK notifications
     if (data.inbox_messages) {
-      data.inbox_messages.forEach((msg) => {
+      data.inbox_messages.forEach((msg, index) => {
         allNotifications.push({
-          id: msg.id,
+          id: `task-${msg.id}-${index}`, // Create unique keys
           type: "TASK",
           priority: "Medium", // Default priority
           title: msg.subject,
@@ -146,14 +146,14 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
     // Transform inbox_reminders to REMINDER or ALERT notifications based on type
     if (data.inbox_reminders) {
-      data.inbox_reminders.forEach((reminder) => {
+      data.inbox_reminders.forEach((reminder, index) => {
         const type =
           reminder.type === "telehealth" || reminder.type === "other"
             ? "ALERT"
             : "REMINDER";
 
         allNotifications.push({
-          id: reminder.id,
+          id: `${type.toLowerCase()}-${reminder.id}-${index}`, // Create unique keys
           type,
           priority: reminder.priority as "High" | "Medium" | "Low",
           title: `${reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)} Notification`,
@@ -165,9 +165,9 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
     // Transform patient_messages to MESSAGE notifications
     if (data.patient_messages) {
-      data.patient_messages.forEach((msg) => {
+      data.patient_messages.forEach((msg, index) => {
         allNotifications.push({
-          id: msg.message_id,
+          id: `message-${msg.message_id}-${index}`, // Create unique keys
           type: "MESSAGE",
           priority: "Low", // Default priority for messages
           title: msg.subject,
@@ -179,10 +179,10 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
     // Only add person_reminders if they have valid data
     if (data.person_reminders) {
-      data.person_reminders.forEach((reminder) => {
-        if (reminder.id && reminder.message_text) {
+      data.person_reminders.forEach((reminder, index) => {
+        if (reminder.id !== null && reminder.message_text) {
           allNotifications.push({
-            id: reminder.id,
+            id: `person-reminder-${reminder.id}-${index}`, // Create unique keys
             type: "REMINDER",
             priority:
               reminder.priority === "N/A"

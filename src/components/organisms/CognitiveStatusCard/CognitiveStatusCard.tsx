@@ -16,11 +16,9 @@ interface AssessmentCardComponentProps2 {
   comments: string;
   reported_by_patient: boolean;
   type: "cognitive_status";
-  score?: string; // Added score field to match the image
+  score?: string;
   isAnyModalOpen?: boolean;
 }
-
-// Fix for the AssessmentCard component
 
 const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
   title,
@@ -52,7 +50,6 @@ const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
         </span>
       </div>
 
-      {/* Rest of your component remains the same */}
       <p className="text-gray-600 text-sm mt-1 font-light">{title}</p>
 
       <div className="text-xs text-gray-600 mt-1 font-light">
@@ -93,8 +90,6 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(isAnyModalOpen, "modal open in cog");
-
     if (patientId) {
       setLoading(true);
       axiosClient
@@ -133,9 +128,9 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
 
   return (
     <div className="w-full mx-auto space-y-3 md:space-y-4">
-      {assessments.map((item) => (
+      {assessments.map((item, index) => (
         <AssessmentCard
-          key={item.id}
+          key={`${item.id}-${index}`}
           {...item}
           isAnyModalOpen={isAnyModalOpen}
         />

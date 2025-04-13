@@ -13,7 +13,7 @@ interface Medication {
   frequency: string;
   ordered_by: string;
   begdate: string;
-  refill: number;
+  refill: string;
   dosage: string;
   interval: string;
   isActive: boolean;
@@ -27,7 +27,7 @@ interface Medication {
   frequency: string;
   ordered_by: string;
   begdate: string;
-  refill: number;
+  refill: string;
   dosage: string;
   interval: string;
   isActive: boolean;

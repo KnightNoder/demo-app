@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from "react";
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
-import Card from '../Card/Card';
-import { GridItem, CardActionHandler } from '../../../types';
-import { WidgetOption } from '../../../config/widgets';
-import Icons from '../../../assets/Icons/Icons';
+import Card from "../Card/Card";
+import { GridItem, CardActionHandler } from "../../../types";
+import { WidgetOption } from "../../../config/widgets";
+import Icons from "../../../assets/Icons/Icons";
 
 interface MobileViewProps {
   gridItems: GridItem[];
@@ -31,8 +31,35 @@ const MobileView: React.FC<MobileViewProps> = ({
   onAction,
   patientId,
   isAnyModalOpen,
-  insuranceWritePermission
+  insuranceWritePermission,
 }) => {
+  // Reference to the thumbnail container
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+  // Reference to the active thumbnail
+  const activeThumbnailRef = useRef<HTMLButtonElement>(null);
+
+  // Scroll the active thumbnail to center when active index changes
+  useEffect(() => {
+    if (thumbnailContainerRef.current && activeThumbnailRef.current) {
+      const container = thumbnailContainerRef.current;
+      const activeThumb = activeThumbnailRef.current;
+
+      // Calculate positions
+      const containerWidth = container.offsetWidth;
+      const thumbLeft = activeThumb.offsetLeft;
+      const thumbWidth = activeThumb.offsetWidth;
+
+      // Calculate the scroll position to center the active thumbnail
+      const scrollLeft = thumbLeft - containerWidth / 2 + thumbWidth / 2;
+
+      // Smooth scroll to the calculated position
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+    }
+  }, [activeCardIndex]);
+
   return (
     <div className="px-4 relative">
       {/* Only render navigation when we have items */}
@@ -57,15 +84,10 @@ const MobileView: React.FC<MobileViewProps> = ({
         </>
       )}
 
-      <SortableContext
-        items={gridItems}
-        strategy={rectSortingStrategy}
-      >
+      <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         {gridItems.length > 0 &&
           gridItems.map((item, index) => {
-            const widget = widgetOptions.find(
-              (w) => w.key === item.id
-            );
+            const widget = widgetOptions.find((w) => w.key === item.id);
             if (!widget) return null;
 
             // Only show active card
@@ -102,19 +124,67 @@ const MobileView: React.FC<MobileViewProps> = ({
           })}
       </SortableContext>
 
-      {/* Dots navigation at the bottom */}
+      {/* Mini widget thumbnails for navigation - with auto-centering of active thumbnail */}
       {gridItems.length > 1 && (
-        <div className="flex justify-center mt-14 mb-4">
-          {gridItems.map((_, index) => (
-            <button
-              key={`dot-${index}`}
-              onClick={() => setActiveCardIndex(index)}
-              className={`w-2 h-2 mx-3 rounded-full transition-colors ${
-                index === activeCardIndex ? "bg-blue-500" : "bg-gray-300"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+        <div
+          ref={thumbnailContainerRef}
+          className="flex items-center mt-14 mb-8 overflow-x-auto py-2 px-4 max-w-full scrollbar-hide"
+        >
+          {/* Give some space at the start to allow centering the first thumbnail */}
+          <div className="min-w-[calc(50%-40px)]"></div>
+
+          {/* Map through gridItems to maintain the same order */}
+          {gridItems.map((item, index) => {
+            const widget = widgetOptions.find((w) => w.key === item.id);
+            if (!widget) return null;
+
+            const isActive = index === activeCardIndex;
+
+            return (
+              <button
+                key={`thumbnail-${index}`}
+                ref={isActive ? activeThumbnailRef : null}
+                onClick={() => setActiveCardIndex(index)}
+                className={`flex flex-col items-center relative min-w-20 mx-2 transition-all ${
+                  isActive
+                    ? "transform scale-110 opacity-100"
+                    : "opacity-60 hover:opacity-80"
+                }`}
+                aria-label={`Go to ${widget.key} widget`}
+                aria-pressed={isActive}
+              >
+                <div
+                  className={`w-12 h-12 rounded-lg mb-1 flex items-center justify-center shadow-sm ${
+                    isActive
+                      ? "border-[.25px] border-[#0093D3]"
+                      : "border border-gray-200"
+                  }`}
+                  style={{ backgroundColor: widget.iconBgColor || "#0093D3" }}
+                >
+                  {widget.icon && (
+                    <div className="w-6 h-6 flex justify-center items-center">
+                      <Icons variant={widget.icon} />
+                    </div>
+                  )}
+                </div>
+                <span
+                  className={`text-xs font-medium truncate max-w-20 ${
+                    isActive ? "text-[#0093D3]" : "text-gray-600"
+                  }`}
+                >
+                  {widget.key}
+                </span>
+
+                {/* Active indicator dot */}
+                {isActive && (
+                  <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                )}
+              </button>
+            );
+          })}
+
+          {/* Give some space at the end to allow centering the last thumbnail */}
+          <div className="min-w-[calc(50%-40px)]"></div>
         </div>
       )}
     </div>
