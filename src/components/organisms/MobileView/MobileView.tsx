@@ -16,6 +16,7 @@ interface MobileViewProps {
   patientId: string | null;
   isAnyModalOpen: boolean;
   insuranceWritePermission: boolean;
+  isStrictAuditor?: boolean; // Optional prop for strict auditor
 }
 
 /**
@@ -32,6 +33,7 @@ const MobileView: React.FC<MobileViewProps> = ({
   patientId,
   isAnyModalOpen,
   insuranceWritePermission,
+  isStrictAuditor,
 }) => {
   // Reference to the thumbnail container
   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
@@ -112,6 +114,7 @@ const MobileView: React.FC<MobileViewProps> = ({
                     : widget.hasWritePermission
                 }
                 isAnyModalOpen={isAnyModalOpen}
+                isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
               >
                 {widget.component && (
                   <widget.component

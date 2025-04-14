@@ -1,7 +1,7 @@
 import DiagnosisCard from "../components/organisms/DiagnosisCard/DiagnosisCard";
 import AllergyCard from "../components/organisms/AllergiesCard/AllergiesCard";
 import MedicationsCard from "../components/organisms/MedicationsCard/MedicationsCard";
-import ClinicalNotesCard from "../components/organisms/ClinicalNotesCard/ClinicalNotesCard";
+// import ClinicalNotesCard from "../components/organisms/ClinicalNotesCard/ClinicalNotesCard";
 import InsuranceCard from "../components/organisms/InsuranceCard/InsuranceCard";
 import LabReportsCard from "../components/organisms/LabReportsCard/LabReportsCard";
 import DocumentsCard from "../components/organisms/DocumentsCard/DocumentsCard";
@@ -14,7 +14,7 @@ import VitalsCard from "../components/organisms/VitalsCard/VitalsCard";
 import DisclosuresCard from "../components/organisms/DisclosuresCard/DisclosuresCard";
 import FunctionalStatusCard from "../components/organisms/FunctionalStatusCard/FunctionalStatusCard";
 import CognitiveStatusCard from "../components/organisms/CognitiveStatusCard/CognitiveStatusCard";
-import AdvancedDirectivesCard from "../components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
+// import AdvancedDirectivesCard from "../components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
 
 // Define widget option types
 export interface WidgetOption {
@@ -48,13 +48,13 @@ export const widgetOptions: WidgetOption[] = [
     iconBgColor: "bg-orange-100",
     hasWritePermission: true,
   },
-  {
-    key: "Clinical Notes",
-    component: ClinicalNotesCard,
-    icon: "clinicalNotes",
-    iconBgColor: "bg-emerald-100",
-    hasWritePermission: true,
-  },
+  // {
+  //   key: "Clinical Notes",
+  //   component: ClinicalNotesCard,
+  //   icon: "clinicalNotes",
+  //   iconBgColor: "bg-emerald-100",
+  //   hasWritePermission: true,
+  // },
   {
     key: "Insurance",
     component: InsuranceCard,
@@ -139,13 +139,13 @@ export const widgetOptions: WidgetOption[] = [
     icon: "cognitive-status",
     hasWritePermission: true,
   },
-  {
-    key: "Advanced Directives",
-    component: AdvancedDirectivesCard,
-    iconBgColor: "bg-purple-100",
-    icon: "advanced-directives",
-    hasWritePermission: true,
-  },
+  // {
+  //   key: "Advanced Directives",
+  //   component: AdvancedDirectivesCard,
+  //   iconBgColor: "bg-purple-100",
+  //   icon: "advanced-directives",
+  //   hasWritePermission: true,
+  // },
 ];
 
 // Default visible widgets

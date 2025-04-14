@@ -31,10 +31,8 @@ interface DecodedToken {
   // add other fields as needed
 }
 
-/**
- * Converts widget key to ACL response format name
- * Example: "Clinical Notes" -> "notes", "ID/Card Photos" -> "id_card_photos"
- */
+// Define mandatory widgets that should always be visible
+const mandatoryWidgets = ["Lab Reports", "Notifications", "Demographics"];
 
 /**
  * Converts ACL name to widget key
@@ -66,15 +64,17 @@ const convertACLNameToWidgetKey = (aclName: string): string | null => {
 
 export const useWidgets = () => {
   const [visibleWidgets, setVisibleWidgets] = useState<string[]>(
-    defaultVisibleWidgets
+    [...new Set([...defaultVisibleWidgets, ...mandatoryWidgets])] // Ensure mandatory widgets are included by default
   );
   // New state to track all authorized widgets from ACL
   const [authorizedWidgets, setAuthorizedWidgets] = useState<string[]>(
-    widgetOptions.map((opt) => opt.key) // Start with all widgets authorized by default
+    [...new Set([...widgetOptions.map((opt) => opt.key), ...mandatoryWidgets])] // Ensure mandatory widgets are always authorized
   );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
+  // Add isStrictAuditor state
+  const [isStrictAuditor, setIsStrictAuditor] = useState<boolean>(false);
   const { showWidgetToast } = useWidgetToast();
 
   // Fetch ACL permissions on mount
@@ -87,7 +87,11 @@ export const useWidgets = () => {
         const token = localStorage.getItem("JWT_AUTH_TOKEN");
         if (!token) {
           console.warn("No JWT token found, using default widgets");
-          initializeGridItems(defaultVisibleWidgets);
+          // Ensure mandatory widgets are included when initializing
+          const initialWidgets = [
+            ...new Set([...defaultVisibleWidgets, ...mandatoryWidgets]),
+          ];
+          initializeGridItems(initialWidgets);
           setLoading(false);
           return;
         }
@@ -106,6 +110,12 @@ export const useWidgets = () => {
         const aclData: ACLResponse = response.data;
         console.log(aclData, "ACL Data");
 
+        // Extract and set isStrictAuditor flag from the API response
+        const strictAuditorFlag =
+          aclData.user_flags?.is_strict_auditor || false;
+        setIsStrictAuditor(strictAuditorFlag);
+        console.log("Is Strict Auditor:", strictAuditorFlag);
+
         // Get authorized widgets from ACL response (all widgets marked as visible)
         const aclAuthorizedWidgets: string[] = [];
 
@@ -123,32 +133,50 @@ export const useWidgets = () => {
 
         // If no authorized widgets were found, use the default list of widgets
         // This is for fallback safety only - in production, this should be handled according to security policy
-        const finalAuthorizedWidgets =
+        let finalAuthorizedWidgets =
           aclAuthorizedWidgets.length > 0
             ? aclAuthorizedWidgets
             : widgetOptions.map((opt) => opt.key);
 
+        // Ensure mandatory widgets are always authorized
+        finalAuthorizedWidgets = [
+          ...new Set([...finalAuthorizedWidgets, ...mandatoryWidgets]),
+        ];
         setAuthorizedWidgets(finalAuthorizedWidgets);
 
         // Filter currently visible widgets to only include authorized ones
-        const filteredVisibleWidgets = visibleWidgets.filter((widget) =>
+        let filteredVisibleWidgets = visibleWidgets.filter((widget) =>
           finalAuthorizedWidgets.includes(widget)
         );
 
+        // Ensure mandatory widgets are always visible
+        filteredVisibleWidgets = [
+          ...new Set([...filteredVisibleWidgets, ...mandatoryWidgets]),
+        ];
+
         // If no widgets are visible after filtering, use defaults (but only those that are authorized)
-        const finalVisibleWidgets =
+        let finalVisibleWidgets =
           filteredVisibleWidgets.length > 0
             ? filteredVisibleWidgets
             : defaultVisibleWidgets.filter((widget) =>
                 finalAuthorizedWidgets.includes(widget)
               );
 
+        // Ensure mandatory widgets are included in the final visible widgets
+        finalVisibleWidgets = [
+          ...new Set([...finalVisibleWidgets, ...mandatoryWidgets]),
+        ];
+
         setVisibleWidgets(finalVisibleWidgets);
         initializeGridItems(finalVisibleWidgets);
       } catch (err) {
         console.error("Error fetching ACL permissions:", err);
         setError("Failed to load widget permissions");
-        initializeGridItems(defaultVisibleWidgets);
+        // Ensure mandatory widgets are included even when there's an error
+        const fallbackWidgets = [
+          ...new Set([...defaultVisibleWidgets, ...mandatoryWidgets]),
+        ];
+        initializeGridItems(fallbackWidgets);
       } finally {
         setLoading(false);
       }
@@ -167,6 +195,12 @@ export const useWidgets = () => {
   };
 
   const toggleWidget = (widgetKey: string) => {
+    // Prevent toggling of mandatory widgets
+    if (mandatoryWidgets.includes(widgetKey)) {
+      console.warn(`Widget ${widgetKey} is mandatory and cannot be toggled`);
+      return;
+    }
+
     // Only allow toggling if the widget is authorized
     if (!authorizedWidgets.includes(widgetKey)) {
       console.warn(`Widget ${widgetKey} is not authorized by ACL`);
@@ -198,12 +232,18 @@ export const useWidgets = () => {
 
   return {
     visibleWidgets,
-    setVisibleWidgets,
+    setVisibleWidgets: (widgets: string[]) => {
+      // Ensure mandatory widgets are always included when setting visible widgets programmatically
+      const updatedWidgets = [...new Set([...widgets, ...mandatoryWidgets])];
+      setVisibleWidgets(updatedWidgets);
+    },
     authorizedWidgets, // Expose the list of authorized widgets
     gridItems,
     setGridItems,
     toggleWidget,
     loading,
     error,
+    mandatoryWidgets, // Expose the list of mandatory widgets
+    isStrictAuditor, // Expose the strict auditor flag
   };
 };

@@ -23,6 +23,7 @@ interface CardProps {
   iconBgColor?: string;
   hasWritePermission?: boolean;
   isAnyModalOpen?: boolean;
+  isStrictAuditor?: boolean; // Optional prop for strict auditor
 }
 
 const Card: React.FC<CardProps> = ({
@@ -39,6 +40,7 @@ const Card: React.FC<CardProps> = ({
   iconBgColor,
   hasWritePermission,
   isAnyModalOpen,
+  isStrictAuditor,
 }) => {
   const [size, setSize] = useState({ width: "100%", height: 500 });
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -326,6 +328,7 @@ const Card: React.FC<CardProps> = ({
                   onAction={onAction}
                   patientId={patientId}
                   hasWritePermission={hasWritePermission}
+                  isStrictAuditor={isStrictAuditor}
                 />
               ) : (
                 <div className="h-8 bg-gray-100 animate-pulse" />
@@ -400,6 +403,7 @@ const Card: React.FC<CardProps> = ({
                 patientId={patientId}
                 onAction={onAction}
                 hasWritePermission={hasWritePermission}
+                isStrictAuditor={isStrictAuditor}
               />
             </div>
           )}

@@ -52,8 +52,8 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
   };
 
   // Function to determine if an item is revoked (for demo purpose)
-  const isRevoked = (item: ConsentForm2) => {
-    return item.id % 5 === 0; // This is just a demo logic, replace with real logic
+  const isRevoked = (_: ConsentForm2) => {
+    return false; // This is just a demo logic, replace with real logic
   };
 
   // Calculate status for an item based on date and revoked condition

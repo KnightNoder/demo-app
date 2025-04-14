@@ -7,13 +7,17 @@ interface CardFooterProps {
   patientId?: string | null;
   onAction?: (action: "add" | "view", category: string | null) => void;
   hasWritePermission?: boolean;
+  isStrictAuditor?: boolean;
 }
 
 const CardFooter: React.FC<CardFooterProps> = ({
   category,
   onAction,
-  hasWritePermission,
+  // hasWritePermission,
+  isStrictAuditor,
 }) => {
+  console.log(isStrictAuditor, "in footer");
+
   const handleAddClick = () => {
     if (onAction) {
       onAction("add", category ?? null);
@@ -31,7 +35,7 @@ const CardFooter: React.FC<CardFooterProps> = ({
       <div className="footer h-14 bg-white/95 backdrop-blur rounded-b-lg">
         <div className="relative h-full">
           <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
-            {hasWritePermission && (
+            {!isStrictAuditor && (
               <Button
                 variant="primary"
                 dataCy="data-primary"

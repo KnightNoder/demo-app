@@ -46,6 +46,7 @@ const App: React.FC = () => {
     gridItems,
     setGridItems,
     toggleWidget,
+    isStrictAuditor, // Access the isStrictAuditor flag
   } = useWidgets();
   const { isMobileView, getGridTemplateColumns } = useResponsive();
   const { modal, isAnyModalOpen, openModal, closeModal } = useModal();
@@ -76,6 +77,7 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log(visibleWidgets, "visibleWidgets");
     console.log(authorizedWidgets, "authorizedWidgets");
+    console.log(isStrictAuditor, "isStrictAuditor"); // Log the isStrictAuditor flag
 
     const patientIdInput = document.querySelector<HTMLInputElement>(
       'input[name="patient_id"]'
@@ -83,7 +85,7 @@ const App: React.FC = () => {
     if (patientIdInput) {
       setPatientId(patientIdInput.value);
     }
-  }, [visibleWidgets, authorizedWidgets]);
+  }, [visibleWidgets, authorizedWidgets, isStrictAuditor]);
 
   // Handle JWT token
   useEffect(() => {
@@ -199,6 +201,7 @@ const App: React.FC = () => {
                   patientId={patientId}
                   isAnyModalOpen={isAnyModalOpen}
                   insuranceWritePermission={insuranceWritePermission}
+                  isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
                 />
               ) : (
                 /* Desktop Grid View */
@@ -212,6 +215,7 @@ const App: React.FC = () => {
                   isAnyModalOpen={isAnyModalOpen}
                   insuranceWritePermission={insuranceWritePermission}
                   gridTemplateColumns={getGridTemplateColumns()}
+                  isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
                 />
               )}
             </div>

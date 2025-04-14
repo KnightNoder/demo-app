@@ -12,6 +12,7 @@ interface DesktopViewProps {
   isAnyModalOpen: boolean;
   insuranceWritePermission: boolean;
   gridTemplateColumns: string;
+  isStrictAuditor?: boolean; // Optional prop for strict auditor
 }
 
 /**
@@ -24,7 +25,8 @@ const DesktopView: React.FC<DesktopViewProps> = ({
   patientId,
   isAnyModalOpen,
   insuranceWritePermission,
-  gridTemplateColumns
+  gridTemplateColumns,
+  isStrictAuditor, // Destructure the prop here
 }) => {
   return (
     <div
@@ -54,6 +56,7 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                   ? insuranceWritePermission
                   : widget.hasWritePermission
               }
+              isStrictAuditor={isStrictAuditor} // Now this is defined
             >
               {widget.component && (
                 <widget.component
