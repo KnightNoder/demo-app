@@ -9,7 +9,8 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-const baseURL = 'https://qa-phoenix.drcloudemr.com/api';
+// const baseURL = 'https://qa-phoenix.drcloudemr.com/api';
+const baseURL = import.meta.env.VITE_API_URL;
 
 const api: AxiosInstance = axios.create({
   baseURL,
