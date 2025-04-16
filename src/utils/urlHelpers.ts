@@ -9,7 +9,7 @@ export const getCategoryUrl = (
     case "Allergies":
       return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=allergy`;
     case "Appointments":
-      return `${import.meta.env.VITE_V1_URL}/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
+      return `${import.meta.env.VITE_V1_URL}/interface/main/calendar/add_edit_event2.php?startampm=1&starttimeh=6&starttimem=0&patientid=${patientId}&ptype=patient`;
     case "Diagnosis":
       return `${import.meta.env.VITE_V1_URL}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=medical_problem`;
     case "Advanced Directive":

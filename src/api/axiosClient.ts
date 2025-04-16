@@ -6,7 +6,7 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
     sitename: import.meta.env.VITE_SITE_NAME,
     Authorization: `Bearer ${localStorage.getItem("JWT_AUTH_TOKEN")}`,
-    // Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzQ0NjIyMjIyLCJleHAiOjE3NDQ2MjU4MjJ9.--vy-iRDkdyBOrnoTgC4jNMY7tHJG_2KaIK2lp2HDcc`,
+    // Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iXSwiaWF0IjoxNzQ0Nzg1MDkzLCJleHAiOjE3NDQ3ODg2OTN9.NRcyT0iouuquHrB4j0llG8ldWHHCLyyymQQtzJ8qvHk`,
   },
 });
 
