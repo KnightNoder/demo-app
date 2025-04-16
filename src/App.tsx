@@ -181,6 +181,7 @@ const App: React.FC = () => {
             setIsWidgetMenuOpen={setIsWidgetMenuOpen}
             isMobileView={isMobileView}
             isAnyModalOpen={isAnyModalOpen}
+            patientId={patientId}
           />
 
           {/* Grid Container */}
