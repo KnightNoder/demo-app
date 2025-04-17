@@ -25,9 +25,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
   isSmallScreen
 }) => {
   return (
-    <div
-      className="relative flex items-center"
-    >
+    <div className="relative flex flex-col items-center">
       {/* Search input */}
       <div className="relative flex items-center w-full">
         <Icons variant="search" />
