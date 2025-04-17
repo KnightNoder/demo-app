@@ -2,6 +2,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 export const setAuthToken = (token: string | null) => {
+  console.log('Setting auth token:', token ? 'Token present' : 'No token');
   if (token) {
     localStorage.setItem("JWT_AUTH_TOKEN", token);
   } else {
@@ -48,12 +49,18 @@ const decodeToken = (token: string) => {
 };
 
 // Function to get token from localStorage
-const getToken = () => localStorage.getItem('JWT_AUTH_TOKEN');
+export const getToken = () => {
+  const token = localStorage.getItem('JWT_AUTH_TOKEN');
+  console.log('Getting token:', token ? 'Token present' : 'No token');
+  return token;
+};
 
 
 // Refresh the JWT token by calling legacy-bridge API
 const refreshToken = async (): Promise<string> => {
+  console.log('Starting token refresh');
   if (isRefreshing) {
+    console.log('Token refresh already in progress, subscribing to refresh');
     return new Promise(resolve => {
       subscribeTokenRefresh(resolve);
     });
@@ -87,6 +94,7 @@ const refreshToken = async (): Promise<string> => {
     }
 
     const newToken = response.data.token;
+    console.log('Token refresh successful, new token received');
     setAuthToken(newToken);
     onTokenRefreshed(newToken);
     isRefreshing = false;
@@ -108,23 +116,26 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
     const now = Math.floor(Date.now() / 1000);
     const expiresAt = decoded?.exp || 0;
 
+    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`[Token Status] Expires in: ${expiresAt - now} seconds`);
+
     if (expiresAt - now < 120 && expiresAt > now) {
-      // Token expiring soon; refresh
+      console.log('[Token] About to expire, refreshing...');
       const newToken = await refreshToken();
       config.headers.Authorization = `Bearer ${newToken}`;
-      console.log(newToken, "Token was about to expire, newToken");
+      console.log('[Token] Refreshed successfully');
     } else if (expiresAt <= now) {
-      // Token already expired; try refresh anyway
+      console.log('[Token] Already expired, attempting refresh...');
       try {
         const newToken = await refreshToken();
         config.headers.Authorization = `Bearer ${newToken}`;
-        console.log(newToken, "Token already expired, newToken");
+        console.log('[Token] Refreshed after expiration');
       } catch (e) {
-        console.warn('Proceeding with expired token:', e);
+        console.warn('[Token] Failed to refresh expired token:', e);
         config.headers.Authorization = `Bearer ${token}`;
       }
     } else {
-      // Token is still valid
+      console.log('[Token] Valid, using existing token');
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
