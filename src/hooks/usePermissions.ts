@@ -44,11 +44,7 @@ export const usePermissions = () => {
 
       try {
         const response = await fetch(
-<<<<<<< HEAD
-          `https://staging.qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
-=======
           `${import.meta.env.VITE_API_URL}/acl?username=${username}`,
->>>>>>> master
           requestOptions
         );
 
