@@ -73,7 +73,8 @@ const refreshToken = async (): Promise<string> => {
       username: decoded.username,
     }, {
       headers: {
-        'sitename': 'current', // Add site context header if required
+        //'sitename': 'current', // Add site context header if required
+      'sitename': import.meta.env.VITE_SITE_NAME,
       },
       timeout: 5000,
     });
@@ -108,11 +109,13 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
       // Token expiring soon; refresh
       const newToken = await refreshToken();
       config.headers.Authorization = `Bearer ${newToken}`;
+      console.log(newToken, "Token was about to expire, newToken");
     } else if (expiresAt <= now) {
       // Token already expired; try refresh anyway
       try {
         const newToken = await refreshToken();
         config.headers.Authorization = `Bearer ${newToken}`;
+        console.log(newToken, "Token already expired, newToken");
       } catch (e) {
         console.warn('Proceeding with expired token:', e);
         config.headers.Authorization = `Bearer ${token}`;
