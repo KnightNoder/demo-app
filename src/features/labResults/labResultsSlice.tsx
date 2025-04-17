@@ -6,7 +6,7 @@ interface LabReport {
   test: string;
   result: string;
   range: string;
-  status: "normal" | "abnormal" | "critical";
+  abnormal: "normal" | "abnormal" | "";
   ordered: string;
   reported: string;
 }

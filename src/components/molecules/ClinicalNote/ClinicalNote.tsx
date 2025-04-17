@@ -17,18 +17,18 @@ const ClinicalNoteItem: React.FC<ClinicalNoteItemProps> = ({
 }) => (
   <Item>
     <div>
-      {/* Title with consistent font weight and size */}
+      {/* Title with standardized font styling */}
       <h2 className="text-sm font-normal text-[#020817]">{title}</h2>
 
-      {/* Author and time with icon */}
-      <p className="flex items-center gap-2 mt-2 text-xs font-light text-gray-500">
+      {/* Author and time with icon - styled consistently with other components */}
+      <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
         <Icons variant="doctor" />
-        <span className="text-[#020817]">
+        <span>
           {author} • {time}
         </span>
-      </p>
+      </div>
 
-      {/* Content */}
+      {/* Content - standardized to match other descriptive text */}
       <p className="mt-2 text-xs font-light text-gray-600">{content}</p>
     </div>
   </Item>

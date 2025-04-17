@@ -1,10 +1,16 @@
 // src/services/api.ts
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-// Base API URL
-const baseURL = 'https://staging.qa-phoenix.drcloudemr.com/api';
-// Login redirect URL from .env or fallback
-const LOGIN_URL = import.meta.env.VITE_LOGIN_URL || '/login';
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    localStorage.setItem("JWT_AUTH_TOKEN", token);
+  } else {
+    localStorage.removeItem("JWT_AUTH_TOKEN");
+  }
+};
+
+// const baseURL = 'https://qa-phoenix.drcloudemr.com/api';
+const baseURL = import.meta.env.VITE_API_URL;
 
 // Create the main Axios instance for all API calls
 const api: AxiosInstance = axios.create({
@@ -44,14 +50,6 @@ const decodeToken = (token: string) => {
 // Function to get token from localStorage
 const getToken = () => localStorage.getItem('JWT_AUTH_TOKEN');
 
-// Function to save token to localStorage
-export const setAuthToken = (token: string | null) => {
-  if (token) {
-    localStorage.setItem('JWT_AUTH_TOKEN', token);
-  } else {
-    localStorage.removeItem('JWT_AUTH_TOKEN');
-  }
-};
 
 // Refresh the JWT token by calling legacy-bridge API
 const refreshToken = async (): Promise<string> => {
@@ -142,13 +140,13 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        console.error('Redirecting to login due to failed refresh:', refreshError);
+        console.error('Redirect to login due to failed refresh:', refreshError);
         // Redirect in iframe-safe way
-        if (typeof window.top !== 'undefined' && window.top !== window.self && window.top !== null) {
-          window.top.location.href = LOGIN_URL;
-        } else {
-          window.location.href = LOGIN_URL;
-        }
+        // if (typeof window.top !== 'undefined' && window.top !== window.self && window.top !== null) {
+        //   window.top.location.href = LOGIN_URL;
+        // } else {
+        //   window.location.href = LOGIN_URL;
+        // }
       }
     }
 

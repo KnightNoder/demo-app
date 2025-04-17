@@ -82,10 +82,10 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">
+          <p className="text-sm font-normal text-[#020817]">
             Oops! Something went wrong.
           </p>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
       </div>
@@ -94,18 +94,30 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
 
   if (!Array.isArray(prescriptions)) {
     return (
-      <div className="w-full p-4 text-center text-red-600">
+      <div className="w-full p-4 text-center text-xs font-light text-gray-600">
         Error: Expected an array of prescriptions.
       </div>
     );
   }
 
+  const activeCount = prescriptions.filter(
+    (prescription) => prescription.active === 1
+  ).length;
+
   const tabs = [
-    { label: "Active", count: 3 },
+    { label: "Active", count: activeCount },
     { label: "High Risk", count: 0 },
     { label: "Needs Review", count: 0 },
-    { label: "All", count: 3 },
+    { label: "All", count: prescriptions.length },
   ];
+
+  const filteredPrescriptions =
+    activeTab === "All"
+      ? prescriptions
+      : activeTab === "Active"
+        ? prescriptions.filter((prescription) => prescription.active === 1)
+        : [];
+
   return (
     <div className="bg-white rounded-lg overflow-y-auto relative">
       <TabListHeader
@@ -113,12 +125,12 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
         activeTab={activeTab}
         onTabClick={setActiveTab}
       />
-      {prescriptions.length > 0 ? (
-        prescriptions.map((prescription) => (
+      {filteredPrescriptions.length > 0 ? (
+        filteredPrescriptions.map((prescription) => (
           <PrescriptionItem key={prescription.id} prescription={prescription} />
         ))
       ) : (
-        <div className="w-full h-[320px] p-4 text-center text-gray-500">
+        <div className="w-full h-[320px] p-4 text-center text-xs font-light text-gray-600">
           No Prescriptions found
         </div>
       )}

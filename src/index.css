@@ -108,3 +108,7 @@ body {
     grid-template-columns: repeat(4, 1fr);
   }
 } */
+
+/* [role="progressbar"],.Toastify__progress-bar--wrp,.Toastify__progress-bar--default {
+  background-color: #0093D3 !important;
+} */

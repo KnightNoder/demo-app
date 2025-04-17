@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface Notification {
-  id: number;
+  id: string;
   type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER";
   priority: "High" | "Medium" | "Low";
   title: string;
@@ -16,6 +16,7 @@ interface Props {
 const NotificationItem: React.FC<Props> = ({ notification }) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  // Define icons for each notification type
   const iconMap = {
     ALERT: (
       <svg
@@ -70,6 +71,7 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
     ),
   };
 
+  // Define border colors for each notification type
   const borderColor = {
     ALERT: "border-l-yellow-500",
     TASK: "border-l-blue-500",
@@ -77,6 +79,7 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
     REMINDER: "border-l-purple-500",
   };
 
+  // Define background/text colors for each priority level
   const priorityColors = {
     High: "bg-red-50 text-red-600",
     Medium: "bg-yellow-50 text-yellow-600",
@@ -85,7 +88,9 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
 
   return (
     <div
-      className={`relative flex my-3 flex-col p-4 bg-white rounded-lg shadow-sm border-l-4 transition-all duration-200 ${borderColor[notification.type]}`}
+      className={`relative flex my-3 mx-3 flex-col p-4 bg-white rounded-lg shadow-sm border-l-4 transition-all duration-200 ${
+        borderColor[notification.type]
+      }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -97,7 +102,9 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
         </span>
         {notification.priority !== "Low" && (
           <span
-            className={`px-2 py-0.5 text-xs rounded-full font-extralight ${priorityColors[notification.priority]}`}
+            className={`px-2 py-0.5 text-xs rounded-full font-extralight ${
+              priorityColors[notification.priority]
+            }`}
           >
             {notification.priority} Priority
           </span>
@@ -111,7 +118,9 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
 
       {/* Description */}
       <p className="mt-1 text-xs font-light text-gray-600">
-        {notification.description}
+        {notification.description.length > 100
+          ? `${notification.description.substring(0, 100)}...`
+          : notification.description}
       </p>
 
       {/* Footer - Time and Actions */}
@@ -120,7 +129,7 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
           {notification.time}
         </div>
 
-        {/* Buttons */}
+        {/* Action Buttons - visible on hover */}
         <div
           className={`flex gap-2 transition-all duration-300 ${
             isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"

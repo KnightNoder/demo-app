@@ -16,17 +16,13 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
     (state) => state.labReports
   );
 
-  const [activeTab, setActiveTab] = useState("Recent");
+  const [activeTab, setActiveTab] = useState("All");
 
   const tabs = [
-    { label: "Recent", count: labReports.length },
+    { label: "All", count: labReports.length },
     {
-      label: "Pending",
-      count: labReports.filter((r) => r.status !== "normal").length,
-    },
-    {
-      label: "Completed",
-      count: labReports.filter((r) => r.status === "normal").length,
+      label: "Abnormal",
+      count: labReports.filter((r) => r.abnormal !== "normal").length,
     },
   ];
 
@@ -75,10 +71,10 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-lg font-semibold text-red-500">
+          <p className="text-sm font-normal text-[#020817]">
             Oops! Something went wrong.
           </p>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
         <Skeleton height={50} width={180} />
       </div>

@@ -13,6 +13,59 @@ interface InsuranceCardProps {
   patientId: string | null
 }
 
+// Create a utility function to extract financial data from insurance
+const extractFinancialData = (insurances: any) => {
+  // Default empty data
+  const financialData = {
+    deductible: {
+      individual: "--",
+      family: "--",
+      remaining: "--"
+    },
+    outOfPocket: {
+      individual: "--",
+      family: "--",
+      remaining: "--"
+    }
+  };
+
+  // Make sure insurances is an array before using array methods
+  if (!Array.isArray(insurances)) {
+    return financialData;
+  }
+
+  // Find primary insurance if available
+  const primaryInsurance = insurances.find(
+    insurance => insurance?.type?.toLowerCase() === "primary"
+  );
+
+  // Extract deductible information from API data if available
+  if (primaryInsurance) {
+    // Set deductible data if available from API
+    if (primaryInsurance.deductible_amount) {
+      financialData.deductible.individual = primaryInsurance.deductible_amount;
+    }
+    
+    // Set out-of-pocket data if available
+    // Note: API might not provide this information, so we're using placeholders
+    
+    // For any data that's provided directly by the API, use it instead of placeholders
+    if (primaryInsurance.deductible_met) {
+      financialData.deductible.remaining = primaryInsurance.deductible_met;
+    }
+    
+    if (primaryInsurance.deductibleRemaining) {
+      financialData.deductible.remaining = primaryInsurance.deductibleRemaining;
+    }
+    
+    if (primaryInsurance.outOfPocketRemaining) {
+      financialData.outOfPocket.remaining = primaryInsurance.outOfPocketRemaining;
+    }
+  }
+
+  return financialData;
+};
+
 const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -29,6 +82,9 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
       dispatch(fetchInsuranceData(patientId));
     }
   }, [dispatch, patientId]);
+
+  // Extract financial data from the insurance data
+  const financialData = extractFinancialData(insuranceData);
 
   if (loading) {
     return (
@@ -60,7 +116,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           </div>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-sm font-normal text-red-500">
+          <p className="text-sm font-normal text-[#020817]">
             Oops! Something went wrong.
           </p>
           <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
@@ -83,7 +139,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           setActiveTab(label as "Summary" | "Coverage" | "Financials")
         }
       />
-      {insuranceData.length ? (
+      {Array.isArray(insuranceData) && insuranceData.length > 0 ? (
         <>
           {activeTab === "Summary" && (
             <InsuranceSection insurances={insuranceData} />
@@ -93,21 +149,13 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           )}
           {activeTab === "Financials" && (
             <Financials
-              deductible={{
-                individual: 2000,
-                family: 4000,
-                remaining: 1500,
-              }}
-              outOfPocket={{
-                individual: 5000,
-                family: 10000,
-                remaining: 4000,
-              }}
+              deductible={financialData.deductible}
+              outOfPocket={financialData.outOfPocket}
             />
           )}
         </>
       ) : (
-        <div className="w-full p-4 text-center text-xs font-light text-gray-500">
+        <div className="w-full p-4 text-center text-xs font-light text-gray-600">
           No Insurances found
         </div>
       )}

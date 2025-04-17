@@ -22,7 +22,6 @@ export const useModal = () => {
       event: CustomEvent<{ isOpen: boolean }>
     ) => {
       const { isOpen } = event.detail;
-      console.log("Modal state changed:", isOpen);
       setIsAnyModalOpen(isOpen);
     };
 

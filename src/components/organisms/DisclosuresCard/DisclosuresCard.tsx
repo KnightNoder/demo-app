@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axiosClient from "../../../../src/api/axiosClient";
 import GenericTableRow from "../../molecules/Row/Row";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
@@ -14,6 +14,7 @@ interface ConsentForm2 {
   description: string;
   patient_name: string;
   user_name: string;
+  status?: string; // Add optional status field for filtering
 }
 
 interface ColumnConfig<T> {
@@ -32,12 +33,42 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const tabs = [
-    { label: "Active", count: 6 },
-    { label: "Expired", count: 1 },
-    { label: "Revoked", count: 1 },
-    { label: "All", count: 8 },
-  ];
+  // Calculate tab counts based on filtered data
+  const getTabCounts = (data: ConsentForm2[]) => {
+    const today = new Date();
+
+    const active = data.filter(
+      (item) => new Date(item.date) > today && !isRevoked(item)
+    );
+    const expired = data.filter((item) => new Date(item.date) < today);
+    const revoked = data.filter((item) => isRevoked(item));
+
+    return {
+      Active: active.length,
+      Expired: expired.length,
+      Revoked: revoked.length,
+      All: data.length,
+    };
+  };
+
+  // Function to determine if an item is revoked (for demo purpose)
+  const isRevoked = (_: ConsentForm2) => {
+    return false; // This is just a demo logic, replace with real logic
+  };
+
+  // Calculate status for an item based on date and revoked condition
+  const calculateStatus = (item: ConsentForm2): string => {
+    const today = new Date();
+    const itemDate = new Date(item.date);
+
+    if (isRevoked(item)) {
+      return "Revoked";
+    } else if (itemDate < today) {
+      return "Expired";
+    } else {
+      return "Active";
+    }
+  };
 
   useEffect(() => {
     const fetchDisclosures = async () => {
@@ -46,7 +77,14 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
         const response = await axiosClient.get(
           `/disclosures?patient_id=${patientId}`
         );
-        setConsentData(response.data);
+
+        // Add calculated status to each item
+        const dataWithStatus = response.data.map((item: ConsentForm2) => ({
+          ...item,
+          status: calculateStatus(item),
+        }));
+
+        setConsentData(dataWithStatus);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -55,6 +93,36 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
     };
     fetchDisclosures();
   }, [patientId]);
+
+  // Create dynamic tabs with updated counts
+  const tabs = useMemo(() => {
+    const counts = getTabCounts(consentData);
+    return [
+      { label: "Active", count: counts.Active },
+      { label: "Expired", count: counts.Expired },
+      { label: "Revoked", count: counts.Revoked },
+      { label: "All", count: counts.All },
+    ];
+  }, [consentData]);
+
+  // Filter data based on active tab
+  const filteredData = useMemo(() => {
+    const today = new Date();
+
+    switch (activeTab) {
+      case "Active":
+        return consentData.filter(
+          (item) => new Date(item.date) > today && !isRevoked(item)
+        );
+      case "Expired":
+        return consentData.filter((item) => new Date(item.date) < today);
+      case "Revoked":
+        return consentData.filter((item) => isRevoked(item));
+      case "All":
+      default:
+        return consentData;
+    }
+  }, [consentData, activeTab]);
 
   // Reusable pill styling function similar to AllergyRow
   const getPillStyle = (type: string, value: string) => {
@@ -125,17 +193,11 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
       render: (value) => getPillStyle("type", String(value)),
     },
     {
-      key: "description", // In a real app, this would be a status field
+      key: "status",
       label: "STATUS",
-      // For demo purposes, mapping description to a status value
-      render: (row) => {
-        // Determine status based on activeTab or some logic
-        // This is just a placeholder - in a real app you'd use actual status data
-        let status = "Active";
-        if (row.id % 3 === 1) status = "Expired";
-        if (row.id % 5 === 0) status = "Revoked";
-
-        return getPillStyle("status", status);
+      render: (_, row) => {
+        // Use the calculated status stored on the item
+        return getPillStyle("status", row.status || calculateStatus(row));
       },
     },
     {
@@ -200,7 +262,7 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
           />
           <Table
             headers={columnConfig.map((col) => col.label ?? "")}
-            data={consentData}
+            data={filteredData}
             loading={loading}
             renderRow={(row, index) => (
               <GenericTableRow

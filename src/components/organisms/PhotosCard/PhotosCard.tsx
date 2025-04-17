@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
-import PatientCard from "../../molecules/PatientCard/PatientCard";
 import PhotoGalleryComponent from "../../molecules/PhotoGallery/PhotoGallery";
 import axiosClient from "../../../api/axiosClient";
+
+// Import our styled PatientCard component
+import PatientCard from "../../molecules/PatientCard/PatientCard";
 
 interface PhotosCardProps {
   patientId: string | null;
@@ -15,24 +17,8 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   const [error, setError] = useState<string | null>(null);
   const [patientImageUrl, setPatientImageUrl] = useState<string>("");
   const [activeTab, setActiveTab] = useState("Patient ID Card");
-  const patientPhotos = [
-    {
-      id: 1,
-      src: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&amp;auto=format%22%20alt=%22Patient%20ID%20Photo",
-    },
-    {
-      id: 1,
-      src: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&amp;auto=format%22%20alt=%22Patient%20ID%20Photo",
-    },
-    {
-      id: 1,
-      src: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&amp;auto=format%22%20alt=%22Patient%20ID%20Photo",
-    },
-    {
-      id: 1,
-      src: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500&amp;auto=format%22%20alt=%22Patient%20ID%20Photo",
-    },
-  ];
+  const patientPhotos: any[] = [];
+
   useEffect(() => {
     if (patientId) {
       setLoading(true);
@@ -40,9 +26,25 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
         .get(`/documents/patient-photo`, {
           params: { patient_id: patientId, category_id: 5 },
         })
-        .then((response) => {
-          setLoading(false);
-          setPatientImageUrl(response.data?.url);
+        .then(async (response) => {
+          try {
+            // Decode the URL from the first response
+            const decodedUrl = decodeURIComponent(response.data?.url);
+
+            // Make a second API call to the decoded URL
+            const secondResponse = await axiosClient.get(decodedUrl, {
+              responseType: "blob",
+            });
+
+            const blobUrl = URL.createObjectURL(secondResponse.data);
+
+            // Set the actual image URL from the second response
+            setPatientImageUrl(blobUrl);
+            setLoading(false);
+          } catch (err: any) {
+            setError(err.message || "Error processing image URL");
+            setLoading(false);
+          }
         })
         .catch((err) => {
           setError(err.message);
@@ -53,14 +55,13 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg">
+      <div className="bg-white rounded-lg p-4">
         <div className="flex mb-4 gap-1.5 justify-between">
           <Skeleton height={40} width={220} />
           <Skeleton height={40} width={220} />
         </div>
         <div className="mt-4">
-          <Skeleton height={120} style={{ marginTop: "10px" }} />
-          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={200} style={{ marginTop: "10px" }} />
         </div>
       </div>
     );
@@ -75,7 +76,6 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
           </p>
           <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
-        <Skeleton height={50} width={180} />
       </div>
     );
   }
@@ -83,7 +83,7 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   const tabs = [{ label: "Patient ID Card" }, { label: "Photos" }];
 
   return (
-    <div className="bg-white rounded-lg">
+    <div className="bg-white rounded-lg p-4">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}

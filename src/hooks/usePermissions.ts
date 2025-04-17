@@ -44,7 +44,11 @@ export const usePermissions = () => {
 
       try {
         const response = await fetch(
+<<<<<<< HEAD
           `https://staging.qa-phoenix.drcloudemr.com/api/acl?username=${username}`,
+=======
+          `${import.meta.env.VITE_API_URL}/acl?username=${username}`,
+>>>>>>> master
           requestOptions
         );
 
@@ -53,7 +57,6 @@ export const usePermissions = () => {
         }
 
         const result = await response.json();
-        console.log(result, "permissions");
 
         const hasPermission = result.permissions.some(
           (permission: any) =>

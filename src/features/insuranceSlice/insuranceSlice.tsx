@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface InsuranceData {
-  id: string;
+// Insurance interface based on the API response structure
+interface Insurance {
+  id: number | string;
   type: string;
-  provider: string;
   plan_name: string;
   policy_number: string;
   group_number: string;
@@ -20,30 +20,35 @@ interface InsuranceData {
     country: string;
     phone: string;
     employer: string;
-  }
-  relationship: string;
-  validity: string;
-  contact: string;
-  lastVerified: string;
-  deductibleRemaining: string;
-  outOfPocketRemaining: string;
-  status: string;
-  effective_date: string;
-  termination_date: string
-  copays: {
-    primaryCare: string;
-    specialistVisit: string;
-    urgentCare: string;
-    emergencyRoom: string;
   };
-  coverage: { name: string; covered: boolean; note?: string }[];
+  user?: {
+    first_name: string;
+    middle_name?: string;
+    last_name: string;
+  };
   insurance_company: {
     name: string;
   };
+  facility?: string;
+  copay?: string;
+  copay_notes?: string;
+  effective_date: string;
+  termination_date: string;
+  policy_type?: string;
+  deductible_amount?: string;
+  deductible_met?: string;
+  coinsurance?: string;
+  notes?: string;
+
+  // Fields for UI display that might need to be derived from API data
+  status?: string;
+  lastVerified?: string;
+  deductibleRemaining?: string;
+  outOfPocketRemaining?: string;
 }
 
 interface InsuranceState {
-  data: InsuranceData[];
+  data: Insurance[];
   loading: boolean;
   error: string | null;
 }
@@ -58,20 +63,26 @@ const insuranceSlice = createSlice({
   name: "insurance",
   initialState,
   reducers: {
-    setInsuranceData: (state, action: PayloadAction<InsuranceData[]>) => {
+    fetchInsuranceStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchInsuranceSuccess: (state, action: PayloadAction<Insurance[]>) => {
       state.data = action.payload;
       state.loading = false;
       state.error = null;
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action: PayloadAction<string>) => {
+    fetchInsuranceFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
   },
 });
 
-export const { setInsuranceData, setLoading, setError } = insuranceSlice.actions;
+export const {
+  fetchInsuranceStart,
+  fetchInsuranceSuccess,
+  fetchInsuranceFailure,
+} = insuranceSlice.actions;
+
 export default insuranceSlice.reducer;

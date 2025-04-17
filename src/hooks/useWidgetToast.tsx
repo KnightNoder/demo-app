@@ -33,18 +33,16 @@ const useWidgetToast = () => {
    * @param isAdding Whether the widget is being added (true) or removed (false)
    */
   const showWidgetToast = (widgetKey: string, isAdding: boolean) => {
-    toast(
-      <ToastContent widgetKey={widgetKey} isAdding={isAdding} />,
-      {
-        position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        className: "rounded-md shadow-lg bg-white",
-      } as ToastOptions
-    );
+    toast(<ToastContent widgetKey={widgetKey} isAdding={isAdding} />, {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      className: "rounded-md shadow-lg bg-white",
+      progressClassName: "bg-[#0093D3]",
+    } as ToastOptions);
   };
 
   return { showWidgetToast };

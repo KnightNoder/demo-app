@@ -1,21 +1,27 @@
+import {
+  fetchInsuranceStart,
+  fetchInsuranceSuccess,
+  fetchInsuranceFailure,
+} from "./insuranceSlice";
+import axiosClient from "../../api/axiosClient";
 
-import { AppDispatch } from "../../store/store";
-import { setInsuranceData, setError, setLoading } from "./insuranceSlice";
-import { getInsuranceDataFromApi } from "../../api/patientData";
-
-
-export const fetchInsuranceData = (patientId: string | null) => async (dispatch: AppDispatch) => {
+// Thunk to fetch insurance data for a specific patient
+export const fetchInsuranceData = (patientId: string) => async (dispatch: any) => {
   try {
-    dispatch(setLoading(true));
-    const response = await getInsuranceDataFromApi(patientId);
-    dispatch(setInsuranceData(response));
-  } catch (error: unknown) {
+    dispatch(fetchInsuranceStart());
+
+    // Replace with your actual API endpoint
+    const response = await axiosClient.get(`/insurance-data?pid=${patientId}`);
+
+    // Assuming the API returns the insurance data in the format we need
+    dispatch(fetchInsuranceSuccess(response.data));
+  } catch (error) {
+    let errorMessage = "Failed to fetch insurance data";
+
     if (error instanceof Error) {
-      dispatch(setError("Failed to load insurance data"));
-    } else {
-      dispatch(setError("An error occurred while fetching allergies"));
+      errorMessage = error.message;
     }
-  } finally {
-    dispatch(setLoading(false));
+
+    dispatch(fetchInsuranceFailure(errorMessage));
   }
 };

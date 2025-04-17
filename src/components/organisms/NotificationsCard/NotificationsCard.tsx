@@ -9,7 +9,7 @@ interface NotificationCardProps {
 }
 
 interface Notification {
-  id: number;
+  id: string;
   type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER";
   priority: "High" | "Medium" | "Low";
   title: string;
@@ -104,14 +104,17 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
         const response = await axiosClient.get(
           `/notifications?patient_id=${patientId}`
         );
+        console.log(response, "not api data");
 
-        // For demo purposes, we're using the pasted data
+        // Store the API data
         setApiData(response.data);
 
         // Transform API data to notification format
         const transformedNotifications = transformApiDataToNotifications(
           response.data
         );
+        console.log(transformedNotifications, "transformed notifications");
+
         setNotifications(transformedNotifications);
         setFilteredNotifications(transformedNotifications);
         setLoading(false);
@@ -122,7 +125,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     };
 
     fetchNotifications();
-  }, []);
+  }, [patientId]);
 
   // Transform API data to our notification format
   const transformApiDataToNotifications = (
@@ -130,12 +133,12 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   ): Notification[] => {
     const allNotifications: Notification[] = [];
 
-    // Transform inbox_messages to TASK notifications
+    // Transform inbox_messages to notifications
     if (data.inbox_messages) {
-      data.inbox_messages.forEach((msg) => {
+      data.inbox_messages.forEach((msg, index) => {
         allNotifications.push({
-          id: msg.id,
-          type: "TASK",
+          id: `task-${msg.id}-${index}`,
+          type: "TASK", // Keeping the type for UI display consistency
           priority: "Medium", // Default priority
           title: msg.subject,
           description: msg.message,
@@ -144,16 +147,17 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       });
     }
 
-    // Transform inbox_reminders to REMINDER or ALERT notifications based on type
+    // Transform inbox_reminders to notifications
     if (data.inbox_reminders) {
-      data.inbox_reminders.forEach((reminder) => {
+      data.inbox_reminders.forEach((reminder, index) => {
+        // Set type based on reminder.type
         const type =
           reminder.type === "telehealth" || reminder.type === "other"
             ? "ALERT"
             : "REMINDER";
 
         allNotifications.push({
-          id: reminder.id,
+          id: `${type.toLowerCase()}-${reminder.id}-${index}`,
           type,
           priority: reminder.priority as "High" | "Medium" | "Low",
           title: `${reminder.type.charAt(0).toUpperCase() + reminder.type.slice(1)} Notification`,
@@ -163,11 +167,11 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       });
     }
 
-    // Transform patient_messages to MESSAGE notifications
+    // Transform patient_messages to notifications
     if (data.patient_messages) {
-      data.patient_messages.forEach((msg) => {
+      data.patient_messages.forEach((msg, index) => {
         allNotifications.push({
-          id: msg.message_id,
+          id: `message-${msg.message_id}-${index}`,
           type: "MESSAGE",
           priority: "Low", // Default priority for messages
           title: msg.subject,
@@ -177,12 +181,13 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       });
     }
 
-    // Only add person_reminders if they have valid data
+    // Add person_reminders, including empty ones to maintain accurate counts
     if (data.person_reminders) {
-      data.person_reminders.forEach((reminder) => {
-        if (reminder.id && reminder.message_text) {
+      data.person_reminders.forEach((reminder, index) => {
+        // Only add if there's valid data
+        if (reminder.id !== null && reminder.message_text) {
           allNotifications.push({
-            id: reminder.id,
+            id: `person-reminder-${reminder.id}-${index}`,
             type: "REMINDER",
             priority:
               reminder.priority === "N/A"
@@ -207,21 +212,45 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   useEffect(() => {
     if (!apiData) return;
 
+    // Generate IDs for each source, so we can trace back where each notification came from
+    const sourceIdMap = {
+      inbox_messages: notifications.filter((note) =>
+        note.id.startsWith("task-")
+      ),
+      patient_messages: notifications.filter((note) =>
+        note.id.startsWith("message-")
+      ),
+      inbox_reminders: notifications.filter(
+        (note) =>
+          note.id.startsWith("reminder-") || note.id.startsWith("alert-")
+      ),
+      person_reminders: notifications.filter((note) =>
+        note.id.startsWith("person-reminder-")
+      ),
+    };
+
     if (activeTab === "All") {
+      // Show all notifications
       setFilteredNotifications(notifications);
     } else if (activeTab === "GT Alerts") {
-      const alerts = notifications.filter((note) => note.type === "ALERT");
-      setFilteredNotifications(alerts);
+      // No specific source for alerts yet, show empty
+      setFilteredNotifications([]);
     } else if (activeTab === "Tasks") {
-      const tasks = notifications.filter((note) => note.type === "TASK");
-      setFilteredNotifications(tasks);
+      // No specific source for tasks yet, show empty
+      setFilteredNotifications([]);
     } else if (activeTab === "Messages") {
-      const messages = notifications.filter((note) => note.type === "MESSAGE");
+      // Concat inbox_messages and patient_messages
+      const messages = [
+        ...sourceIdMap.inbox_messages,
+        ...sourceIdMap.patient_messages,
+      ];
       setFilteredNotifications(messages);
     } else if (activeTab === "Reminders") {
-      const reminders = notifications.filter(
-        (note) => note.type === "REMINDER"
-      );
+      // Concat inbox_reminders and person_reminders
+      const reminders = [
+        ...sourceIdMap.inbox_reminders,
+        ...sourceIdMap.person_reminders,
+      ];
       setFilteredNotifications(reminders);
     }
   }, [activeTab, notifications, apiData]);
@@ -229,13 +258,29 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   if (loading) return <div className="p-4 text-center">Loading...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
 
+  // Generate IDs for each source, for counting
+  const sourceIdMap = {
+    inbox_messages: notifications.filter((note) => note.id.startsWith("task-")),
+    patient_messages: notifications.filter((note) =>
+      note.id.startsWith("message-")
+    ),
+    inbox_reminders: notifications.filter(
+      (note) => note.id.startsWith("reminder-") || note.id.startsWith("alert-")
+    ),
+    person_reminders: notifications.filter((note) =>
+      note.id.startsWith("person-reminder-")
+    ),
+  };
+
   // Count notifications for each tab
   const counts = {
     All: notifications.length,
-    "GT Alerts": notifications.filter((note) => note.type === "ALERT").length,
-    Tasks: notifications.filter((note) => note.type === "TASK").length,
-    Messages: notifications.filter((note) => note.type === "MESSAGE").length,
-    Reminders: notifications.filter((note) => note.type === "REMINDER").length,
+    "GT Alerts": 0, // No specific source yet
+    Tasks: 0, // No specific source yet
+    Messages:
+      sourceIdMap.inbox_messages.length + sourceIdMap.patient_messages.length,
+    Reminders:
+      sourceIdMap.inbox_reminders.length + sourceIdMap.person_reminders.length,
   };
 
   const tabs = [

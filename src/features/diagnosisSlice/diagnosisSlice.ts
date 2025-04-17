@@ -1,19 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface DiagnosisUser {
+  id: number;
+  username: string;
+  fname: string;
+  mname: string;
+  lname: string;
+}
+
 interface Diagnosis {
-  id: string;
-  type: string;
+  id: number;
   title: string;
   begdate: string;
-  enddate: string;
+  enddate?: string; // Making this optional since it wasn't in your example
+  outcome: number;
   diagnosis: string;
-  user: {
-    id: string;
-    username: string;
-    fname: string;
-    mname: string;
-    lname: string;
-  };
+  primary_diagnosis_code: number;
+  modified_by: string;
+  modified_on: string;
+  user: DiagnosisUser;
 }
 
 interface DiagnosisState {
@@ -44,10 +49,29 @@ const diagnosisSlice = createSlice({
     addDiagnosis: (state, action: PayloadAction<Diagnosis>) => {
       state.diagnosis.push(action.payload);
     },
+    updateDiagnosis: (state, action: PayloadAction<Diagnosis>) => {
+      const index = state.diagnosis.findIndex(
+        (item) => item.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.diagnosis[index] = action.payload;
+      }
+    },
+    deleteDiagnosis: (state, action: PayloadAction<number>) => {
+      state.diagnosis = state.diagnosis.filter(
+        (item) => item.id !== action.payload
+      );
+    },
   },
 });
 
-export const { setDiagnoses, setError, setLoading, addDiagnosis } =
-  diagnosisSlice.actions;
+export const {
+  setDiagnoses,
+  setError,
+  setLoading,
+  addDiagnosis,
+  updateDiagnosis,
+  deleteDiagnosis,
+} = diagnosisSlice.actions;
 
 export default diagnosisSlice.reducer;
