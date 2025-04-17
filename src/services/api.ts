@@ -68,16 +68,19 @@ const refreshToken = async (): Promise<string> => {
     if (!decoded || !decoded.username) throw new Error('Invalid token');
 
     const sessionId = sessionStorage.getItem('session_id');
-    const response = await refreshApi.post('/auth/legacy-bridge', {
-      session_id: sessionId,
-      username: decoded.username,
-    }, {
-      headers: {
-        //'sitename': 'current', // Add site context header if required
-      'sitename': import.meta.env.VITE_SITE_NAME,
+    const response = await refreshApi.post(
+      "/auth/legacy-bridge",
+      {
+        session_id: sessionId,
+        username: decoded.username,
       },
-      timeout: 5000,
-    });
+      {
+        headers: {
+          sitename: import.meta.env.VITE_SITE_NAME, // Add site context header if required
+        },
+        timeout: 5000,
+      }
+    );
 
     if (!response.data?.token) {
       throw new Error('Refresh endpoint did not return a token');

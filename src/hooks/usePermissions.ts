@@ -14,7 +14,7 @@ export const usePermissions = () => {
     const fetchInsurancePermissions = async () => {
       setLoading(true);
       const myHeaders = new Headers();
-      myHeaders.append("sitename", "current");
+      myHeaders.append("sitename", import.meta.env.VITE_SITE_NAME);
 
       const requestOptions = {
         method: "GET",
@@ -24,11 +24,11 @@ export const usePermissions = () => {
 
       const token = localStorage.getItem("JWT_AUTH_TOKEN");
       let username = "";
-      
+
       if (token) {
         try {
           const decoded = jwtDecode<DecodedToken>(token);
-          username = decoded.username || '';
+          username = decoded.username || "";
         } catch (err) {
           console.error("Error decoding JWT token:", err);
           setError("Invalid authentication token");
@@ -60,9 +60,10 @@ export const usePermissions = () => {
 
         const hasPermission = result.permissions.some(
           (permission: any) =>
-            permission.section === "patients" && permission.object === "insurance"
+            permission.section === "patients" &&
+            permission.object === "insurance"
         );
-        
+
         setInsuranceWritePermission(hasPermission);
         setLoading(false);
       } catch (err) {

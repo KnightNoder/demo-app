@@ -63,11 +63,11 @@ const MobileView: React.FC<MobileViewProps> = ({
   }, [activeCardIndex]);
 
   return (
-    <div className="px-4 relative">
+    <div className="px-2 relative">
       {/* Only render navigation when we have items */}
       {gridItems.length > 0 && (
         <>
-          {/* Navigation arrows positioned absolutely relative to the main container */}
+          {/* Navigation arrows - Commented out but kept for reference */}
           {/* <button
             onClick={prevCard}
             className="z-[100] absolute left-0 top-2/5 -translate-y-1/2 flex items-center justify-center p-1 bg-white/80 rounded-full shadow-md hover:bg-gray-200 transition-colors"
@@ -127,14 +127,14 @@ const MobileView: React.FC<MobileViewProps> = ({
           })}
       </SortableContext>
 
-      {/* Mini widget thumbnails for navigation - with auto-centering of active thumbnail */}
+      {/* Mini widget thumbnails for navigation - with compact layout */}
       {gridItems.length > 1 && (
         <div
           ref={thumbnailContainerRef}
-          className="flex items-center mt-14 mb-8 overflow-x-auto py-2 px-4 max-w-full scrollbar-hide"
+          className="flex items-center mt-3 mb-2 overflow-x-auto py-1 px-2 max-w-full scrollbar-hide"
         >
-          {/* Give some space at the start to allow centering the first thumbnail */}
-          <div className="min-w-[calc(50%-40px)]"></div>
+          {/* Reduced spacer width to minimize whitespace */}
+          <div className="min-w-[20px]"></div>
 
           {/* Map through gridItems to maintain the same order */}
           {gridItems.map((item, index) => {
@@ -148,7 +148,7 @@ const MobileView: React.FC<MobileViewProps> = ({
                 key={`thumbnail-${index}`}
                 ref={isActive ? activeThumbnailRef : null}
                 onClick={() => setActiveCardIndex(index)}
-                className={`flex flex-col items-center relative min-w-20 mx-2 transition-all ${
+                className={`flex flex-col items-center relative min-w-16 mx-1 transition-all ${
                   isActive
                     ? "transform scale-110 opacity-100"
                     : "opacity-60 hover:opacity-80"
@@ -157,7 +157,7 @@ const MobileView: React.FC<MobileViewProps> = ({
                 aria-pressed={isActive}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg mb-1 flex items-center justify-center shadow-sm ${
+                  className={`w-10 h-10 rounded-lg mb-1 flex items-center justify-center shadow-sm ${
                     isActive
                       ? "border-[.25px] border-[#0093D3]"
                       : "border border-gray-200"
@@ -165,13 +165,13 @@ const MobileView: React.FC<MobileViewProps> = ({
                   style={{ backgroundColor: widget.iconBgColor || "#0093D3" }}
                 >
                   {widget.icon && (
-                    <div className="w-6 h-6 flex justify-center items-center">
+                    <div className="w-5 h-5 flex justify-center items-center">
                       <Icons variant={widget.icon} />
                     </div>
                   )}
                 </div>
                 <span
-                  className={`text-xs font-medium truncate max-w-20 ${
+                  className={`text-xs font-medium truncate max-w-16 ${
                     isActive ? "text-[#0093D3]" : "text-gray-600"
                   }`}
                 >
@@ -180,14 +180,14 @@ const MobileView: React.FC<MobileViewProps> = ({
 
                 {/* Active indicator dot */}
                 {isActive && (
-                  <div className="absolute -bottom-2 w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                  <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-blue-500"></div>
                 )}
               </button>
             );
           })}
 
-          {/* Give some space at the end to allow centering the last thumbnail */}
-          <div className="min-w-[calc(50%-40px)]"></div>
+          {/* Reduced spacer width to minimize whitespace */}
+          <div className="min-w-[20px]"></div>
         </div>
       )}
     </div>

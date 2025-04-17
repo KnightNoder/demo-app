@@ -1,4 +1,4 @@
-// index.tsx
+// index.tsx - WidgetMenu with fixes for whitespace
 import React, { useState, useRef, useEffect } from "react";
 import { getMenuItems, allMenuItems } from "./menuData";
 
@@ -15,7 +15,7 @@ export interface DropdownPosition {
 
 import { WidgetOption } from "../../../config/widgets";
 
-// Define the missing WidgetMenuProps interface
+// Define the WidgetMenuProps interface
 export interface WidgetMenuProps {
   widgetOptions: WidgetOption[];
   visibleWidgets: string[];
@@ -49,7 +49,7 @@ import ModalContent from "./ModalContent";
 import WidgetList from "./WidgetList";
 
 /**
- * Widget selection menu component
+ * Widget selection menu component with reduced whitespace for mobile view
  */
 const WidgetMenu: React.FC<WidgetMenuProps> = ({
   widgetOptions,
@@ -212,7 +212,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   return (
     <div
-      className={`relative ${isSmallScreen ? "ml-[36px] flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-auto mb-12 transform mr-[36px] ${isAnyModalOpen ? "z-10" : "z-50"}`}
+      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-auto ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-50"}`}
       ref={widgetRef}
     >
       {/* Widgets button */}
@@ -267,13 +267,13 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         />
       )}
 
-      {/* Widget menu dropdown */}
+      {/* Widget menu dropdown with reduced spacing for mobile */}
       <div
-        className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-2 p-4 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+        className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
           isWidgetMenuOpen
             ? "scale-100 opacity-100"
             : "scale-95 opacity-0 pointer-events-none"
-        } ${isMobileView ? "w-[400px] left-0 right-0" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
+        } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
         style={{ zIndex: 1000 }}
       >
         <WidgetList

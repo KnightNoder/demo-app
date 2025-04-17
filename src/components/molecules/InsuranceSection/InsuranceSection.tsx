@@ -132,7 +132,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
               <p className="text-xs text-gray-600">Subscriber</p>
               <p className="text-xs font-normal text-[#020817]">
                 {insurance?.subscriber
-                  ? `${insurance.subscriber.first_name || ""} ${insurance.subscriber.middle_name || ""} ${insurance.subscriber.last_name || ""}`.trim() ||
+                  ? `${insurance?.subscriber.first_name || ""} ${insurance?.subscriber.middle_name || ""} ${insurance?.subscriber.last_name || ""}`.trim() ||
                     "--"
                   : "--"}
               </p>
@@ -143,7 +143,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
               </p>
               <p className="text-xs font-normal text-[#020817]">
                 {insurance?.subscriber?.relationship
-                  ? capitalizeWord(insurance.subscriber.relationship)
+                  ? capitalizeWord(insurance?.subscriber.relationship)
                   : "--"}
               </p>
             </div>
@@ -165,7 +165,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
             {
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Icons variant="document" />
-                <span>Last Verified: {insurance.lastVerified || "--"}</span>
+                <span>Last Verified: {insurance?.lastVerified || "--"}</span>
               </div>
             }
           </div>
@@ -186,13 +186,13 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
                           className="bg-blue-600 h-2 rounded-full"
                           style={{
                             width: calculateProgressWidth(
-                              insurance.deductibleRemaining
+                              insurance?.deductibleRemaining
                             ),
                           }}
                         ></div>
                       </div>
                       <p className="text-xs font-normal text-[#020817]">
-                        {insurance.deductibleRemaining}
+                        {insurance?.deductibleRemaining}
                       </p>
                     </div>
                   </div>
@@ -209,13 +209,13 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
                           className="bg-blue-600 h-2 rounded-full"
                           style={{
                             width: calculateProgressWidth(
-                              insurance.outOfPocketRemaining
+                              insurance?.outOfPocketRemaining
                             ),
                           }}
                         ></div>
                       </div>
                       <p className="text-xs font-normal text-[#020817]">
-                        {insurance.outOfPocketRemaining}
+                        {insurance?.outOfPocketRemaining}
                       </p>
                     </div>
                   </div>

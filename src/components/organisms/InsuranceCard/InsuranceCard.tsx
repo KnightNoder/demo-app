@@ -139,7 +139,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           setActiveTab(label as "Summary" | "Coverage" | "Financials")
         }
       />
-      {Array.isArray(insuranceData) && insuranceData.length > 0 ? (
+      {Array.isArray([]) && insuranceData.length > 0 ? (
         <>
           {activeTab === "Summary" && (
             <InsuranceSection insurances={insuranceData} />
@@ -149,8 +149,8 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           )}
           {activeTab === "Financials" && (
             <Financials
-              deductible={financialData.deductible}
-              outOfPocket={financialData.outOfPocket}
+              deductible={financialData?.deductible}
+              outOfPocket={financialData?.outOfPocket}
             />
           )}
         </>
