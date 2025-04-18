@@ -117,7 +117,9 @@ api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
     const expiresAt = decoded?.exp || 0;
 
     console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
-    console.log(`[Token Status] Expires in: ${expiresAt - now} seconds`);
+    console.log(`[Token Status] Current time: ${now}`);
+    console.log(`[Token Status] Token expires at: ${expiresAt}`);
+    console.log(`[Token Status] Time until expiration: ${expiresAt - now} seconds`);
 
     if (expiresAt - now < 120 && expiresAt > now) {
       console.log('[Token] About to expire, refreshing...');
