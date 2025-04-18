@@ -51,16 +51,16 @@ const decodeToken = (token: string) => {
 // Function to get token from localStorage
 export const getToken = () => {
   const token = localStorage.getItem('JWT_AUTH_TOKEN');
-  console.log('Getting token:', token ? 'Token present' : 'No token');
+  console.log('[Token Status] Getting token:', token ? 'Token present' : 'No token');
   return token;
 };
 
 
 // Refresh the JWT token by calling legacy-bridge API
 const refreshToken = async (): Promise<string> => {
-  console.log('Starting token refresh');
+  console.log('[Token Status] Starting token refresh');
   if (isRefreshing) {
-    console.log('Token refresh already in progress, subscribing to refresh');
+    console.log('[Token Status] Token refresh already in progress, subscribing to refresh');
     return new Promise(resolve => {
       subscribeTokenRefresh(resolve);
     });
