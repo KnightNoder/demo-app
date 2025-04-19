@@ -26,6 +26,7 @@ export interface WidgetMenuProps {
   isMobileView: boolean;
   isAnyModalOpen: boolean;
   patientId: string | null;
+  onModalStateChange?: (isOpen: boolean) => void; // Add prop for notifying parent of modal state
 }
 
 // Define the WidgetListProps interface for the WidgetList component
@@ -61,6 +62,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   isMobileView,
   isAnyModalOpen,
   patientId,
+  onModalStateChange,
 }) => {
   // State management
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -84,6 +86,13 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   // Get menu items
   const menuItems = getMenuItems(patientId);
+
+  // Notify parent component when modal state changes
+  useEffect(() => {
+    if (onModalStateChange) {
+      onModalStateChange(showModal);
+    }
+  }, [showModal, onModalStateChange]);
 
   // Screen size detection
   useEffect(() => {
@@ -187,7 +196,32 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   // Handle dropdown item click
   const handleItemClick = (item: DropdownMenuItem) => {
-    setModalUrl(item.url);
+    // Process the URL template if it needs processing
+    let processedUrl = item.url;
+
+    // If the URL is already processed by MenuButton, this won't be needed,
+    // but we'll add it as a safeguard
+    if (
+      typeof processedUrl === "string" &&
+      (processedUrl.includes("${import.meta.env.VITE_V1_URL}") ||
+        processedUrl.includes("${patientId}"))
+    ) {
+      // Replace environment variable
+      if (processedUrl.includes("${import.meta.env.VITE_V1_URL}")) {
+        const baseUrl = import.meta.env.VITE_V1_URL || "/api";
+        processedUrl = processedUrl.replace(
+          "${import.meta.env.VITE_V1_URL}",
+          baseUrl
+        );
+      }
+
+      // Replace patientId
+      if (processedUrl.includes("${patientId}")) {
+        processedUrl = processedUrl.replace("${patientId}", patientId || "");
+      }
+    }
+
+    setModalUrl(processedUrl);
     setModalTitle(`${activeButton} - ${item.label}`);
     setShowModal(true);
     setShowDropdown(false);
@@ -235,6 +269,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           showDropdown={showDropdown}
           setShowDropdown={setShowDropdown}
           handleItemClick={handleItemClick}
+          patientId={patientId} // Add this prop
         />
       ) : (
         <MenuStrip

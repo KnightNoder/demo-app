@@ -7,6 +7,8 @@ export interface DropdownMenuItem {
 export interface MenuItems {
   [key: string]: DropdownMenuItem[];
 }
+
+
 export const getMenuItems = (patientId?: string | null): MenuItems => {
   return {
     "Client Info": [
@@ -198,6 +200,41 @@ export const getMenuItems = (patientId?: string | null): MenuItems => {
       { label: "Deactivate the Person", url: "" },
     ],
   };
+};
+
+// Add function to evaluate the URL templates at runtime
+export const getProcessedUrl = (
+  url: string,
+  patientId?: string | null
+): string => {
+  // Check if URL is a simple URL without templates
+  if (!url.includes("${")) {
+    return url;
+  }
+
+  let processedUrl = url;
+
+  // Process environment variable
+  const viteUrl =
+    (typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      import.meta.env.VITE_V1_URL) ||
+    "";
+
+  processedUrl = processedUrl.replace(
+    /\$\{import\.meta\.env\.VITE_V1_URL\}/g,
+    viteUrl
+  );
+
+  // Process patientId
+  if (patientId) {
+    processedUrl = processedUrl.replace(/\$\{patientId\}/g, patientId);
+  } else {
+    // If no patientId provided, replace with empty string to avoid broken URLs
+    processedUrl = processedUrl.replace(/\$\{patientId\}/g, "");
+  }
+
+  return processedUrl;
 };
 
 export const allMenuItems = [

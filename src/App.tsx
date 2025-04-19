@@ -37,6 +37,7 @@ import { CardActionHandler } from "./types";
 const App: React.FC = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
+  const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false); // Track widget modal state
 
   // Use custom hooks
   const { insuranceWritePermission } = usePermissions();
@@ -72,6 +73,9 @@ const App: React.FC = () => {
       },
     })
   );
+
+  // Track any modal being open (from either source)
+  const isModalVisible = isAnyModalOpen || isWidgetModalOpen;
 
   // Get patient ID from input element
   useEffect(() => {
@@ -113,6 +117,11 @@ const App: React.FC = () => {
     } else if (action === "view") {
       `View history for ${category}`;
     }
+  };
+
+  // Handle modal state change from WidgetMenu
+  const handleWidgetModalStateChange = (isOpen: boolean) => {
+    setIsWidgetModalOpen(isOpen);
   };
 
   // Handler for drag start
@@ -170,8 +179,10 @@ const App: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <ToastContainer />
-        <div className="relative w-full min-h-screen pt-4 md:pt-12 bg-[#F4F5FB]">
-          {/* Widget menu - Pass the authorizedWidgets prop */}
+        <div
+          className={`relative w-full min-h-screen ${isModalVisible ? "pt-0" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
+        >
+          {/* Widget menu - Pass the authorizedWidgets prop and modal state handler */}
           <WidgetMenu
             widgetOptions={widgetOptions}
             visibleWidgets={visibleWidgets}
@@ -182,6 +193,7 @@ const App: React.FC = () => {
             isMobileView={isMobileView}
             isAnyModalOpen={isAnyModalOpen}
             patientId={patientId}
+            onModalStateChange={handleWidgetModalStateChange}
           />
 
           {/* Grid Container */}
