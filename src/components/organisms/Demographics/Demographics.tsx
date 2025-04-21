@@ -17,58 +17,61 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTabs = async () => {
-      try {
-        const response = await axiosClient.get(
-          `/patient/${patientId}/demographics`
-        );
-        const data = response.data;
+  const fetchTabs = async () => {
+    setLoading(true);
+    setError(null);
 
-        if (data && typeof data === "object") {
-          // Map API's section keys to UI-friendly labels
-          const keyToLabelMap: Record<string, string> = {
-            "1Who": "Basic",
-            "2Contact": "Contact",
-            "3Choices": "Choices",
-            "4Employer": "Employment",
-            "5Stats": "Statistics",
-            "6Misc": "Miscellaneous",
-            "7Pregnancy": "Pregnancy",
-            // Add other mappings as needed
-          };
+    try {
+      const response = await axiosClient.get(
+        `/patient/${patientId}/demographics`
+      );
+      const data = response.data;
 
-          const extractedTabs = Object.keys(data).map((key) => {
-            // Use our mapping or fallback to a cleaned-up version of the key
-            const label = keyToLabelMap[key] || key.replace(/^\d+/, "");
-            return { key, label };
-          });
+      if (data && typeof data === "object") {
+        // Map API's section keys to UI-friendly labels
+        const keyToLabelMap: Record<string, string> = {
+          "1Who": "Basic",
+          "2Contact": "Contact",
+          "3Choices": "Choices",
+          "4Employer": "Employment",
+          "5Stats": "Statistics",
+          "6Misc": "Miscellaneous",
+          "7Pregnancy": "Pregnancy",
+          // Add other mappings as needed
+        };
 
-          setTabs(extractedTabs);
+        const extractedTabs = Object.keys(data).map((key) => {
+          // Use our mapping or fallback to a cleaned-up version of the key
+          const label = keyToLabelMap[key] || key.replace(/^\d+/, "");
+          return { key, label };
+        });
 
-          // Store data by section
-          if (data["1Who"]) {
-            setBasicInfoData(data["1Who"]);
-          }
-          if (data["5Stats"]) {
-            setStatsInfoData(data["5Stats"]);
-          }
-          if (data["2Contact"]) {
-            setContactInfoData(data["2Contact"]);
-          }
+        setTabs(extractedTabs);
 
-          // Set initial active tab to "Basic" (which is stored as "1Who" in the API)
-          setActiveTab("Basic");
-        } else {
-          throw new Error("Invalid API response format");
+        // Store data by section
+        if (data["1Who"]) {
+          setBasicInfoData(data["1Who"]);
         }
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
+        if (data["5Stats"]) {
+          setStatsInfoData(data["5Stats"]);
+        }
+        if (data["2Contact"]) {
+          setContactInfoData(data["2Contact"]);
+        }
 
+        // Set initial active tab to "Basic" (which is stored as "1Who" in the API)
+        setActiveTab("Basic");
+      } else {
+        throw new Error("Invalid API response format");
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (patientId) {
       fetchTabs();
     }
@@ -82,10 +85,82 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
     }
   };
 
-  if (loading)
-    return <p className="text-xs font-light text-gray-600">Loading tabs...</p>;
-  if (error)
-    return <p className="text-xs font-light text-red-500">Error: {error}</p>;
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg">
+        <div className="flex mb-4 gap-1.5 justify-between">
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+        </div>
+
+        <div className="mt-4">
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg ">
+        {/* Error Icon */}
+        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+
+        {/* Error Message */}
+        <div className="mb-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            Unable to Load Demographics
+          </h3>
+          <p className="text-sm text-gray-600">
+            {typeof error === "string"
+              ? error
+              : "An unexpected error occurred while fetching data."}
+          </p>
+        </div>
+
+        {/* Retry Button */}
+        <button
+          onClick={fetchTabs}
+          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Retry
+          </div>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto rounded-lg shadow-md bg-white">

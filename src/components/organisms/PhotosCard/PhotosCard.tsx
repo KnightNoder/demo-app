@@ -19,37 +19,38 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   const [activeTab, setActiveTab] = useState("Patient ID Card");
   const patientPhotos: any[] = [];
 
+  const fetchPatientPhoto = async () => {
+    if (!patientId) return;
+
+    try {
+      setLoading(true);
+      const response = await axiosClient.get(`/documents/patient-photo`, {
+        params: { patient_id: patientId, category_id: 5 },
+      });
+
+      // Decode the URL from the first response
+      const decodedUrl = decodeURIComponent(response.data?.url);
+
+      // Make a second API call to the decoded URL
+      const secondResponse = await axiosClient.get(decodedUrl, {
+        responseType: "blob",
+      });
+
+      const blobUrl = URL.createObjectURL(secondResponse.data);
+
+      // Set the actual image URL from the second response
+      setPatientImageUrl(blobUrl);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Error processing image URL");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (patientId) {
-      setLoading(true);
-      axiosClient
-        .get(`/documents/patient-photo`, {
-          params: { patient_id: patientId, category_id: 5 },
-        })
-        .then(async (response) => {
-          try {
-            // Decode the URL from the first response
-            const decodedUrl = decodeURIComponent(response.data?.url);
-
-            // Make a second API call to the decoded URL
-            const secondResponse = await axiosClient.get(decodedUrl, {
-              responseType: "blob",
-            });
-
-            const blobUrl = URL.createObjectURL(secondResponse.data);
-
-            // Set the actual image URL from the second response
-            setPatientImageUrl(blobUrl);
-            setLoading(false);
-          } catch (err: any) {
-            setError(err.message || "Error processing image URL");
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          setError(err.message);
-          setLoading(false);
-        });
+      fetchPatientPhoto();
     }
   }, [patientId]);
 
@@ -69,18 +70,130 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
-        <div className="mt-4 text-center">
-          <p className="text-sm font-normal text-red-500">
-            Oops! Something went wrong.
-          </p>
-          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
+      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
+        {/* Error Icon */}
+        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
         </div>
+
+        {/* Error Message */}
+        <div className="mb-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            Unable to Load Patient Photo
+          </h3>
+          <p className="text-sm text-gray-600">
+            {typeof error === "string"
+              ? error
+              : "An unexpected error occurred while fetching the photo."}
+          </p>
+        </div>
+
+        {/* Retry Button */}
+        <button
+          onClick={fetchPatientPhoto}
+          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Retry
+          </div>
+        </button>
       </div>
     );
   }
 
   const tabs = [{ label: "Patient ID Card" }, { label: "Photos" }];
+
+  const renderTabContent = () => {
+    if (activeTab === "Patient ID Card") {
+      if (!patientImageUrl) {
+        return (
+          <div className="p-6 text-center bg-white rounded-lg">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-8 h-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-800">
+              No Patient ID Photo
+            </h3>
+            <p className="text-sm text-gray-600">
+              No ID photo is available for this patient.
+            </p>
+          </div>
+        );
+      }
+      return <PatientCard patientImage={patientImageUrl} />;
+    } else if (activeTab === "Photos") {
+      if (patientPhotos.length === 0) {
+        return (
+          <div className="p-6 text-center bg-white rounded-lg">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-8 h-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold text-gray-800">
+              No Photos Available
+            </h3>
+            <p className="text-sm text-gray-600">
+              No additional photos are available for this patient.
+            </p>
+          </div>
+        );
+      }
+      return <PhotoGalleryComponent photos={patientPhotos} />;
+    }
+    return null;
+  };
 
   return (
     <div className="bg-white rounded-lg p-4">
@@ -89,14 +202,7 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
         activeTab={activeTab}
         onTabClick={setActiveTab}
       />
-      <div className="mt-4">
-        {activeTab === "Patient ID Card" && (
-          <PatientCard patientImage={patientImageUrl} />
-        )}
-        {activeTab === "Photos" && (
-          <PhotoGalleryComponent photos={patientPhotos} />
-        )}
-      </div>
+      <div className="mt-4">{renderTabContent()}</div>
     </div>
   );
 };

@@ -101,19 +101,22 @@ const MenuButton: React.FC<MenuButtonProps> = ({
         aria-expanded={showMenuPanel}
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
+          {/* First bar - rotates to form top part of X */}
           <span
-            className={`block w-5 h-0.5 bg-gray-600 rounded-sm transition-all duration-300 ${
-              showMenuPanel ? "translate-y-1 rotate-45" : ""
+            className={`block w-5 h-0.5 bg-gray-600 rounded-sm transition-transform duration-300 absolute ${
+              showMenuPanel ? "rotate-45" : "translate-y-[-4px]"
             }`}
           ></span>
+          {/* Middle bar - fades out */}
           <span
-            className={`block w-5 h-0.5 bg-gray-600 rounded-sm my-1 transition-all duration-300 ${
-              showMenuPanel ? "opacity-0" : ""
+            className={`block w-5 h-0.5 bg-gray-600 rounded-sm transition-opacity duration-300 ${
+              showMenuPanel ? "opacity-0" : "opacity-100"
             }`}
           ></span>
+          {/* Last bar - rotates to form bottom part of X */}
           <span
-            className={`block w-5 h-0.5 bg-gray-600 rounded-sm transition-all duration-300 ${
-              showMenuPanel ? "-translate-y-1 -rotate-45" : ""
+            className={`block w-5 h-0.5 bg-gray-600 rounded-sm transition-transform duration-300 absolute ${
+              showMenuPanel ? "-rotate-45" : "translate-y-[4px]"
             }`}
           ></span>
         </div>
@@ -126,10 +129,13 @@ const MenuButton: React.FC<MenuButtonProps> = ({
           ref={menuPanelRef}
           className="absolute top-[calc(100%+4px)] right-0 py-2 bg-white border border-gray-200 rounded-md shadow-md z-50 w-64"
         >
-          {allMenuItems.map((menuItem) => (
+          {allMenuItems.map((menuItem, index) => (
             <div key={menuItem} className="relative">
+              {/* Add separator line above except for the first item */}
+              {index > 0 && <div className="h-px bg-gray-200 mx-4"></div>}
+
               <button
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex justify-between items-center ${
+                className={`w-full text-left px-4 py-4 text-sm hover:bg-gray-100 flex justify-between items-center ${
                   expandedItem === menuItem ? "bg-gray-50 font-medium" : ""
                 }`}
                 onClick={(e) =>
@@ -174,10 +180,15 @@ const MenuButton: React.FC<MenuButtonProps> = ({
 
               {/* Show dropdown items directly below the button when expanded */}
               {expandedItem === menuItem && showDropdown && (
-                <div className="bg-gray-50 border-t border-b border-gray-200">
+                <div className="bg-gray-50 border-t border-gray-200">
                   <ul className="py-1">
-                    {dropdownItems.map((item, index) => (
-                      <li key={index} className="pl-8 pr-2">
+                    {dropdownItems.map((item, idx) => (
+                      <li key={idx} className="pl-8 pr-2">
+                        {/* Add separator line between dropdown items except for the first item */}
+                        {idx > 0 && (
+                          <div className="h-px bg-gray-200 mx-2 my-1"></div>
+                        )}
+
                         <button
                           className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-sm"
                           onClick={() => handleProcessedItemClick(item)}
