@@ -383,7 +383,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md">
+    <div className="bg-white rounded-lg ">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}
