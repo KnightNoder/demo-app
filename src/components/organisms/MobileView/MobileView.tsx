@@ -17,6 +17,7 @@ interface MobileViewProps {
   isAnyModalOpen: boolean;
   insuranceWritePermission: boolean;
   isStrictAuditor?: boolean; // Optional prop for strict auditor
+  isExpandAll?: boolean;
 }
 
 /**
@@ -34,8 +35,10 @@ const MobileView: React.FC<MobileViewProps> = ({
   isAnyModalOpen,
   insuranceWritePermission,
   isStrictAuditor,
+  isExpandAll,
 }) => {
   // Reference to the thumbnail container
+
   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
   // Reference to the active thumbnail
   const activeThumbnailRef = useRef<HTMLButtonElement>(null);
@@ -115,6 +118,7 @@ const MobileView: React.FC<MobileViewProps> = ({
                 }
                 isAnyModalOpen={isAnyModalOpen}
                 isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
+                isExpandAll={isExpandAll}
               >
                 {widget.component && (
                   <widget.component

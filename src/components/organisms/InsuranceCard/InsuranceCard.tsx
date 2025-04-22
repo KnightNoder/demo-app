@@ -8,9 +8,10 @@ import InsuranceSection from "../../molecules/InsuranceSection/InsuranceSection"
 import Financials from "../../molecules/Financials/Financials";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css"; 
+import Icons from "../../../assets/Icons/Icons";
 
 interface InsuranceCardProps {
-  patientId: string | null
+  patientId: string | null;
 }
 
 // Create a utility function to extract financial data from insurance
@@ -20,13 +21,13 @@ const extractFinancialData = (insurances: any) => {
     deductible: {
       individual: "--",
       family: "--",
-      remaining: "--"
+      remaining: "--",
     },
     outOfPocket: {
       individual: "--",
       family: "--",
-      remaining: "--"
-    }
+      remaining: "--",
+    },
   };
 
   // Make sure insurances is an array before using array methods
@@ -36,7 +37,7 @@ const extractFinancialData = (insurances: any) => {
 
   // Find primary insurance if available
   const primaryInsurance = insurances.find(
-    insurance => insurance?.type?.toLowerCase() === "primary"
+    (insurance) => insurance?.type?.toLowerCase() === "primary"
   );
 
   // Extract deductible information from API data if available
@@ -45,21 +46,22 @@ const extractFinancialData = (insurances: any) => {
     if (primaryInsurance.deductible_amount) {
       financialData.deductible.individual = primaryInsurance.deductible_amount;
     }
-    
+
     // Set out-of-pocket data if available
     // Note: API might not provide this information, so we're using placeholders
-    
+
     // For any data that's provided directly by the API, use it instead of placeholders
     if (primaryInsurance.deductible_met) {
       financialData.deductible.remaining = primaryInsurance.deductible_met;
     }
-    
+
     if (primaryInsurance.deductibleRemaining) {
       financialData.deductible.remaining = primaryInsurance.deductibleRemaining;
     }
-    
+
     if (primaryInsurance.outOfPocketRemaining) {
-      financialData.outOfPocket.remaining = primaryInsurance.outOfPocketRemaining;
+      financialData.outOfPocket.remaining =
+        primaryInsurance.outOfPocketRemaining;
     }
   }
 
@@ -111,7 +113,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
     return (
       <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
         {/* Error Icon */}
-        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-8 h-8"
@@ -146,20 +148,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
           className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <div className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
+            <Icons variant="retry" />
             Retry
           </div>
         </button>

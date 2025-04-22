@@ -12,6 +12,7 @@ interface WidgetListProps {
   widgetOptions: WidgetOption[];
   isMobileView: boolean;
   isSmallScreen: boolean;
+  setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const WidgetList: React.FC<WidgetListProps> = ({
@@ -22,7 +23,8 @@ const WidgetList: React.FC<WidgetListProps> = ({
   toggleWidget,
   widgetOptions,
   isMobileView,
-  isSmallScreen
+  isSmallScreen,
+  // setIsExpandAll,
 }) => {
   return (
     <div className="relative flex flex-col items-center">

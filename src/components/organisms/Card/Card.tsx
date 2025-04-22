@@ -6,9 +6,6 @@ import { CustomScroll } from "react-custom-scroll";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// Define grid size for snapping
-const GRID_SIZE = 10; // Size in pixels for the grid
-
 interface CardProps {
   title: string;
   children: React.ReactNode;
@@ -24,6 +21,7 @@ interface CardProps {
   hasWritePermission?: boolean;
   isAnyModalOpen?: boolean;
   isStrictAuditor?: boolean; // Optional prop for strict auditor
+  isExpandAll?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -41,17 +39,22 @@ const Card: React.FC<CardProps> = ({
   hasWritePermission,
   isAnyModalOpen,
   isStrictAuditor,
+  isExpandAll,
 }) => {
-  const [size, setSize] = useState({ width: "100%", height: 500 });
+  // Track the card's collapsed state
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
-  const [hoveredEdge, setHoveredEdge] = useState<null | string>(null);
-  const isResizing = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
-  // const cardRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+
+  // Update isCollapsed when isExpandAll changes
+  useEffect(() => {
+    if (isExpandAll !== undefined) {
+      setIsCollapsed(!isExpandAll);
+    }
+  }, [isExpandAll]);
 
   // Set up dnd-kit sortable
   const {
@@ -119,75 +122,8 @@ const Card: React.FC<CardProps> = ({
     };
   }, []);
 
-  const handleResizeMouseDown = (
-    e: React.MouseEvent,
-    direction:
-      | "top"
-      | "bottom"
-      | "left"
-      | "right"
-      | "top-left"
-      | "top-right"
-      | "bottom-left"
-      | "bottom-right"
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    isResizing.current = true;
-
-    // Show grid on resize start
-    document.body.classList.add("dragging-active");
-
-    // const startX = e.clientX;
-    const startY = e.clientY;
-    const startHeight = typeof size.height === "number" ? size.height : 500;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaY = e.clientY - startY;
-      let newHeight = startHeight;
-
-      switch (direction) {
-        case "top":
-          newHeight = Math.max(100, startHeight - deltaY);
-          break;
-        case "bottom":
-          newHeight = Math.max(100, startHeight + deltaY);
-          break;
-        case "top-left":
-        case "top-right":
-          newHeight = Math.max(100, startHeight - deltaY);
-          break;
-        case "bottom-left":
-        case "bottom-right":
-          newHeight = Math.max(100, startHeight + deltaY);
-          break;
-      }
-
-      // Round to grid size
-      const roundedHeight = Math.round(newHeight / GRID_SIZE) * GRID_SIZE;
-
-      // Update only height, width is handled by the grid
-      setSize((prev) => ({
-        ...prev,
-        height: roundedHeight,
-      }));
-    };
-
-    const handleMouseUp = () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      isResizing.current = false;
-      document.body.style.cursor = "default";
-
-      // Hide grid on resize end
-      document.body.classList.remove("dragging-active");
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  };
-
   const handleCollapse = () => {
+    // Simply toggle the card's collapse state when clicked
     setIsCollapsed((prev) => !prev);
   };
 
@@ -226,14 +162,6 @@ const Card: React.FC<CardProps> = ({
     setIsKebabMenuOpen((prev) => !prev);
   };
 
-  const handleMouseEnterResizeHandle = (edge: string) => {
-    setHoveredEdge(edge);
-  };
-
-  const handleMouseLeaveResizeHandle = () => {
-    setHoveredEdge(null);
-  };
-
   const grabIndicatorStyle = {
     height: "4px",
     width: "40px",
@@ -242,34 +170,11 @@ const Card: React.FC<CardProps> = ({
     borderRadius: "2px",
   };
 
-  const getResizeCursor = () => {
-    switch (hoveredEdge) {
-      case "top":
-      case "bottom":
-        return "ns-resize";
-      case "left":
-      case "right":
-        return "ew-resize";
-      case "top-left":
-      case "bottom-right":
-        return "nwse-resize";
-      case "top-right":
-      case "bottom-left":
-        return "nesw-resize";
-      default:
-        return "default";
-    }
-  };
-
-  // Card styles - set fixed height of 60px when collapsed
+  // Card styles - set height based on the collapsed state
   const cardStyles = {
-    height: isCollapsed
-      ? "60px"
-      : typeof size.height === "number"
-        ? `${size.height}px`
-        : size.height,
-    cursor: isDragging ? "grabbing" : getResizeCursor(),
-    transition: isResizing.current ? "none" : transition,
+    height: isCollapsed ? "80px" : "500px",
+    cursor: isDragging ? "grabbing" : "default",
+    transition: transition,
   };
 
   // Updated modal component to prevent event propagation issues
@@ -380,6 +285,7 @@ const Card: React.FC<CardProps> = ({
               onMouseDown={() => {}} // dnd-kit handles this now
               isDragging={isDragging}
               iconBgColor={iconBgColor}
+              isExpandAll={isExpandAll}
             />
           </div>
 
@@ -394,10 +300,7 @@ const Card: React.FC<CardProps> = ({
 
           {/* Footer is only shown when not collapsed */}
           {!isCollapsed && footer && (
-            <div
-              className="mt-auto"
-              style={{ display: isCollapsed ? "none" : "block" }}
-            >
+            <div className="mt-auto">
               <CardFooter
                 category={category}
                 patientId={patientId}
@@ -408,25 +311,6 @@ const Card: React.FC<CardProps> = ({
             </div>
           )}
         </div>
-
-        {/* Resize handles are only shown when not collapsed */}
-        {!isCollapsed && (
-          <>
-            {/* Only show vertical resize handles since width is controlled by grid */}
-            <div
-              className="absolute top-0 left-0 w-full h-2 cursor-ns-resize"
-              onMouseEnter={() => handleMouseEnterResizeHandle("top")}
-              onMouseLeave={handleMouseLeaveResizeHandle}
-              onMouseDown={(e) => handleResizeMouseDown(e, "top")}
-            />
-            <div
-              className="absolute bottom-0 left-0 w-full h-2 cursor-ns-resize"
-              onMouseEnter={() => handleMouseEnterResizeHandle("bottom")}
-              onMouseLeave={handleMouseLeaveResizeHandle}
-              onMouseDown={(e) => handleResizeMouseDown(e, "bottom")}
-            />
-          </>
-        )}
       </div>
     </>
   );

@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
         ref={modalRef}
         className="bg-[#F4F5FB] p-4 rounded-lg shadow-lg w-[90%] max-w-[80%] h-[80%] flex flex-col"
       >
-        <div className="flex items-center justify-between pb-2 pr-10">
+        <div className="flex items-center justify-between pb-2">
           <span className="font-semibold">{title}</span>
           <div className="flex items-center gap-4">
             <button onClick={onClose}>
