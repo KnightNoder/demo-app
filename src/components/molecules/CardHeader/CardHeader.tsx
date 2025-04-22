@@ -13,6 +13,7 @@ interface HeaderProps {
   onMouseDown?: (e: React.MouseEvent) => void;
   isDragging?: boolean;
   iconBgColor?: string;
+  isExpandAll?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -37,6 +38,7 @@ const Header: React.FC<HeaderProps> = ({
   // Add stopPropagation to the collapse button too
   const handleCollapseClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Always call handleCollapse to toggle the individual card state
     handleCollapse();
   };
 
@@ -48,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div
-      className={`rounded-4xl flex items-center justify-between p-4 bg-white header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      className={`rounded-md flex items-center justify-between p-4 header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
       onMouseDown={onMouseDown}
     >
       <h3 className="flex items-center justify-center font-medium">

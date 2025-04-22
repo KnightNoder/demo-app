@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
   const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false); // Track widget modal state
+  const [isExpandAll, setIsExpandAll] = useState(true); // Track expand all state
 
   // Use custom hooks
   const { insuranceWritePermission } = usePermissions();
@@ -194,6 +195,7 @@ const App: React.FC = () => {
             isAnyModalOpen={isAnyModalOpen}
             patientId={patientId}
             onModalStateChange={handleWidgetModalStateChange}
+            setIsExpandAll={setIsExpandAll}
           />
 
           {/* Grid Container */}
@@ -215,6 +217,7 @@ const App: React.FC = () => {
                   isAnyModalOpen={isAnyModalOpen}
                   insuranceWritePermission={insuranceWritePermission}
                   isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
+                  isExpandAll={isExpandAll}
                 />
               ) : (
                 /* Desktop Grid View */
@@ -229,6 +232,7 @@ const App: React.FC = () => {
                   insuranceWritePermission={insuranceWritePermission}
                   gridTemplateColumns={getGridTemplateColumns()}
                   isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
+                  isExpandAll={isExpandAll}
                 />
               )}
             </div>

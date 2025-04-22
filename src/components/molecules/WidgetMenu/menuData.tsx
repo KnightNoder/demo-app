@@ -197,7 +197,7 @@ export const getMenuItems = (patientId?: string | null): MenuItems => {
         label: "Delete Person",
         url: `${import.meta.env.VITE_V1_URL}/interface/patient_file/deleter.php?patient=${patientId}`,
       },
-      { label: "Deactivate the Person", url: "" },
+      { label: "Deactivate the Person", url: "N/A" },
     ],
   };
 };

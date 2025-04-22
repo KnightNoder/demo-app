@@ -27,6 +27,7 @@ export interface WidgetMenuProps {
   isAnyModalOpen: boolean;
   patientId: string | null;
   onModalStateChange?: (isOpen: boolean) => void; // Add prop for notifying parent of modal state
+  setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Define the WidgetListProps interface for the WidgetList component
@@ -39,6 +40,7 @@ export interface WidgetListProps {
   widgetOptions: WidgetOption[];
   isMobileView: boolean;
   isSmallScreen: boolean;
+  // setIsExpandAll: () => void;
 }
 
 // Import subcomponents
@@ -63,6 +65,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   isAnyModalOpen,
   patientId,
   onModalStateChange,
+  setIsExpandAll,
 }) => {
   // State management
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -198,6 +201,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   const handleItemClick = (item: DropdownMenuItem) => {
     // Process the URL template if it needs processing
     let processedUrl = item.url;
+    console.log(item.label, "clicked");
 
     // If the URL is already processed by MenuButton, this won't be needed,
     // but we'll add it as a safeguard
@@ -219,13 +223,25 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       if (processedUrl.includes("${patientId}")) {
         processedUrl = processedUrl.replace("${patientId}", patientId || "");
       }
-    }
 
-    setModalUrl(processedUrl);
-    setModalTitle(`${activeButton} - ${item.label}`);
-    setShowModal(true);
-    setShowDropdown(false);
-    setShowMenuPanel(false);
+      setModalUrl(processedUrl);
+      setModalTitle(`${activeButton} - ${item.label}`);
+      setShowModal(true);
+      setShowDropdown(false);
+      setShowMenuPanel(false);
+    } else {
+      // Update the way setIsExpandAll is used
+      console.log("in else");
+
+      if (item.label == "Expand All") {
+        console.log("expand all clicked");
+
+        setIsExpandAll(true);
+      } else if (item.label == "Collapse All") {
+        console.log("collapse all clicked");
+        setIsExpandAll(false);
+      }
+    }
   };
 
   // Close modal
@@ -320,6 +336,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           widgetOptions={widgetOptions}
           isMobileView={isMobileView}
           isSmallScreen={isSmallScreen}
+          setIsExpandAll={setIsExpandAll}
         />
       </div>
     </div>

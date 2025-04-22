@@ -13,6 +13,7 @@ interface DesktopViewProps {
   insuranceWritePermission: boolean;
   gridTemplateColumns: string;
   isStrictAuditor?: boolean; // Optional prop for strict auditor
+  isExpandAll?: boolean;
 }
 
 /**
@@ -27,7 +28,9 @@ const DesktopView: React.FC<DesktopViewProps> = ({
   insuranceWritePermission,
   gridTemplateColumns,
   isStrictAuditor, // Destructure the prop here
+  isExpandAll,
 }) => {
+  console.log(isExpandAll, "in desktop view");
   return (
     <div
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-[18px] max-w-full"
@@ -57,6 +60,7 @@ const DesktopView: React.FC<DesktopViewProps> = ({
                   : widget.hasWritePermission
               }
               isStrictAuditor={isStrictAuditor} // Now this is defined
+              isExpandAll={isExpandAll}
             >
               {widget.component && (
                 <widget.component
