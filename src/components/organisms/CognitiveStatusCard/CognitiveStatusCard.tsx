@@ -175,24 +175,28 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
 
   if (assessments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-600 bg-white rounded-lg border border-gray-200">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="mx-auto h-12 w-12 text-gray-400 mb-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-        <p className="font-medium">No assessments found for this patient.</p>
-        <p className="mt-1 text-sm">
-          Any cognitive screenings will appear here.
+      <div className="p-6 text-center bg-white rounded-lg">
+        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="mb-2 text-lg font-semibold text-gray-800">
+          No Data Available
+        </h3>
+        <p className="text-sm text-gray-600">
+          No cognitive status information is available for this patient.
         </p>
       </div>
     );
