@@ -7,8 +7,25 @@ export const formatDate = (dateString: any): string => {
   return `${month}/${day}/${year}`; // Return the formatted string
 };
 
-export function formatToDashDate(dateString: string) {
+export function formatToDashDate(dateString: string | null | undefined) {
+  // Handle undefined or null
+  if (!dateString) {
+    return "N/A";
+  }
+
+  // Handle invalid date format "0000-00-00"
+  if (dateString === "0000-00-00") {
+    return "N/A";
+  }
+
+  // Try to create a date object
   const date = new Date(dateString);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    return "N/A";
+  }
+
   const day = date.getDate();
   const month = new Intl.DateTimeFormat("en-GB", { month: "short" }).format(
     date
@@ -19,8 +36,12 @@ export function formatToDashDate(dateString: string) {
   return `${day}${suffix} ${month} ${year}`;
 }
 
-export function getDaySuffix(day: any) {
-  if (day > 3 && day < 21) return "th";
+// Helper function for day suffixes
+function getDaySuffix(day: number): string {
+  if (day >= 11 && day <= 13) {
+    return "th";
+  }
+
   switch (day % 10) {
     case 1:
       return "st";
