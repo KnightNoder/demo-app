@@ -36,14 +36,14 @@ const mandatoryWidgets = ["Lab Reports", "Notifications", "Demographics"];
 
 /**
  * Converts ACL name to widget key
- * Example: "notes" -> "Clinical Notes", "id_card_photos" -> "ID/Card Photos"
+ * Example: "notes" -> "Clinical Notes", "id_card_photos" -> "ID Card/Photos"
  */
 const convertACLNameToWidgetKey = (aclName: string): string | null => {
   const mappings: Record<string, string> = {
     allergies: "Allergies",
     medical_problems: "Diagnosis",
     medications: "Medications",
-    notes: "Clinical Notes",
+    // notes: "Clinical Notes",
     insurance: "Insurance",
     lab_reports: "Lab Reports",
     prescriptions: "Prescriptions",
@@ -51,12 +51,12 @@ const convertACLNameToWidgetKey = (aclName: string): string | null => {
     appointments: "Appointments",
     notifications: "Notifications",
     demographics: "Demographics",
-    id_card_photos: "ID/Card Photos",
+    id_card_photos: "ID Card/Photos",
     vitals: "Vitals",
     disclosures: "Disclosures",
     functional_status: "Functional Status",
     cognitive_status: "Cognitive Status",
-    advance_directives: "Advanced Directives",
+    // advance_directives: "Advanced Directives",
   };
 
   return mappings[aclName] || null;

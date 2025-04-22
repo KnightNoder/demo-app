@@ -171,6 +171,9 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   }, [isWidgetMenuOpen, setIsWidgetMenuOpen]);
 
   // Handle button click to show dropdown
+  // Update this function in WidgetMenu.tsx
+
+  // Handle button click to show dropdown
   const handleButtonClick = (
     buttonName: string,
     e: React.MouseEvent<HTMLButtonElement>
@@ -188,9 +191,18 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         left: window.innerWidth - 280,
       });
     } else {
+      // Calculate base position for dropdown
+      let leftPosition = rect.left + window.scrollX - 40;
+
+      // Ensure dropdown doesn't go off screen (basic check, dropdown component has more comprehensive logic)
+      const dropdownWidth = 224; // w-56 = 14rem = 224px
+      if (leftPosition + dropdownWidth > window.innerWidth - 20) {
+        leftPosition = window.innerWidth - dropdownWidth - 20;
+      }
+
       setDropdownPosition({
         top: rect.bottom + window.scrollY - 45,
-        left: rect.left + window.scrollX,
+        left: leftPosition,
       });
     }
 
@@ -257,7 +269,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   return (
     <div
-      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-auto ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-50"}`}
+      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[55px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-50"}`}
       ref={widgetRef}
     >
       {/* Widgets button */}
