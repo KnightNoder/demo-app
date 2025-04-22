@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import NotificationItem from "../../molecules/NotificationItem/NotificationItem";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import axiosClient from "../../../api/axiosClient";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 interface NotificationCardProps {
   patientId: string | null;
@@ -98,35 +100,6 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     }
   };
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axiosClient.get(
-          `/notifications?patient_id=${patientId}`
-        );
-        console.log(response, "not api data");
-
-        // Store the API data
-        setApiData(response.data);
-
-        // Transform API data to notification format
-        const transformedNotifications = transformApiDataToNotifications(
-          response.data
-        );
-        console.log(transformedNotifications, "transformed notifications");
-
-        setNotifications(transformedNotifications);
-        setFilteredNotifications(transformedNotifications);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch notifications");
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
-  }, [patientId]);
-
   // Transform API data to our notification format
   const transformApiDataToNotifications = (
     data: ApiResponse
@@ -208,6 +181,39 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     return allNotifications;
   };
 
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosClient.get(
+        `/notifications?patient_id=${patientId}`
+      );
+      console.log(response, "not api data");
+
+      // Store the API data
+      setApiData(response.data);
+
+      // Transform API data to notification format
+      const transformedNotifications = transformApiDataToNotifications(
+        response.data
+      );
+      console.log(transformedNotifications, "transformed notifications");
+
+      setNotifications(transformedNotifications);
+      setFilteredNotifications(transformedNotifications);
+      setError(null);
+    } catch (err) {
+      setError("Failed to fetch notifications");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (patientId) {
+      fetchNotifications();
+    }
+  }, [patientId]);
+
   // Effect for filtering notifications based on active tab
   useEffect(() => {
     if (!apiData) return;
@@ -255,26 +261,33 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     }
   }, [activeTab, notifications, apiData]);
 
-  if (loading) return <div className="p-4 text-center">Loading...</div>;
-  if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
-
   // Generate IDs for each source, for counting
-  const sourceIdMap = {
-    inbox_messages: notifications.filter((note) => note.id.startsWith("task-")),
-    patient_messages: notifications.filter((note) =>
-      note.id.startsWith("message-")
-    ),
-    inbox_reminders: notifications.filter(
-      (note) => note.id.startsWith("reminder-") || note.id.startsWith("alert-")
-    ),
-    person_reminders: notifications.filter((note) =>
-      note.id.startsWith("person-reminder-")
-    ),
-  };
+  const sourceIdMap = notifications
+    ? {
+        inbox_messages: notifications.filter((note) =>
+          note.id.startsWith("task-")
+        ),
+        patient_messages: notifications.filter((note) =>
+          note.id.startsWith("message-")
+        ),
+        inbox_reminders: notifications.filter(
+          (note) =>
+            note.id.startsWith("reminder-") || note.id.startsWith("alert-")
+        ),
+        person_reminders: notifications.filter((note) =>
+          note.id.startsWith("person-reminder-")
+        ),
+      }
+    : {
+        inbox_messages: [],
+        patient_messages: [],
+        inbox_reminders: [],
+        person_reminders: [],
+      };
 
   // Count notifications for each tab
   const counts = {
-    All: notifications.length,
+    All: notifications ? notifications.length : 0,
     "GT Alerts": 0, // No specific source yet
     Tasks: 0, // No specific source yet
     Messages:
@@ -291,8 +304,86 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     { label: "Reminders", count: counts.Reminders },
   ];
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="flex mb-4 gap-1.5 justify-between">
+          <Skeleton height={40} width={150} />
+          <Skeleton height={40} width={150} />
+          <Skeleton height={40} width={150} />
+        </div>
+
+        <div className="mt-4">
+          <Skeleton height={80} style={{ marginTop: "10px" }} />
+          <Skeleton height={80} style={{ marginTop: "10px" }} />
+          <Skeleton height={80} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg ">
+        {/* Error Icon */}
+        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+
+        {/* Error Message */}
+        <div className="mb-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            Unable to Load Notifications
+          </h3>
+          <p className="text-sm text-gray-600">
+            {typeof error === "string"
+              ? error
+              : "An unexpected error occurred while fetching data."}
+          </p>
+        </div>
+
+        {/* Retry Button */}
+        <button
+          onClick={fetchNotifications}
+          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Retry
+          </div>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-md">
+    <div className="bg-white rounded-lg ">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}
@@ -303,9 +394,32 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
           <NotificationItem key={notification.id} notification={notification} />
         ))
       ) : (
-        <p className="p-4 text-center text-gray-500">
-          No notifications available.
-        </p>
+        <div className="p-6 text-center bg-white rounded-lg">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-8 h-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            No Notifications Available
+          </h3>
+          <p className="text-sm text-gray-600">
+            {activeTab === "All"
+              ? "There are no notifications for this patient."
+              : `There are no ${activeTab} for this patient.`}
+          </p>
+        </div>
       )}
     </div>
   );

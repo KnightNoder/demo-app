@@ -35,10 +35,14 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
     "Reported",
   ];
 
-  useEffect(() => {
+  const handleFetchLabReports = () => {
     if (patientId) {
       dispatch(fetchLabReports(patientId));
     }
+  };
+
+  useEffect(() => {
+    handleFetchLabReports();
   }, [dispatch, patientId]);
 
   if (loading) {
@@ -60,23 +64,90 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
-        <div className="flex flex-col items-center mb-4">
-          <Skeleton circle height={40} width={40} />
-          <div className="mt-4">
-            <Skeleton height={30} width={200} />
-          </div>
-          <div className="mt-2">
-            <Skeleton height={20} width={250} />
-          </div>
+      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
+        {/* Error Icon */}
+        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
         </div>
-        <div className="mt-4 text-center">
-          <p className="text-sm font-normal text-[#020817]">
-            Oops! Something went wrong.
+
+        {/* Error Message */}
+        <div className="mb-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            Unable to Load Lab Reports
+          </h3>
+          <p className="text-sm text-gray-600">
+            {typeof error === "string"
+              ? error
+              : "An unexpected error occurred while fetching data."}
           </p>
-          <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
         </div>
-        <Skeleton height={50} width={180} />
+
+        {/* Retry Button */}
+        <button
+          onClick={handleFetchLabReports}
+          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Retry
+          </div>
+        </button>
+      </div>
+    );
+  }
+
+  // Check for empty lab reports
+  if (!labReports || labReports.length === 0) {
+    return (
+      <div className="p-6 text-center bg-white rounded-lg">
+        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-8 h-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </div>
+        <h3 className="mb-2 text-lg font-semibold text-gray-800">
+          No Lab Reports Available
+        </h3>
+        <p className="text-sm text-gray-600">
+          No laboratory reports are available for this patient.
+        </p>
       </div>
     );
   }
