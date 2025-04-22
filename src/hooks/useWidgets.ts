@@ -80,6 +80,8 @@ export const useWidgets = () => {
   // Fetch ACL permissions on mount
   useEffect(() => {
     const fetchACLPermissions = async () => {
+      console.log("fetch matrix api");
+      
       try {
         setLoading(true);
 

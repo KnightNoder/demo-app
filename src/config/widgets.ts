@@ -156,7 +156,7 @@ export const defaultVisibleWidgets: string[] = [
   "Functional Status",
   "Medications",
   "Notifications",
-  "Advanced Directives",
+  // "Advanced Directives",
   "Appointments",
-  "Clinical Notes",
+  // "Clinical Notes",
 ];
