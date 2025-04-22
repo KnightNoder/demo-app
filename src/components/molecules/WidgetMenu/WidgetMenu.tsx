@@ -199,48 +199,43 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   // Handle dropdown item click
   const handleItemClick = (item: DropdownMenuItem) => {
-    // Process the URL template if it needs processing
     let processedUrl = item.url;
-    console.log(item.label, "clicked");
+    console.log(item.label, "clicked", processedUrl);
 
-    // If the URL is already processed by MenuButton, this won't be needed,
-    // but we'll add it as a safeguard
-    if (
-      typeof processedUrl === "string" &&
-      (processedUrl.includes("${import.meta.env.VITE_V1_URL}") ||
-        processedUrl.includes("${patientId}"))
-    ) {
-      // Replace environment variable
-      if (processedUrl.includes("${import.meta.env.VITE_V1_URL}")) {
-        const baseUrl = import.meta.env.VITE_V1_URL || "/api";
-        processedUrl = processedUrl.replace(
-          "${import.meta.env.VITE_V1_URL}",
-          baseUrl
-        );
+    // For special actions like Expand/Collapse All
+    if (item.label === "Expand All") {
+      setIsExpandAll(true);
+      return;
+    } else if (item.label === "Collapse All") {
+      setIsExpandAll(false);
+      return;
+    }
+
+    // For all other URLs, try to open in modal
+    try {
+      // Process template strings if needed
+      if (typeof processedUrl === "string") {
+        if (processedUrl.includes("${import.meta.env.VITE_V1_URL}")) {
+          const baseUrl = import.meta.env.VITE_V1_URL || "/api";
+          processedUrl = processedUrl.replace(
+            "${import.meta.env.VITE_V1_URL}",
+            baseUrl
+          );
+        }
+
+        if (processedUrl.includes("${patientId}")) {
+          processedUrl = processedUrl.replace("${patientId}", patientId || "");
+        }
       }
 
-      // Replace patientId
-      if (processedUrl.includes("${patientId}")) {
-        processedUrl = processedUrl.replace("${patientId}", patientId || "");
-      }
-
+      console.log("Setting modal with URL:", processedUrl);
       setModalUrl(processedUrl);
       setModalTitle(`${activeButton} - ${item.label}`);
       setShowModal(true);
       setShowDropdown(false);
       setShowMenuPanel(false);
-    } else {
-      // Update the way setIsExpandAll is used
-      console.log("in else");
-
-      if (item.label == "Expand All") {
-        console.log("expand all clicked");
-
-        setIsExpandAll(true);
-      } else if (item.label == "Collapse All") {
-        console.log("collapse all clicked");
-        setIsExpandAll(false);
-      }
+    } catch (error) {
+      console.error("Error processing URL for modal:", error);
     }
   };
 
