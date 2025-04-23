@@ -3,6 +3,8 @@ import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import axiosClient from "../../../api/axiosClient";
 import Skeleton from "react-loading-skeleton";
 import Icons from "../../../assets/Icons/Icons";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface DemographicsCardProps {
   patientId: string | null;
@@ -104,73 +106,46 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg ">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+      <ErrorComponent
+        title="Unable to Load Demographics"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={fetchTabs}
+      />
+    );
+  }
 
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Demographics
-          </h3>
-          <p className="text-sm text-gray-600">
-            {typeof error === "string"
-              ? error
-              : "An unexpected error occurred while fetching data."}
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={fetchTabs}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
+  if (tabs.length === 0) {
+    return (
+      <div className="pb-4 mx-auto bg-white rounded-lg overflow-y-auto relative">
+        <EmptyStateComponent
+          title="No Demographics Data"
+          message="No demographic information is available for this patient."
+        />
       </div>
     );
   }
 
   return (
     <div className="mx-auto rounded-lg shadow-md bg-white">
-      {tabs.length > 0 ? (
-        <>
-          <TabListHeader
-            tabs={tabs}
-            activeTab={activeTab || ""}
-            onTabClick={handleTabClick}
-          />
-          <div className="p-4 h-[525px] overflow-y-auto">
-            {activeTab &&
-              renderTabContent(
-                activeTab,
-                basicInfoData,
-                statsInfoData,
-                contactInfoData
-              )}
-          </div>
-        </>
-      ) : (
-        <p className="text-xs font-light text-gray-600">No tabs available</p>
-      )}
+      <TabListHeader
+        tabs={tabs}
+        activeTab={activeTab || ""}
+        onTabClick={handleTabClick}
+      />
+      <div className="p-4 h-[525px] overflow-y-auto">
+        {activeTab &&
+          renderTabContent(
+            activeTab,
+            basicInfoData,
+            statsInfoData,
+            contactInfoData
+          )}
+      </div>
     </div>
   );
 };
@@ -191,23 +166,10 @@ const renderTabContent = (
       return <IDsInfo data={basicInfoData} />;
     default:
       return (
-        <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
-          <div className="flex flex-col items-center mb-4">
-            <Skeleton circle height={40} width={40} />
-            <div className="mt-4">
-              <Skeleton height={30} width={200} />
-            </div>
-            <div className="mt-2">
-              <Skeleton height={20} width={250} />
-            </div>
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-sm font-normal text-red-500">
-              Content for {tabKey} not available
-            </p>
-          </div>
-          <Skeleton height={50} width={180} />
-        </div>
+        <EmptyStateComponent
+          title={`${tabKey} Information`}
+          message={`Content for ${tabKey} is not available.`}
+        />
       );
   }
 };

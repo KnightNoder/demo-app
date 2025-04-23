@@ -57,7 +57,8 @@ const WidgetList: React.FC<WidgetListProps> = ({
               .map((widget) => (
                 <li
                   key={widget.key}
-                  className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
+                  className="flex items-center cursor-pointer justify-between p-2 rounded-md hover:bg-gray-100"
+                  onClick={() => toggleWidget(widget.key)}
                 >
                   <span className="flex items-center space-x-2">
                     <div
@@ -67,12 +68,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
                     </div>
                     <span>{widget.key}</span>
                   </span>
-                  <button
-                    className="font-bold text-green-500"
-                    onClick={() => toggleWidget(widget.key)}
-                  >
-                    +
-                  </button>
+                  <button className="font-bold  text-green-500">+</button>
                 </li>
               ))}
           </ul>
@@ -91,7 +87,8 @@ const WidgetList: React.FC<WidgetListProps> = ({
                 return (
                   <li
                     key={key}
-                    className="flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100"
+                    className="flex items-center cursor-pointer justify-between p-2 rounded-md  hover:bg-gray-100"
+                    onClick={() => toggleWidget(key)}
                   >
                     <span className="flex items-center space-x-2">
                       <div
@@ -101,12 +98,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
                       </div>
                       <span>{key}</span>
                     </span>
-                    <button
-                      className="font-bold text-red-500"
-                      onClick={() => toggleWidget(key)}
-                    >
-                      -
-                    </button>
+                    <button className="font-bold text-red-500">-</button>
                   </li>
                 );
               })}

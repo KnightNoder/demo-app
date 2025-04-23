@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../../api/axiosClient";
 import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface Category {
   id: number;
@@ -54,48 +57,48 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  const fetchDocuments = async () => {
+    if (!patientId) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axiosClient.get(
+        `/documents?patient_id=${patientId}`
+      );
+      const data = response.data;
+
+      // Add uploadedBy to each document if it doesn't exist
+      const enhancedData = data.map((doc: Document) => ({
+        ...doc,
+        uploadedBy: doc.uploadedBy || "N/A",
+      }));
+
+      setDocuments(enhancedData);
+
+      // Extract unique categories from all documents
+      const categories = new Set<string>();
+      enhancedData.forEach((doc: Document) => {
+        if (doc.categories && doc.categories.length > 0) {
+          doc.categories.forEach((category) => {
+            categories.add(category.name);
+          });
+        }
+      });
+
+      setUniqueCategories(Array.from(categories).sort());
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to fetch documents"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDocuments = async () => {
-      if (!patientId) return;
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await axiosClient.get(
-          `/documents?patient_id=${patientId}`
-        );
-        const data = response.data;
-
-        // Add uploadedBy to each document if it doesn't exist
-        const enhancedData = data.map((doc: Document) => ({
-          ...doc,
-          uploadedBy: doc.uploadedBy || "N/A",
-        }));
-
-        setDocuments(enhancedData);
-
-        // Extract unique categories from all documents
-        const categories = new Set<string>();
-        enhancedData.forEach((doc: Document) => {
-          if (doc.categories && doc.categories.length > 0) {
-            doc.categories.forEach((category) => {
-              categories.add(category.name);
-            });
-          }
-        });
-
-        setUniqueCategories(Array.from(categories).sort());
-      } catch (err: any) {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Failed to fetch documents"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDocuments();
   }, [patientId]);
 
@@ -354,6 +357,49 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="p-4 mx-auto bg-white rounded-lg">
+        <div className="flex mb-4 gap-1.5 justify-between">
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+          <Skeleton height={40} width={220} />
+        </div>
+
+        <div className="mt-4">
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+          <Skeleton height={120} style={{ marginTop: "10px" }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorComponent
+        title="Unable to Load Documents"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={fetchDocuments}
+      />
+    );
+  }
+
+  if (!Array.isArray(documents)) {
+    return (
+      <ErrorComponent
+        title="Data Format Error"
+        message="Expected an array of documents but received a different format."
+        icon="warning"
+        onRetry={fetchDocuments}
+      />
+    );
+  }
+
   return (
     <div className="bg-white rounded-lg">
       {/* Responsive search and filters */}
@@ -518,30 +564,15 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
         </div>
       </div>
 
-      {loading && <p className="text-xs text-gray-600">Loading documents...</p>}
-      {error && (
-        <div className="flex flex-col items-center justify-center px-4 pb-4 mx-auto bg-white rounded-lg">
-          <div className="flex flex-col items-center mb-4">
-            <Skeleton circle height={40} width={40} />
-            <div className="mt-4">
-              <Skeleton height={30} width={200} />
-            </div>
-            <div className="mt-2">
-              <Skeleton height={20} width={250} />
-            </div>
-          </div>
-          <div className="mt-4 text-center">
-            <p className="text-sm font-normal text-[#020817]">
-              Oops! Something went wrong.
-            </p>
-            <p className="mt-2 text-xs font-light text-gray-600">{error}</p>
-          </div>
-          <Skeleton height={50} width={180} />
-        </div>
-      )}
-
-      {!loading && !error && filteredDocuments.length === 0 && (
-        <p className="text-xs font-light text-gray-600">No documents found.</p>
+      {filteredDocuments.length === 0 && !loading && !error && (
+        <EmptyStateComponent
+          title="No Documents Found"
+          message={
+            searchQuery || categoryFilter !== "All"
+              ? "No documents match your search criteria."
+              : "No documents are available for this patient."
+          }
+        />
       )}
 
       {!loading && !error && filteredDocuments.length > 0 && (

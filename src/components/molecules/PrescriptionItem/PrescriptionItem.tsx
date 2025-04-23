@@ -2,6 +2,7 @@ import React from "react";
 import {
   capitalize,
   capitalizeWord,
+  formatToDashDate,
   timeAgoFromToday,
 } from "../../../utils/utils";
 
@@ -36,24 +37,13 @@ const PrescriptionItem: React.FC<PrescriptionItemProps> = ({
   // Determine if the prescription is active
   const isActive = prescription.active === 1;
 
-  // Format start date if available
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "--";
-    try {
-      const date = new Date(dateString);
-      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-    } catch (e) {
-      return dateString;
-    }
-  };
-
   // Calculate next refill date (placeholder since it's not in the API)
   const getNextRefillDate = () => {
     return "--";
   };
 
   return (
-    <div className="border space-y-2 my-4 p-4 bg-white border border-gray-200 rounded-2xl">
+    <div className="border space-y-2 my-4 p-4 bg-white border-gray-200 rounded-2xl">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -113,7 +103,7 @@ const PrescriptionItem: React.FC<PrescriptionItemProps> = ({
         <div>
           <p className="text-xs font-light text-gray-600 mb-1">Dates</p>
           <p className="text-xs font-normal text-[#020817]">
-            Start: {formatDate(prescription.start_date)}
+            Start: {formatToDashDate(prescription.start_date)}
           </p>
         </div>
       </div>

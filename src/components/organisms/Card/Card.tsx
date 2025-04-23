@@ -291,11 +291,9 @@ const Card: React.FC<CardProps> = ({
 
           {/* Content is only shown when not collapsed */}
           {!isCollapsed && (
-            <>
-              <CustomScroll heightRelativeToParent="calc(100% - 100px)">
-                <div className="flex-1 p-4 overflow-y-auto">{children}</div>
-              </CustomScroll>
-            </>
+            <CustomScroll heightRelativeToParent="calc(100% - 100px)">
+              <div className="flex-1 p-4 overflow-y-auto">{children}</div>
+            </CustomScroll>
           )}
 
           {/* Footer is only shown when not collapsed */}

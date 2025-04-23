@@ -41,6 +41,8 @@ export const useModal = () => {
   // Function to open a modal
   const openModal = (category: string | null, patientId: string | null) => {
     const url = getCategoryUrl(category, patientId);
+    console.log(url, "URL for add");
+    
     if (!url) {
       console.warn(`No URL configured for category: ${category}`);
       return;

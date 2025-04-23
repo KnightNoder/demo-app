@@ -5,7 +5,8 @@ import { fetchDiagnosis } from "../../../features/diagnosisSlice/diagnosisThunk"
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import Icons from "../../../assets/Icons/Icons";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface MedicalProblemsListProps {
   patientId?: string | null;
@@ -102,81 +103,27 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
-          <Icons variant="error" />
-        </div>
-
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Medical Problems
-          </h3>
-          <p className="text-sm text-gray-600">
-            {typeof error === "string"
-              ? error
-              : "An unexpected error occurred while fetching data."}
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={handleFetchDiagnosis}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
-      </div>
+      <ErrorComponent
+        title="Unable to Load Medical Problems"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={handleFetchDiagnosis}
+      />
     );
   }
 
   if (!Array.isArray(diagnosis)) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
-        {/* Warning Icon */}
-        <div className="flex items-center justify-center w-16 h-16 mb-4 text-orange-500 bg-orange-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-        </div>
-
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Data Format Error
-          </h3>
-          <p className="text-sm text-gray-600">
-            Expected an array of medical problems but received a different
-            format.
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={handleFetchDiagnosis}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
-      </div>
+      <ErrorComponent
+        title="Data Format Error"
+        message="Expected an array of medical problems but received a different format."
+        icon="warning"
+        onRetry={handleFetchDiagnosis}
+      />
     );
   }
 
@@ -188,32 +135,14 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
           activeTab={activeTab}
           onTabClick={setActiveTab}
         />
-        <div className="p-6 text-center bg-white rounded-lg">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            No Medical Problems Found
-          </h3>
-          <p className="text-sm text-gray-600">
-            {activeTab === "All"
+        <EmptyStateComponent
+          title="No Medical Problems Found"
+          message={
+            activeTab === "All"
               ? "No medical problems are available for this patient."
-              : `No ${activeTab.toLowerCase()} medical problems are available for this patient.`}
-          </p>
-        </div>
+              : `No ${activeTab.toLowerCase()} medical problems are available for this patient.`
+          }
+        />
       </div>
     );
   }

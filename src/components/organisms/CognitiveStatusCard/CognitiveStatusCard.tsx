@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../../api/axiosClient";
-import { formatDate } from "../../../utils/utils";
+import { formatToDashDate } from "../../../utils/utils";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import Icons from "../../../assets/Icons/Icons";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface AssessmentListProps {
   patientId: null | string;
@@ -68,7 +69,7 @@ const AssessmentCard: React.FC<AssessmentCardComponentProps2> = ({
 
       <div className="flex justify-between mt-3 pt-2 border-t border-gray-200">
         <div className="text-xs text-gray-600 font-light">
-          <div>Begin: {formatDate(begdate)}</div>
+          <div>Begin: {formatToDashDate(begdate)}</div>
           <div className="mt-2">Enc: N/A</div>
         </div>
         <div className="text-xs text-gray-500 text-right font-light">
@@ -132,73 +133,32 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+      <ErrorComponent
+        title="Unable to Load Assessments"
+        message={error}
+        icon="error"
+        onRetry={fetchAssessments}
+      />
+    );
+  }
 
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Assessments
-          </h3>
-          <p className="text-sm text-gray-600">{error}</p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={fetchAssessments}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
-      </div>
+  if (!Array.isArray(assessments)) {
+    return (
+      <ErrorComponent
+        title="Data Format Error"
+        message="Expected an array of assessments but received a different format."
+        icon="warning"
+        onRetry={fetchAssessments}
+      />
     );
   }
 
   if (assessments.length === 0) {
     return (
-      <div className="p-6 text-center bg-white rounded-lg">
-        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-        <h3 className="mb-2 text-lg font-semibold text-gray-800">
-          No Data Available
-        </h3>
-        <p className="text-sm text-gray-600">
-          No cognitive status information is available for this patient.
-        </p>
-      </div>
+      <EmptyStateComponent
+        title="No Data Available"
+        message="No cognitive status information is available for this patient."
+      />
     );
   }
 
