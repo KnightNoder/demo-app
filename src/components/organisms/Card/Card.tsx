@@ -77,7 +77,7 @@ const Card: React.FC<CardProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     // Keep the card appearance the same when dragging
-    zIndex: isDragging ? 110 : 100,
+    zIndex: isDragging ? 11 : 10,
   };
 
   // Effect to manage modal state changes
@@ -150,7 +150,6 @@ const Card: React.FC<CardProps> = ({
       setIsModalOpen(false);
 
       // Always dispatch the close event when closing the modal
-      // regardless of the condition above
       const modalCloseEvent = new CustomEvent("modalStateChange", {
         detail: { isOpen: false },
       });
@@ -160,6 +159,17 @@ const Card: React.FC<CardProps> = ({
 
   const toggleKebabMenu = () => {
     setIsKebabMenuOpen((prev) => !prev);
+  };
+
+  const handleModalClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsModalOpen(false);
+
+    // Dispatch a custom event to notify App component that a modal is closed
+    const modalCloseEvent = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(modalCloseEvent);
   };
 
   const grabIndicatorStyle = {
@@ -181,7 +191,7 @@ const Card: React.FC<CardProps> = ({
   const modalComponent = isModalOpen ? (
     <div
       data-testid="modal"
-      className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal"
+      className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-99 modal"
       onClick={handleCloseModal}
       // Prevent clicks on the modal background from affecting other components
       onMouseDown={(e) => e.stopPropagation()}
@@ -206,19 +216,7 @@ const Card: React.FC<CardProps> = ({
             <button onClick={(e) => e.stopPropagation()}>
               <Icons variant="delete" />
             </button>
-            <button
-              data-testid="modal-close"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsModalOpen(false);
-
-                // Dispatch a custom event to notify App component that a modal is closed
-                const modalCloseEvent = new CustomEvent("modalStateChange", {
-                  detail: { isOpen: false },
-                });
-                document.dispatchEvent(modalCloseEvent);
-              }}
-            >
+            <button data-testid="modal-close" onClick={handleModalClose}>
               <Icons variant="close" />
             </button>
           </div>
