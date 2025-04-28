@@ -1,6 +1,6 @@
-// index.tsx - WidgetMenu with fixes for whitespace
+// index.tsx - WidgetMenu with fixed outside click handling
 import React, { useState, useRef, useEffect } from "react";
-import { getMenuItems, allMenuItems } from "./menuData";
+import { getMenuItems, allMenuItems, getProcessedUrl } from "./menuData";
 
 // Define the dropdown-related interfaces
 export interface DropdownMenuItem {
@@ -26,7 +26,7 @@ export interface WidgetMenuProps {
   isMobileView: boolean;
   isAnyModalOpen: boolean;
   patientId: string | null;
-  onModalStateChange?: (isOpen: boolean) => void; // Add prop for notifying parent of modal state
+  onModalStateChange?: (isOpen: boolean) => void;
   setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -40,7 +40,7 @@ export interface WidgetListProps {
   widgetOptions: WidgetOption[];
   isMobileView: boolean;
   isSmallScreen: boolean;
-  // setIsExpandAll: () => void;
+  setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Import subcomponents
@@ -86,6 +86,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
+  const widgetMenuDropdownRef = useRef<HTMLDivElement | null>(null); // New ref for widget menu dropdown
 
   // Get menu items
   const menuItems = getMenuItems(patientId);
@@ -119,11 +120,17 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       // Check if a modal is currently open
       const modalIsOpen = document.querySelector(".modal");
 
-      // Only close the widget menu if no modal is open
+      // Handle widget menu dropdown close
+      const widgetsButton = document.getElementById("widgets-toggle-button");
+      const isClickOnWidgetsButton = widgetsButton?.contains(
+        event.target as Node
+      );
+
       if (
+        isWidgetMenuOpen &&
         !modalIsOpen &&
-        widgetRef.current &&
-        !widgetRef.current.contains(event.target as Node)
+        !isClickOnWidgetsButton &&
+        !widgetMenuDropdownRef.current?.contains(event.target as Node)
       ) {
         setIsWidgetMenuOpen(false);
       }
@@ -188,59 +195,52 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         left: window.innerWidth - 280,
       });
     } else {
+      // Calculate base position for dropdown
+      let leftPosition = rect.left + window.scrollX - 40;
+
+      // Ensure dropdown doesn't go off screen (basic check, dropdown component has more comprehensive logic)
+      const dropdownWidth = 224; // w-56 = 14rem = 224px
+      if (leftPosition + dropdownWidth > window.innerWidth - 20) {
+        leftPosition = window.innerWidth - dropdownWidth - 20;
+      }
+
       setDropdownPosition({
         top: rect.bottom + window.scrollY - 45,
-        left: rect.left + window.scrollX,
+        left: leftPosition,
       });
     }
 
     setShowDropdown(true);
   };
 
-  // Handle dropdown item click
+  // Handle dropdown item click - Updated to use centralized URL processing
   const handleItemClick = (item: DropdownMenuItem) => {
-    // Process the URL template if it needs processing
-    let processedUrl = item.url;
-    console.log(item.label, "clicked");
+    console.log(item.label, "clicked", item.url);
 
-    // If the URL is already processed by MenuButton, this won't be needed,
-    // but we'll add it as a safeguard
-    if (
-      typeof processedUrl === "string" &&
-      (processedUrl.includes("${import.meta.env.VITE_V1_URL}") ||
-        processedUrl.includes("${patientId}"))
-    ) {
-      // Replace environment variable
-      if (processedUrl.includes("${import.meta.env.VITE_V1_URL}")) {
-        const baseUrl = import.meta.env.VITE_V1_URL || "/api";
-        processedUrl = processedUrl.replace(
-          "${import.meta.env.VITE_V1_URL}",
-          baseUrl
-        );
-      }
+    // For special actions like Expand/Collapse All
+    if (item.label === "Expand All") {
+      setIsExpandAll(true);
+      return;
+    } else if (item.label === "Collapse All") {
+      setIsExpandAll(false);
+      return;
+    }
 
-      // Replace patientId
-      if (processedUrl.includes("${patientId}")) {
-        processedUrl = processedUrl.replace("${patientId}", patientId || "");
-      }
+    // For all other URLs, try to open in modal
+    try {
+      // Use the centralized URL processing function
+      console.log(item?.url, "before processed url");
 
+      const processedUrl = getProcessedUrl(item.url, patientId);
+
+      console.log("Setting modal with URL:", processedUrl);
       setModalUrl(processedUrl);
       setModalTitle(`${activeButton} - ${item.label}`);
       setShowModal(true);
       setShowDropdown(false);
       setShowMenuPanel(false);
-    } else {
-      // Update the way setIsExpandAll is used
-      console.log("in else");
-
-      if (item.label == "Expand All") {
-        console.log("expand all clicked");
-
-        setIsExpandAll(true);
-      } else if (item.label == "Collapse All") {
-        console.log("collapse all clicked");
-        setIsExpandAll(false);
-      }
+    } catch (error) {
+      console.error("Error processing URL for modal:", error);
     }
   };
 
@@ -262,7 +262,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   return (
     <div
-      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-auto ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-50"}`}
+      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-11"}`}
       ref={widgetRef}
     >
       {/* Widgets button */}
@@ -285,7 +285,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           showDropdown={showDropdown}
           setShowDropdown={setShowDropdown}
           handleItemClick={handleItemClick}
-          patientId={patientId} // Add this prop
+          patientId={patientId}
         />
       ) : (
         <MenuStrip
@@ -326,6 +326,8 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
             : "scale-95 opacity-0 pointer-events-none"
         } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
         style={{ zIndex: 1000 }}
+        ref={widgetMenuDropdownRef}
+        onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
       >
         <WidgetList
           searchTerm={searchTerm}

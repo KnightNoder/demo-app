@@ -4,6 +4,8 @@ import "react-loading-skeleton/dist/skeleton.css";
 import AppointmentItem from "../../molecules/AppointmentItem/AppointmentItem";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import axiosClient from "../../../api/axiosClient";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface Appointment {
   id: number;
@@ -126,61 +128,27 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-16 h-16 mb-4 text-red-500 bg-red-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+      <ErrorComponent
+        title="Unable to Load Appointments"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={fetchAppointments}
+      />
+    );
+  }
 
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Appointments
-          </h3>
-          <p className="text-sm text-gray-600">
-            {typeof error === "string"
-              ? error
-              : "An unexpected error occurred while fetching data."}
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={fetchAppointments}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Retry
-          </div>
-        </button>
-      </div>
+  if (!Array.isArray(appointments)) {
+    return (
+      <ErrorComponent
+        title="Data Format Error"
+        message="Expected an array of appointments but received a different format."
+        icon="warning"
+        onRetry={fetchAppointments}
+      />
     );
   }
 
@@ -198,34 +166,16 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
             <AppointmentItem key={appointment.id} appointment={appointment} />
           ))
         ) : (
-          <div className="p-6 text-center bg-white rounded-lg">
-            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-8 h-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-800">
-              No Appointments Found
-            </h3>
-            <p className="text-sm text-gray-600">
-              {activeTab === "All"
+          <EmptyStateComponent
+            title="No Appointments Found"
+            message={
+              activeTab === "All"
                 ? "There are no appointments scheduled for this patient."
                 : activeTab === "Upcoming"
                   ? "There are no upcoming appointments scheduled for this patient."
-                  : "There are no past appointments for this patient."}
-            </p>
-          </div>
+                  : "There are no past appointments for this patient."
+            }
+          />
         )}
       </div>
     </div>

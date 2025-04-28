@@ -6,10 +6,12 @@ import VitalsOverview from "../../molecules/Vitals/Overview";
 import VitalsTrend from "../../molecules/Vitals/Trends";
 import VitalsTable from "../../molecules/Vitals/Table";
 import axiosClient from "../../../api/axiosClient";
-import Icons from "../../../assets/Icons/Icons";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface VitalsCardProps {
   patientId: string | null;
+  isAnyModalOpen?: boolean;
 }
 
 const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
@@ -78,48 +80,16 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Vitals Data
-          </h3>
-          <p className="text-sm text-gray-600">
-            {typeof error === "string"
-              ? error
-              : "An unexpected error occurred while fetching data."}
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={fetchVitalsData}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
-      </div>
+      <ErrorComponent
+        title="Unable to Load Vitals Data"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={fetchVitalsData}
+      />
     );
   }
 
@@ -138,30 +108,10 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
           activeTab={activeTab}
           onTabClick={setActiveTab}
         />
-        <div className="p-6 text-center bg-white rounded-lg">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            No Vitals Data Available
-          </h3>
-          <p className="text-sm text-gray-600">
-            No vitals information is available for this patient.
-          </p>
-        </div>
+        <EmptyStateComponent
+          title="No Vitals Data Available"
+          message="No vitals information is available for this patient."
+        />
       </div>
     );
   }

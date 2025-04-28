@@ -99,6 +99,54 @@ const App: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleGlobalModalState = (
+      event: CustomEvent<{ isOpen: boolean }>
+    ) => {
+      const { isOpen } = event.detail;
+
+      // Track widget modal state in coordination with all other modals
+      if (!isOpen && isWidgetModalOpen) {
+        // Don't automatically close the widget menu if widget modal is still open
+        return;
+      }
+
+      // When any modal closes, check if we should update the widget menu visibility
+      if (!isOpen && !modal.isOpen) {
+        setIsWidgetMenuOpen(false);
+      }
+    };
+
+    // Listen for iframe modal closure separately
+    const handleIframeModalClosed = () => {
+      // Don't automatically reset all modal states when an iframe modal closes
+      // Let the modal stack handle itself through the modalStateChange events
+      console.log("Iframe modal closed");
+    };
+
+    document.addEventListener(
+      "modalStateChange",
+      handleGlobalModalState as EventListener
+    );
+
+    document.addEventListener(
+      "iframeModalClosed",
+      handleIframeModalClosed as EventListener
+    );
+
+    return () => {
+      document.removeEventListener(
+        "modalStateChange",
+        handleGlobalModalState as EventListener
+      );
+
+      document.removeEventListener(
+        "iframeModalClosed",
+        handleIframeModalClosed as EventListener
+      );
+    };
+  }, [isWidgetModalOpen, modal.isOpen]);
+
   // Card action handler
   const handleCardAction: CardActionHandler = (action, category) => {
     // Check if category is null
@@ -123,6 +171,15 @@ const App: React.FC = () => {
   // Handle modal state change from WidgetMenu
   const handleWidgetModalStateChange = (isOpen: boolean) => {
     setIsWidgetModalOpen(isOpen);
+
+    // When widget modal opens, also ensure we track it in the global modal state
+    if (isOpen) {
+      document.dispatchEvent(
+        new CustomEvent("modalStateChange", { detail: { isOpen: true } })
+      );
+    }
+
+    // We don't dispatch a close event here - the modal itself will do that
   };
 
   // Handler for drag start
@@ -171,6 +228,7 @@ const App: React.FC = () => {
     document.body.classList.remove("dragging-active");
   };
 
+  console.log("Current environment:", process.env.NODE_ENV);
   return (
     <Provider store={store}>
       <DndContext
@@ -181,9 +239,8 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div
-          className={`relative w-full min-h-screen ${isModalVisible ? "pt-0" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
+          className={`relative w-full min-h-screen ${isModalVisible ? "pt-4 md:pt-12" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
         >
-          {/* Widget menu - Pass the authorizedWidgets prop and modal state handler */}
           <WidgetMenu
             widgetOptions={widgetOptions}
             visibleWidgets={visibleWidgets}
@@ -197,6 +254,7 @@ const App: React.FC = () => {
             onModalStateChange={handleWidgetModalStateChange}
             setIsExpandAll={setIsExpandAll}
           />
+          {/* Widget menu - Pass the authorizedWidgets prop and modal state handler */}
 
           {/* Grid Container */}
           <div className="relative w-full" style={{ zIndex: 10 }}>

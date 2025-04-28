@@ -4,7 +4,8 @@ import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import axiosClient from "../../../api/axiosClient";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import Icons from "../../../assets/Icons/Icons";
+import ErrorComponent from "../../atoms/States/Error";
+import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface NotificationCardProps {
   patientId: string | null;
@@ -13,11 +14,12 @@ interface NotificationCardProps {
 
 interface Notification {
   id: string;
-  type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER";
+  type: "ALERT" | "TASK" | "MESSAGE" | "REMINDER" | "APPOINTMENT";
   priority: "High" | "Medium" | "Low";
   title: string;
   description: string;
   time: string;
+  metadata?: any; // For additional data specific to notification types
 }
 
 interface ApiResponse {
@@ -25,6 +27,7 @@ interface ApiResponse {
   inbox_reminders: InboxReminder[];
   person_reminders: PersonReminder[];
   patient_messages: PatientMessage[];
+  appointment_reminders: AppointmentReminder[];
 }
 
 interface InboxMessage {
@@ -68,10 +71,18 @@ interface PatientMessage {
   lname: string;
 }
 
-const NotificationCard: React.FC<NotificationCardProps> = ({
-  patientId,
-  // isAnyModalOpen,
-}) => {
+interface AppointmentReminder {
+  id: number;
+  date_of_appointment: string;
+  time_of_appointment: string;
+  practice_name: string;
+  clienttell_response: string;
+  pc_eventDate: string;
+  fname: string;
+  lname: string;
+}
+
+const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +112,40 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     }
   };
 
+  // Format time range for appointments (e.g., "13:00:00-13:15:00" -> "1:00 PM - 1:15 PM")
+  const formatTimeRange = (timeRange: string) => {
+    if (!timeRange) return "Time not specified";
+
+    const [startTime, endTime] = timeRange.split("-");
+
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(":").map((num) => parseInt(num));
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours % 12 || 12;
+      return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+    };
+
+    const formattedStart = formatTime(startTime);
+    const formattedEnd = endTime ? formatTime(endTime) : "";
+
+    return formattedEnd
+      ? `${formattedStart} - ${formattedEnd}`
+      : formattedStart;
+  };
+
+  // Format date for display (e.g., "2023-04-03" -> "Monday, April 3, 2023")
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "Date not specified";
+
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   // Transform API data to our notification format
   const transformApiDataToNotifications = (
     data: ApiResponse
@@ -111,8 +156,8 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     if (data.inbox_messages) {
       data.inbox_messages.forEach((msg, index) => {
         allNotifications.push({
-          id: `task-${msg.id}-${index}`,
-          type: "TASK", // Keeping the type for UI display consistency
+          id: `message-${msg.id}-${index}`, // Changed prefix from task- to message-
+          type: "MESSAGE", // Changed type from TASK to MESSAGE
           priority: "Medium", // Default priority
           title: msg.subject,
           description: msg.message,
@@ -179,6 +224,39 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       });
     }
 
+    // Transform appointment_reminders to notifications
+    if (data.appointment_reminders) {
+      data.appointment_reminders.forEach((appt, index) => {
+        // Calculate if the appointment is upcoming (in the future)
+        const apptDate = new Date(`${appt.date_of_appointment}T00:00:00`);
+        const now = new Date();
+        const isUpcoming = apptDate > now;
+
+        // Extract time from the time range
+        const timeRange = formatTimeRange(appt.time_of_appointment);
+
+        // Format the appointment date
+        const formattedDate = formatDate(appt.date_of_appointment);
+
+        // Create a description that includes all relevant appointment info
+        const description = `${formattedDate} at ${timeRange} - ${appt.practice_name}`;
+
+        allNotifications.push({
+          id: `appointment-${appt.id}-${index}`,
+          type: "APPOINTMENT",
+          // Higher priority for upcoming appointments
+          priority: isUpcoming ? "High" : "Medium",
+          title: `Appointment with ${appt.fname} ${appt.lname}`,
+          description: description,
+          time: getTimeAgo(appt.pc_eventDate || appt.date_of_appointment),
+          metadata: {
+            ...appt,
+            isUpcoming,
+          },
+        });
+      });
+    }
+
     return allNotifications;
   };
 
@@ -216,6 +294,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
   }, [patientId]);
 
   // Effect for filtering notifications based on active tab
+  // Effect for filtering notifications based on active tab
   useEffect(() => {
     if (!apiData) return;
 
@@ -233,6 +312,9 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       ),
       person_reminders: notifications.filter((note) =>
         note.id.startsWith("person-reminder-")
+      ),
+      appointment_reminders: notifications.filter((note) =>
+        note.id.startsWith("appointment-")
       ),
     };
 
@@ -253,10 +335,11 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       ];
       setFilteredNotifications(messages);
     } else if (activeTab === "Reminders") {
-      // Concat inbox_reminders and person_reminders
+      // Concat inbox_reminders, person_reminders, and appointment_reminders
       const reminders = [
         ...sourceIdMap.inbox_reminders,
         ...sourceIdMap.person_reminders,
+        ...sourceIdMap.appointment_reminders,
       ];
       setFilteredNotifications(reminders);
     }
@@ -278,12 +361,16 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
         person_reminders: notifications.filter((note) =>
           note.id.startsWith("person-reminder-")
         ),
+        appointment_reminders: notifications.filter((note) =>
+          note.id.startsWith("appointment-")
+        ),
       }
     : {
         inbox_messages: [],
         patient_messages: [],
         inbox_reminders: [],
         person_reminders: [],
+        appointment_reminders: [],
       };
 
   // Count notifications for each tab
@@ -295,6 +382,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
       sourceIdMap.inbox_messages.length + sourceIdMap.patient_messages.length,
     Reminders:
       sourceIdMap.inbox_reminders.length + sourceIdMap.person_reminders.length,
+    Appointments: sourceIdMap.appointment_reminders.length,
   };
 
   const tabs = [
@@ -302,7 +390,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
     { label: "GT Alerts", count: counts["GT Alerts"] },
     { label: "Tasks", count: counts.Tasks },
     { label: "Messages", count: counts.Messages },
-    { label: "Reminders", count: counts.Reminders },
+    { label: "Reminders", count: counts.Reminders + counts.Appointments },
   ];
 
   if (loading) {
@@ -325,53 +413,32 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-6 mx-auto bg-white rounded-lg ">
-        {/* Error Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mb-4 text-red-500 bg-red-100 rounded-full">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-8 h-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
+      <ErrorComponent
+        title="Unable to Load Notifications"
+        message={
+          typeof error === "string"
+            ? error
+            : "An unexpected error occurred while fetching data."
+        }
+        icon="error"
+        onRetry={fetchNotifications}
+      />
+    );
+  }
 
-        {/* Error Message */}
-        <div className="mb-6 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            Unable to Load Notifications
-          </h3>
-          <p className="text-sm text-gray-600">
-            {typeof error === "string"
-              ? error
-              : "An unexpected error occurred while fetching data."}
-          </p>
-        </div>
-
-        {/* Retry Button */}
-        <button
-          onClick={fetchNotifications}
-          className="px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          <div className="flex items-center">
-            <Icons variant="retry" />
-            Retry
-          </div>
-        </button>
-      </div>
+  if (!apiData || !notifications) {
+    return (
+      <ErrorComponent
+        title="Data Format Error"
+        message="Expected notification data but received an invalid format."
+        icon="warning"
+        onRetry={fetchNotifications}
+      />
     );
   }
 
   return (
-    <div className="bg-white rounded-lg ">
+    <div className="bg-white rounded-lg">
       <TabListHeader
         tabs={tabs}
         activeTab={activeTab}
@@ -382,32 +449,14 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
           <NotificationItem key={notification.id} notification={notification} />
         ))
       ) : (
-        <div className="p-6 text-center bg-white rounded-lg">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-8 h-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-gray-800">
-            No Notifications Available
-          </h3>
-          <p className="text-sm text-gray-600">
-            {activeTab === "All"
+        <EmptyStateComponent
+          title="No Notifications Available"
+          message={
+            activeTab === "All"
               ? "There are no notifications for this patient."
-              : `There are no ${activeTab} for this patient.`}
-          </p>
-        </div>
+              : `There are no ${activeTab} for this patient.`
+          }
+        />
       )}
     </div>
   );

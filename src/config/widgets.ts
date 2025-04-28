@@ -105,7 +105,7 @@ export const widgetOptions: WidgetOption[] = [
     hasWritePermission: true,
   },
   {
-    key: "ID/Card Photos",
+    key: "ID Card/Photos",
     component: PhotosCard,
     iconBgColor: "bg-purple-100",
     icon: "id-card",
@@ -156,7 +156,7 @@ export const defaultVisibleWidgets: string[] = [
   "Functional Status",
   "Medications",
   "Notifications",
-  "Advanced Directives",
+  // "Advanced Directives",
   "Appointments",
-  "Clinical Notes",
+  // "Clinical Notes",
 ];

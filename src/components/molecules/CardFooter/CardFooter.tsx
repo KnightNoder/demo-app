@@ -24,11 +24,11 @@ const CardFooter: React.FC<CardFooterProps> = ({
     }
   };
 
-  const handleViewHistoryClick = () => {
-    if (onAction) {
-      onAction("view", category ?? null);
-    }
-  };
+  // const handleViewHistoryClick = () => {
+  //   if (onAction) {
+  //     onAction("view", category ?? null);
+  //   }
+  // };
 
   return (
     <div role="contentinfo" data-testid="card-content" className="w-full">
@@ -46,13 +46,13 @@ const CardFooter: React.FC<CardFooterProps> = ({
               </Button>
             )}
 
-            <Button
+            {/* <Button
               variant="secondary"
               dataCy="data-secondary"
               onClick={handleViewHistoryClick}
             >
               View History
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { formatDate, capitalizeWord } from "../../../utils/utils";
+import { capitalizeWord, formatToDashDate } from "../../../utils/utils";
 import Item from "../../molecules/Item/Item";
 import Icons from "../../../assets/Icons/Icons";
 
@@ -39,7 +39,7 @@ export const DiagnosisItem: React.FC<DiagnosisItemProps> = ({ item }) => {
         <p className="mt-2 flex items-center gap-2 text-xs text-gray-500 font-light">
           <Icons variant="calender" />
           <span className="text-[#020817] font-extralight">
-            Onset: {formatDate(item.begdate)}
+            Onset: {formatToDashDate(item.begdate)}
           </span>
         </p>
         <p className="mt-2 flex items-center gap-2 text-xs text-gray-500">

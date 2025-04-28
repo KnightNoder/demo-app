@@ -1,5 +1,5 @@
 import React from "react";
-import { capitalize, formatDate } from "../../../utils/utils";
+import { capitalize, formatToDashDate } from "../../../utils/utils";
 
 interface Allergy {
   id: string;
@@ -133,7 +133,7 @@ const AllergyRow: React.FC<AllergyRowProps> = ({ allergy, isAnyModalOpen }) => {
         {getReactionPill(allergy.reaction)}
       </td>
       <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
-        {formatDate(allergy.begdate)}
+        {formatToDashDate(allergy.begdate)}
       </td>
       <td className="pl-1 pr-2 py-3 align-middle text-xs text-[#5B6B7A]">
         {allergy.modified_by?.fname && allergy.modified_by?.lname

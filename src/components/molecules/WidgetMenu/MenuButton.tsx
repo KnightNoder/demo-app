@@ -1,5 +1,6 @@
 // components/MenuButton.tsx
 import React, { useState } from 'react';
+import { getProcessedUrl } from "./menuData"; // Import the fixed URL processing function
 
 export interface DropdownMenuItem {
   label: string;
@@ -21,7 +22,7 @@ interface MenuButtonProps {
   showDropdown: boolean;
   setShowDropdown: (show: boolean) => void;
   handleItemClick: (item: DropdownMenuItem) => void;
-  patientId: string | null; // Add patientId prop
+  patientId: string | null;
 }
 
 const MenuButton: React.FC<MenuButtonProps> = ({
@@ -34,41 +35,17 @@ const MenuButton: React.FC<MenuButtonProps> = ({
   showDropdown,
   setShowDropdown,
   handleItemClick,
-  patientId, // Include patientId in destructured props
+  patientId,
 }) => {
   // Keep track of which menu item is expanded
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
-
-  // Process URL template strings
-  const processUrl = (url: string): string => {
-    // Replace environment variable placeholder if it exists
-    let processedUrl = url;
-
-    // Check if URL contains environment variable reference
-    if (url.includes("${import.meta.env.VITE_V1_URL}")) {
-      // In a real app, this would use the actual env variable
-      // For this example, we'll use a placeholder
-      const baseUrl = import.meta.env.VITE_V1_URL || "/api";
-      processedUrl = processedUrl.replace(
-        "${import.meta.env.VITE_V1_URL}",
-        baseUrl
-      );
-    }
-
-    // Replace patientId placeholder if it exists
-    if (processedUrl.includes("${patientId}")) {
-      processedUrl = processedUrl.replace("${patientId}", patientId || "");
-    }
-
-    return processedUrl;
-  };
 
   // Handle menu item click with processed URL
   const handleProcessedItemClick = (item: DropdownMenuItem) => {
     // Process the URL before passing it to handleItemClick
     const processedItem = {
       ...item,
-      url: processUrl(item.url),
+      url: getProcessedUrl(item.url, patientId), // Use the centralized processing function
     };
 
     handleItemClick(processedItem);
