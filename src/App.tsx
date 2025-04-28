@@ -14,7 +14,7 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
-import { setAuthToken } from "./services/api";
+import { setAuthToken } from "./api/axiosClient";
 import "./App.css";
 
 // Import custom hooks
