@@ -46,7 +46,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
     }, 0);
   };
 
-  // Handle ESC key press
+  // Handle ESC key press and clicks outside modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -54,10 +54,20 @@ const ModalContent: React.FC<ModalContentProps> = ({
       }
     };
 
+    const handleClickOutside = (e: MouseEvent) => {
+      // Check if click is outside the modal content
+      const modalContent = document.querySelector(".bg-white.w-11\\/12");
+      if (modalContent && !modalContent.contains(e.target as Node)) {
+        handleClose();
+      }
+    };
+
     document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -65,8 +75,12 @@ const ModalContent: React.FC<ModalContentProps> = ({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       data-modal-type="iframe"
+      // We let handleClickOutside in useEffect handle this for better event coordination
     >
-      <div className="bg-white w-11/12 h-5/6 rounded-lg overflow-hidden flex flex-col">
+      <div
+        className="bg-white w-11/12 h-5/6 rounded-lg overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()} // Prevent clicks on modal content from closing
+      >
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{modalTitle}</h2>
           <button

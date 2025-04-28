@@ -96,20 +96,55 @@ const Card: React.FC<CardProps> = ({
     }
   }, [isModalOpen]);
 
+  // Handle close and escape for all modals in a consistent way
+  const handleModalClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    // First, dispatch a card-specific closed event
+    // This allows other components to differentiate between modal types
+    const cardEvent = new CustomEvent("cardModalClosed", {});
+    document.dispatchEvent(cardEvent);
+
+    // Then set the local modal state
+    setIsModalOpen(false);
+
+    // Finally, dispatch the standard modal state change event
+    const modalCloseEvent = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(modalCloseEvent);
+  };
+
+  // Handle keypresses and outside clicks
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsModalOpen(false);
+        if (isModalOpen) {
+          handleModalClose();
+        }
         setIsKebabMenuOpen(false);
       }
     };
 
     const handleClickOutside = (e: MouseEvent) => {
+      // Handle kebab menu close
       if (
         kebabMenuRef.current &&
         !kebabMenuRef.current.contains(e.target as Node)
       ) {
         setIsKebabMenuOpen(false);
+      }
+
+      // Handle modal close when clicking outside
+      if (
+        isModalOpen &&
+        modalRef.current &&
+        !modalRef.current.contains(e.target as Node)
+      ) {
+        // Use the same handleModalClose for consistency
+        handleModalClose();
       }
     };
 
@@ -120,7 +155,7 @@ const Card: React.FC<CardProps> = ({
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isModalOpen]);
 
   const handleCollapse = () => {
     // Simply toggle the card's collapse state when clicked
@@ -142,34 +177,26 @@ const Card: React.FC<CardProps> = ({
     document.dispatchEvent(modalOpenEvent);
   };
 
-  const handleCloseModal = (e: React.MouseEvent) => {
-    // Prevent the event from reaching the document click handler
-    e.stopPropagation();
+  // Listen for iframe modal closure events
+  useEffect(() => {
+    const handleIframeModalClosed = () => {
+      // When iframe modal is closed, we don't need to close the card modal
+      // Just log for debugging
+      console.log("Iframe modal closed, card modal remains open");
+    };
 
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      setIsModalOpen(false);
+    document.addEventListener("iframeModalClosed", handleIframeModalClosed);
 
-      // Always dispatch the close event when closing the modal
-      const modalCloseEvent = new CustomEvent("modalStateChange", {
-        detail: { isOpen: false },
-      });
-      document.dispatchEvent(modalCloseEvent);
-    }
-  };
+    return () => {
+      document.removeEventListener(
+        "iframeModalClosed",
+        handleIframeModalClosed
+      );
+    };
+  }, []);
 
   const toggleKebabMenu = () => {
     setIsKebabMenuOpen((prev) => !prev);
-  };
-
-  const handleModalClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsModalOpen(false);
-
-    // Dispatch a custom event to notify App component that a modal is closed
-    const modalCloseEvent = new CustomEvent("modalStateChange", {
-      detail: { isOpen: false },
-    });
-    document.dispatchEvent(modalCloseEvent);
   };
 
   const grabIndicatorStyle = {
@@ -191,10 +218,9 @@ const Card: React.FC<CardProps> = ({
   const modalComponent = isModalOpen ? (
     <div
       data-testid="modal"
+      data-modal-type="card"
       className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-99 modal"
-      onClick={handleCloseModal}
-      // Prevent clicks on the modal background from affecting other components
-      onMouseDown={(e) => e.stopPropagation()}
+      // We'll let the click outside handler take care of this
     >
       <div
         ref={modalRef}

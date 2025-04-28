@@ -239,7 +239,7 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div
-          className={`relative w-full min-h-screen ${isModalVisible ? "pt-0" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
+          className={`relative w-full min-h-screen ${isModalVisible ? "pt-4 md:pt-12" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
         >
           <WidgetMenu
             widgetOptions={widgetOptions}
