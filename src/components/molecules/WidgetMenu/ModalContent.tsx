@@ -55,7 +55,7 @@ const ModalContent: React.FC<ModalContentProps> = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal h-[100vh] md:h-[100vh]">
       <div className="bg-white rounded-lg shadow-xl w-4/5 h-4/5 flex flex-col">
-        <div className="flex justify-between items-center p-4 border-b">
+        <div className="flex justify-between items-center p-4 ">
           <h3 className="text-lg font-medium">{modalTitle}</h3>
           <button
             onClick={closeModal}
