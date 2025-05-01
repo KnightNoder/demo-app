@@ -43,9 +43,11 @@ const Card: React.FC<CardProps> = ({
 }) => {
   // Track the card's collapsed state
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
+  const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
   const [isKebabMenuOpen, setIsKebabMenuOpen] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const headerModalRef = useRef<HTMLDivElement>(null);
+  const footerModalRef = useRef<HTMLDivElement>(null);
   const kebabMenuRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -76,43 +78,112 @@ const Card: React.FC<CardProps> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    // Keep the card appearance the same when dragging
     zIndex: isDragging ? 11 : 10,
   };
 
-  // Effect to manage modal state changes
+  // Listen for global modal state changes
   useEffect(() => {
-    // When modal state changes, dispatch the appropriate event
-    if (isModalOpen) {
+    const handleModalStateChange = (
+      event: CustomEvent<{
+        isOpen: boolean;
+        modalType?: string;
+        sourceId?: string;
+      }>
+    ) => {
+      const { isOpen, modalType, sourceId } = event.detail;
+
+      // Only process events that aren't from this component (to avoid loops)
+      // or events without a sourceId (for backwards compatibility)
+      if (!sourceId || sourceId !== id) {
+        if (!isOpen) {
+          // When any modal is closed, update all local modal states
+          setIsHeaderModalOpen(false);
+          setIsFooterModalOpen(false);
+        } else if (modalType) {
+          // Update specific modal state based on type
+          if (modalType === "header") {
+            // If another card's header modal is opening, close this one
+            if (sourceId && sourceId !== id) {
+              setIsHeaderModalOpen(false);
+            }
+          }
+        }
+      }
+    };
+
+    document.addEventListener(
+      "modalStateChange",
+      handleModalStateChange as EventListener
+    );
+
+    return () => {
+      document.removeEventListener(
+        "modalStateChange",
+        handleModalStateChange as EventListener
+      );
+    };
+  }, [id]);
+
+  // Effect to dispatch event when header modal state changes
+  useEffect(() => {
+    if (isHeaderModalOpen) {
       const modalOpenEvent = new CustomEvent("modalStateChange", {
-        detail: { isOpen: true },
+        detail: {
+          isOpen: true,
+          modalType: "header",
+          sourceId: id, // Add source ID to prevent loops
+        },
       });
       document.dispatchEvent(modalOpenEvent);
-    } else {
-      const modalCloseEvent = new CustomEvent("modalStateChange", {
-        detail: { isOpen: false },
-      });
-      document.dispatchEvent(modalCloseEvent);
     }
-  }, [isModalOpen]);
+  }, [isHeaderModalOpen, id]);
 
-  // Handle close and escape for all modals in a consistent way
-  const handleModalClose = (e?: React.MouseEvent) => {
+  // Effect to dispatch event when footer modal state changes
+  useEffect(() => {
+    if (isFooterModalOpen) {
+      const modalOpenEvent = new CustomEvent("modalStateChange", {
+        detail: {
+          isOpen: true,
+          modalType: "footer",
+          sourceId: id, // Add source ID to prevent loops
+        },
+      });
+      document.dispatchEvent(modalOpenEvent);
+    }
+  }, [isFooterModalOpen, id]);
+
+  // Handle close for header modal
+  const handleHeaderModalClose = (e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
     }
 
-    // First, dispatch a card-specific closed event
-    // This allows other components to differentiate between modal types
-    const cardEvent = new CustomEvent("cardModalClosed", {});
-    document.dispatchEvent(cardEvent);
+    setIsHeaderModalOpen(false);
 
-    // Then set the local modal state
-    setIsModalOpen(false);
-
-    // Finally, dispatch the standard modal state change event
+    // Dispatch a modal state change event
     const modalCloseEvent = new CustomEvent("modalStateChange", {
-      detail: { isOpen: false },
+      detail: {
+        isOpen: false,
+        sourceId: id, // Add source ID to prevent loops
+      },
+    });
+    document.dispatchEvent(modalCloseEvent);
+  };
+
+  // Handle close for footer modal
+  const handleFooterModalClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    setIsFooterModalOpen(false);
+
+    // Dispatch a modal state change event
+    const modalCloseEvent = new CustomEvent("modalStateChange", {
+      detail: {
+        isOpen: false,
+        sourceId: id, // Add source ID to prevent loops
+      },
     });
     document.dispatchEvent(modalCloseEvent);
   };
@@ -121,8 +192,11 @@ const Card: React.FC<CardProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (isModalOpen) {
-          handleModalClose();
+        if (isHeaderModalOpen) {
+          handleHeaderModalClose();
+        }
+        if (isFooterModalOpen) {
+          handleFooterModalClose();
         }
         setIsKebabMenuOpen(false);
       }
@@ -137,14 +211,22 @@ const Card: React.FC<CardProps> = ({
         setIsKebabMenuOpen(false);
       }
 
-      // Handle modal close when clicking outside
+      // Handle header modal close when clicking outside
       if (
-        isModalOpen &&
-        modalRef.current &&
-        !modalRef.current.contains(e.target as Node)
+        isHeaderModalOpen &&
+        headerModalRef.current &&
+        !headerModalRef.current.contains(e.target as Node)
       ) {
-        // Use the same handleModalClose for consistency
-        handleModalClose();
+        handleHeaderModalClose();
+      }
+
+      // Handle footer modal close when clicking outside
+      if (
+        isFooterModalOpen &&
+        footerModalRef.current &&
+        !footerModalRef.current.contains(e.target as Node)
+      ) {
+        handleFooterModalClose();
       }
     };
 
@@ -155,10 +237,9 @@ const Card: React.FC<CardProps> = ({
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, [isHeaderModalOpen, isFooterModalOpen]);
 
   const handleCollapse = () => {
-    // Simply toggle the card's collapse state when clicked
     setIsCollapsed((prev) => !prev);
   };
 
@@ -168,21 +249,21 @@ const Card: React.FC<CardProps> = ({
     }
     // Close kebab menu when opening modal to prevent overlap
     setIsKebabMenuOpen(false);
-    setIsModalOpen(true);
+    setIsHeaderModalOpen(true);
+  };
 
-    // Dispatch a custom event to notify App component that a modal is open
-    const modalOpenEvent = new CustomEvent("modalStateChange", {
-      detail: { isOpen: true },
-    });
-    document.dispatchEvent(modalOpenEvent);
+  // Handle add action from footer
+  const handleAddAction = (action: "add" | "view", category: string | null) => {
+    if (onAction) {
+      onAction(action, category);
+      setIsFooterModalOpen(true);
+    }
   };
 
   // Listen for iframe modal closure events
   useEffect(() => {
     const handleIframeModalClosed = () => {
       // When iframe modal is closed, we don't need to close the card modal
-      // Just log for debugging
-      console.log("Iframe modal closed, card modal remains open");
     };
 
     document.addEventListener("iframeModalClosed", handleIframeModalClosed);
@@ -214,16 +295,15 @@ const Card: React.FC<CardProps> = ({
     transition: transition,
   };
 
-  // Updated modal component to prevent event propagation issues
-  const modalComponent = isModalOpen ? (
+  // Header modal component
+  const headerModalComponent = isHeaderModalOpen ? (
     <div
-      data-testid="modal"
-      data-modal-type="card"
+      data-testid="header-modal"
+      data-modal-type="header"
       className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-99 modal"
-      // We'll let the click outside handler take care of this
     >
       <div
-        ref={modalRef}
+        ref={headerModalRef}
         className={`bg-white p-4 rounded-lg shadow-lg w-[90%] ${isAnyModalOpen ? "max-w-[100%]" : "max-w-[50%]"} h-[80%] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -242,7 +322,7 @@ const Card: React.FC<CardProps> = ({
             <button onClick={(e) => e.stopPropagation()}>
               <Icons variant="delete" />
             </button>
-            <button data-testid="modal-close" onClick={handleModalClose}>
+            <button data-testid="modal-close" onClick={handleHeaderModalClose}>
               <Icons variant="close" />
             </button>
           </div>
@@ -254,7 +334,7 @@ const Card: React.FC<CardProps> = ({
               {true ? (
                 <CardFooter
                   category={category}
-                  onAction={onAction}
+                  onAction={handleAddAction}
                   patientId={patientId}
                   hasWritePermission={hasWritePermission}
                   isStrictAuditor={isStrictAuditor}
@@ -271,8 +351,7 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      {/* Render modal as a portal-like element at the end to avoid widget menu conflicts */}
-      {modalComponent}
+      {headerModalComponent}
 
       <div
         ref={setNodeRef}
@@ -326,7 +405,7 @@ const Card: React.FC<CardProps> = ({
               <CardFooter
                 category={category}
                 patientId={patientId}
-                onAction={onAction}
+                onAction={handleAddAction}
                 hasWritePermission={hasWritePermission}
                 isStrictAuditor={isStrictAuditor}
               />

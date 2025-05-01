@@ -1,4 +1,3 @@
-// index.tsx - WidgetMenu with fixed outside click handling
 import React, { useState, useRef, useEffect } from "react";
 import { getMenuItems, allMenuItems, getProcessedUrl } from "./menuData";
 
@@ -27,19 +26,6 @@ export interface WidgetMenuProps {
   isAnyModalOpen: boolean;
   patientId: string | null;
   onModalStateChange?: (isOpen: boolean) => void;
-  setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-// Define the WidgetListProps interface for the WidgetList component
-export interface WidgetListProps {
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  authorizedWidgetOptions: WidgetOption[];
-  visibleWidgets: string[];
-  toggleWidget: (widgetKey: string) => void;
-  widgetOptions: WidgetOption[];
-  isMobileView: boolean;
-  isSmallScreen: boolean;
   setIsExpandAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -82,21 +68,88 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
   const [showMenuPanel, setShowMenuPanel] = useState<boolean>(false);
 
+  // Track different modal types
+  const [isHeaderModalOpen, setIsHeaderModalOpen] = useState<boolean>(false);
+  const [isFooterModalOpen, setIsFooterModalOpen] = useState<boolean>(false);
+
   // Refs
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
-  const widgetMenuDropdownRef = useRef<HTMLDivElement | null>(null); // New ref for widget menu dropdown
+  const widgetMenuDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Unique identifier for this component
+  const widgetMenuId = "widget-menu";
 
   // Get menu items
   const menuItems = getMenuItems(patientId);
 
-  // Notify parent component when modal state changes
+  // Listen for global modal state changes
+  useEffect(() => {
+    const handleGlobalModalStateChange = (
+      event: CustomEvent<{
+        isOpen: boolean;
+        modalType?: string;
+        sourceId?: string;
+      }>
+    ) => {
+      const { isOpen, modalType, sourceId } = event.detail;
+
+      // Skip processing events from this component to avoid loops
+      if (!sourceId || sourceId !== widgetMenuId) {
+        if (!isOpen) {
+          // When any modal is closed, update all local modal states
+          setIsHeaderModalOpen(false);
+          setIsFooterModalOpen(false);
+          setShowModal(false);
+
+          // Also notify parent component
+          if (onModalStateChange) {
+            onModalStateChange(false);
+          }
+        } else if (modalType) {
+          // Update specific modal state based on type
+          switch (modalType) {
+            case "header":
+              setIsHeaderModalOpen(true);
+              break;
+            case "footer":
+              setIsFooterModalOpen(true);
+              break;
+            default:
+              // For other modals, just update the showModal state
+              setShowModal(true);
+          }
+
+          // Also notify parent component
+          if (onModalStateChange) {
+            onModalStateChange(true);
+          }
+        }
+      }
+    };
+
+    document.addEventListener(
+      "modalStateChange",
+      handleGlobalModalStateChange as EventListener
+    );
+
+    return () => {
+      document.removeEventListener(
+        "modalStateChange",
+        handleGlobalModalStateChange as EventListener
+      );
+    };
+  }, [onModalStateChange]);
+
+  // Notify parent component when any modal state changes
   useEffect(() => {
     if (onModalStateChange) {
-      onModalStateChange(showModal);
+      const isAnyLocalModalOpen =
+        showModal || isHeaderModalOpen || isFooterModalOpen;
+      onModalStateChange(isAnyLocalModalOpen);
     }
-  }, [showModal, onModalStateChange]);
+  }, [showModal, isHeaderModalOpen, isFooterModalOpen, onModalStateChange]);
 
   // Screen size detection
   useEffect(() => {
@@ -161,6 +214,18 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
         setShowDropdown(false);
         setShowModal(false);
         setShowMenuPanel(false);
+        setIsHeaderModalOpen(false);
+        setIsFooterModalOpen(false);
+
+        // Notify other components about modal closing
+        const modalCloseEvent = new CustomEvent("modalStateChange", {
+          detail: {
+            isOpen: false,
+            sourceId: widgetMenuId,
+          },
+        });
+        document.dispatchEvent(modalCloseEvent);
+
         // Remove focus from any elements to prevent focus outline
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
@@ -215,8 +280,6 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   // Handle dropdown item click - Updated to use centralized URL processing
   const handleItemClick = (item: DropdownMenuItem) => {
-    console.log(item.label, "clicked", item.url);
-
     // For special actions like Expand/Collapse All
     if (item.label === "Expand All") {
       setIsExpandAll(true);
@@ -229,25 +292,41 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
     // For all other URLs, try to open in modal
     try {
       // Use the centralized URL processing function
-      console.log(item?.url, "before processed url");
-
       const processedUrl = getProcessedUrl(item.url, patientId);
 
-      console.log("Setting modal with URL:", processedUrl);
       setModalUrl(processedUrl);
       setModalTitle(`${activeButton} - ${item.label}`);
       setShowModal(true);
       setShowDropdown(false);
       setShowMenuPanel(false);
+
+      // Dispatch a custom event to notify other components that this modal is open
+      const modalOpenEvent = new CustomEvent("modalStateChange", {
+        detail: {
+          isOpen: true,
+          modalType: "menu",
+          sourceId: widgetMenuId,
+        },
+      });
+      document.dispatchEvent(modalOpenEvent);
     } catch (error) {
       console.error("Error processing URL for modal:", error);
     }
   };
 
-  // Close modal
+  // Close modal - FIX: Properly dispatch event to notify parent components
   const closeModal = () => {
     setShowModal(false);
     setModalUrl("");
+
+    // Dispatch a custom event to notify other components that this modal is closed
+    const event = new CustomEvent("modalStateChange", {
+      detail: {
+        isOpen: false,
+        sourceId: widgetMenuId,
+      },
+    });
+    document.dispatchEvent(event);
   };
 
   // Toggle menu panel
@@ -260,56 +339,84 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
     authorizedWidgets.includes(widget.key)
   );
 
+  // Determine if any modal is open (either local or passed down)
+  const isAnyLocalModalOpen =
+    isHeaderModalOpen || isFooterModalOpen || showModal;
+
   return (
-    <div
-      className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen ? "z-10" : "z-11"}`}
-      ref={widgetRef}
-    >
-      {/* Widgets button */}
-      <WidgetsButton
-        isWidgetMenuOpen={isWidgetMenuOpen}
-        setIsWidgetMenuOpen={setIsWidgetMenuOpen}
-      />
-
-      {/* Menu toggle button for small screens or full menu strip for large screens */}
-      {isSmallScreen ? (
-        <MenuButton
-          showMenuPanel={showMenuPanel}
-          toggleMenuPanel={toggleMenuPanel}
-          menuPanelRef={menuPanelRef}
-          allMenuItems={allMenuItems}
-          handleButtonClick={handleButtonClick}
-          setShowMenuPanel={setShowMenuPanel}
-          activeButton={activeButton}
-          dropdownItems={dropdownItems}
-          showDropdown={showDropdown}
-          setShowDropdown={setShowDropdown}
-          handleItemClick={handleItemClick}
-          patientId={patientId}
+    <>
+      <div
+        className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen || isAnyLocalModalOpen ? "z-10" : "z-11"}`}
+        ref={widgetRef}
+      >
+        {/* Widgets button */}
+        <WidgetsButton
+          isWidgetMenuOpen={isWidgetMenuOpen}
+          setIsWidgetMenuOpen={setIsWidgetMenuOpen}
         />
-      ) : (
-        <MenuStrip
-          allMenuItems={allMenuItems}
-          activeButton={activeButton}
-          showDropdown={showDropdown}
-          handleButtonClick={handleButtonClick}
-        />
-      )}
 
-      {/* Dropdown Menu - only show for large screens */}
-      {showDropdown && !isSmallScreen && (
-        <DropdownMenu
-          activeButton={activeButton}
-          dropdownItems={dropdownItems}
-          dropdownPosition={dropdownPosition}
-          dropdownRef={dropdownRef}
-          isSmallScreen={isSmallScreen}
-          handleItemClick={handleItemClick}
-          setShowDropdown={setShowDropdown}
-        />
-      )}
+        {/* Menu toggle button for small screens or full menu strip for large screens */}
+        {isSmallScreen ? (
+          <MenuButton
+            showMenuPanel={showMenuPanel}
+            toggleMenuPanel={toggleMenuPanel}
+            menuPanelRef={menuPanelRef}
+            allMenuItems={allMenuItems}
+            handleButtonClick={handleButtonClick}
+            setShowMenuPanel={setShowMenuPanel}
+            activeButton={activeButton}
+            dropdownItems={dropdownItems}
+            showDropdown={showDropdown}
+            setShowDropdown={setShowDropdown}
+            handleItemClick={handleItemClick}
+            patientId={patientId}
+          />
+        ) : (
+          <MenuStrip
+            allMenuItems={allMenuItems}
+            activeButton={activeButton}
+            showDropdown={showDropdown}
+            handleButtonClick={handleButtonClick}
+          />
+        )}
 
-      {/* Modal with iframe */}
+        {/* Dropdown Menu - only show for large screens */}
+        {showDropdown && !isSmallScreen && (
+          <DropdownMenu
+            activeButton={activeButton}
+            dropdownItems={dropdownItems}
+            dropdownPosition={dropdownPosition}
+            dropdownRef={dropdownRef}
+            isSmallScreen={isSmallScreen}
+            handleItemClick={handleItemClick}
+            setShowDropdown={setShowDropdown}
+          />
+        )}
+
+        {/* Widget menu dropdown with reduced spacing for mobile */}
+        <div
+          className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+            isWidgetMenuOpen
+              ? "scale-100 opacity-100"
+              : "scale-95 opacity-0 pointer-events-none"
+          } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
+          style={{ zIndex: 1000 }}
+          ref={widgetMenuDropdownRef}
+          onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+        >
+          <WidgetList
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            authorizedWidgetOptions={authorizedWidgetOptions}
+            visibleWidgets={visibleWidgets}
+            toggleWidget={toggleWidget}
+            widgetOptions={widgetOptions}
+            isMobileView={isMobileView}
+            isSmallScreen={isSmallScreen}
+            setIsExpandAll={setIsExpandAll}
+          />
+        </div>
+      </div>
       {showModal && (
         <ModalContent
           modalTitle={modalTitle}
@@ -317,31 +424,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           closeModal={closeModal}
         />
       )}
-
-      {/* Widget menu dropdown with reduced spacing for mobile */}
-      <div
-        className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
-          isWidgetMenuOpen
-            ? "scale-100 opacity-100"
-            : "scale-95 opacity-0 pointer-events-none"
-        } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
-        style={{ zIndex: 1000 }}
-        ref={widgetMenuDropdownRef}
-        onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
-      >
-        <WidgetList
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          authorizedWidgetOptions={authorizedWidgetOptions}
-          visibleWidgets={visibleWidgets}
-          toggleWidget={toggleWidget}
-          widgetOptions={widgetOptions}
-          isMobileView={isMobileView}
-          isSmallScreen={isSmallScreen}
-          setIsExpandAll={setIsExpandAll}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 

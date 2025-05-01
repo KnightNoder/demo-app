@@ -1,100 +1,56 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { ModalInfo } from "../../../types";
 
-interface ModalInfo {
-  isOpen: boolean;
-  url: string;
-  title: string;
-  loading?: boolean;
-}
-
-const IframeModal: React.FC<{
+interface IframeModalProps {
   modal: ModalInfo;
   closeModal: () => void;
-}> = ({ modal, closeModal }) => {
-  const [iframeLoading, setIframeLoading] = useState(true);
+}
+
+const IframeModal: React.FC<IframeModalProps> = ({ modal, closeModal }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Handle communication from the iframe
   useEffect(() => {
-    if (modal.url) {
-      setIframeLoading(true);
-    }
-  }, [modal.url]);
-
-  const handleIframeLoad = () => {
-    setIframeLoading(false);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+    const handleIframeMessage = (event: MessageEvent) => {
+      // Check for close message from iframe
+      if (event.data && event.data.action === "closeModal") {
+        // Call the closeModal function passed as prop
         closeModal();
+
+        // Also dispatch a specific iframe modal closed event
+        const iframeEvent = new CustomEvent("iframeModalClosed", {});
+        document.dispatchEvent(iframeEvent);
+
+        // Dispatch the standard modal state change event
+        const modalEvent = new CustomEvent("modalStateChange", {
+          detail: { isOpen: false },
+        });
+        document.dispatchEvent(modalEvent);
       }
     };
 
-    if (modal.isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
+    // Add the event listener for iframe messages
+    window.addEventListener("message", handleIframeMessage);
 
+    // Cleanup
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("message", handleIframeMessage);
     };
-  }, [modal.isOpen, closeModal]);
+  }, [closeModal]);
 
-  useEffect(() => {
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.src = "about:blank";
-      }
-    };
-  }, []);
-
-  if (!modal.isOpen) return null;
-
+  // Fixed height with flex to ensure the iframe fills the container
   return (
-    <div
-      className="fixed inset-0 z-20 flex items-center justify-center bg-transparent bg-opacity-50 modal backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          closeModal();
-        }
-      }}
-    >
-      <div
-        className="relative bg-white p-4 rounded-lg shadow-lg w-[80%] h-[80%] flex flex-col"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 id="modal-title" className="text-xl font-semibold">
-            {modal.title}
-          </h2>
-          <button
-            onClick={closeModal}
-            className="text-lg text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Close"
-          >
-            ✖
-          </button>
-        </div>
-
-        {iframeLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-80">
-            <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
-          </div>
-        )}
-
+    <div className="flex flex-col flex-1 overflow-hidden">
+      {modal.url && (
         <iframe
           ref={iframeRef}
           src={modal.url}
-          className="flex-1 w-full rounded-md"
-          title={`${modal.title} Frame`}
-          onLoad={handleIframeLoad}
-          loading="lazy"
-          sandbox="allow-same-origin allow-scripts allow-forms"
-          referrerPolicy="no-referrer"
-        ></iframe>
-      </div>
+          className="w-full h-full border-0"
+          title={modal.title}
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
+      )}
     </div>
   );
 };
