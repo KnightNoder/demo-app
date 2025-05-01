@@ -21,8 +21,9 @@ import "./App.css";
 import { usePermissions } from "./hooks/usePermissions";
 import { useWidgets } from "./hooks/useWidgets";
 import { useResponsive } from "./hooks/useResponsive";
-import { useModal } from "./hooks/useModal";
 import { useCarousel } from "./hooks/useCarousel";
+// Remove the unused hook import if you're not using it directly
+// import { useModalState } from "./hooks/useModalState";
 
 // Import components
 import WidgetMenu from "./components/molecules/WidgetMenu/WidgetMenu";
@@ -33,12 +34,21 @@ import AppModal from "./components/molecules/Modal/AppModal";
 // Import configuration
 import { widgetOptions } from "./config/widgets";
 import { CardActionHandler } from "./types";
+import { getCategoryUrl } from "./utils/urlHelpers";
 
 const App: React.FC = () => {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [isWidgetMenuOpen, setIsWidgetMenuOpen] = useState(false);
-  const [isWidgetModalOpen, setIsWidgetModalOpen] = useState(false); // Track widget modal state
-  const [isExpandAll, setIsExpandAll] = useState(true); // Track expand all state
+  // Track a single global modal state instead of multiple unused states
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+  const [isExpandAll, setIsExpandAll] = useState(true);
+
+  // Modal state management - simplified
+  const [modal, setModal] = useState({
+    isOpen: false,
+    url: "",
+    title: "",
+  });
 
   // Use custom hooks
   const { insuranceWritePermission } = usePermissions();
@@ -48,10 +58,9 @@ const App: React.FC = () => {
     gridItems,
     setGridItems,
     toggleWidget,
-    isStrictAuditor, // Access the isStrictAuditor flag
+    isStrictAuditor,
   } = useWidgets();
   const { isMobileView, getGridTemplateColumns } = useResponsive();
-  const { modal, isAnyModalOpen, openModal, closeModal } = useModal();
   const { activeCardIndex, setActiveCardIndex, nextCard, prevCard } =
     useCarousel(gridItems, isMobileView);
 
@@ -75,15 +84,8 @@ const App: React.FC = () => {
     })
   );
 
-  // Track any modal being open (from either source)
-  const isModalVisible = isAnyModalOpen || isWidgetModalOpen;
-
   // Get patient ID from input element
   useEffect(() => {
-    console.log(visibleWidgets, "visibleWidgets");
-    console.log(authorizedWidgets, "authorizedWidgets");
-    console.log(isStrictAuditor, "isStrictAuditor"); // Log the isStrictAuditor flag
-
     const patientIdInput = document.querySelector<HTMLInputElement>(
       'input[name="patient_id"]'
     );
@@ -99,53 +101,110 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Watch for modal state changes from all components
   useEffect(() => {
-    const handleGlobalModalState = (
+    const handleModalStateChange = (
       event: CustomEvent<{ isOpen: boolean }>
     ) => {
       const { isOpen } = event.detail;
 
-      // Track widget modal state in coordination with all other modals
-      if (!isOpen && isWidgetModalOpen) {
-        // Don't automatically close the widget menu if widget modal is still open
-        return;
-      }
+      // Update our single global modal state
+      setIsAnyModalOpen(isOpen);
 
-      // When any modal closes, check if we should update the widget menu visibility
-      if (!isOpen && !modal.isOpen) {
-        setIsWidgetMenuOpen(false);
+      // If modal is being closed, also close the main modal
+      if (!isOpen) {
+        setModal((prev) => ({ ...prev, isOpen: false }));
       }
-    };
-
-    // Listen for iframe modal closure separately
-    const handleIframeModalClosed = () => {
-      // Don't automatically reset all modal states when an iframe modal closes
-      // Let the modal stack handle itself through the modalStateChange events
-      console.log("Iframe modal closed");
     };
 
     document.addEventListener(
       "modalStateChange",
-      handleGlobalModalState as EventListener
-    );
-
-    document.addEventListener(
-      "iframeModalClosed",
-      handleIframeModalClosed as EventListener
+      handleModalStateChange as EventListener
     );
 
     return () => {
       document.removeEventListener(
         "modalStateChange",
-        handleGlobalModalState as EventListener
-      );
-
-      document.removeEventListener(
-        "iframeModalClosed",
-        handleIframeModalClosed as EventListener
+        handleModalStateChange as EventListener
       );
     };
-  }, [isWidgetModalOpen, modal.isOpen]);
+  }, []);
+
+  // Sync modal.isOpen with isAnyModalOpen
+  useEffect(() => {
+    if (modal.isOpen && !isAnyModalOpen) {
+      setIsAnyModalOpen(true);
+    }
+  }, [modal.isOpen, isAnyModalOpen]);
+
+  // Listen for the closeAllModals event
+  useEffect(() => {
+    const handleCloseAllModals = () => {
+      // Close main modal
+      setModal((prev) => ({ ...prev, isOpen: false }));
+
+      // Reset modal state
+      setIsAnyModalOpen(false);
+
+      // Close widget menu if it's open
+      setIsWidgetMenuOpen(false);
+
+      // Dispatch a global modal state change event
+      const modalCloseEvent = new CustomEvent("modalStateChange", {
+        detail: { isOpen: false },
+      });
+      document.dispatchEvent(modalCloseEvent);
+    };
+
+    // Add event listener for closing all modals
+    document.addEventListener("closeAllModals", handleCloseAllModals);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("closeAllModals", handleCloseAllModals);
+    };
+  }, []);
+
+  // Open modal function
+  const openModal = (category: string | null, patientId: string | null) => {
+    const url = getCategoryUrl(category, patientId);
+
+    if (!url) {
+      console.warn(`No URL configured for category: ${category}`);
+      return;
+    }
+
+    // Update modal state
+    setModal({
+      isOpen: true,
+      url,
+      title: category || "Content",
+    });
+
+    // Update the global modal state
+    setIsAnyModalOpen(true);
+
+    // Dispatch event to notify other components
+    const event = new CustomEvent("modalStateChange", {
+      detail: { isOpen: true, modalType: "footer" },
+    });
+    document.dispatchEvent(event);
+  };
+
+  // Close modal function
+  const closeModal = () => {
+    // Update modal state
+    setModal((prev) => ({ ...prev, isOpen: false }));
+
+    // Keep isAnyModalOpen true if there might be other modals open
+    // We'll let the event handler manage this state
+
+    // Dispatch event to notify other components
+    const event = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(event);
+  };
 
   // Card action handler
   const handleCardAction: CardActionHandler = (action, category) => {
@@ -164,22 +223,14 @@ const App: React.FC = () => {
     if (action === "add") {
       openModal(category, patientId);
     } else if (action === "view") {
-      `View history for ${category}`;
+      console.log(`View history for ${category}`);
     }
   };
 
   // Handle modal state change from WidgetMenu
   const handleWidgetModalStateChange = (isOpen: boolean) => {
-    setIsWidgetModalOpen(isOpen);
-
-    // When widget modal opens, also ensure we track it in the global modal state
-    if (isOpen) {
-      document.dispatchEvent(
-        new CustomEvent("modalStateChange", { detail: { isOpen: true } })
-      );
-    }
-
-    // We don't dispatch a close event here - the modal itself will do that
+    // Update the global modal state
+    setIsAnyModalOpen(isOpen);
   };
 
   // Handler for drag start
@@ -228,7 +279,6 @@ const App: React.FC = () => {
     document.body.classList.remove("dragging-active");
   };
 
-  console.log("Current environment:", process.env.NODE_ENV);
   return (
     <Provider store={store}>
       <DndContext
@@ -239,7 +289,7 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div
-          className={`relative w-full min-h-screen ${isModalVisible ? "pt-4 md:pt-12" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
+          className={`relative w-full min-h-screen ${isAnyModalOpen ? "pt-4 md:pt-12" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
         >
           <WidgetMenu
             widgetOptions={widgetOptions}
@@ -249,12 +299,11 @@ const App: React.FC = () => {
             isWidgetMenuOpen={isWidgetMenuOpen}
             setIsWidgetMenuOpen={setIsWidgetMenuOpen}
             isMobileView={isMobileView}
-            isAnyModalOpen={isAnyModalOpen}
+            isAnyModalOpen={isAnyModalOpen} // Pass consolidated modal state
             patientId={patientId}
             onModalStateChange={handleWidgetModalStateChange}
             setIsExpandAll={setIsExpandAll}
           />
-          {/* Widget menu - Pass the authorizedWidgets prop and modal state handler */}
 
           {/* Grid Container */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
@@ -269,12 +318,12 @@ const App: React.FC = () => {
                   prevCard={prevCard}
                   widgetOptions={widgetOptions.filter((opt) =>
                     authorizedWidgets.includes(opt.key)
-                  )} // Filter to only authorized widgets
+                  )}
                   onAction={handleCardAction}
                   patientId={patientId}
-                  isAnyModalOpen={isAnyModalOpen}
+                  isAnyModalOpen={isAnyModalOpen} // Pass consolidated modal state
                   insuranceWritePermission={insuranceWritePermission}
-                  isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
+                  isStrictAuditor={isStrictAuditor}
                   isExpandAll={isExpandAll}
                 />
               ) : (
@@ -283,20 +332,20 @@ const App: React.FC = () => {
                   gridItems={gridItems}
                   widgetOptions={widgetOptions.filter((opt) =>
                     authorizedWidgets.includes(opt.key)
-                  )} // Filter to only authorized widgets
+                  )}
                   onAction={handleCardAction}
                   patientId={patientId}
-                  isAnyModalOpen={isAnyModalOpen}
+                  isAnyModalOpen={isAnyModalOpen} // Pass consolidated modal state
                   insuranceWritePermission={insuranceWritePermission}
                   gridTemplateColumns={getGridTemplateColumns()}
-                  isStrictAuditor={isStrictAuditor} // Pass the isStrictAuditor flag
+                  isStrictAuditor={isStrictAuditor}
                   isExpandAll={isExpandAll}
                 />
               )}
             </div>
           </div>
 
-          {/* Modal */}
+          {/* Use AppModal directly */}
           <AppModal modal={modal} closeModal={closeModal} />
         </div>
       </DndContext>

@@ -1,5 +1,5 @@
 // components/WidgetsButton.tsx
-import { useEffect, forwardRef } from "react";
+import { forwardRef } from "react";
 import Icons from "../../../assets/Icons/Icons";
 
 interface WidgetsButtonProps {
@@ -9,15 +9,6 @@ interface WidgetsButtonProps {
 
 const WidgetsButton = forwardRef<HTMLDivElement, WidgetsButtonProps>(
   ({ isWidgetMenuOpen, setIsWidgetMenuOpen }, ref) => {
-    useEffect(() => {
-      // Ask for notification permission
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission().then((permission) => {
-          console.log("Notification permission:", permission);
-        });
-      }
-    }, []);
-
     return (
       <div className="flex-shrink-0" ref={ref}>
         <button

@@ -11,6 +11,7 @@ interface AppModalProps {
  * Application modal component
  */
 const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
+  // Handle escape key and notify about modal state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -41,6 +42,18 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
     };
   }, [modal.isOpen, closeModal]);
 
+  // Handle the actual close action (used by both escape key and close button)
+  const handleClose = () => {
+    // Dispatch event to notify components that modal is closing
+    const modalCloseEvent = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(modalCloseEvent);
+
+    // Call the passed-in closeModal function
+    closeModal();
+  };
+
   if (!modal.isOpen) return null;
 
   return (
@@ -49,12 +62,8 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
       className="fixed inset-0 flex items-center justify-center bg-[#000000CC] z-120 modal"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
-          // Handle backdrop click the same way as Escape key
-          const modalCloseEvent = new CustomEvent("modalStateChange", {
-            detail: { isOpen: false },
-          });
-          document.dispatchEvent(modalCloseEvent);
-          closeModal();
+          // Handle backdrop click
+          handleClose();
         }
       }}
       onMouseDown={(e) => e.stopPropagation()}
@@ -75,12 +84,8 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
             data-testid="modal-close"
             onClick={(e) => {
               e.stopPropagation();
-              // Handle close button click the same way as Escape key
-              const modalCloseEvent = new CustomEvent("modalStateChange", {
-                detail: { isOpen: false },
-              });
-              document.dispatchEvent(modalCloseEvent);
-              closeModal();
+              // Use the same handler as escape key
+              handleClose();
             }}
             className="focus:outline-none"
             aria-label="Close"
@@ -111,7 +116,7 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
         </div>
 
         {/* Iframe Content */}
-        <IframeModal modal={modal} closeModal={closeModal} />
+        <IframeModal modal={modal} closeModal={handleClose} />
       </div>
     </div>
   );

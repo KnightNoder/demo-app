@@ -16,19 +16,18 @@ const CardFooter: React.FC<CardFooterProps> = ({
   // hasWritePermission,
   isStrictAuditor,
 }) => {
-  console.log(isStrictAuditor, "in footer");
-
   const handleAddClick = () => {
     if (onAction) {
+      // This will trigger the parent's handleAddAction which sets isFooterModalOpen
       onAction("add", category ?? null);
+
+      // Dispatch a custom event to notify that a footer modal is open
+      const modalOpenEvent = new CustomEvent("modalStateChange", {
+        detail: { isOpen: true, modalType: "footer" },
+      });
+      document.dispatchEvent(modalOpenEvent);
     }
   };
-
-  // const handleViewHistoryClick = () => {
-  //   if (onAction) {
-  //     onAction("view", category ?? null);
-  //   }
-  // };
 
   return (
     <div role="contentinfo" data-testid="card-content" className="w-full">
@@ -45,14 +44,6 @@ const CardFooter: React.FC<CardFooterProps> = ({
                 Add {category}
               </Button>
             )}
-
-            {/* <Button
-              variant="secondary"
-              dataCy="data-secondary"
-              onClick={handleViewHistoryClick}
-            >
-              View History
-            </Button> */}
           </div>
         </div>
       </div>

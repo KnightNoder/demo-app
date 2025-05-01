@@ -10,20 +10,19 @@ export interface MenuItems {
 
 // Helper function to determine if we're in production
 const isStaging = (): boolean => {
-  console.log(import.meta.env.VITE_ENV, "MODE");
-   return import.meta.env.VITE_ENV === "staging";
-}
+  return import.meta.env.VITE_ENV === "staging";
+};
 
 // Helper to get base URL with proper environment handling
 export const getBaseUrl = (): string => {
   // Get the base URL from environment
-  const baseUrl = (typeof import.meta !== "undefined" && 
-                  import.meta.env && 
-                  import.meta.env.VITE_V1_URL) || "";
-  
+  const baseUrl =
+    (typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      import.meta.env.VITE_V1_URL) ||
+    "";
+
   // Append "/ehr" in Staging environment
-  console.log(isStaging(),baseUrl,'IS Staging');
-  
   return isStaging() ? `${baseUrl}/ehr` : baseUrl;
 }
 

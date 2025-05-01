@@ -174,8 +174,6 @@ export const useWidgets = () => {
   // Fetch ACL permissions and widget preferences on mount
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Fetching data from API");
-      
       try {
         setLoading(true);
 
@@ -183,7 +181,9 @@ export const useWidgets = () => {
         const token = localStorage.getItem("JWT_AUTH_TOKEN");
         if (!token) {
           console.warn("No JWT token found, using default widgets");
-          initializeGridItems([...new Set([...defaultVisibleWidgets, ...mandatoryWidgets])]);
+          initializeGridItems([
+            ...new Set([...defaultVisibleWidgets, ...mandatoryWidgets]),
+          ]);
           setLoading(false);
           return;
         }
@@ -191,22 +191,20 @@ export const useWidgets = () => {
         // Decode token to get user_id
         const decoded = jwtDecode(token) as DecodedToken;
         const userId = decoded.user_id;
-        console.log(userId, "User ID");
 
         // Fetch widget preferences
         const preferences = await fetchWidgetPreferences();
-        
+
         // Fetch ACL matrix from API (in parallel with preferences)
-        const aclResponse = await axiosClient.get(`/acl/ui-matrix?user_id=${userId}`);
+        const aclResponse = await axiosClient.get(
+          `/acl/ui-matrix?user_id=${userId}`
+        );
         const aclData: ACLResponse = aclResponse.data;
-        
-        console.log(aclData, "ACL Data");
-        console.log(preferences, "Widget Preferences");
 
         // Extract and set isStrictAuditor flag from the API response
-        const strictAuditorFlag = aclData.user_flags?.is_strict_auditor || false;
+        const strictAuditorFlag =
+          aclData.user_flags?.is_strict_auditor || false;
         setIsStrictAuditor(strictAuditorFlag);
-        console.log("Is Strict Auditor:", strictAuditorFlag);
 
         // Get authorized widgets from ACL response (all widgets marked as visible)
         const aclAuthorizedWidgets: string[] = [];
@@ -242,30 +240,32 @@ export const useWidgets = () => {
           let filteredVisibleWidgets = preferences.visible_widgets.filter(
             (widget) => finalAuthorizedWidgets.includes(widget)
           );
-          
+
           // Ensure mandatory widgets are included
           filteredVisibleWidgets = [
             ...new Set([...filteredVisibleWidgets, ...mandatoryWidgets]),
           ];
-          
+
           setVisibleWidgets(filteredVisibleWidgets);
-          
+
           // Filter grid items to ensure they only include authorized widgets
-          const filteredPositions = preferences.positions.filter(
-            (item) => finalAuthorizedWidgets.includes(item.id)
+          const filteredPositions = preferences.positions.filter((item) =>
+            finalAuthorizedWidgets.includes(item.id)
           );
-          
+
           // Ensure all visible widgets have a position
           const missingWidgets = filteredVisibleWidgets.filter(
-            (widgetKey) => !filteredPositions.some((item) => item.id === widgetKey)
+            (widgetKey) =>
+              !filteredPositions.some((item) => item.id === widgetKey)
           );
-          
+
           if (missingWidgets.length > 0) {
             // Add missing widgets to the end of the grid
-            const nextOrder = filteredPositions.length > 0
-              ? Math.max(...filteredPositions.map((item) => item.order)) + 1
-              : 0;
-              
+            const nextOrder =
+              filteredPositions.length > 0
+                ? Math.max(...filteredPositions.map((item) => item.order)) + 1
+                : 0;
+
             const newItems = [
               ...filteredPositions,
               ...missingWidgets.map((widgetKey, idx) => ({
@@ -273,7 +273,7 @@ export const useWidgets = () => {
                 order: nextOrder + idx,
               })),
             ];
-            
+
             setGridItems(newItems);
           } else {
             setGridItems(filteredPositions);
@@ -282,20 +282,20 @@ export const useWidgets = () => {
           // No saved preferences, use defaults filtered by authorization
           const defaultVisible = [
             ...new Set([
-              ...defaultVisibleWidgets.filter((widget) => 
+              ...defaultVisibleWidgets.filter((widget) =>
                 finalAuthorizedWidgets.includes(widget)
               ),
               ...mandatoryWidgets,
             ]),
           ];
-          
+
           setVisibleWidgets(defaultVisible);
           initializeGridItems(defaultVisible);
         }
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load widget data");
-        
+
         // Use defaults as fallback
         const fallbackWidgets = [
           ...new Set([...defaultVisibleWidgets, ...mandatoryWidgets]),

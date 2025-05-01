@@ -188,8 +188,6 @@ export const useWidgets = () => {
   // Fetch ACL permissions on mount
   useEffect(() => {
     const fetchACLPermissions = async () => {
-      console.log("fetch matrix api");
-
       try {
         setLoading(true);
 
@@ -213,7 +211,6 @@ export const useWidgets = () => {
         // Decode token to get user_id
         const decoded = jwtDecode(token) as DecodedToken;
         const userId = decoded.user_id;
-        console.log(userId, "User ID");
 
         // Fetch ACL matrix from API
         const response = await axiosClient.get(
@@ -222,13 +219,11 @@ export const useWidgets = () => {
 
         // Axios uses response.data instead of response.json()
         const aclData: ACLResponse = response.data;
-        console.log(aclData, "ACL Data");
 
         // Extract and set isStrictAuditor flag from the API response
         const strictAuditorFlag =
           aclData.user_flags?.is_strict_auditor || false;
         setIsStrictAuditor(strictAuditorFlag);
-        console.log("Is Strict Auditor:", strictAuditorFlag);
 
         // Get authorized widgets from ACL response (all widgets marked as visible)
         const aclAuthorizedWidgets: string[] = [];

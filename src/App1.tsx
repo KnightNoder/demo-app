@@ -171,7 +171,6 @@ const App: React.FC = () => {
     document.body.classList.remove("dragging-active");
   };
 
-  console.log("Current environment:", process.env.NODE_ENV);
   return (
     <Provider store={store}>
       <DndContext

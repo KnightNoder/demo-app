@@ -1,56 +1,56 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { ModalInfo } from "../../../types";
 
-interface ModalInfo {
-  isOpen: boolean;
-  url: string;
-  title: string;
-  loading?: boolean;
-}
-
-const IframeModal: React.FC<{
+interface IframeModalProps {
   modal: ModalInfo;
   closeModal: () => void;
-}> = ({ modal }) => {
-  const [iframeLoading, setIframeLoading] = useState(true);
+}
+
+const IframeModal: React.FC<IframeModalProps> = ({ modal, closeModal }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Handle communication from the iframe
   useEffect(() => {
-    if (modal.url) {
-      setIframeLoading(true);
-    }
-  }, [modal.url]);
+    const handleIframeMessage = (event: MessageEvent) => {
+      // Check for close message from iframe
+      if (event.data && event.data.action === "closeModal") {
+        // Call the closeModal function passed as prop
+        closeModal();
 
-  const handleIframeLoad = () => {
-    setIframeLoading(false);
-  };
+        // Also dispatch a specific iframe modal closed event
+        const iframeEvent = new CustomEvent("iframeModalClosed", {});
+        document.dispatchEvent(iframeEvent);
 
-  useEffect(() => {
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.src = "about:blank";
+        // Dispatch the standard modal state change event
+        const modalEvent = new CustomEvent("modalStateChange", {
+          detail: { isOpen: false },
+        });
+        document.dispatchEvent(modalEvent);
       }
     };
-  }, []);
 
-  // Just return the iframe content without creating another modal container
+    // Add the event listener for iframe messages
+    window.addEventListener("message", handleIframeMessage);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("message", handleIframeMessage);
+    };
+  }, [closeModal]);
+
+  // Fixed height with flex to ensure the iframe fills the container
   return (
-    <div className="relative flex-1 w-full h-full overflow-hidden">
-      {iframeLoading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-80">
-          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
-        </div>
+    <div className="flex flex-col flex-1 overflow-hidden">
+      {modal.url && (
+        <iframe
+          ref={iframeRef}
+          src={modal.url}
+          className="w-full h-full border-0"
+          title={modal.title}
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
       )}
-
-      <iframe
-        ref={iframeRef}
-        src={modal.url}
-        className="absolute inset-0 w-full h-full"
-        title={`${modal.title} Frame`}
-        onLoad={handleIframeLoad}
-        loading="lazy"
-        sandbox="allow-same-origin allow-scripts allow-forms"
-        referrerPolicy="no-referrer"
-      ></iframe>
     </div>
   );
 };
