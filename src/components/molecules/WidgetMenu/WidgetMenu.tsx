@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { getMenuItems, allMenuItems, getProcessedUrl } from "./menuData";
+import { getBaseUrl } from "./menuData"; // Import getBaseUrl
 
 // Define the dropdown-related interfaces
 export interface DropdownMenuItem {
@@ -67,6 +68,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   const [modalTitle, setModalTitle] = useState<string>("");
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
   const [showMenuPanel, setShowMenuPanel] = useState<boolean>(false);
+  const [isTestPatient, setIsTestPatient] = useState<boolean>(false);
 
   // Track different modal types
   const [isHeaderModalOpen, setIsHeaderModalOpen] = useState<boolean>(false);
@@ -83,6 +85,59 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   // Get menu items
   const menuItems = getMenuItems(patientId);
+
+  // Handle test patient checkbox change
+  const handleTestPatientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.checked;
+
+    // Create message based on checkbox state
+    const message = newValue
+      ? "Are you sure you want to mark this Patient as Test Patient?"
+      : "Are you sure you want to mark this Patient as Live Patient?";
+
+    // Show confirmation dialog
+    if (window.confirm(message)) {
+      // Make the API call if user confirms
+      updatePatientStatus(newValue);
+
+      // Update state if the API call doesn't fail
+      setIsTestPatient(newValue);
+    } else {
+      // Revert checkbox if user cancels
+      e.target.checked = !newValue;
+    }
+  };
+
+  const updatePatientStatus = async (isTest: boolean) => {
+    if (!patientId) {
+      console.error("Patient ID is missing");
+      return;
+    }
+
+    try {
+      const baseUrl = getBaseUrl();
+      const markValue = isTest ? 1 : 0;
+      const url = `${baseUrl}/interface/patient_file/summary/ajax_update_patient_status.php?patid=${patientId}&mark_test_patient=${markValue}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update patient status");
+      }
+
+      console.log("Patient status updated successfully");
+    } catch (error) {
+      console.error("Error updating patient status:", error);
+      // Handle error - maybe show a notification
+      alert("Failed to update patient status. Please try again.");
+
+      // Revert the checkbox state on failure
+      setIsTestPatient(!isTest);
+    }
+  };
 
   // Listen for global modal state changes
   useEffect(() => {
@@ -345,76 +400,89 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
 
   return (
     <>
-      <div
-        className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen || isAnyLocalModalOpen ? "z-10" : "z-11"}`}
-        ref={widgetRef}
-      >
-        {/* Widgets button */}
-        <WidgetsButton
-          isWidgetMenuOpen={isWidgetMenuOpen}
-          setIsWidgetMenuOpen={setIsWidgetMenuOpen}
-        />
-
-        {/* Menu toggle button for small screens or full menu strip for large screens */}
-        {isSmallScreen ? (
-          <MenuButton
-            showMenuPanel={showMenuPanel}
-            toggleMenuPanel={toggleMenuPanel}
-            menuPanelRef={menuPanelRef}
-            allMenuItems={allMenuItems}
-            handleButtonClick={handleButtonClick}
-            setShowMenuPanel={setShowMenuPanel}
-            activeButton={activeButton}
-            dropdownItems={dropdownItems}
-            showDropdown={showDropdown}
-            setShowDropdown={setShowDropdown}
-            handleItemClick={handleItemClick}
-            patientId={patientId}
-          />
-        ) : (
-          <MenuStrip
-            allMenuItems={allMenuItems}
-            activeButton={activeButton}
-            showDropdown={showDropdown}
-            handleButtonClick={handleButtonClick}
-          />
-        )}
-
-        {/* Dropdown Menu - only show for large screens */}
-        {showDropdown && !isSmallScreen && (
-          <DropdownMenu
-            activeButton={activeButton}
-            dropdownItems={dropdownItems}
-            dropdownPosition={dropdownPosition}
-            dropdownRef={dropdownRef}
-            isSmallScreen={isSmallScreen}
-            handleItemClick={handleItemClick}
-            setShowDropdown={setShowDropdown}
-          />
-        )}
-
-        {/* Widget menu dropdown with reduced spacing for mobile */}
+      <div className="flex items-center justify-between px-4 ml-20">
+        <div className="flex items-center">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="test-patient"
+              checked={isTestPatient}
+              onChange={handleTestPatientChange}
+              className="mr-2 h-4 w-4"
+            />
+            <span>Test patient</span>
+          </label>
+        </div>
         <div
-          className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
-            isWidgetMenuOpen
-              ? "scale-100 opacity-100"
-              : "scale-95 opacity-0 pointer-events-none"
-          } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
-          style={{ zIndex: 1000 }}
-          ref={widgetMenuDropdownRef}
-          onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+          className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen || isAnyLocalModalOpen ? "z-10" : "z-11"}`}
+          ref={widgetRef}
         >
-          <WidgetList
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            authorizedWidgetOptions={authorizedWidgetOptions}
-            visibleWidgets={visibleWidgets}
-            toggleWidget={toggleWidget}
-            widgetOptions={widgetOptions}
-            isMobileView={isMobileView}
-            isSmallScreen={isSmallScreen}
-            setIsExpandAll={setIsExpandAll}
-          />
+          {/* Widgets button */}
+          <>
+            <WidgetsButton
+              isWidgetMenuOpen={isWidgetMenuOpen}
+              setIsWidgetMenuOpen={setIsWidgetMenuOpen}
+            />
+            {/* Menu toggle button for small screens or full menu strip for large screens */}
+            {isSmallScreen ? (
+              <MenuButton
+                showMenuPanel={showMenuPanel}
+                toggleMenuPanel={toggleMenuPanel}
+                menuPanelRef={menuPanelRef}
+                allMenuItems={allMenuItems}
+                handleButtonClick={handleButtonClick}
+                setShowMenuPanel={setShowMenuPanel}
+                activeButton={activeButton}
+                dropdownItems={dropdownItems}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+                handleItemClick={handleItemClick}
+                patientId={patientId}
+              />
+            ) : (
+              <MenuStrip
+                allMenuItems={allMenuItems}
+                activeButton={activeButton}
+                showDropdown={showDropdown}
+                handleButtonClick={handleButtonClick}
+              />
+            )}
+            {/* Dropdown Menu - only show for large screens */}
+            {showDropdown && !isSmallScreen && (
+              <DropdownMenu
+                activeButton={activeButton}
+                dropdownItems={dropdownItems}
+                dropdownPosition={dropdownPosition}
+                dropdownRef={dropdownRef}
+                isSmallScreen={isSmallScreen}
+                handleItemClick={handleItemClick}
+                setShowDropdown={setShowDropdown}
+              />
+            )}
+            {/* Widget menu dropdown with reduced spacing for mobile */}
+            <div
+              className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+                isWidgetMenuOpen
+                  ? "scale-100 opacity-100"
+                  : "scale-95 opacity-0 pointer-events-none"
+              } ${isMobileView ? "w-[95%] left-0 right-0 mx-auto" : isSmallScreen ? "w-[400px] mx-auto" : "w-[500px]"}`}
+              style={{ zIndex: 1000 }}
+              ref={widgetMenuDropdownRef}
+              onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+            >
+              <WidgetList
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                authorizedWidgetOptions={authorizedWidgetOptions}
+                visibleWidgets={visibleWidgets}
+                toggleWidget={toggleWidget}
+                widgetOptions={widgetOptions}
+                isMobileView={isMobileView}
+                isSmallScreen={isSmallScreen}
+                setIsExpandAll={setIsExpandAll}
+              />
+            </div>
+          </>
         </div>
       </div>
       {showModal && (
