@@ -1,14 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ModalInfo } from "../types";
 import { getCategoryUrl } from "../utils/urlHelpers";
 
 /**
- * Custom hook to manage modals with improved state tracking
+ * Simplified modal hook that directly responds to modal state changes
  */
 export const useModal = () => {
-  // Reference to track active modal count
-  const activeModalCount = useRef<number>(0);
-
   // State for any modal being open (affects z-index)
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
@@ -19,28 +16,23 @@ export const useModal = () => {
     title: "",
   });
 
-  // Listen for modal state changes from external components
+  // Listen for ALL modal state changes, from any source
   useEffect(() => {
     const handleModalStateChange = (
       event: CustomEvent<{ isOpen: boolean }>
     ) => {
       const { isOpen } = event.detail;
+      // Direct update of the global modal state based on the event
+      // This ensures isAnyModalOpen is always in sync with any modal's state
+      setIsAnyModalOpen(isOpen);
 
-      // Track modal count to handle nested modals properly
-      if (isOpen) {
-        activeModalCount.current += 1;
-        setIsAnyModalOpen(true);
-      } else {
-        activeModalCount.current = Math.max(0, activeModalCount.current - 1);
-        // Only set isAnyModalOpen to false when all modals are closed
-        if (activeModalCount.current === 0 && !modal.isOpen) {
-          setIsAnyModalOpen(false);
-        }
+      // If our main modal is open but we got a close event, close it as well
+      if (!isOpen && modal.isOpen) {
+        setModal({
+          ...modal,
+          isOpen: false,
+        });
       }
-
-      console.log(
-        `Modal state changed: isOpen=${isOpen}, activeCount=${activeModalCount.current}`
-      );
     };
 
     document.addEventListener(
@@ -54,54 +46,47 @@ export const useModal = () => {
         handleModalStateChange as EventListener
       );
     };
-  }, [modal.isOpen]);
+  }, [modal]);
 
   // Function to open a modal
   const openModal = (category: string | null, patientId: string | null) => {
     const url = getCategoryUrl(category, patientId);
-    console.log(url, "URL for add");
 
     if (!url) {
       console.warn(`No URL configured for category: ${category}`);
       return;
     }
 
-    // Increment active modal count
-    activeModalCount.current += 1;
-
+    // Update our local modal state
     setModal({
       isOpen: true,
       url,
       title: category || "Content",
     });
 
+    // Update the global modal state
     setIsAnyModalOpen(true);
 
-    // Dispatch event for consistency
-    const modalOpenEvent = new CustomEvent("modalStateChange", {
+    // Dispatch event to notify other components
+    const event = new CustomEvent("modalStateChange", {
       detail: { isOpen: true },
     });
-    document.dispatchEvent(modalOpenEvent);
+    document.dispatchEvent(event);
   };
 
   // Function to close a modal
   const closeModal = () => {
-    // Decrement active modal count
-    activeModalCount.current = Math.max(0, activeModalCount.current - 1);
-
-    // Update primary modal state
+    // Update our local modal state
     setModal((prev) => ({ ...prev, isOpen: false }));
 
-    // Only set global modal state to closed if no modals are open
-    if (activeModalCount.current === 0) {
-      setIsAnyModalOpen(false);
+    // Update the global modal state
+    setIsAnyModalOpen(false);
 
-      // Dispatch event to notify other components
-      const modalCloseEvent = new CustomEvent("modalStateChange", {
-        detail: { isOpen: false },
-      });
-      document.dispatchEvent(modalCloseEvent);
-    }
+    // Dispatch event to notify other components
+    const event = new CustomEvent("modalStateChange", {
+      detail: { isOpen: false },
+    });
+    document.dispatchEvent(event);
   };
 
   return {

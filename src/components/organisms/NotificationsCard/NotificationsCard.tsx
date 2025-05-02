@@ -266,7 +266,6 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
       const response = await axiosClient.get(
         `/notifications?patient_id=${patientId}`
       );
-      console.log(response, "not api data");
 
       // Store the API data
       setApiData(response.data);
@@ -275,7 +274,6 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
       const transformedNotifications = transformApiDataToNotifications(
         response.data
       );
-      console.log(transformedNotifications, "transformed notifications");
 
       setNotifications(transformedNotifications);
       setFilteredNotifications(transformedNotifications);

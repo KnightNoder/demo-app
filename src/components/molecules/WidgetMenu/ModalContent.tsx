@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import Icons from "../../../assets/Icons/Icons";
 
 interface ModalContentProps {
   modalTitle: string;
@@ -12,92 +11,71 @@ const ModalContent: React.FC<ModalContentProps> = ({
   modalUrl,
   closeModal,
 }) => {
-  // When component mounts, dispatch modal open event
+  // Handle escape key and add modal-open class to body
   useEffect(() => {
-    // Dispatch event to notify other components that iframe modal is open
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
+
+    // Add the modal-open class to body
+    document.body.classList.add("modal-open");
+
+    // Add event listener for escape key
+    document.addEventListener("keydown", handleEscKey);
+
+    // Dispatch event to notify other components that a modal is open
     const modalOpenEvent = new CustomEvent("modalStateChange", {
       detail: { isOpen: true },
     });
     document.dispatchEvent(modalOpenEvent);
 
-    // Cleanup when component unmounts
+    // Cleanup function
     return () => {
-      // No need to dispatch close event here as it's handled by handleClose
+      // Remove modal-open class from body
+      document.body.classList.remove("modal-open");
+
+      // Remove event listener
+      document.removeEventListener("keydown", handleEscKey);
     };
-  }, []);
-
-  // Properly handle modal closure to maintain state tracking
-  const handleClose = () => {
-    // First, dispatch a dedicated iframe modal closed event
-    // This allows other components to differentiate between iframe and other modals
-    const iframeEvent = new CustomEvent("iframeModalClosed", {});
-    document.dispatchEvent(iframeEvent);
-
-    // Then dispatch the standard modal state change event, but with a slight delay
-    // to ensure proper handling order in parent components
-    setTimeout(() => {
-      const modalCloseEvent = new CustomEvent("modalStateChange", {
-        detail: { isOpen: false },
-      });
-      document.dispatchEvent(modalCloseEvent);
-
-      // Finally call the closeModal function provided by parent
-      closeModal();
-    }, 0);
-  };
-
-  // Handle ESC key press and clicks outside modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleClose();
-      }
-    };
-
-    const handleClickOutside = (e: MouseEvent) => {
-      // Check if click is outside the modal content
-      const modalContent = document.querySelector(".bg-white.w-11\\/12");
-      if (modalContent && !modalContent.contains(e.target as Node)) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  }, [closeModal]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      data-modal-type="iframe"
-      // We let handleClickOutside in useEffect handle this for better event coordination
-    >
-      <div
-        className="bg-white w-11/12 h-5/6 rounded-lg overflow-hidden flex flex-col"
-        onClick={(e) => e.stopPropagation()} // Prevent clicks on modal content from closing
-      >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-medium">{modalTitle}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 modal">
+      <div className="bg-white rounded-lg shadow-lg w-[95%] md:w-4/5 lg:w-3/4 h-[95%] md:h-4/5 flex flex-col">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-4 py-2 border-b">
+          <h3 className="text-lg font-semibold">{modalTitle}</h3>
           <button
-            onClick={handleClose}
-            className="p-1 rounded-full hover:bg-gray-100"
-            aria-label="Close"
-            data-testid="iframe-modal-close"
+            onClick={closeModal}
+            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            aria-label="Close modal"
           >
-            <Icons variant="close" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-hidden">
+
+        {/* Modal Content */}
+        <div className="flex-grow p-0">
           <iframe
             src={modalUrl}
-            className="w-full h-full border-0"
             title={modalTitle}
-            sandbox="allow-same-origin allow-scripts allow-forms"
+            className="w-full h-full border-0"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
           />
         </div>
       </div>

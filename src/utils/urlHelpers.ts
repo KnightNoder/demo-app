@@ -9,7 +9,6 @@ export const getCategoryUrl = (
 ): string => {
   // Get the base URL that handles environment-specific logic
   const baseUrl = getBaseUrl();
-  console.log(baseUrl, "base url");
 
   switch (category) {
     case "Allergies":
