@@ -1,3 +1,5 @@
+import { getBaseUrl } from "../../../utils/utils";
+
 // menuData.ts
 export interface DropdownMenuItem {
   label: string;
@@ -9,22 +11,22 @@ export interface MenuItems {
 }
 
 // Helper function to determine if we're in production
-const isStaging = (): boolean => {
-  return import.meta.env.VITE_ENV === "staging";
-};
+// const isStaging = (): boolean => {
+//   return import.meta.env.VITE_ENV === "staging";
+// };
 
 // Helper to get base URL with proper environment handling
-export const getBaseUrl = (): string => {
-  // Get the base URL from environment
-  const baseUrl =
-    (typeof import.meta !== "undefined" &&
-      import.meta.env &&
-      import.meta.env.VITE_V1_URL) ||
-    "";
+// export const getBaseUrl = (): string => {
+//   // Get the base URL from environment
+//   const baseUrl =
+//     (typeof import.meta !== "undefined" &&
+//       import.meta.env &&
+//       import.meta.env.VITE_V1_URL) ||
+//     "";
 
-  // Append "/ehr" in Staging environment
-  return isStaging() ? `${baseUrl}/ehr` : baseUrl;
-}
+//   // Append "/ehr" in Staging environment
+//   return isStaging() ? `${baseUrl}/ehr` : baseUrl;
+// }
 
 export const getMenuItems = (patientId?: string | null): MenuItems => {
   // Pre-calculate the base URL to use in all menu items

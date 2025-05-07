@@ -14,7 +14,13 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
   // Handle escape key and notify about modal state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (
+        e.key === "Escape" &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         closeModal();
       }
     };

@@ -1,4 +1,4 @@
-import { getBaseUrl } from "../../src/components/molecules/WidgetMenu/menuData";
+import { getBaseUrl } from "../utils/utils";
 
 /**
  * Generates the appropriate URL for a given category and patient ID

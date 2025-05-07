@@ -102,8 +102,8 @@ export const capitalize = (str: string): string => {
 export function formatToDDMMYYYY(datetime: string): string {
   // Handle placeholder or invalid datetime
   if (
-    !datetime || 
-    datetime === "0000-00-00 00:00:00" || 
+    !datetime ||
+    datetime === "0000-00-00 00:00:00" ||
     isNaN(new Date(datetime.replace(" ", "T")).getTime())
   ) {
     return "Invalid Date";
@@ -111,11 +111,43 @@ export function formatToDDMMYYYY(datetime: string): string {
 
   const date = new Date(datetime.replace(" ", "T")); // Convert to ISO format
 
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
 }
 
+export function getBaseUrl(): string {
+  try {
+    // Get the current URL from the browser
+    const currentUrl = window.location.href;
 
+    // Create a URL object
+    const urlObj = new URL(currentUrl);
+
+    // Get the origin (protocol + hostname)
+    const origin = urlObj.origin;
+
+    // Get the pathname
+    const pathname = urlObj.pathname;
+
+    // Find the first directory from pathname
+    let firstDir = "";
+    if (pathname && pathname !== "/") {
+      // Split by '/' and filter out empty strings
+      const pathParts = pathname.split("/").filter((part) => part.length > 0);
+
+      // If there's at least one directory, use it
+      if (pathParts.length > 0) {
+        firstDir = "/" + pathParts[0];
+      }
+    }
+
+    // Combine origin and first directory
+    return origin + firstDir;
+  } catch (error) {
+    console.error("Error extracting base URL:", error);
+    return "";
+  }
+}

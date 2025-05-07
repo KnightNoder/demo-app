@@ -17,7 +17,13 @@ const ResetConfirmationModal: React.FC<ResetConfirmationModalProps> = ({
   // Handle escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (
+        e.key === "Escape" &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         onCancel();
       }
     };

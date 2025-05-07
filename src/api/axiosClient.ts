@@ -136,7 +136,10 @@ const axiosClient: AxiosInstance = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    sitename: import.meta.env.VITE_SITE_NAME,
+    // sitename: import.meta.env.VITE_SITE_NAME,
+    sitename:
+      document.querySelector<HTMLInputElement>('input[name="site_name"]')
+        ?.value || null,
     Authorization: `Bearer ${localStorage.getItem("JWT_AUTH_TOKEN")}`,
     // Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZXMiOlsidXNlciJdLCJpYXQiOjE3NDU4Mjk4NTYsImV4cCI6MTc0NTgzMzQ1Nn0.r052RKyIu7bhfdwvqLmLf69vLXqoiFmHvNfBXGa0pk0`,
   },

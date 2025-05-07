@@ -191,7 +191,13 @@ const Card: React.FC<CardProps> = ({
   // Handle keypresses and outside clicks
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (
+        e.key === "Escape" &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         if (isHeaderModalOpen) {
           handleHeaderModalClose();
         }

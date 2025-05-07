@@ -263,8 +263,14 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       }
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "Escape" &&
+        !e.ctrlKey &&
+        !e.shiftKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
         setIsWidgetMenuOpen(false);
         setShowDropdown(false);
         setShowModal(false);
