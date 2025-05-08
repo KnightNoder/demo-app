@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import IframeModal from "./IframeModal";
 import { ModalInfo } from "../../../types";
 
@@ -11,6 +11,9 @@ interface AppModalProps {
  * Application modal component
  */
 const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
+  // Using ref to track if we're intentionally closing
+  const isClosingRef = useRef(false);
+
   // Handle keyboard events and notify about modal state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,6 +30,8 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
 
       // Close modal when developer tools are opened (Ctrl+Shift+I or F12)
       if ((e.ctrlKey && e.shiftKey && e.key === "I") || e.key === "F12") {
+        // Set flag to indicate we're deliberately closing
+        isClosingRef.current = true;
         // Close the modal
         handleClose();
       }
@@ -45,8 +50,8 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
 
-      // Dispatch a custom event to notify that a modal is closed
-      if (modal.isOpen) {
+      // Only dispatch close event if we haven't already done so
+      if (modal.isOpen && !isClosingRef.current) {
         const modalCloseEvent = new CustomEvent("modalStateChange", {
           detail: { isOpen: false },
         });
@@ -57,6 +62,9 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
 
   // Handle the actual close action (used by both escape key and close button)
   const handleClose = () => {
+    // Set flag to indicate we're deliberately closing
+    isClosingRef.current = true;
+
     // Dispatch event to notify components that modal is closing
     const modalCloseEvent = new CustomEvent("modalStateChange", {
       detail: { isOpen: false },
@@ -69,26 +77,60 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
 
   // Also detect DevTools via the 'devtoolschange' event if available
   useEffect(() => {
-    // Function to detect if DevTools is open
-    const detectDevTools = () => {
-      if (
-        window.outerHeight - window.innerHeight > 200 ||
-        window.outerWidth - window.innerWidth > 200
-      ) {
-        // DevTools is likely open, close the modal
-        handleClose();
-      }
+    // Track the previous dimensions to avoid false positives
+    const prev = {
+      outerHeight: window.outerHeight,
+      outerWidth: window.outerWidth,
+      innerHeight: window.innerHeight,
+      innerWidth: window.innerWidth,
     };
 
-    // Event listener for resize (which happens when DevTools is opened/closed)
-    window.addEventListener("resize", detectDevTools);
+    // Function to detect if DevTools is open
+    const detectDevTools = () => {
+      // Only consider significant changes to avoid false triggers
+      const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
+      const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
+
+      const prevHeightDiff = Math.abs(prev.outerHeight - prev.innerHeight);
+      const prevWidthDiff = Math.abs(prev.outerWidth - prev.innerWidth);
+
+      // Only trigger if there's a significant change in the differences
+      if (
+        (heightDiff > 200 && heightDiff - prevHeightDiff > 100) ||
+        (widthDiff > 200 && widthDiff - prevWidthDiff > 100)
+      ) {
+        // DevTools is likely open, close the modal
+        isClosingRef.current = true;
+        handleClose();
+      }
+
+      // Update previous values
+      prev.outerHeight = window.outerHeight;
+      prev.outerWidth = window.outerWidth;
+      prev.innerHeight = window.innerHeight;
+      prev.innerWidth = window.innerWidth;
+    };
+
+    // Event listener for resize with debounce
+    let resizeTimeout: number | null = null;
+    const handleResize = () => {
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = window.setTimeout(detectDevTools, 300);
+    };
+
+    window.addEventListener("resize", handleResize);
 
     // Check immediately
     detectDevTools();
 
     // Clean up
     return () => {
-      window.removeEventListener("resize", detectDevTools);
+      window.removeEventListener("resize", handleResize);
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
     };
   }, [closeModal]);
 
