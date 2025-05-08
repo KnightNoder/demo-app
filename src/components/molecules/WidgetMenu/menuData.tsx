@@ -161,7 +161,7 @@ export const getMenuItems = (patientId?: string | null): MenuItems => {
         label: "Client Reports",
         url: `${baseUrl}/interface/patient_file/report/patient_report.php`,
       },
-      { label: "Service Report", url: "/reports/service-report" },
+      { label: "Service Report", url: "#" },
       {
         label: "PMP Report",
         url: `${baseUrl}/interface/patient_file/summary/pmp_access.php?pid=${patientId}`,
@@ -211,7 +211,7 @@ export const getMenuItems = (patientId?: string | null): MenuItems => {
         url: `${baseUrl}/interface/patient_file/southwest/dug_segment_data.php?patient_id=${patientId}`,
       },
     ],
-    "External Links": [{ label: "External Links", url: "/external-links" }],
+    "External Links": [{ label: "External Links", url: "#" }],
     "More Options": [
       { label: "Expand All", url: "" },
       { label: "Collapse All", url: "" },
@@ -219,7 +219,7 @@ export const getMenuItems = (patientId?: string | null): MenuItems => {
         label: "Delete Person",
         url: `${baseUrl}/interface/patient_file/deleter.php?patient=${patientId}`,
       },
-      { label: "Deactivate the Person", url: "N/A" },
+      { label: "Deactivate the Person", url: "#" },
     ],
   };
 };

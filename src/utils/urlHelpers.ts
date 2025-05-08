@@ -33,6 +33,14 @@ export const getCategoryUrl = (
       return `${baseUrl}/interface/patient_file/summary/add_edit_issue.php?showmed=yes&issue=0&thistype=cognitive_status`;
     case "Advanced Directives":
       return `${baseUrl}/interface/patient_file/summary/advancedirectives.php`;
+    case "Disclosures":
+      return `${baseUrl}/interface/patient_file/summary/record_disclosure.php`;
+    case "Documents":
+      return `${baseUrl}/controller.php?document&upload&patient_id=${patientId}&parent_id=175616&`;
+    case "ID Card/Photos":
+      return `${baseUrl}/controller.php?document&upload&patient_id=${patientId}&parent_id=5&`;
+    case "Vitals":
+      return `${baseUrl}/interface/patient_file/encounter/load_form.php?formname=vitals`;
     default:
       return "";
   }

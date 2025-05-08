@@ -75,7 +75,7 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div
-        className="bg-white p-4 rounded-lg shadow-lg w-[90%] max-w-[50%] h-[80%] flex flex-col"
+        className="bg-white overflow-x-scroll p-4 rounded-lg shadow-lg w-[90%] max-w-[75%] h-[80%] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

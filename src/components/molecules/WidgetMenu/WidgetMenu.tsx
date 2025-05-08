@@ -349,7 +349,9 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       setIsExpandAll(false);
       return;
     }
-
+    if (item.url === "#") {
+      return;
+    }
     // For all other URLs, try to open in modal
     try {
       // Use the centralized URL processing function
