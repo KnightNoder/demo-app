@@ -11,9 +11,10 @@ interface AppModalProps {
  * Application modal component
  */
 const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
-  // Handle escape key and notify about modal state
+  // Handle keyboard events and notify about modal state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Close on pure Escape key press (no modifiers)
       if (
         e.key === "Escape" &&
         !e.ctrlKey &&
@@ -22,6 +23,12 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
         !e.metaKey
       ) {
         closeModal();
+      }
+
+      // Close modal when developer tools are opened (Ctrl+Shift+I or F12)
+      if ((e.ctrlKey && e.shiftKey && e.key === "I") || e.key === "F12") {
+        // Close the modal
+        handleClose();
       }
     };
 
@@ -59,6 +66,31 @@ const AppModal: React.FC<AppModalProps> = ({ modal, closeModal }) => {
     // Call the passed-in closeModal function
     closeModal();
   };
+
+  // Also detect DevTools via the 'devtoolschange' event if available
+  useEffect(() => {
+    // Function to detect if DevTools is open
+    const detectDevTools = () => {
+      if (
+        window.outerHeight - window.innerHeight > 200 ||
+        window.outerWidth - window.innerWidth > 200
+      ) {
+        // DevTools is likely open, close the modal
+        handleClose();
+      }
+    };
+
+    // Event listener for resize (which happens when DevTools is opened/closed)
+    window.addEventListener("resize", detectDevTools);
+
+    // Check immediately
+    detectDevTools();
+
+    // Clean up
+    return () => {
+      window.removeEventListener("resize", detectDevTools);
+    };
+  }, [closeModal]);
 
   if (!modal.isOpen) return null;
 
