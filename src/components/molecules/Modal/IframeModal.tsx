@@ -294,7 +294,7 @@ const IframeModal: React.FC<IframeModalProps> = ({ modal, closeModal }) => {
           src={modal.url}
           className="w-full h-full border-0"
           title={modal.title}
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+          // sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-top-navigation allow-top-navigation-by-user-activation"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           onLoad={() => {
             // Additional onLoad handler with retry mechanism
