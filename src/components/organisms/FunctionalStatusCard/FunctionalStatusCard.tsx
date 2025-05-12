@@ -134,7 +134,7 @@ const FunctionalStatusList: React.FC<FunctionalStatusCardComponentProps> = ({
 
   return (
     <div className="max-w-full mx-auto space-y-4">
-      {functionalStatusData.map((item, index) => (
+      {functionalStatusData?.map((item, index) => (
         <FunctionalStatusCard key={index} {...item} />
       ))}
     </div>

@@ -36,7 +36,7 @@ const DesktopView: React.FC<DesktopViewProps> = ({
       style={{ gridTemplateColumns }}
     >
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
-        {gridItems.map((item) => {
+        {gridItems?.map((item) => {
           const widget = widgetOptions.find((w) => w.key === item.id);
           if (!widget) return null;
 

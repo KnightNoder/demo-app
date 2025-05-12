@@ -119,7 +119,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
     const [startTime, endTime] = timeRange.split("-");
 
     const formatTime = (time: string) => {
-      const [hours, minutes] = time.split(":").map((num) => parseInt(num));
+      const [hours, minutes] = time.split(":")?.map((num) => parseInt(num));
       const period = hours >= 12 ? "PM" : "AM";
       const displayHours = hours % 12 || 12;
       return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
@@ -443,7 +443,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
         onTabClick={setActiveTab}
       />
       {filteredNotifications.length > 0 ? (
-        filteredNotifications.map((notification) => (
+        filteredNotifications?.map((notification) => (
           <NotificationItem key={notification.id} notification={notification} />
         ))
       ) : (

@@ -22,7 +22,7 @@ const MenuStrip: React.FC<MenuStripProps> = ({
       data-orientation="horizontal"
       style={{ outline: "none" }}
     >
-      {allMenuItems.map((menuItem) => (
+      {allMenuItems?.map((menuItem) => (
         <button
           key={menuItem}
           type="button"

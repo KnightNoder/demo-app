@@ -49,7 +49,7 @@ const VitalsTrend: React.FC<VitalsTrendProps> = ({ vitalsDataArray = [] }) => {
     );
 
     // Transform to format needed by LineChart
-    return sortedData.map((record) => ({
+    return sortedData?.map((record) => ({
       timestamp: new Date(record.date).getTime(),
       systolic: record.BP_systolic,
       diastolic: record.BP_diastolic,

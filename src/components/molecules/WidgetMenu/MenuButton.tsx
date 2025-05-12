@@ -106,7 +106,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({
           ref={menuPanelRef}
           className="absolute top-[calc(100%+4px)] right-0 py-2 bg-white border border-gray-200 rounded-md shadow-md z-50 w-64"
         >
-          {allMenuItems.map((menuItem, index) => (
+          {allMenuItems?.map((menuItem, index) => (
             <div key={menuItem} className="relative">
               {/* Add separator line above except for the first item */}
               {index > 0 && <div className="h-px bg-gray-200 mx-4"></div>}
@@ -159,7 +159,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({
               {expandedItem === menuItem && showDropdown && (
                 <div className="bg-gray-50 border-t border-gray-200">
                   <ul className="py-1">
-                    {dropdownItems.map((item, idx) => (
+                    {dropdownItems?.map((item, idx) => (
                       <li key={idx} className="pl-8 pr-2">
                         {/* Add separator line between dropdown items except for the first item */}
                         {idx > 0 && (

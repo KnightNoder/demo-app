@@ -267,7 +267,7 @@ const App: React.FC = () => {
           newItems.splice(overIndex, 0, activeItem);
 
           // Update order property
-          return newItems.map((item, index) => ({
+          return newItems?.map((item, index) => ({
             ...item,
             order: index,
           }));

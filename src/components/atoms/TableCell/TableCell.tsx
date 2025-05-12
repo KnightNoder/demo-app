@@ -13,7 +13,7 @@ const TableCell: React.FC<TableCellProps> = ({ children, className = "" }) => {
   const cellClass = `pl-1 pr-2 py-1 align-middle text-xs font-light ${className}`;
 
   // Handle capitalization based on children type
-  const processedChildren = React.Children.map(children, (child) => {
+  const processedChildren = React.Children?.map(children, (child) => {
     // If children is a simple string, we can capitalize it
     if (typeof child === "string") {
       return capitalize(child);

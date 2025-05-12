@@ -38,7 +38,7 @@ export const DiagnosisTable: React.FC<DiagnosisProps> = ({
 
   return (
     <div>
-      {diagnosis.map((item, index) => {
+      {diagnosis?.map((item, index) => {
         // Create a unique key by combining the ID with other unique data
         // This ensures uniqueness even if IDs are duplicated
         const uniqueKey = `${item.id}-${item.modified_on}-${index}`;

@@ -42,7 +42,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
           // Add other mappings as needed
         };
 
-        const extractedTabs = Object.keys(data).map((key) => {
+        const extractedTabs = Object.keys(data)?.map((key) => {
           // Use our mapping or fallback to a cleaned-up version of the key
           const label = keyToLabelMap[key] || key.replace(/^\d+/, "");
           return { key, label };

@@ -24,44 +24,45 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
 
   const [activeTab, setActiveTab] = useState("Active");
 
-  // Filter diagnoses based on the active tab
   const filteredDiagnosis = useMemo(() => {
-    if (!diagnosis) return [];
+    if (!Array.isArray(diagnosis)) return [];
 
     const now = new Date();
 
     switch (activeTab) {
       case "Active":
-        // Show diagnoses whose modified_on is less than now
-        return diagnosis?.filter((item) => {
+        return diagnosis.filter((item) => {
           const modifiedDate = new Date(item.modified_on);
           return modifiedDate < now;
         });
       case "Resolved":
-        // Show diagnoses whose modified_on is greater than now
-        return diagnosis?.filter((item) => {
+        return diagnosis.filter((item) => {
           const modifiedDate = new Date(item.modified_on);
           return modifiedDate > now;
         });
       case "All":
       default:
-        // Show all diagnoses
         return diagnosis;
     }
   }, [diagnosis, activeTab]);
 
-  // Update the tabs to show the correct counts
   const tabs = useMemo(() => {
-    if (!diagnosis) return [];
+    if (!Array.isArray(diagnosis) || diagnosis.length === 0) {
+      return [
+        { label: "Active", count: 0 },
+        { label: "Resolved", count: 0 },
+        { label: "All", count: 0 },
+      ];
+    }
 
     const now = new Date();
 
-    const activeDiagnoses = diagnosis?.filter((item) => {
+    const activeDiagnoses = diagnosis.filter((item) => {
       const modifiedDate = new Date(item.modified_on);
       return modifiedDate < now;
     });
 
-    const resolvedDiagnoses = diagnosis?.filter((item) => {
+    const resolvedDiagnoses = diagnosis.filter((item) => {
       const modifiedDate = new Date(item.modified_on);
       return modifiedDate > now;
     });
@@ -69,11 +70,10 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
     return [
       { label: "Active", count: activeDiagnoses.length },
       { label: "Resolved", count: resolvedDiagnoses.length },
-      { label: "All", count: diagnosis?.length },
+      { label: "All", count: diagnosis.length },
     ];
   }, [diagnosis]);
 
-  // Function to fetch diagnosis data
   const handleFetchDiagnosis = () => {
     if (patientId) {
       dispatch(fetchDiagnosis(patientId));
@@ -118,11 +118,13 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
 
   if (!Array.isArray(diagnosis)) {
     return (
-      <ErrorComponent
-        title="Data Format Error"
-        message="Expected an array of medical problems but received a different format."
-        icon="warning"
-        onRetry={handleFetchDiagnosis}
+      <EmptyStateComponent
+        title="No Medical Problems Found"
+        message={
+          activeTab === "All"
+            ? "No medical problems are available for this patient."
+            : `No ${activeTab.toLowerCase()} medical problems are available for this patient.`
+        }
       />
     );
   }

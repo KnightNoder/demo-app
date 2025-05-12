@@ -44,7 +44,7 @@ const CarouselNavigation: React.FC<CarouselNavigationProps> = ({
       {/* Dots navigation */}
       {gridItems.length > 1 && (
         <div className="flex justify-center mt-14 mb-4">
-          {gridItems.map((_, index) => (
+          {gridItems?.map((_, index) => (
             <button
               key={`dot-${index}`}
               onClick={() => setActiveCardIndex(index)}

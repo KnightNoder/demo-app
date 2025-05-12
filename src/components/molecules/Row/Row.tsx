@@ -19,7 +19,7 @@ const GenericTableRow = <T,>({
 }: GenericTableRowProps<T>) => {
   return (
     <tr className="transition-colors hover:bg-muted/50 my-2">
-      {columnConfig.map(({ key, render, className = "" }, index) => {
+      {columnConfig?.map(({ key, render, className = "" }, index) => {
         const value = data[key];
 
         // Match the styling from AllergyRow

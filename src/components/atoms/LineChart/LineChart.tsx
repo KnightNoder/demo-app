@@ -38,7 +38,7 @@ export const LineChart: FC<LineChartProps> = ({
             fontSize: "12px",
           }}
         />
-        {yKeys.map((key, index) => (
+        {yKeys?.map((key, index) => (
           <Line
             key={key}
             type="monotone"

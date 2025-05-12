@@ -21,7 +21,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         </button>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        {photos.map((photo) => (
+        {photos?.map((photo) => (
           <div
             key={photo.id}
             className="relative overflow-hidden rounded-lg shadow-md"

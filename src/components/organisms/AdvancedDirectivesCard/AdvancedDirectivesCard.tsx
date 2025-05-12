@@ -39,7 +39,7 @@ export default function HealthcareDocuments() {
 
   return (
     <div className="max-w-full mx-auto space-y-4">
-      {documents.map((doc, index) => (
+      {documents?.map((doc, index) => (
         <div
           key={index}
           className={`p-4 border rounded-lg shadow-sm ${

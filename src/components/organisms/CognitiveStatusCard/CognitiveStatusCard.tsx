@@ -164,7 +164,7 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
 
   return (
     <div className="w-full mx-auto space-y-3 md:space-y-4">
-      {assessments.map((item, index) => (
+      {assessments?.map((item, index) => (
         <AssessmentCard
           key={`${item.id}-${index}`}
           {...item}

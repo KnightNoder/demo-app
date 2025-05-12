@@ -163,7 +163,7 @@ const TabListHeader: React.FC<TabListHeaderProps> = ({
               className="w-full grid gap-2"
               style={{ gridTemplateColumns: getGridTemplateColumns() }}
             >
-              {tabs.map((tab, index) => (
+              {tabs?.map((tab, index) => (
                 <div key={tab.key || `tab-container-${tab.label}-${index}`}>
                   <TabButton
                     key={tab.key || `tab-${tab.label}-${index}`}
@@ -177,7 +177,7 @@ const TabListHeader: React.FC<TabListHeaderProps> = ({
             </div>
           ) : (
             // For many tabs, just display them normally
-            tabs.map((tab, index) => (
+            tabs?.map((tab, index) => (
               <TabButton
                 key={tab.key || `tab-${tab.label}-${index}`}
                 label={tab.label}

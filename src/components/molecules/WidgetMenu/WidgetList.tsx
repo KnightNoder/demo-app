@@ -54,7 +54,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
                   !visibleWidgets.includes(w.key) &&
                   w.key.toLowerCase().includes(searchTerm.toLowerCase())
               )
-              .map((widget) => (
+              ?.map((widget) => (
                 <li
                   key={widget.key}
                   className="flex items-center cursor-pointer justify-between p-2 rounded-md hover:bg-gray-100"
@@ -82,7 +82,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
               ?.filter((key) =>
                 key.toLowerCase().includes(searchTerm.toLowerCase())
               )
-              .map((key) => {
+              ?.map((key) => {
                 const widget = widgetOptions.find((w) => w.key === key);
                 return (
                   <li

@@ -162,7 +162,7 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
 
       <div className="mt-4 space-y-4">
         {filteredAppointments.length > 0 ? (
-          filteredAppointments.map((appointment) => (
+          filteredAppointments?.map((appointment) => (
             <AppointmentItem key={appointment.id} appointment={appointment} />
           ))
         ) : (

@@ -162,7 +162,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
   // Generate critical alerts dynamically based on vitals with CRITICAL severity
   const criticalAlerts: CriticalAlert[] = vitalsData
     ?.filter((vital) => vital.severity === "CRITICAL")
-    .map((vital) => {
+    ?.map((vital) => {
       // Customize messages based on vital type
       switch (vital.label) {
         case "Blood Pressure":
@@ -226,7 +226,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
     <div className="w-full max-w-5xl mx-auto bg-gray-50">
       {/* Vitals Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {vitalsData.map((vital, index) => {
+        {vitalsData?.map((vital, index) => {
           const { color, bg, ring } = severityStyles[vital.severity];
 
           return (
@@ -306,7 +306,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
           Critical Alerts
         </h2>
         {criticalAlerts.length > 0 ? (
-          criticalAlerts.map((alert, index) => (
+          criticalAlerts?.map((alert, index) => (
             <div
               key={index}
               className="flex items-start border border-gray-100 rounded p-2 mb-2"
@@ -341,7 +341,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
               Baseline Vitals
             </h3>
             <div className="space-y-2">
-              {baselineVitals.map((item, index) => (
+              {baselineVitals?.map((item, index) => (
                 <div key={index} className="flex justify-between">
                   <span className="text-xs font-light text-gray-600">
                     {item.label}
@@ -360,7 +360,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
               Relevant Conditions
             </h3>
             <div className="space-y-2">
-              {relevantConditions.map((item, index) => (
+              {relevantConditions?.map((item, index) => (
                 <div key={index} className="flex justify-between">
                   <span className="text-xs font-light text-gray-600">
                     {item.label}

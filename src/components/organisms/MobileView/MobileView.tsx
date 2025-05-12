@@ -91,7 +91,7 @@ const MobileView: React.FC<MobileViewProps> = ({
 
       <SortableContext items={gridItems} strategy={rectSortingStrategy}>
         {gridItems.length > 0 &&
-          gridItems.map((item, index) => {
+          gridItems?.map((item, index) => {
             const widget = widgetOptions.find((w) => w.key === item.id);
             if (!widget) return null;
 
@@ -141,7 +141,7 @@ const MobileView: React.FC<MobileViewProps> = ({
           <div className="min-w-[20px]"></div>
 
           {/* Map through gridItems to maintain the same order */}
-          {gridItems.map((item, index) => {
+          {gridItems?.map((item, index) => {
             const widget = widgetOptions.find((w) => w.key === item.id);
             if (!widget) return null;
 

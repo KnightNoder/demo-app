@@ -83,7 +83,7 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
       );
 
       // Add calculated status to each item
-      const dataWithStatus = response.data.map((item: ConsentForm2) => ({
+      const dataWithStatus = response.data?.map((item: ConsentForm2) => ({
         ...item,
         status: calculateStatus(item),
       }));
@@ -310,7 +310,7 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
         onTabClick={setActiveTab}
       />
       <Table
-        headers={columnConfig.map((col) => col.label ?? "")}
+        headers={columnConfig?.map((col) => col.label ?? "")}
         data={filteredData}
         loading={false}
         renderRow={(row, index) => (

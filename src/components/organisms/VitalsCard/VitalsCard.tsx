@@ -21,7 +21,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
   const [vitalsData, setVitalsData] = useState<any[]>([]);
 
   // Transform data to match VitalsTable expected format
-  const transformedVitalsData = vitalsData.map((item) => ({
+  const transformedVitalsData = vitalsData?.map((item) => ({
     timestamp: item.date,
     time: item.time, // Add if available in your API response
     date: item.date,

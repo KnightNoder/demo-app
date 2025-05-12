@@ -42,7 +42,7 @@ const labReportSlice = createSlice({
     processLabReports(state: LabReportState, action: PayloadAction<any>) {
       const data = action.payload;
       const labReports = data.procedure_reports.flatMap((report: any) =>
-        report.procedure_results.map((result: any) => ({
+        report.procedure_results?.map((result: any) => ({
           id: result.id.toString(), // Ensure ID is a string
           test: result.result_text,
           result: result.result,

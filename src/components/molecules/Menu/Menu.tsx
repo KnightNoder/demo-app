@@ -28,18 +28,20 @@ const Menu: React.FC<MenuProps> = ({ isOpen, onToggle, options }) => {
       {isOpen && (
         <div className="absolute right-0 z-50 w-40 mt-2 bg-white border border-gray-200 rounded-md shadow-lg">
           <div className="py-1">
-            {options && options.map((option) => (
-              <Button
-                key={option.label}
-                variant="default" data-cy="default-button"
-                onClick={option.onClick}
-                dataCy={`menu-option-${option.label.toLowerCase().replace(" ", "-")}`}
-                disabled={option.disabled}
-              >
-                <Icon variant={option.icon} />
-                {option.label}
-              </Button>
-            ))}
+            {options &&
+              options?.map((option) => (
+                <Button
+                  key={option.label}
+                  variant="default"
+                  data-cy="default-button"
+                  onClick={option.onClick}
+                  dataCy={`menu-option-${option.label.toLowerCase().replace(" ", "-")}`}
+                  disabled={option.disabled}
+                >
+                  <Icon variant={option.icon} />
+                  {option.label}
+                </Button>
+              ))}
           </div>
         </div>
       )}

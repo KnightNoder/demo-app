@@ -16,16 +16,16 @@ const Table = <T,>({ headers, data, loading, renderRow }: TableProps<T>) => {
       <table className="w-full text-xs">
         <thead className="top-0 bg-gray-50">
           <tr>
-            {headers.map((header, index) => (
+            {headers?.map((header, index) => (
               <TableHeader key={index}>{header}</TableHeader>
             ))}
           </tr>
         </thead>
         <tbody>
           {loading ? (
-            [...Array(5)].map((_, index) => (
+            [...Array(5)]?.map((_, index) => (
               <tr key={index} className="my-2">
-                {headers.map((_, colIndex) => (
+                {headers?.map((_, colIndex) => (
                   <td key={colIndex} className="pl-1 pr-2 py-3 align-middle">
                     <Skeleton width={100} />
                   </td>
@@ -33,7 +33,7 @@ const Table = <T,>({ headers, data, loading, renderRow }: TableProps<T>) => {
               </tr>
             ))
           ) : data.length > 0 ? (
-            data.map(renderRow)
+            data?.map(renderRow)
           ) : (
             <tr>
               <td

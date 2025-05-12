@@ -69,7 +69,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
       const data = response.data;
 
       // Add uploadedBy to each document if it doesn't exist
-      const enhancedData = data.map((doc: Document) => ({
+      const enhancedData = data?.map((doc: Document) => ({
         ...doc,
         uploadedBy: doc.uploadedBy || "N/A",
       }));
@@ -115,7 +115,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
     if (!doc.categories || doc.categories.length === 0) {
       return "Uncategorized";
     }
-    return doc.categories.map((cat) => cat.name).join(", ");
+    return doc.categories?.map((cat) => cat.name).join(", ");
   };
 
   const hasCategory = (doc: Document, filterCategory: string): boolean => {
@@ -134,7 +134,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
     if (selectAll) {
       setSelectedDocs(new Set());
     } else {
-      setSelectedDocs(new Set(documents.map((doc) => doc.id)));
+      setSelectedDocs(new Set(documents?.map((doc) => doc.id)));
     }
     setSelectAll(!selectAll);
   };
@@ -163,7 +163,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
 
     const selectedFilePaths = documents
       ?.filter((doc) => selectedDocs.has(doc.id))
-      .map((doc) => encodeURIComponent(doc.url));
+      ?.map((doc) => encodeURIComponent(doc.url));
 
     if (selectedFilePaths.length === 0) return;
 
@@ -279,7 +279,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
   // Mobile card view for documents
   const MobileDocumentList = () => (
     <div className="flex flex-col space-y-3">
-      {filteredDocuments.map((doc) => (
+      {filteredDocuments?.map((doc) => (
         <div
           key={doc.id}
           className="border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden"
@@ -464,7 +464,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
               <option value="All" className="font-medium text-blue-500">
                 All Documents
               </option>
-              {uniqueCategories.map((category) => (
+              {uniqueCategories?.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -616,7 +616,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
                   </tr>
                 </thead>
                 <tbody className="[&_tr:last-child]:border-0 [&_tr:nth-child(even)]:bg-muted/30">
-                  {filteredDocuments.map((doc) => (
+                  {filteredDocuments?.map((doc) => (
                     <tr
                       key={doc.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"

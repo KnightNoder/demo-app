@@ -64,7 +64,7 @@ const ClinicalNotesCard: React.FC = () => {
       />
       <div className="mt-4 space-y-4">
         {notes[activeTab]?.length > 0 ? (
-          notes[activeTab].map((note, index) => (
+          notes[activeTab]?.map((note, index) => (
             <ClinicalNoteItem
               key={index}
               title={note.title}

@@ -45,13 +45,13 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
         <table className="w-full text-xs border-spacing-y-2 border-separate">
           <thead className="top-0 bg-gray-50">
             <tr>
-              {tableHeaders.map((header, index) => (
+              {tableHeaders?.map((header, index) => (
                 <TableHeader key={`header-${index}`}>{header}</TableHeader>
               ))}
             </tr>
           </thead>
           <tbody>
-            {[...Array(5)].map((_, index) => (
+            {[...Array(5)]?.map((_, index) => (
               <tr key={`skeleton-row-${index}`} className="my-2">
                 <td className="py-3">
                   <Skeleton width={150} />
@@ -84,13 +84,13 @@ const LabReportsTable: React.FC<LabReportsTableProps> = ({
       <table className="w-full text-xs border-spacing-y-2 border-separate">
         <thead className="top-0 bg-gray-50">
           <tr>
-            {tableHeaders.map((header, index) => (
+            {tableHeaders?.map((header, index) => (
               <TableHeader key={`header-${index}`}>{header}</TableHeader>
             ))}
           </tr>
         </thead>
         <tbody>
-          {labReports.map((report, index) => (
+          {labReports?.map((report, index) => (
             <LabReportRow key={`${report.id}-${index}`} labReport={report} />
           ))}
         </tbody>

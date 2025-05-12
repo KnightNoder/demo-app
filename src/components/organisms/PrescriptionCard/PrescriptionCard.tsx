@@ -147,7 +147,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
         onTabClick={setActiveTab}
       />
       <div className="mt-4 space-y-4">
-        {filteredPrescriptions.map((prescription) => (
+        {filteredPrescriptions?.map((prescription) => (
           <PrescriptionItem key={prescription.id} prescription={prescription} />
         ))}
       </div>

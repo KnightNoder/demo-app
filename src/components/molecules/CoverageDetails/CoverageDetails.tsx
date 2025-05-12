@@ -77,7 +77,7 @@ const CoverageDetails: React.FC<CoverageDetailsProps> = ({ insurances }) => {
   return (
     <div className="bg-white rounded-lg">
       {insurances.length > 0 ? (
-        insurances.map((insurance, index) => (
+        insurances?.map((insurance, index) => (
           <div key={index} className="p-4 mb-6">
             <h2 className="flex items-center text-sm font-normal text-[#020817]">
               {insurance?.insurance_company?.name || "--"}{" "}
@@ -180,7 +180,7 @@ const CoverageDetails: React.FC<CoverageDetailsProps> = ({ insurances }) => {
                   Coverage Details
                 </h3>
                 <ul className="mt-2">
-                  {insurance.coverage.map((item, coverageIndex) => (
+                  {insurance.coverage?.map((item, coverageIndex) => (
                     <li
                       key={coverageIndex}
                       className="flex justify-between py-2 border-b"

@@ -74,9 +74,9 @@ export const useWidgets = () => {
     [...new Set([...defaultVisibleWidgets, ...mandatoryWidgets])]
   );
   
-  const [authorizedWidgets, setAuthorizedWidgets] = useState<string[]>(
-    [...new Set([...widgetOptions.map((opt) => opt.key), ...mandatoryWidgets])]
-  );
+  const [authorizedWidgets, setAuthorizedWidgets] = useState<string[]>([
+    ...new Set([...widgetOptions?.map((opt) => opt.key), ...mandatoryWidgets]),
+  ]);
   
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
   const [isStrictAuditor, setIsStrictAuditor] = useState<boolean>(false);
@@ -150,7 +150,7 @@ export const useWidgets = () => {
 
   // Initialize grid items from visible widgets
   const initializeGridItems = (widgets: string[]) => {
-    const items = widgets.map((widgetKey, index) => ({
+    const items = widgets?.map((widgetKey, index) => ({
       id: widgetKey,
       order: index,
     }));
@@ -162,7 +162,7 @@ export const useWidgets = () => {
     if (gridItems.length > 0 && visibleWidgets.length > 0 && !loading) {
       debouncedSavePreferences(gridItems, visibleWidgets);
     }
-    
+
     // Cleanup timer on unmount
     return () => {
       if (saveTimer) {
@@ -226,7 +226,7 @@ export const useWidgets = () => {
         let finalAuthorizedWidgets =
           aclAuthorizedWidgets.length > 0
             ? aclAuthorizedWidgets
-            : widgetOptions.map((opt) => opt.key);
+            : widgetOptions?.map((opt) => opt.key);
 
         // Ensure mandatory widgets are always authorized
         finalAuthorizedWidgets = [
@@ -263,12 +263,12 @@ export const useWidgets = () => {
             // Add missing widgets to the end of the grid
             const nextOrder =
               filteredPositions.length > 0
-                ? Math.max(...filteredPositions.map((item) => item.order)) + 1
+                ? Math.max(...filteredPositions?.map((item) => item.order)) + 1
                 : 0;
 
             const newItems = [
               ...filteredPositions,
-              ...missingWidgets.map((widgetKey, idx) => ({
+              ...missingWidgets?.map((widgetKey, idx) => ({
                 id: widgetKey,
                 order: nextOrder + idx,
               })),
@@ -332,22 +332,22 @@ export const useWidgets = () => {
       if (isAdding) {
         // Add the widget to visible list
         newVisibleWidgets = [...prevWidgets, widgetKey];
-        
+
         // Add the widget to the grid items with the next order number
         const newOrder = gridItems.length;
         setGridItems((prev) => [...prev, { id: widgetKey, order: newOrder }]);
       } else {
         // Remove from visible list
         newVisibleWidgets = prevWidgets.filter((w) => w !== widgetKey);
-        
+
         // Remove the widget from grid items
         setGridItems((prev) => prev.filter((item) => item.id !== widgetKey));
         // Reorder remaining items
         setGridItems((prev) =>
-          prev.map((item, index) => ({ ...item, order: index }))
+          prev?.map((item, index) => ({ ...item, order: index }))
         );
       }
-      
+
       return newVisibleWidgets;
     });
   };

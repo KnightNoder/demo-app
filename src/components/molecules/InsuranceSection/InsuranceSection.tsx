@@ -86,7 +86,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ insurances }) => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {insurances.map((insurance, index) => (
+      {insurances?.map((insurance, index) => (
         <div key={index} className="bg-white rounded-lg p-6 space-y-4">
           {/* Header with insurance name, type and status */}
           <div className="flex items-start justify-between">

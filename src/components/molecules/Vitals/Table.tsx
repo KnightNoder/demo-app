@@ -22,7 +22,7 @@ interface VitalsTableProps {
 const VitalsTable: React.FC<VitalsTableProps> = ({ vitalsDataArray }) => {
   // Format timestamp into separate time and date if needed
   const formatVitalData = (data: VitalData[]): VitalData[] => {
-    return data.map((vital) => {
+    return data?.map((vital) => {
       // If timestamp exists but time and date don't, extract them
       if (vital.timestamp && (!vital.time || !vital.date)) {
         const date = new Date(vital.timestamp);
@@ -78,7 +78,7 @@ const VitalsTable: React.FC<VitalsTableProps> = ({ vitalsDataArray }) => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {processedData.map((vital, index) => (
+            {processedData?.map((vital, index) => (
               <tr key={index} className="hover:bg-slate-50/50">
                 <td className="py-2 px-3">
                   <div className="flex flex-col gap-0.5">
