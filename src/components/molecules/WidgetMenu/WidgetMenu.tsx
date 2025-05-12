@@ -398,7 +398,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
   };
 
   // Filter widget options to only show authorized widgets
-  const authorizedWidgetOptions = widgetOptions.filter((widget) =>
+  const authorizedWidgetOptions = widgetOptions?.filter((widget) =>
     authorizedWidgets.includes(widget.key)
   );
 

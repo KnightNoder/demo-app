@@ -49,7 +49,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
           <h3 className="pb-1 mb-2 font-bold">Add Widgets</h3>
           <ul className="mt-4 overflow-auto max-h-60">
             {authorizedWidgetOptions
-              .filter(
+              ?.filter(
                 (w) =>
                   !visibleWidgets.includes(w.key) &&
                   w.key.toLowerCase().includes(searchTerm.toLowerCase())
@@ -79,7 +79,7 @@ const WidgetList: React.FC<WidgetListProps> = ({
           <h3 className="pb-1 mb-2 font-bold">Remove Widgets</h3>
           <ul className="overflow-auto max-h-60">
             {visibleWidgets
-              .filter((key) =>
+              ?.filter((key) =>
                 key.toLowerCase().includes(searchTerm.toLowerCase())
               )
               .map((key) => {

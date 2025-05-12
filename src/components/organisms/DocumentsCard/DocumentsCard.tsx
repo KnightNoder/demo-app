@@ -162,7 +162,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
     if (selectedDocs.size === 0) return;
 
     const selectedFilePaths = documents
-      .filter((doc) => selectedDocs.has(doc.id))
+      ?.filter((doc) => selectedDocs.has(doc.id))
       .map((doc) => encodeURIComponent(doc.url));
 
     if (selectedFilePaths.length === 0) return;
@@ -229,8 +229,8 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch = doc.filename
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      ?.toLowerCase()
+      ?.includes(searchQuery.toLowerCase());
 
     // Filter by category
     const matchesCategory = hasCategory(doc, categoryFilter);

@@ -45,7 +45,7 @@ const medicationSlice = createSlice({
       }
     },
     removeMedication(state, action: PayloadAction<string>) {
-      state.medications = state.medications.filter(
+      state.medications = state.medications?.filter(
         (med) => med.title !== action.payload
       );
     },

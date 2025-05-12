@@ -22,10 +22,10 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
   const [activeTab, setActiveTab] = useState("All");
 
   const tabs = [
-    { label: "All", count: labReports.length },
+    { label: "All", count: labReports?.length },
     {
       label: "Abnormal",
-      count: labReports.filter((r) => r.abnormal !== "normal").length,
+      count: labReports?.filter((r) => r.abnormal !== "normal").length,
     },
   ];
 

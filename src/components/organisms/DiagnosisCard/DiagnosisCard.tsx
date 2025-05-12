@@ -33,13 +33,13 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
     switch (activeTab) {
       case "Active":
         // Show diagnoses whose modified_on is less than now
-        return diagnosis.filter((item) => {
+        return diagnosis?.filter((item) => {
           const modifiedDate = new Date(item.modified_on);
           return modifiedDate < now;
         });
       case "Resolved":
         // Show diagnoses whose modified_on is greater than now
-        return diagnosis.filter((item) => {
+        return diagnosis?.filter((item) => {
           const modifiedDate = new Date(item.modified_on);
           return modifiedDate > now;
         });
@@ -56,12 +56,12 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
 
     const now = new Date();
 
-    const activeDiagnoses = diagnosis.filter((item) => {
+    const activeDiagnoses = diagnosis?.filter((item) => {
       const modifiedDate = new Date(item.modified_on);
       return modifiedDate < now;
     });
 
-    const resolvedDiagnoses = diagnosis.filter((item) => {
+    const resolvedDiagnoses = diagnosis?.filter((item) => {
       const modifiedDate = new Date(item.modified_on);
       return modifiedDate > now;
     });
@@ -69,7 +69,7 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
     return [
       { label: "Active", count: activeDiagnoses.length },
       { label: "Resolved", count: resolvedDiagnoses.length },
-      { label: "All", count: diagnosis.length },
+      { label: "All", count: diagnosis?.length },
     ];
   }, [diagnosis]);
 

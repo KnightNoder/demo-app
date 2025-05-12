@@ -77,12 +77,12 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
 
     switch (activeTab) {
       case "Upcoming":
-        return appointments.filter((appointment) => {
+        return appointments?.filter((appointment) => {
           const eventDate = new Date(appointment.event_date);
           return eventDate >= now;
         });
       case "Past":
-        return appointments.filter((appointment) => {
+        return appointments?.filter((appointment) => {
           const eventDate = new Date(appointment.event_date);
           return eventDate < now;
         });
@@ -95,18 +95,18 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
   const filteredAppointments = getFilteredAppointments();
 
   // Update tab counts based on filtered data
-  const upcomingCount = appointments.filter(
+  const upcomingCount = appointments?.filter(
     (appointment) => new Date(appointment.event_date) >= new Date()
   ).length;
 
-  const pastCount = appointments.filter(
+  const pastCount = appointments?.filter(
     (appointment) => new Date(appointment.event_date) < new Date()
   ).length;
 
   const tabs = [
     { label: "Upcoming", count: upcomingCount },
     { label: "Past", count: pastCount },
-    { label: "All", count: appointments.length },
+    { label: "All", count: appointments?.length },
   ];
 
   if (loading) {

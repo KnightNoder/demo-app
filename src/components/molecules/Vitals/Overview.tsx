@@ -161,7 +161,7 @@ const VitalsOverview: React.FC<VitalsOverviewProps> = ({ vitalData }) => {
 
   // Generate critical alerts dynamically based on vitals with CRITICAL severity
   const criticalAlerts: CriticalAlert[] = vitalsData
-    .filter((vital) => vital.severity === "CRITICAL")
+    ?.filter((vital) => vital.severity === "CRITICAL")
     .map((vital) => {
       // Customize messages based on vital type
       switch (vital.label) {

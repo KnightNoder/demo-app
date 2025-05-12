@@ -18,7 +18,10 @@ export const LineChart: FC<LineChartProps> = ({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsLineChart data={data} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+      <RechartsLineChart
+        data={data}
+        margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+      >
         <XAxis
           dataKey={xKey}
           tickFormatter={(value) => new Date(value).toLocaleTimeString()}
@@ -29,10 +32,10 @@ export const LineChart: FC<LineChartProps> = ({
         <Tooltip
           labelFormatter={(value) => new Date(value).toLocaleString()}
           contentStyle={{
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '6px',
-            fontSize: '12px'
+            backgroundColor: "white",
+            border: "1px solid #e2e8f0",
+            borderRadius: "6px",
+            fontSize: "12px",
           }}
         />
         {yKeys.map((key, index) => (
@@ -40,7 +43,7 @@ export const LineChart: FC<LineChartProps> = ({
             key={key}
             type="monotone"
             dataKey={key}
-            stroke={colors[index % colors.length]}
+            stroke={colors[index % colors?.length]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
@@ -48,5 +51,5 @@ export const LineChart: FC<LineChartProps> = ({
         ))}
       </RechartsLineChart>
     </ResponsiveContainer>
-  )
+  );
 } 

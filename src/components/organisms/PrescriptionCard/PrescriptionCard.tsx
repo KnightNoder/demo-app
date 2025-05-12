@@ -101,7 +101,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
     );
   }
 
-  const activeCount = prescriptions.filter(
+  const activeCount = prescriptions?.filter(
     (prescription) => prescription.active === 1
   ).length;
 
@@ -109,14 +109,14 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
     { label: "Active", count: activeCount },
     { label: "High Risk", count: 0 },
     { label: "Needs Review", count: 0 },
-    { label: "All", count: prescriptions.length },
+    { label: "All", count: prescriptions?.length },
   ];
 
   const filteredPrescriptions =
     activeTab === "All"
       ? prescriptions
       : activeTab === "Active"
-        ? prescriptions.filter((prescription) => prescription.active === 1)
+        ? prescriptions?.filter((prescription) => prescription.active === 1)
         : [];
 
   if (filteredPrescriptions.length === 0) {

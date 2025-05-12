@@ -298,20 +298,20 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
 
     // Generate IDs for each source, so we can trace back where each notification came from
     const sourceIdMap = {
-      inbox_messages: notifications.filter((note) =>
+      inbox_messages: notifications?.filter((note) =>
         note.id.startsWith("task-")
       ),
-      patient_messages: notifications.filter((note) =>
+      patient_messages: notifications?.filter((note) =>
         note.id.startsWith("message-")
       ),
-      inbox_reminders: notifications.filter(
+      inbox_reminders: notifications?.filter(
         (note) =>
           note.id.startsWith("reminder-") || note.id.startsWith("alert-")
       ),
-      person_reminders: notifications.filter((note) =>
+      person_reminders: notifications?.filter((note) =>
         note.id.startsWith("person-reminder-")
       ),
-      appointment_reminders: notifications.filter((note) =>
+      appointment_reminders: notifications?.filter((note) =>
         note.id.startsWith("appointment-")
       ),
     };
@@ -346,20 +346,20 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
   // Generate IDs for each source, for counting
   const sourceIdMap = notifications
     ? {
-        inbox_messages: notifications.filter((note) =>
+        inbox_messages: notifications?.filter((note) =>
           note.id.startsWith("task-")
         ),
-        patient_messages: notifications.filter((note) =>
+        patient_messages: notifications?.filter((note) =>
           note.id.startsWith("message-")
         ),
-        inbox_reminders: notifications.filter(
+        inbox_reminders: notifications?.filter(
           (note) =>
             note.id.startsWith("reminder-") || note.id.startsWith("alert-")
         ),
-        person_reminders: notifications.filter((note) =>
+        person_reminders: notifications?.filter((note) =>
           note.id.startsWith("person-reminder-")
         ),
-        appointment_reminders: notifications.filter((note) =>
+        appointment_reminders: notifications?.filter((note) =>
           note.id.startsWith("appointment-")
         ),
       }

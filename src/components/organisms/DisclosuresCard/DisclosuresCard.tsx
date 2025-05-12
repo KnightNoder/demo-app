@@ -40,17 +40,17 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
   const getTabCounts = (data: ConsentForm2[]) => {
     const today = new Date();
 
-    const active = data.filter(
+    const active = data?.filter(
       (item) => new Date(item.date) > today && !isRevoked(item)
     );
-    const expired = data.filter((item) => new Date(item.date) < today);
-    const revoked = data.filter((item) => isRevoked(item));
+    const expired = data?.filter((item) => new Date(item.date) < today);
+    const revoked = data?.filter((item) => isRevoked(item));
 
     return {
       Active: active.length,
       Expired: expired.length,
       Revoked: revoked.length,
-      All: data.length,
+      All: data?.length,
     };
   };
 
@@ -121,13 +121,13 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
 
     switch (activeTab) {
       case "Active":
-        return consentData.filter(
+        return consentData?.filter(
           (item) => new Date(item.date) > today && !isRevoked(item)
         );
       case "Expired":
-        return consentData.filter((item) => new Date(item.date) < today);
+        return consentData?.filter((item) => new Date(item.date) < today);
       case "Revoked":
-        return consentData.filter((item) => isRevoked(item));
+        return consentData?.filter((item) => isRevoked(item));
       case "All":
       default:
         return consentData;

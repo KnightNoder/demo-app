@@ -316,7 +316,7 @@ const App: React.FC = () => {
                   setActiveCardIndex={setActiveCardIndex}
                   nextCard={nextCard}
                   prevCard={prevCard}
-                  widgetOptions={widgetOptions.filter((opt) =>
+                  widgetOptions={widgetOptions?.filter((opt) =>
                     authorizedWidgets.includes(opt.key)
                   )}
                   onAction={handleCardAction}
@@ -330,7 +330,7 @@ const App: React.FC = () => {
                 /* Desktop Grid View */
                 <DesktopView
                   gridItems={gridItems}
-                  widgetOptions={widgetOptions.filter((opt) =>
+                  widgetOptions={widgetOptions?.filter((opt) =>
                     authorizedWidgets.includes(opt.key)
                   )}
                   onAction={handleCardAction}

@@ -75,8 +75,8 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
   }
 
   // Filter medications based on refill value
-  const activeMedications = medications.filter((med) => med.refill === "0");
-  const otcMedications = medications.filter((med) => med.refill !== "0");
+  const activeMedications = medications?.filter((med) => med.refill === "0");
+  const otcMedications = medications?.filter((med) => med.refill !== "0");
 
   const tabs = [
     { label: "Active", count: activeMedications.length },
