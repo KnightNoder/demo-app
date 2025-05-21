@@ -65,47 +65,49 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({ patientId }) => {
     );
   }
 
-  if (error) {
-    return (
-      <ErrorComponent
-        title="Unable to Load Lab Reports"
-        message={
-          typeof error === "string"
-            ? error
-            : "An unexpected error occurred while fetching data."
-        }
-        icon="error"
-        onRetry={handleFetchLabReports}
-      />
-    );
-  }
+   if (labReports.length === 0) {
+     return (
+       <div className="bg-white rounded-lg">
+         <TabListHeader
+           tabs={tabs}
+           activeTab={activeTab}
+           onTabClick={setActiveTab}
+         />
+         <EmptyStateComponent
+           title="No Lab Reports Available"
+           message="No laboratory reports are available for this patient."
+         />
+       </div>
+     );
+   }
 
-  if (!Array.isArray(labReports)) {
-    return (
-      <ErrorComponent
-        title="Data Format Error"
-        message="Expected an array of lab reports but received a different format."
-        icon="warning"
-        onRetry={handleFetchLabReports}
-      />
-    );
-  }
+   if (error) {
+     return (
+       <ErrorComponent
+         title="Unable to Load Lab Reports"
+         message={
+           typeof error === "string"
+             ? error
+             : "An unexpected error occurred while fetching data."
+         }
+         icon="error"
+         onRetry={handleFetchLabReports}
+       />
+     );
+   }
 
-  if (labReports.length === 0) {
-    return (
-      <div className="bg-white rounded-lg">
-        <TabListHeader
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabClick={setActiveTab}
-        />
-        <EmptyStateComponent
-          title="No Lab Reports Available"
-          message="No laboratory reports are available for this patient."
-        />
-      </div>
-    );
-  }
+   if (!Array.isArray(labReports)) {
+     return (
+       <ErrorComponent
+         title="Data Format Error"
+         message="Expected an array of lab reports but received a different format."
+         icon="warning"
+         onRetry={handleFetchLabReports}
+       />
+     );
+   }
+
+ 
 
   const filteredReports =
     activeTab === "All"

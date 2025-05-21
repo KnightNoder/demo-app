@@ -32,7 +32,12 @@ interface DecodedToken {
 }
 
 // Define mandatory widgets that should always be visible
-const mandatoryWidgets = ["Lab Reports", "Notifications", "Demographics"];
+const mandatoryWidgets = [
+  "Lab Reports",
+  "Notifications",
+  "Demographics",
+  "Billing",
+];
 
 // Local storage keys
 const WIDGET_POSITIONS_KEY = "widgetPositions";
@@ -61,6 +66,7 @@ const convertACLNameToWidgetKey = (aclName: string): string | null => {
     functional_status: "Functional Status",
     cognitive_status: "Cognitive Status",
     // advance_directives: "Advanced Directives",
+    billing: "Billing",
   };
 
   return mappings[aclName] || null;

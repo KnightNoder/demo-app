@@ -15,6 +15,7 @@ import DisclosuresCard from "../components/organisms/DisclosuresCard/Disclosures
 import FunctionalStatusCard from "../components/organisms/FunctionalStatusCard/FunctionalStatusCard";
 import CognitiveStatusCard from "../components/organisms/CognitiveStatusCard/CognitiveStatusCard";
 // import AdvancedDirectivesCard from "../components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
+import BillingWidget from "../components/organisms/BillingWidget/BillingWidget";
 
 // Define widget option types
 export interface WidgetOption {
@@ -146,13 +147,20 @@ export const widgetOptions: WidgetOption[] = [
   //   icon: "advanced-directives",
   //   hasWritePermission: true,
   // },
+  {
+    key: "Billing",
+    component: BillingWidget,
+    iconBgColor: "bg-green-100",
+    icon: "billing",
+    hasWritePermission: true,
+  },
 ];
 
 // Default visible widgets
 export const defaultVisibleWidgets: string[] = [
   "Diagnosis",
   "Prescriptions",
-  "Cognitive Status",
+  // "Cognitive Status",
   "Functional Status",
   "Medications",
   "Notifications",

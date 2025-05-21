@@ -34,7 +34,7 @@ const CardFooter: React.FC<CardFooterProps> = ({
       <div className="footer h-14 bg-white/95 backdrop-blur rounded-b-lg">
         <div className="relative h-full">
           <div className="absolute inset-0 flex items-center gap-2 px-4 overflow-x-auto">
-            {!isStrictAuditor && (
+            {category != "Billing" && !isStrictAuditor && (
               <Button
                 variant="primary"
                 dataCy="data-primary"
