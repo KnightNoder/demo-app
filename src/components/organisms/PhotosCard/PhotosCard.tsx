@@ -69,6 +69,15 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
     );
   }
 
+  if (!patientImageUrl) {
+    return (
+      <EmptyStateComponent
+        title="No Patient ID Photo"
+        message="No ID photo is available for this patient."
+      />
+    );
+  }
+
   if (error) {
     return (
       <ErrorComponent
