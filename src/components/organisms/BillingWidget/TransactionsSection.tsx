@@ -29,9 +29,11 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
   };
 
   // Calculate percentages for progress bars
-  const deductiblePercentage = (data.insurance.deductible_met / data.insurance.deductible_total) * 100;
-  const oopPercentage = (data.insurance.oop_met / data.insurance.oop_total) * 100;
-  
+  const deductiblePercentage =
+    (data.insurance?.deductible_met / data.insurance?.deductible_total) * 100;
+  const oopPercentage =
+    (data.insurance?.oop_met / data.insurance?.oop_total) * 100;
+
   return (
     // Changed from grid-cols-2 to responsive grid
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -180,10 +182,10 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
               </span>
               <div>
                 <span className="text-gray-800 text-xs font-light">
-                  ${data.insurance.deductible_met.toLocaleString()}
+                  ${data.insurance?.deductible_met.toLocaleString()}
                 </span>
                 <span className="text-xs text-gray-600 font-light">
-                  / ${data.insurance.deductible_total.toLocaleString()}
+                  / ${data.insurance?.deductible_total.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -202,10 +204,10 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
               </span>
               <div>
                 <span className="text-gray-800 text-xs font-light">
-                  ${data.insurance.oop_met.toLocaleString()}
+                  ${data.insurance?.oop_met.toLocaleString()}
                 </span>
                 <span className="text-xs text-gray-600 font-light">
-                  / ${data.insurance.oop_total.toLocaleString()}
+                  / ${data.insurance?.oop_total.toLocaleString()}
                 </span>
               </div>
             </div>
@@ -223,18 +225,18 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
                 Co-Pay
               </span>
               <span className="text-gray-800 text-xs font-light">
-                {data.insurance.coinsurance}
+                {data.insurance?.coinsurance}
               </span>
             </div>
             {/* <div className="flex -space-x-1">
               <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
                 <span className="text-xs font-light text-blue-600">
-                  {data.insurance.coinsurance}
+                  {data.insurance?.coinsurance}
                 </span>
               </div>
               <div className="w-6 h-6 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
                 <span className="text-xs font-light text-gray-500">
-                  {100 - data.insurance.coinsurance}
+                  {100 - data.insurance?.coinsurance}
                 </span>
               </div>
             </div> */}

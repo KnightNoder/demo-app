@@ -160,7 +160,7 @@ const CoverageDetails: React.FC<CoverageDetailsProps> = ({ insurances }) => {
                 <div>
                   <p className="text-xs text-gray-600">Deductible Met</p>
                   <p className="text-xs font-normal text-[#020817]">
-                    {insurance.deductible_met || "--"}
+                    {insurance?.deductible_met || "--"}
                   </p>
                 </div>
 
