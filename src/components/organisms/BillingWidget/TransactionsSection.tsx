@@ -94,7 +94,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
-          <div className="flex justify-between">
+          {/* <div className="flex justify-between">
             <div>
               <span className="text-xs text-gray-600 font-light block">
                 Past Due
@@ -117,7 +117,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ billingData }) => {
                 ></path>
               </svg>
             </div>
-          </div>
+          </div> */}
           <div className="flex justify-between">
             <div>
               <span className="text-xs text-gray-600 font-light block">
