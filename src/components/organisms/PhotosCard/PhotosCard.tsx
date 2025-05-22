@@ -29,6 +29,10 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
         params: { patient_id: patientId, category_id: 5 },
       });
 
+      if (!response.data?.url && response.data.data.length === 0) {
+        setError("No patient photo found");
+        return;
+      }
       // Decode the URL from the first response
       const decodedUrl = decodeURIComponent(response.data?.url);
 
