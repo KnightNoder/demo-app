@@ -5,7 +5,6 @@ import Icons from "../../../assets/Icons/Icons";
 
 interface DiagnosisUser {
   id: number;
-  username: string;
   fname: string;
   mname: string;
   lname: string;
@@ -22,7 +21,7 @@ interface DiagnosisItemProps {
     primary_diagnosis_code: number;
     modified_by: string;
     modified_on: string;
-    user: DiagnosisUser;
+    provider: DiagnosisUser | null; // Making this nullable since it wasn't in your example
   };
   isAnyModalOpen?: boolean;
 }
@@ -42,13 +41,15 @@ export const DiagnosisItem: React.FC<DiagnosisItemProps> = ({ item }) => {
             Onset: {formatToDashDate(item.begdate)}
           </span>
         </p>
-        <p className="mt-2 flex items-center gap-2 text-xs text-gray-500">
-          <Icons variant="doctor" />
-          <span className="text-[#020817] font-extralight">
-            Dr. {capitalizeWord(item.user.fname)}{" "}
-            {capitalizeWord(item.user.lname)}
-          </span>
-        </p>
+        {item.provider && (
+          <p className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+            <Icons variant="doctor" />
+            <span className="text-[#020817] font-extralight">
+              Dr. {capitalizeWord(item?.provider?.fname)}{" "}
+              {capitalizeWord(item?.provider?.lname)}
+            </span>
+          </p>
+        )}
       </div>
     </Item>
   );

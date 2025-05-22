@@ -2,7 +2,6 @@ import { DiagnosisItem } from "../../atoms/DiagnosisItem/DiagnosisItem";
 
 interface DiagnosisUser {
   id: number;
-  username: string;
   fname: string;
   mname: string;
   lname: string;
@@ -19,7 +18,7 @@ interface DiagnosisProps {
     primary_diagnosis_code: number;
     modified_by: string;
     modified_on: string;
-    user: DiagnosisUser;
+    provider: DiagnosisUser | null;
   }>;
   isAnyModalOpen?: boolean;
 }

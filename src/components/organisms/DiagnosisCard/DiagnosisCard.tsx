@@ -1,12 +1,31 @@
 import React, { useEffect, useState, useMemo } from "react";
 import TabListHeader from "../../molecules/TabListHeader/TabListHeader";
 import { DiagnosisTable } from "../../molecules/DiagnosisTable/DiagnosisTable";
-import { fetchDiagnosis } from "../../../features/diagnosisSlice/diagnosisThunk";
-import { useAppDispatch, useAppSelector } from "../../../store/store";
+import { getDiagnosisDataFromApi } from "../../../api/patientData";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import ErrorComponent from "../../atoms/States/Error";
 import EmptyStateComponent from "../../atoms/States/Empty";
+
+interface DiagnosisUser {
+  id: number;
+  fname: string;
+  mname: string;
+  lname: string;
+}
+
+interface Diagnosis {
+  id: number;
+  title: string;
+  begdate: string;
+  enddate?: string;
+  outcome: number;
+  diagnosis: string;
+  primary_diagnosis_code: number;
+  modified_by: string;
+  modified_on: string;
+  provider: DiagnosisUser | null;
+}
 
 interface MedicalProblemsListProps {
   patientId?: string | null;
@@ -17,11 +36,9 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
   patientId,
   isAnyModalOpen,
 }) => {
-  const dispatch = useAppDispatch();
-  const { diagnosis, loading, error } = useAppSelector(
-    (state) => state.diagnosis
-  );
-
+  const [diagnosis, setDiagnosis] = useState<Diagnosis[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Active");
 
   const filteredDiagnosis = useMemo(() => {
@@ -74,15 +91,29 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
     ];
   }, [diagnosis]);
 
-  const handleFetchDiagnosis = () => {
-    if (patientId) {
-      dispatch(fetchDiagnosis(patientId));
+  const handleFetchDiagnosis = async () => {
+    if (!patientId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await getDiagnosisDataFromApi(patientId);
+      setDiagnosis(response.data || response); // Handle both response.data and direct response
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     handleFetchDiagnosis();
-  }, [dispatch, patientId]);
+  }, [patientId]);
 
   if (loading) {
     return (
@@ -105,11 +136,7 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
     return (
       <ErrorComponent
         title="Unable to Load Medical Problems"
-        message={
-          typeof error === "string"
-            ? error
-            : "An unexpected error occurred while fetching data."
-        }
+        message={error}
         icon="error"
         onRetry={handleFetchDiagnosis}
       />
