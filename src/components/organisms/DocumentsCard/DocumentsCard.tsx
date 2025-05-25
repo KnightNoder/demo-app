@@ -29,6 +29,7 @@ interface DocumentsComponentProps {
 
 const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
   patientId,
+  isAnyModalOpen,
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -572,6 +573,7 @@ const DocumentsComponent: React.FC<DocumentsComponentProps> = ({
               ? "No documents match your search criteria."
               : "No documents are available for this patient."
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       )}
 

@@ -289,7 +289,7 @@ const App: React.FC = () => {
       >
         <ToastContainer />
         <div
-          className={`relative w-full min-h-screen ${isAnyModalOpen ? "pt-4 md:pt-12" : "pt-4 md:pt-12"} bg-[#F4F5FB]`}
+          className={`relative w-full min-h-screen ${isAnyModalOpen ? "pt-4" : "pt-4"} bg-[#F4F5FB]`}
         >
           <WidgetMenu
             widgetOptions={widgetOptions}
@@ -307,7 +307,7 @@ const App: React.FC = () => {
 
           {/* Grid Container */}
           <div className="relative w-full" style={{ zIndex: 10 }}>
-            <div className={`${isMobileView ? "" : "mx-[50px]"}`}>
+            <div className={`${isMobileView ? "" : "mx-[30px]"}`}>
               {isMobileView ? (
                 /* Mobile Carousel View */
                 <MobileView

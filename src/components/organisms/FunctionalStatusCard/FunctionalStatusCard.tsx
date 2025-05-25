@@ -53,7 +53,7 @@ const FunctionalStatusCard: React.FC<FunctionalStatusData> = ({
 
 const FunctionalStatusList: React.FC<FunctionalStatusCardComponentProps> = ({
   patientId,
-  // isAnyModalOpen,
+  isAnyModalOpen,
 }) => {
   const [functionalStatusData, setFunctionalStatusData] = useState<
     FunctionalStatusData[]
@@ -128,6 +128,7 @@ const FunctionalStatusList: React.FC<FunctionalStatusCardComponentProps> = ({
       <EmptyStateComponent
         title="No Functional Status Data Available"
         message="No functional status information is available for this patient."
+        isAnyModalOpen={isAnyModalOpen}
       />
     );
   }

@@ -27,10 +27,14 @@ interface ColumnConfig<T> {
 }
 
 interface DisclosuresCardProps {
+  isAnyModalOpen?: boolean; // Optional prop to handle modal state
   patientId: null | string;
 }
 
-const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
+const DisclosuresCard: React.FC<DisclosuresCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [activeTab, setActiveTab] = useState("Active");
   const [consentData, setConsentData] = useState<ConsentForm2[]>([]);
   const [loading, setLoading] = useState(true);
@@ -297,6 +301,7 @@ const DisclosuresCard: React.FC<DisclosuresCardProps> = ({ patientId }) => {
               ? "No disclosures are available for this patient."
               : `No ${activeTab.toLowerCase()} disclosures are available for this patient.`
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

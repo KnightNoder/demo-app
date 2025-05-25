@@ -7,10 +7,14 @@ import ErrorComponent from "../../atoms/States/Error";
 import EmptyStateComponent from "../../atoms/States/Empty";
 
 interface DemographicsCardProps {
+  isAnyModalOpen?: boolean;
   patientId: string | null;
 }
 
-const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
+const DemographicsCard: React.FC<DemographicsCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [tabs, setTabs] = useState<{ key: string; label: string }[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>("Basic");
   const [basicInfoData, setBasicInfoData] = useState<any[]>([]);
@@ -125,6 +129,7 @@ const DemographicsCard: React.FC<DemographicsCardProps> = ({ patientId }) => {
         <EmptyStateComponent
           title="No Demographics Data"
           message="No demographic information is available for this patient."
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );
@@ -169,6 +174,7 @@ const renderTabContent = (
         <EmptyStateComponent
           title={`${tabKey} Information`}
           message={`Content for ${tabKey} is not available.`}
+          // isAnyModalOpen={isAnyModalOpen}
         />
       );
   }

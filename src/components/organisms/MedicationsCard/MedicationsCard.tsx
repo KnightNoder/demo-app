@@ -13,7 +13,10 @@ interface MedicationsCardProps {
   isAnyModalOpen?: boolean;
 }
 
-const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
+const MedicationsCard: React.FC<MedicationsCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const dispatch = useAppDispatch();
   const { medications, loading, error } = useAppSelector(
     (state) => state.medications
@@ -109,6 +112,7 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({ patientId }) => {
                 ? "No active medications are available for this patient."
                 : "No over-the-counter medications are available for this patient."
             }
+            isAnyModalOpen={isAnyModalOpen}
           />
         )}
       </div>

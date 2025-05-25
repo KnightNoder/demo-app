@@ -152,6 +152,7 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
             ? "No medical problems are available for this patient."
             : `No ${activeTab.toLowerCase()} medical problems are available for this patient.`
         }
+        isAnyModalOpen={isAnyModalOpen}
       />
     );
   }
@@ -171,6 +172,7 @@ const MedicalProblemsList: React.FC<MedicalProblemsListProps> = ({
               ? "No medical problems are available for this patient."
               : `No ${activeTab.toLowerCase()} medical problems are available for this patient.`
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

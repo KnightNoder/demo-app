@@ -82,7 +82,10 @@ interface AppointmentReminder {
   lname: string;
 }
 
-const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
+const NotificationCard: React.FC<NotificationCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -454,6 +457,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({ patientId }) => {
               ? "There are no notifications for this patient."
               : `There are no ${activeTab} for this patient.`
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       )}
     </div>

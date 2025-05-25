@@ -331,7 +331,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
       }
 
       setDropdownPosition({
-        top: rect.bottom + window.scrollY - 45,
+        top: rect.bottom + window.scrollY - 35,
         left: leftPosition,
       });
     }
@@ -422,7 +422,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           </label> */}
       {/* </div> */}
       <div
-        className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "mb-4"} transform  ${isAnyModalOpen || isAnyLocalModalOpen ? "z-10" : "z-11"}`}
+        className={`relative ${isSmallScreen ? "flex items-center justify-between" : `flex ${isMobileView ? "justify-center" : "justify-end"}`} mx-0 md:mx-[0px] lg:mx-[30px] ${isMobileView ? "px-4 mb-2" : "my-6"} transform  ${isAnyModalOpen || isAnyLocalModalOpen ? "z-10" : "z-11"}`}
         ref={widgetRef}
       >
         {/* Widgets button */}

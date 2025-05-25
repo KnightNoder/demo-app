@@ -38,10 +38,14 @@ interface Appointment {
 }
 
 interface AppointmentsCardProps {
+  isAnyModalOpen?: boolean;
   patientId: string | null;
 }
 
-const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
+const AppointmentsCard: React.FC<AppointmentsCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -175,6 +179,7 @@ const AppointmentsCard: React.FC<AppointmentsCardProps> = ({ patientId }) => {
                   ? "There are no upcoming appointments scheduled for this patient."
                   : "There are no past appointments for this patient."
             }
+            isAnyModalOpen={isAnyModalOpen}
           />
         )}
       </div>

@@ -4,6 +4,7 @@ interface EmptyStateComponentProps {
   title?: string;
   message?: string;
   icon?: React.ReactNode;
+  isAnyModalOpen?: boolean; // Optional prop to handle modal state
 }
 
 /**
@@ -13,6 +14,7 @@ const EmptyStateComponent: React.FC<EmptyStateComponentProps> = ({
   title = "No Data Found",
   message = "No data is available.",
   icon,
+  isAnyModalOpen,
 }) => {
   const defaultIcon = (
     <svg
@@ -32,7 +34,9 @@ const EmptyStateComponent: React.FC<EmptyStateComponentProps> = ({
   );
 
   return (
-    <div className="p-6 text-center bg-white rounded-lg">
+    <div
+      className={`p-6 text-center bg-white rounded-lg ${isAnyModalOpen ? "h-[500px]" : "h-[300px]"}  flex flex-col items-center justify-center`}
+    >
       <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
         {icon || defaultIcon}
       </div>

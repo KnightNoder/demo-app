@@ -70,7 +70,10 @@ const extractFinancialData = (insurances: any) => {
   return financialData;
 };
 
-const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
+const InsuranceCard: React.FC<InsuranceCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     data: insuranceData,
@@ -154,6 +157,7 @@ const InsuranceCard: React.FC<InsuranceCardProps> = ({ patientId }) => {
         <EmptyStateComponent
           title="No Insurance Information"
           message="No insurance information is available for this patient."
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

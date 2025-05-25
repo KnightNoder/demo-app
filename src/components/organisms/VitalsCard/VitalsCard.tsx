@@ -14,7 +14,10 @@ interface VitalsCardProps {
   isAnyModalOpen?: boolean;
 }
 
-const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
+const VitalsCard: React.FC<VitalsCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("Current");
@@ -111,6 +114,7 @@ const VitalsCard: React.FC<VitalsCardProps> = ({ patientId }) => {
         <EmptyStateComponent
           title="No Vitals Data Available"
           message="No vitals information is available for this patient."
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

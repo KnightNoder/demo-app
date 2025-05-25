@@ -158,6 +158,7 @@ const AssessmentList: React.FC<AssessmentListProps> = ({
       <EmptyStateComponent
         title="No Data Available"
         message="No cognitive status information is available for this patient."
+        isAnyModalOpen={isAnyModalOpen}
       />
     );
   }

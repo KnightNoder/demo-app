@@ -33,7 +33,10 @@ interface Prescription {
   };
 }
 
-const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
+const PrescriptionCard: React.FC<PrescriptionCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,6 +137,7 @@ const PrescriptionCard: React.FC<PrescriptionCardProps> = ({ patientId }) => {
               ? "No prescriptions are available for this patient."
               : `No ${activeTab.toLowerCase()} prescriptions are available for this patient.`
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

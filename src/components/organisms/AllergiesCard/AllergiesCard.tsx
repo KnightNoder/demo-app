@@ -139,6 +139,7 @@ const AllergiesCard: React.FC<AllergyCardProps> = ({
               ? "No allergies are available for this patient."
               : `No ${activeTab.toLowerCase()} allergies are available for this patient.`
           }
+          isAnyModalOpen={isAnyModalOpen}
         />
       </div>
     );

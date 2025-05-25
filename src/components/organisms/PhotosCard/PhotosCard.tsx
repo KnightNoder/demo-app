@@ -13,7 +13,10 @@ interface PhotosCardProps {
   isAnyModalOpen?: boolean;
 }
 
-const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
+const PhotosCard: React.FC<PhotosCardProps> = ({
+  patientId,
+  isAnyModalOpen,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [patientImageUrl, setPatientImageUrl] = useState<string>("");
@@ -95,6 +98,7 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
       <EmptyStateComponent
         title="No Patient ID Photo"
         message="No ID photo is available for this patient."
+        isAnyModalOpen={isAnyModalOpen}
       />
     );
   }
