@@ -20,13 +20,30 @@ const PhotosCard: React.FC<PhotosCardProps> = ({ patientId }) => {
   const [activeTab, setActiveTab] = useState("Patient ID Card");
   const patientPhotos: any[] = [];
 
+  const fetchCategoryId = async (): Promise<number> => {
+    try {
+      const response = await axiosClient.get(
+        "/document-categories/patient-photograph-document-category-id"
+      );
+      return response.data.data.id;
+    } catch (err: any) {
+      console.error("Error fetching category ID:", err);
+      // Fallback to default category ID if API call fails
+      return 5;
+    }
+  };
+
   const fetchPatientPhoto = async () => {
     if (!patientId) return;
 
     try {
       setLoading(true);
-      const response = await axiosClient.get(`/documents/patient-photo`, {
-        params: { patient_id: patientId, category_id: 5 },
+
+      // Get category ID from API
+      const categoryId = await fetchCategoryId();
+
+      const response = await axiosClient.get("/documents/patient-photo", {
+        params: { patient_id: patientId, category_id: categoryId },
       });
 
       if (!response.data?.url && response.data.data.length === 0) {
