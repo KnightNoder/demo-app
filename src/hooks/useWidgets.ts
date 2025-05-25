@@ -3,6 +3,8 @@ import useWidgetToast from "./useWidgetToast";
 import { widgetOptions, defaultVisibleWidgets } from "../config/widgets";
 import { jwtDecode } from "jwt-decode";
 import axiosClient from "../api/axiosClient";
+import { useAppDispatch } from "../store/store";
+import { setButtons } from "../features/acl/aclSlice";
 
 // Define the interface for grid items
 interface GridItem {
@@ -85,6 +87,7 @@ const isLocalStorageAvailable = () => {
 };
 
 export const useWidgets = () => {
+  const dispatch = useAppDispatch();
   // Get current user ID from JWT token for storage key
   let userId = "";
   try {
@@ -225,6 +228,8 @@ export const useWidgets = () => {
 
         // Axios uses response.data instead of response.json()
         const aclData: ACLResponse = response.data;
+
+        dispatch(setButtons(aclData.buttons || []));
 
         // Extract and set isStrictAuditor flag from the API response
         const strictAuditorFlag =

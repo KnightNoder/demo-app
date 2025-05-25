@@ -1,28 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+// components/CardFooter.tsx
+import React from "react";
+import { useAppSelector } from "../../../hooks/redux";
 import Button from "../../atoms/Button/Button";
 import Icons from "../../../assets/Icons/Icons";
-import axiosClient from "../../../api/axiosClient"; // Make sure this path is correct
-
-interface DecodedToken {
-  user_id: string;
-  // Add other properties as needed
-}
 
 interface ACLButton {
   name: string;
   visible: boolean;
-}
-
-interface ACLResponse {
-  widgets: Array<{
-    name: string;
-    visible: boolean;
-  }>;
-  buttons: ACLButton[];
-  user_flags: {
-    is_strict_auditor: boolean;
-  };
 }
 
 interface CardFooterProps {
@@ -36,42 +20,13 @@ interface CardFooterProps {
 const CardFooter: React.FC<CardFooterProps> = ({
   category,
   onAction,
-  // hasWritePermission,
   isStrictAuditor,
 }) => {
-  const [aclData, setAclData] = useState<ACLResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchACLData = async () => {
-      try {
-        const token = localStorage.getItem("JWT_AUTH_TOKEN");
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const decoded = jwtDecode(token) as DecodedToken;
-        const userId = decoded.user_id;
-
-        // Fetch ACL matrix from API
-        const response = await axiosClient.get(
-          `/acl/ui-matrix?user_id=${userId}`
-        );
-
-        setAclData(response.data);
-      } catch (error) {
-        console.error("Error fetching ACL data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchACLData();
-  }, []);
+  // Get buttons from Redux store
+  const buttons = useAppSelector((state) => state.aclButtons.buttons);
 
   const isAddButtonVisible = (): boolean => {
-    if (!category || !aclData || loading) {
+    if (!category || !buttons.length) {
       return true; // Default to showing the button if data is not loaded yet
     }
 
@@ -79,7 +34,7 @@ const CardFooter: React.FC<CardFooterProps> = ({
     const categoryLower = category.toLowerCase();
 
     // Find the corresponding button permission
-    const buttonPermission = aclData.buttons.find((button) => {
+    const buttonPermission = buttons.find((button: ACLButton) => {
       // Remove "add_" prefix from button name for comparison
       const buttonName = button.name.replace(/^add_/, "");
       return categoryLower.includes(buttonName);
