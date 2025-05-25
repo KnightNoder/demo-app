@@ -83,7 +83,7 @@ const MedicationsCard: React.FC<MedicationsCardProps> = ({
 
   const tabs = [
     { label: "Active", count: activeMedications.length },
-    { label: "OTC", count: otcMedications.length },
+    // { label: "OTC", count: otcMedications.length },
   ];
 
   // Determine which medications to display based on active tab
