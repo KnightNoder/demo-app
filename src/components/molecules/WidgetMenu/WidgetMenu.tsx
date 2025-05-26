@@ -469,7 +469,7 @@ const WidgetMenu: React.FC<WidgetMenuProps> = ({
           )}
           {/* Widget menu dropdown with reduced spacing for mobile */}
           <div
-            className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[380px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
+            className={`absolute top-full ${isMobileView ? "" : isSmallScreen ? "right-0 left-0 mx-auto" : "right-[550px]"} mt-1 p-2 bg-white rounded-md shadow-lg transition-transform duration-300 ${
               isWidgetMenuOpen
                 ? "scale-100 opacity-100"
                 : "scale-95 opacity-0 pointer-events-none"

@@ -16,7 +16,7 @@ const MenuStrip: React.FC<MenuStripProps> = ({
 }) => {
   return (
     <div
-      className="ml-2 flex h-10 items-center space-x-1 bg-white rounded-md"
+      className="mr-[40%] ml-2 flex h-10 items-center space-x-1 bg-white rounded-md"
       role="menubar"
       tabIndex={0}
       data-orientation="horizontal"
