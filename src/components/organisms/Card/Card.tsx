@@ -313,10 +313,10 @@ const Card: React.FC<CardProps> = ({
         className={`bg-white p-4 rounded-lg shadow-lg w-[90%] ${isAnyModalOpen ? "max-w-[100%]" : "max-w-[50%]"} h-[80%] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-2 pr-10">
+        <div className="flex items-center justify-between pb-2 px-4">
           <span className="font-semibold">{title}</span>
           <div className="flex items-center gap-4">
-            <button onClick={(e) => e.stopPropagation()}>
+            {/* <button onClick={(e) => e.stopPropagation()}>
               <Icons variant="print" />
             </button>
             <button onClick={(e) => e.stopPropagation()}>
@@ -327,7 +327,7 @@ const Card: React.FC<CardProps> = ({
             </button>
             <button onClick={(e) => e.stopPropagation()}>
               <Icons variant="delete" />
-            </button>
+            </button> */}
             <button data-testid="modal-close" onClick={handleHeaderModalClose}>
               <Icons variant="close" />
             </button>

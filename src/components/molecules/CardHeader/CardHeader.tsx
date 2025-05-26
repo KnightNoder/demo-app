@@ -21,9 +21,9 @@ const Header: React.FC<HeaderProps> = ({
   isCollapsed,
   handleCollapse,
   handleExpandModal,
-  isKebabMenuOpen,
-  toggleKebabMenu,
-  kebabMenuRef,
+  // isKebabMenuOpen,
+  // toggleKebabMenu,
+  // kebabMenuRef,
   icon,
   onMouseDown,
   isDragging,
@@ -43,10 +43,10 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   // Add stopPropagation to the kebab menu toggle
-  const handleKebabMenuClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleKebabMenu();
-  };
+  // const handleKebabMenuClick = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   toggleKebabMenu();
+  // };
 
   return (
     <div
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Icons variant="modalExpand" />
         </button>
-        <button
+        {/* <button
           className="relative p-1 transition-colors rounded-md hover:bg-gray-100"
           type="button"
           onClick={handleKebabMenuClick}
@@ -124,7 +124,7 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
           )}
-        </button>
+        </button> */}
       </div>
     </div>
   );

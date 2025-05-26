@@ -158,7 +158,7 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
           }`}
         >
           {/* Conditional rendering for appointment-specific action */}
-          {notification.type === "APPOINTMENT" ? (
+          {/* {notification.type === "APPOINTMENT" ? (
             <button className="px-2 py-0.5 text-xs text-white transition-all duration-200 bg-green-600 rounded-md hover:bg-green-700">
               Manage Appointment
             </button>
@@ -166,10 +166,10 @@ const NotificationItem: React.FC<Props> = ({ notification }) => {
             <button className="px-2 py-0.5 text-xs text-white transition-all duration-200 bg-[#00b8e6] rounded-md hover:bg-blue-600">
               Mark as Read
             </button>
-          )}
-          <button className="px-2 py-0.5 text-xs text-[#00b8e6] transition-all duration-200 border border-[#00b8e6] rounded-md hover:bg-blue-100">
+          )} */}
+          {/* <button className="px-2 py-0.5 text-xs text-[#00b8e6] transition-all duration-200 border border-[#00b8e6] rounded-md hover:bg-blue-100">
             View Details
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

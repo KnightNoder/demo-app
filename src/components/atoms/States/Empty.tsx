@@ -41,7 +41,7 @@ const EmptyStateComponent: React.FC<EmptyStateComponentProps> = ({
         {icon || defaultIcon}
       </div>
       <h3 className="mb-2 text-sm font-light text-gray-800">{title}</h3>
-      <p className="text-xs text-gray-600">{message}</p>
+      <p className="text-sm text-gray-600">{message}</p>
     </div>
   );
 };
