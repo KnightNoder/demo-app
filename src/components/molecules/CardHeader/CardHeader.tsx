@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <div
-      className={`rounded-md flex items-center justify-between p-4 header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      className={`rounded-md flex items-center justify-between px-4 pt-4 pb-2 header drag-handle ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
       onMouseDown={onMouseDown}
     >
       <h3 className="flex items-center justify-center font-medium">
@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Icons variant={icon} />
         </div>
-        <span className="ml-2 font-light"> {title}</span>
+        <span className="ml-2 text-[#020817] font-light"> {title}</span>
       </h3>
       <div className="flex items-center gap-1">
         <button

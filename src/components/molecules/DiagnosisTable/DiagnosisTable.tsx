@@ -43,7 +43,7 @@ export const DiagnosisTable: React.FC<DiagnosisProps> = ({
         const uniqueKey = `${item.id}-${item.modified_on}-${index}`;
 
         return (
-          <div className="mt-2" key={uniqueKey}>
+          <div key={uniqueKey}>
             <DiagnosisItem item={item} isAnyModalOpen={isAnyModalOpen} />
           </div>
         );

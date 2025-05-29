@@ -155,7 +155,7 @@ const TabListHeader: React.FC<TabListHeaderProps> = ({
       >
         <div
           ref={tabsContainerRef}
-          className={`flex items-center gap-2 px-1 pl-2 ${!isOverflowing ? "w-full" : "min-w-max"}`}
+          className={`flex items-center gap-2 px-1 ${!isOverflowing ? "w-full" : "min-w-max"}`}
         >
           {!isOverflowing && tabs.length <= 5 ? (
             // For few tabs, use a grid to distribute them evenly

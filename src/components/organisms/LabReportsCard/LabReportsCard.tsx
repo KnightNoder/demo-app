@@ -76,11 +76,13 @@ const LabReportsCard: React.FC<LabReportsCardProps> = ({
           activeTab={activeTab}
           onTabClick={setActiveTab}
         />
-        <EmptyStateComponent
-          title="No Lab Reports Available"
-          message="No laboratory reports are available for this patient."
-          isAnyModalOpen={isAnyModalOpen}
-        />
+        <div className="h-full">
+          <EmptyStateComponent
+            title="No Lab Reports Available"
+            message="No laboratory reports are available for this patient."
+            isAnyModalOpen={isAnyModalOpen}
+          />
+        </div>
       </div>
     );
   }

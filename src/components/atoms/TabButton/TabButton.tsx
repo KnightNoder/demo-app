@@ -20,7 +20,7 @@ const TabButton: React.FC<TabButtonProps> = ({
       data-cy="default-button"
       onClick={() => onClick(label)}
       disabled={false}
-      className={`z-10 inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-xs font-medium transition-all rounded-sm w-full ${
+      className={`z-10 inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all rounded-sm w-full ${
         activeTab === label
           ? "bg-white text-zinc-900 shadow-sm"
           : "text-zinc-500 hover:text-zinc-900"

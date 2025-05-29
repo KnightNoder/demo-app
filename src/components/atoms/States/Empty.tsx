@@ -35,12 +35,12 @@ const EmptyStateComponent: React.FC<EmptyStateComponentProps> = ({
 
   return (
     <div
-      className={`p-6 text-center bg-white rounded-lg ${isAnyModalOpen ? "h-[500px]" : "h-[270px]"}  flex flex-col items-center justify-center`}
+      className={`p-6 text-center bg-white rounded-lg ${isAnyModalOpen ? "h-[500px]" : "h-[330px]"}  flex flex-col items-center justify-center`}
     >
-      <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
+      <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 text-blue-500 bg-blue-100 rounded-full">
         {icon || defaultIcon}
       </div>
-      <h3 className="mb-2 text-sm font-light text-gray-800">{title}</h3>
+      <h3 className="mb-2 text-sm font-medium text-gray-800">{title}</h3>
       <p className="text-sm text-gray-600">{message}</p>
     </div>
   );
