@@ -1,21 +1,21 @@
-import DiagnosisCard from "../components/organisms/DiagnosisCard/DiagnosisCard";
-import AllergyCard from "../components/organisms/AllergiesCard/AllergiesCard";
-import MedicationsCard from "../components/organisms/MedicationsCard/MedicationsCard";
+import DiagnosisCard from "../Client-overview/components/organisms/DiagnosisCard/DiagnosisCard";
+import AllergyCard from "../Client-overview/components/organisms/AllergiesCard/AllergiesCard";
+import MedicationsCard from "../Client-overview/components/organisms/MedicationsCard/MedicationsCard";
 // import ClinicalNotesCard from "../components/organisms/ClinicalNotesCard/ClinicalNotesCard";
-import InsuranceCard from "../components/organisms/InsuranceCard/InsuranceCard";
-import LabReportsCard from "../components/organisms/LabReportsCard/LabReportsCard";
-import DocumentsCard from "../components/organisms/DocumentsCard/DocumentsCard";
-import PrescriptionCard from "../components/organisms/PrescriptionCard/PrescriptionCard";
-import AppointmentsCard from "../components/organisms/AppointmentsCard/AppointmentsCard";
-import NotificationCard from "../components/organisms/NotificationsCard/NotificationsCard";
-import DemographicsCard from "../components/organisms/Demographics/Demographics";
-import PhotosCard from "../components/organisms/PhotosCard/PhotosCard";
-import VitalsCard from "../components/organisms/VitalsCard/VitalsCard";
-import DisclosuresCard from "../components/organisms/DisclosuresCard/DisclosuresCard";
-import FunctionalStatusCard from "../components/organisms/FunctionalStatusCard/FunctionalStatusCard";
-import CognitiveStatusCard from "../components/organisms/CognitiveStatusCard/CognitiveStatusCard";
+import InsuranceCard from "../Client-overview/components/organisms/InsuranceCard/InsuranceCard";
+import LabReportsCard from "../Client-overview/components/organisms/LabReportsCard/LabReportsCard";
+import DocumentsCard from "../Client-overview/components/organisms/DocumentsCard/DocumentsCard";
+import PrescriptionCard from "../Client-overview/components/organisms/PrescriptionCard/PrescriptionCard";
+import AppointmentsCard from "../Client-overview/components/organisms/AppointmentsCard/AppointmentsCard";
+import NotificationCard from "../Client-overview/components/organisms/NotificationsCard/NotificationsCard";
+import DemographicsCard from "../Client-overview/components/organisms/Demographics/Demographics";
+import PhotosCard from "../Client-overview/components/organisms/PhotosCard/PhotosCard";
+import VitalsCard from "../Client-overview/components/organisms/VitalsCard/VitalsCard";
+import DisclosuresCard from "../Client-overview/components/organisms/DisclosuresCard/DisclosuresCard";
+import FunctionalStatusCard from "../Client-overview/components/organisms/FunctionalStatusCard/FunctionalStatusCard";
+import CognitiveStatusCard from "../Client-overview/components/organisms/CognitiveStatusCard/CognitiveStatusCard";
 // import AdvancedDirectivesCard from "../components/organisms/AdvancedDirectivesCard/AdvancedDirectivesCard";
-import BillingWidget from "../components/organisms/BillingWidget/BillingWidget";
+import BillingWidget from "../Client-overview/components/organisms/BillingWidget/BillingWidget";
 
 // Define widget option types
 export interface WidgetOption {

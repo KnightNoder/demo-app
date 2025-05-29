@@ -26,10 +26,10 @@ import { useCarousel } from "./hooks/useCarousel";
 // import { useModalState } from "./hooks/useModalState";
 
 // Import components
-import WidgetMenu from "./components/molecules/WidgetMenu/WidgetMenu";
-import MobileView from "./components/organisms/MobileView/MobileView";
-import DesktopView from "./components/organisms/DesktopView/DesktopView";
-import AppModal from "./components/molecules/Modal/AppModal";
+import WidgetMenu from "./Client-overview/components/molecules/WidgetMenu/WidgetMenu";
+import MobileView from "./Client-overview/components/organisms/MobileView/MobileView";
+import DesktopView from "./Client-overview/components/organisms/DesktopView/DesktopView";
+import AppModal from "./Client-overview/components/molecules/Modal/AppModal";
 
 // Import configuration
 import { widgetOptions } from "./config/widgets";
