@@ -17,12 +17,12 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`flex justify-between items-center mb-4 flex-wrap gap-2 ${className}`}>
-      <Heading level={2}>
-        {title}
-      </Heading>
-      
-      <ActionControls 
+    <div
+      className={`max-w-3/4 sm:mx-10 md:ml-10 md:mr-36 pt-10 md:flex justify-between items-center mb-4 flex-wrap gap-2 ${className}`}
+    >
+      <Heading level={2}>{title}</Heading>
+
+      <ActionControls
         onNewTask={onNewTask}
         onFilter={onFilter}
         onSort={onSort}

@@ -7,44 +7,84 @@ const Inbox = () => {
   const handleCardClick = (cardType: string) => {
     console.log(`${cardType} card clicked`);
   };
+
+  const handleNewTask = () => {
+    console.log("New task clicked");
+  };
+
+  const handleFilter = () => {
+    console.log("Filter clicked");
+  };
+
+  const handleSort = () => {
+    console.log("Sort clicked");
+  };
+
   return (
-    <div className="bg-[#F4F5FB] h-screen">
-      <TaskHeader/>
-      <div className="space-y-4">
-        {/* <Heading level={3}>Card Variations</Heading> */}
-        <div className="flex flex-wrap gap-4">
+    <div className="w-full bg-[#f4f5fb] text-[#020817]">
+      <TaskHeader
+        onNewTask={handleNewTask}
+        onFilter={handleFilter}
+        onSort={handleSort}
+      />
+
+      <div className="min-h-screen w-full max-w-7xl mx-10">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           <TaskCard
-            title="Urgent tasks"
-            count={20}
-            icon={<Icon size="md">
-                  <PlayIcon />
-                </Icon>}
+            title="Urgent Tasks"
+            count={9}
+            icon={<PlayIcon />}
+            onClick={() => handleCardClick("Urgent Tasks")}
             variant="urgent"
-            gradient="yellow-orange"
-            onClick={() => handleCardClick('In Progress')}
           />
-          
+
           <TaskCard
             title="Review Forms"
-            count={12}
-            icon={<CheckIcon />}
-            variant="urgent"
-            gradient="green-blue"
-            onClick={() => handleCardClick('Completed')}
+            count={8}
+            icon={
+              <Icon size="md">
+                <PlayIcon />
+              </Icon>
+            }
+            onClick={() => handleCardClick("Review Forms")}
+            variant="normal"
           />
-          
+
           <TaskCard
             title="Review Prescriptions"
-            count={3}
+            count={7}
+            icon={
+              <Icon size="md">
+                <PlayIcon />
+              </Icon>
+            }
+            onClick={() => handleCardClick("Review Prescriptions")}
+            variant="normal"
+          />
+
+          <TaskCard
+            title="Pending Too Long"
+            count={2}
+            icon={
+              <Icon size="md">
+                <CheckIcon />
+              </Icon>
+            }
+            onClick={() => handleCardClick("Pending Too Long")}
+            variant="normal"
+          />
+
+          <TaskCard
+            title="Treatment Reviews"
+            count={0}
             icon={<ClockIcon />}
-            variant="urgent"
-            gradient="blue-purple"
-            onClick={() => handleCardClick('Due Soon')}
+            onClick={() => handleCardClick("Treatment Reviews")}
+            variant="normal"
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Inbox
+export default Inbox;

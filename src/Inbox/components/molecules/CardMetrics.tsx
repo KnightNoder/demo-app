@@ -2,7 +2,7 @@ import { Badge } from "../atoms/Badge";
 
 interface CardMetricsProps {
   count: number | string;
-  variant?: 'red' | 'blue' | 'green' | 'yellow' | 'gray';
+  variant?: "red" | "orange" | "green" | "yellow" | "gray";
   className?: string;
 }
 

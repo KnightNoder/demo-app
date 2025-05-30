@@ -26,10 +26,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   className = ''
 }) => {
   const variantColors = {
-    urgent: 'red' as const,
-    normal: 'blue' as const,
-    completed: 'green' as const,
-    'in-progress': 'yellow' as const
+    urgent: "red" as const,
+    normal: "orange" as const,
+    completed: "green" as const,
+    "in-progress": "yellow" as const,
   };
   
   return (

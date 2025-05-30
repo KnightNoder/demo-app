@@ -23,9 +23,9 @@ export const CardContainer: React.FC<CardContainerProps> = ({
   };
   
   return (
-    <div className={`cursor-pointer w-full sm:w-[180px] md:w-[220px] flex-shrink-0 p-0.5 ${className}`}>
-      <div 
-        className={`relative rounded-xl border-2 border-white ring-2 ring-inset ring-white/80 ${gradients[gradient]} hover:scale-[1.03] hover:border-blue-200 hover:z-10 transition-all duration-200 cursor-pointer group p-3 h-full flex flex-col`}
+    <div className={`cursor-pointer w-full p-0.5 ${className}`}>
+      <div
+        className={`relative rounded-xl border-2 border-white ring-2 ring-inset ring-white/80 ${gradients[gradient]} hover:scale-[1.03] hover:border-blue-200 hover:z-10 transition-all duration-200 cursor-pointer group p-3 flex flex-col`}
         tabIndex={0}
         aria-label={ariaLabel}
         data-testid={testId}
