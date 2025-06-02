@@ -32,35 +32,76 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
   ];
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 w-full">
       <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in">
-        <div 
+        <div
           className="p-5 border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-all duration-200"
           onClick={onToggleExpanded}
         >
           <div className="flex items-center">
             <h2 className="text-lg font-semibold text-gray-800">All Items</h2>
             <div className="ml-2 p-1 text-gray-500">
-              <Icon 
-                name="chevron-down" 
-                className={`size-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+              <Icon
+                name="chevron-down"
+                className={`size-5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
               />
             </div>
           </div>
         </div>
-        
+
         {isExpanded && (
           <div className="p-4 animate-slide-up">
-            <SearchAndFilters
-              searchValue={searchValue}
-              onSearchChange={onSearchChange}
-              onFiltersClick={onFiltersClick}
-            />
-            
-            <FilterTabs
-              tabs={tabs}
-              onTabChange={onTabChange}
-            />
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4">
+              <input
+                type="text"
+                className="flex h-10 rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#00AAEE]/20 focus:border-[#00AAEE] disabled:cursor-not-allowed disabled:opacity-50 w-full sm:w-64"
+                placeholder="Search"
+                value={searchValue}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+
+              <div className="flex-1 min-w-0 overflow-x-auto">
+                <div className="flex overflow-x-auto scrollbar-none w-full">
+                  <div className="flex gap-1 p-1 bg-gray-50 rounded-lg min-w-fit">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => onTabChange(tab.id)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                          tab.active
+                            ? "bg-white text-gray-900 shadow-sm"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                        }`}
+                      >
+                        <span className="w-4 h-4">
+                          <Icon name={tab.icon} className="size-4" />
+                        </span>
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div
+                  role="menubar"
+                  className="flex h-10 items-center space-x-1 p-1 bg-white border rounded-lg px-2 py-1 shrink-0"
+                  tabIndex={0}
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground"
+                    onClick={onFiltersClick}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Filters</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

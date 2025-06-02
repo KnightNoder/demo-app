@@ -8,15 +8,11 @@ export interface FilterTabsProps {
 
 export const FilterTabs: React.FC<FilterTabsProps> = ({ tabs, onTabChange }) => {
   return (
-    <div className="flex-1 min-w-0 overflow-x-auto">
+    <div className="flex-1 min-w-0 overflow-x-auto w-full">
       <div className="flex overflow-x-auto scrollbar-none w-full">
         <div className="flex gap-1 p-1 bg-gray-50 rounded-lg min-w-fit animate-fade-in">
           {tabs.map((tab) => (
-            <FilterTab
-              key={tab.id}
-              {...tab}
-              onClick={onTabChange}
-            />
+            <FilterTab key={tab.id} {...tab} onClick={onTabChange} />
           ))}
         </div>
       </div>

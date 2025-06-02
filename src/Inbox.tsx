@@ -8,341 +8,9 @@ import { Icon } from "./Inbox/components/atoms/Icon";
 import { TaskCard } from "./Inbox/components/organisms/TaskCard";
 import { TaskHeader } from "./Inbox/components/organisms/TaskHeader";
 import { TaskManagementContainer } from "./Inbox/components/organisms/TaskManagementContainer";
+import { sampleTasks } from "./data";
 
 const Inbox = () => {
-  const sampleTasks = [
-    {
-      id: "1",
-      title: "Medication Review Due",
-      description: "Monthly medication review required for patient John Smith",
-      priority: "high" as const,
-      dueDate: "Today",
-      status: "pending" as const,
-      assignedTo: "Dr. Sarah Wilson",
-      person: "John Smith",
-    },
-    {
-      id: "2",
-      title: "Follow-up Appointment",
-      description: "Schedule follow-up for post-surgery consultation",
-      priority: "medium" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Nurse Johnson",
-      person: "Emma Davis",
-    },
-    {
-      id: "3",
-      title: "Vaccination Due",
-      description: "Annual flu vaccination reminder for elderly patient",
-      priority: "medium" as const,
-      dueDate: "2 days",
-      status: "pending" as const,
-      assignedTo: "Nurse Martinez",
-      person: "George Brown",
-    },
-    {
-      id: "4",
-      title: "Lab Test Reminder",
-      description: "Quarterly blood work due for diabetes monitoring",
-      priority: "high" as const,
-      dueDate: "3 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Thompson",
-      person: "Linda White",
-    },
-    {
-      id: "5",
-      title: "Physical Therapy Session",
-      description: "Weekly PT session reminder for knee rehabilitation",
-      priority: "medium" as const,
-      dueDate: "Today",
-      status: "in-progress" as const,
-      assignedTo: "PT Staff",
-      person: "Robert Johnson",
-    },
-    {
-      id: "6",
-      title: "Prescription Refill Due",
-      description: "Blood pressure medication refill needed",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Garcia",
-      person: "Mary Wilson",
-    },
-    {
-      id: "7",
-      title: "Annual Check-up Due",
-      description: "Routine annual physical examination reminder",
-      priority: "low" as const,
-      dueDate: "4 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Anderson",
-      person: "James Taylor",
-    },
-    {
-      id: "8",
-      title: "Dental Cleaning Reminder",
-      description: "Six-month dental cleaning and check-up",
-      priority: "low" as const,
-      dueDate: "5 days",
-      status: "pending" as const,
-      assignedTo: "Dental Staff",
-      person: "Sarah Miller",
-    },
-    {
-      id: "9",
-      title: "Eye Examination Due",
-      description: "Annual vision check and prescription update",
-      priority: "medium" as const,
-      dueDate: "6 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Lee",
-      person: "David Clark",
-    },
-    {
-      id: "10",
-      title: "Immunization Update",
-      description: "Childhood vaccination schedule update needed",
-      priority: "high" as const,
-      dueDate: "7 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Roberts",
-      person: "Emily Young",
-    },
-    {
-      id: "11",
-      title: "Test",
-      description: "Follow up on lab results from annual physical examination",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Wilson",
-      person: "Bob Smith",
-    },
-    {
-      id: "1",
-      title: "Medication Review Due",
-      description: "Monthly medication review required for patient John Smith",
-      priority: "high" as const,
-      dueDate: "Today",
-      status: "pending" as const,
-      assignedTo: "Dr. Sarah Wilson",
-      person: "John Smith",
-    },
-    {
-      id: "2",
-      title: "Follow-up Appointment",
-      description: "Schedule follow-up for post-surgery consultation",
-      priority: "medium" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Nurse Johnson",
-      person: "Emma Davis",
-    },
-    {
-      id: "3",
-      title: "Vaccination Due",
-      description: "Annual flu vaccination reminder for elderly patient",
-      priority: "medium" as const,
-      dueDate: "2 days",
-      status: "pending" as const,
-      assignedTo: "Nurse Martinez",
-      person: "George Brown",
-    },
-    {
-      id: "4",
-      title: "Lab Test Reminder",
-      description: "Quarterly blood work due for diabetes monitoring",
-      priority: "high" as const,
-      dueDate: "3 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Thompson",
-      person: "Linda White",
-    },
-    {
-      id: "5",
-      title: "Physical Therapy Session",
-      description: "Weekly PT session reminder for knee rehabilitation",
-      priority: "medium" as const,
-      dueDate: "Today",
-      status: "in-progress" as const,
-      assignedTo: "PT Staff",
-      person: "Robert Johnson",
-    },
-    {
-      id: "6",
-      title: "Prescription Refill Due",
-      description: "Blood pressure medication refill needed",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Garcia",
-      person: "Mary Wilson",
-    },
-    {
-      id: "7",
-      title: "Annual Check-up Due",
-      description: "Routine annual physical examination reminder",
-      priority: "low" as const,
-      dueDate: "4 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Anderson",
-      person: "James Taylor",
-    },
-    {
-      id: "8",
-      title: "Dental Cleaning Reminder",
-      description: "Six-month dental cleaning and check-up",
-      priority: "low" as const,
-      dueDate: "5 days",
-      status: "pending" as const,
-      assignedTo: "Dental Staff",
-      person: "Sarah Miller",
-    },
-    {
-      id: "9",
-      title: "Eye Examination Due",
-      description: "Annual vision check and prescription update",
-      priority: "medium" as const,
-      dueDate: "6 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Lee",
-      person: "David Clark",
-    },
-    {
-      id: "10",
-      title: "Immunization Update",
-      description: "Childhood vaccination schedule update needed",
-      priority: "high" as const,
-      dueDate: "7 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Roberts",
-      person: "Emily Young",
-    },
-    {
-      id: "11",
-      title: "Test",
-      description: "Follow up on lab results from annual physical examination",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Wilson",
-      person: "Bob Smith",
-    },
-    {
-      id: "1",
-      title: "Medication Review Due",
-      description: "Monthly medication review required for patient John Smith",
-      priority: "high" as const,
-      dueDate: "Today",
-      status: "pending" as const,
-      assignedTo: "Dr. Sarah Wilson",
-      person: "John Smith",
-    },
-    {
-      id: "2",
-      title: "Follow-up Appointment",
-      description: "Schedule follow-up for post-surgery consultation",
-      priority: "medium" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Nurse Johnson",
-      person: "Emma Davis",
-    },
-    {
-      id: "3",
-      title: "Vaccination Due",
-      description: "Annual flu vaccination reminder for elderly patient",
-      priority: "medium" as const,
-      dueDate: "2 days",
-      status: "pending" as const,
-      assignedTo: "Nurse Martinez",
-      person: "George Brown",
-    },
-    {
-      id: "4",
-      title: "Lab Test Reminder",
-      description: "Quarterly blood work due for diabetes monitoring",
-      priority: "high" as const,
-      dueDate: "3 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Thompson",
-      person: "Linda White",
-    },
-    {
-      id: "5",
-      title: "Physical Therapy Session",
-      description: "Weekly PT session reminder for knee rehabilitation",
-      priority: "medium" as const,
-      dueDate: "Today",
-      status: "in-progress" as const,
-      assignedTo: "PT Staff",
-      person: "Robert Johnson",
-    },
-    {
-      id: "6",
-      title: "Prescription Refill Due",
-      description: "Blood pressure medication refill needed",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Garcia",
-      person: "Mary Wilson",
-    },
-    {
-      id: "7",
-      title: "Annual Check-up Due",
-      description: "Routine annual physical examination reminder",
-      priority: "low" as const,
-      dueDate: "4 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Anderson",
-      person: "James Taylor",
-    },
-    {
-      id: "8",
-      title: "Dental Cleaning Reminder",
-      description: "Six-month dental cleaning and check-up",
-      priority: "low" as const,
-      dueDate: "5 days",
-      status: "pending" as const,
-      assignedTo: "Dental Staff",
-      person: "Sarah Miller",
-    },
-    {
-      id: "9",
-      title: "Eye Examination Due",
-      description: "Annual vision check and prescription update",
-      priority: "medium" as const,
-      dueDate: "6 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Lee",
-      person: "David Clark",
-    },
-    {
-      id: "10",
-      title: "Immunization Update",
-      description: "Childhood vaccination schedule update needed",
-      priority: "high" as const,
-      dueDate: "7 days",
-      status: "pending" as const,
-      assignedTo: "Dr. Roberts",
-      person: "Emily Young",
-    },
-    {
-      id: "11",
-      title: "Test",
-      description: "Follow up on lab results from annual physical examination",
-      priority: "high" as const,
-      dueDate: "Tomorrow",
-      status: "pending" as const,
-      assignedTo: "Dr. Wilson",
-      person: "Bob Smith",
-    },
-  ];
-
   const handleCardClick = (cardType: string) => {
     console.log(`${cardType} card clicked`);
   };
@@ -398,10 +66,27 @@ const Inbox = () => {
       .ag-theme-custom .ag-header-cell {
         border-right: 1px solid var(--ag-border-color);
         transition: background-color 0.2s ease;
+        cursor: pointer;
       }
 
       .ag-theme-custom .ag-header-cell:hover {
         background-color: oklch(0.961 0.013 264.5);
+      }
+
+      /* Fixed: Ensure sort icons are visible */
+      .ag-theme-custom .ag-header-cell .ag-header-cell-text {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .ag-theme-custom .ag-icon {
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
+
+      .ag-theme-custom .ag-header-cell:hover .ag-icon {
+        opacity: 1;
       }
 
       .ag-theme-custom .ag-cell {
@@ -577,8 +262,9 @@ const Inbox = () => {
         onSort={handleSort}
       />
 
-      <div className="min-h-screen w-full max-w-7xl mx-10">
-        <div className="grid gap- grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+      {/* Fixed: Removed mx-10 constraint and updated grid layout */}
+      <div className="w-full max-w-full px-4">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           <TaskCard
             title="Birthdays"
             count={9}
@@ -631,6 +317,10 @@ const Inbox = () => {
             variant="normal"
           />
         </div>
+      </div>
+
+      {/* Fixed: Ensure TaskManagementContainer gets full width */}
+      <div className="w-full bg-[#f4f5fb]">
         <TaskManagementContainer
           tasks={sampleTasks}
           onReply={handleReply}

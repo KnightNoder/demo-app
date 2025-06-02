@@ -13,18 +13,19 @@ export interface TaskManagementContainerProps {
 export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = ({
   tasks,
   onReply,
-  onComplete
+  onComplete,
 }) => {
-  const [searchValue, setSearchValue] = useState('');
-  const [activeTab, setActiveTab] = useState('reminders');
+  const [searchValue, setSearchValue] = useState("");
+  const [activeTab, setActiveTab] = useState("reminders");
   const [isExpanded, setIsExpanded] = useState(true);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => 
-      task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-      task.description.toLowerCase().includes(searchValue.toLowerCase()) ||
-      task.assignedTo.toLowerCase().includes(searchValue.toLowerCase()) ||
-      task.person.toLowerCase().includes(searchValue.toLowerCase())
+    return tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchValue.toLowerCase()) ||
+        task.assignedTo.toLowerCase().includes(searchValue.toLowerCase()) ||
+        task.person.toLowerCase().includes(searchValue.toLowerCase())
     );
   }, [tasks, searchValue]);
 
@@ -37,7 +38,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
   };
 
   const handleFiltersClick = () => {
-    console.log('Filters clicked');
+    console.log("Filters clicked");
   };
 
   const handleToggleExpanded = () => {
@@ -45,8 +46,8 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full bg-gray-50 p-4">
+      <div className="w-full mx-auto">
         <TaskTableHeader
           searchValue={searchValue}
           onSearchChange={handleSearchChange}
@@ -57,7 +58,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           onToggleExpanded={handleToggleExpanded}
         />
 
-        {/* <AGGridTable
+        <AGGridTable
           tasks={filteredTasks}
           onReply={onReply}
           onComplete={onComplete}
@@ -67,7 +68,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           tasks={filteredTasks}
           onReply={onReply}
           onComplete={onComplete}
-        /> */}
+        />
       </div>
     </div>
   );

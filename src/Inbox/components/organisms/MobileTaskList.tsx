@@ -13,17 +13,14 @@ export const MobileTaskList: React.FC<MobileTaskListProps> = ({
   onComplete 
 }) => {
   return (
-    <div className="sm:hidden">
+    <div className="sm:hidden w-full">
       {tasks.map((task, index) => (
-        <div 
+        <div
           key={task.id}
           style={{ animationDelay: `${index * 50}ms` }}
+          className="w-full"
         >
-          <TaskCard
-            task={task}
-            onReply={onReply}
-            onComplete={onComplete}
-          />
+          <TaskCard task={task} onReply={onReply} onComplete={onComplete} />
         </div>
       ))}
       <div className="flex justify-between items-center text-sm text-gray-500 px-2 mt-4">
