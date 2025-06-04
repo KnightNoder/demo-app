@@ -58,17 +58,21 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           onToggleExpanded={handleToggleExpanded}
         />
 
-        <AGGridTable
-          tasks={filteredTasks}
-          onReply={onReply}
-          onComplete={onComplete}
-        />
+        {isExpanded && (
+          <>
+            <AGGridTable
+              tasks={filteredTasks}
+              onReply={onReply}
+              onComplete={onComplete}
+            />
 
-        <MobileTaskList
-          tasks={filteredTasks}
-          onReply={onReply}
-          onComplete={onComplete}
-        />
+            <MobileTaskList
+              tasks={filteredTasks}
+              onReply={onReply}
+              onComplete={onComplete}
+            />
+          </>
+        )}
       </div>
     </div>
   );

@@ -237,7 +237,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
 
   return (
     <div className="hidden sm:block w-full">
-      <div className="w-full h-[calc(100vh-350px)]">
+      <div className="w-full" style={{ height: "600px" }}>
         <div
           className="ag-theme-alpine ag-theme-custom w-full h-full rounded-lg shadow-sm animate-fade-in"
           style={{
@@ -254,7 +254,6 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
             suppressRowClickSelection={true}
             pagination={true}
             paginationPageSize={20}
-            domLayout="autoHeight"
             animateRows={true}
             enableRangeSelection={true}
             suppressMenuHide={false}
