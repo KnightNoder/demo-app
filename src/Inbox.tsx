@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   CheckIcon,
   ClockIcon,
@@ -8,11 +8,102 @@ import { Icon } from "./Inbox/components/atoms/Icon";
 import { TaskCard } from "./Inbox/components/organisms/TaskCard";
 import { TaskHeader } from "./Inbox/components/organisms/TaskHeader";
 import { TaskManagementContainer } from "./Inbox/components/organisms/TaskManagementContainer";
-import { sampleTasks } from "./data";
+import axiosClient from "./api/axiosClient";
+
+// Interface for birthday data from API
+interface BirthdayData {
+  pid: number;
+  name: string;
+  DOB: string;
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  phone_home: string;
+  loc: string | null;
+  room: string | null;
+}
+
+// Interface for column definition from API
+export interface ApiColumn {
+  key: string;
+  label: string;
+}
+
+// Interface for API response
+interface BirthdayApiResponse {
+  columns: ApiColumn[];
+  data: BirthdayData[];
+  pagination: {
+    total: number;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+  };
+}
+
+// Transform birthday data to task format (keeping original task structure for compatibility)
+const transformBirthdayToTask = (birthday: BirthdayData): any => ({
+  id: birthday.pid.toString(),
+  title: `Birthday: ${birthday.name}`,
+  description: `DOB: ${birthday.DOB}`,
+  assignedTo: birthday.name,
+  person: birthday.name,
+  dueDate: birthday.DOB,
+  priority: "medium" as const,
+  status: "pending" as const,
+  type: "birthday" as const,
+  // Include all original birthday data for dynamic column access
+  ...birthday,
+});
 
 const Inbox = () => {
+  const [birthdayTasks, setBirthdayTasks] = useState<any[]>([]);
+  const [birthdayCount, setBirthdayCount] = useState(0);
+  const [apiColumns, setApiColumns] = useState<ApiColumn[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch birthday data from API
+  const fetchBirthdayData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosClient.get<BirthdayApiResponse>(
+        "/inbox/birthdays",
+        {
+          params: {
+            per_page: 1000,
+          },
+        }
+      );
+
+      const birthdayData = response.data.data;
+      const transformedTasks = birthdayData.map(transformBirthdayToTask);
+
+      setBirthdayTasks(transformedTasks);
+      setBirthdayCount(response.data.pagination.total);
+      setApiColumns(response.data.columns); // Store column definitions
+    } catch (err) {
+      console.error("Failed to fetch birthday data:", err);
+      setError("Failed to load birthday data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchBirthdayData();
+  }, []);
+
   const handleCardClick = (cardType: string) => {
     console.log(`${cardType} card clicked`);
+    if (cardType === "Birthdays") {
+      // Optionally refresh birthday data when card is clicked
+      fetchBirthdayData();
+    }
   };
 
   const handleNewTask = () => {
@@ -33,226 +124,24 @@ const Inbox = () => {
 
   const handleComplete = (taskId: string) => {
     console.log("Complete task:", taskId);
+    // Optionally refresh data after completing a task
+    fetchBirthdayData();
   };
 
-  // Inject CSS styles
-  useEffect(() => {
-    const styleId = "inbox-custom-styles";
+  const handleRefresh = () => {
+    fetchBirthdayData();
+  };
 
-    // Remove existing styles
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
-    // Add new styles
-    const style = document.createElement("style");
-    style.id = styleId;
-    style.textContent = `
-      /* AG Grid Custom Theme */
-      .ag-theme-custom {
-        --ag-header-height: 41px;
-        --ag-row-height: 48px;
-        --ag-font-family: inherit;
-        --ag-font-size: 14px;
-        --ag-border-color: oklch(0.898 0.013 264.5);
-        --ag-header-background-color: oklch(0.976 0.013 264.5);
-        --ag-odd-row-background-color: oklch(1 0 0);
-        --ag-even-row-background-color: oklch(1 0 0);
-        --ag-row-hover-color: oklch(0.961 0.013 264.5);
-        --ag-selected-row-background-color: oklch(0.961 0.026 264.5);
-      }
-
-      .ag-theme-custom .ag-header-cell {
-        border-right: 1px solid var(--ag-border-color);
-        transition: background-color 0.2s ease;
-        cursor: pointer;
-      }
-
-      .ag-theme-custom .ag-header-cell:hover {
-        background-color: oklch(0.961 0.013 264.5);
-      }
-
-      /* Fixed: Ensure sort icons are visible */
-      .ag-theme-custom .ag-header-cell .ag-header-cell-text {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-
-      .ag-theme-custom .ag-icon {
-        opacity: 0.7;
-        transition: opacity 0.2s ease;
-      }
-
-      .ag-theme-custom .ag-header-cell:hover .ag-icon {
-        opacity: 1;
-      }
-
-      .ag-theme-custom .ag-cell {
-        border-right: 1px solid var(--ag-border-color);
-        display: flex;
-        align-items: center;
-        transition: all 0.2s ease;
-      }
-
-      .ag-theme-custom .ag-row {
-        border-bottom: 1px solid var(--ag-border-color);
-        transition: all 0.2s ease;
-      }
-
-      .ag-theme-custom .ag-row:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px oklch(0.898 0.013 264.5 / 0.15);
-      }
-
-      .ag-theme-custom .ag-header {
-        border-bottom: 1px solid var(--ag-border-color);
-      }
-
-      .ag-theme-custom .ag-paging-panel {
-        border-top: 1px solid var(--ag-border-color);
-        background-color: oklch(0.976 0.013 264.5);
-      }
-
-      /* Utility Classes */
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .scrollbar-none {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-
-      .scrollbar-none::-webkit-scrollbar {
-        display: none;
-      }
-
-      /* Size utilities for Tailwind 4 */
-      .size-3 {
-        width: 0.75rem;
-        height: 0.75rem;
-      }
-
-      .size-3\\.5 {
-        width: 0.875rem;
-        height: 0.875rem;
-      }
-
-      .size-4 {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      .size-5 {
-        width: 1.25rem;
-        height: 1.25rem;
-      }
-
-      .size-6 {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
-
-      /* Animations */
-      @keyframes fade-in {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slide-up {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes scale-in {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .animate-fade-in {
-        animation: fade-in 0.2s ease-out;
-      }
-
-      .animate-slide-up {
-        animation: slide-up 0.3s ease-out;
-      }
-
-      .animate-scale-in {
-        animation: scale-in 0.2s ease-out;
-      }
-
-      /* Hover scale utilities */
-      .hover\\:scale-102:hover {
-        transform: scale(1.02);
-      }
-
-      .hover\\:scale-105:hover {
-        transform: scale(1.05);
-      }
-
-      .hover\\:scale-110:hover {
-        transform: scale(1.1);
-      }
-
-      /* Focus and transition improvements */
-      .transition-all {
-        transition-property: all;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .duration-200 {
-        transition-duration: 200ms;
-      }
-
-      .duration-300 {
-        transition-duration: 300ms;
-      }
-
-      .ease-in-out {
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      /* Modern underline styling */
-      .decoration-2 {
-        text-decoration-thickness: 2px;
-      }
-
-      .underline-offset-2 {
-        text-underline-offset: 2px;
-      }
-    `;
-
-    document.head.appendChild(style);
-
-    // Cleanup function
-    return () => {
-      const styleToRemove = document.getElementById(styleId);
-      if (styleToRemove) {
-        styleToRemove.remove();
-      }
-    };
-  }, []);
+  if (loading && birthdayTasks.length === 0) {
+    return (
+      <div className="w-full bg-[#f4f5fb] text-[#020817] flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p>Fetching your Inbox messages...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-[#f4f5fb] text-[#020817]">
@@ -262,14 +151,29 @@ const Inbox = () => {
         onSort={handleSort}
       />
 
-      {/* Fixed: Removed mx-10 constraint and updated grid layout */}
+      {/* Error Display */}
+      {error && (
+        <div className="w-full max-w-full px-4 mb-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
+            <span>{error}</span>
+            <button
+              onClick={handleRefresh}
+              className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Task Cards Grid */}
       <div className="w-full max-w-full px-4">
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           <TaskCard
             title="Birthdays"
-            count={9}
+            count={birthdayCount}
             icon={<PlayIcon />}
-            onClick={() => handleCardClick("Urgent Tasks")}
+            onClick={() => handleCardClick("Birthdays")}
             variant="urgent"
           />
 
@@ -319,10 +223,11 @@ const Inbox = () => {
         </div>
       </div>
 
-      {/* Fixed: Ensure TaskManagementContainer gets full width */}
+      {/* Task Management Container */}
       <div className="w-full bg-[#f4f5fb]">
         <TaskManagementContainer
-          tasks={sampleTasks}
+          tasks={birthdayTasks}
+          columns={apiColumns}
           onReply={handleReply}
           onComplete={handleComplete}
         />
