@@ -42,16 +42,31 @@ export interface AGGridTableProps {
 }
 
 // Generic cell renderer for dynamic columns
+// Generic cell renderer for dynamic columns
+// Generic cell renderer for dynamic columns
 const GenericCellRenderer: React.FC<ICellRendererParams> = ({
   value,
   colDef,
+  columnApi,
 }) => {
   const fieldName = colDef?.field || "";
+
+  // Check if this is the first data column (after checkbox)
+  const allColumns = columnApi?.getColumns() || [];
+  const firstDataColumn = allColumns.find(
+    (col) => col.getColId() !== "checkbox"
+  );
+  const isFirstDataColumn = colDef?.field === firstDataColumn?.getColId();
+
+  // Base classes with conditional font size
+  const baseClasses = `text-sm text-gray-900 flex items-center justify-center h-full ${
+    isFirstDataColumn ? "text-base font-medium" : ""
+  }`;
 
   // Handle special formatting for common field types
   if (fieldName.toLowerCase().includes("phone")) {
     return (
-      <div className="text-sm text-gray-900" title={value}>
+      <div className={baseClasses} title={value}>
         {value || <span className="text-gray-400 italic">-</span>}
       </div>
     );
@@ -59,7 +74,7 @@ const GenericCellRenderer: React.FC<ICellRendererParams> = ({
 
   if (fieldName.toLowerCase().includes("date") || fieldName === "DOB") {
     return (
-      <div className="text-sm text-gray-900" title={value}>
+      <div className={baseClasses} title={value}>
         {value ? (
           new Date(value).toLocaleDateString()
         ) : (
@@ -71,14 +86,14 @@ const GenericCellRenderer: React.FC<ICellRendererParams> = ({
 
   if (fieldName === "pid") {
     return (
-      <div className="text-sm font-mono text-gray-900" title={value}>
+      <div className={`${baseClasses} font-mono`} title={value}>
         {value || <span className="text-gray-400 italic">-</span>}
       </div>
     );
   }
 
   return (
-    <div className="text-sm text-gray-900 truncate" title={value}>
+    <div className={`${baseClasses} truncate`} title={value}>
       {value || <span className="text-gray-400 italic">-</span>}
     </div>
   );
@@ -87,7 +102,10 @@ const GenericCellRenderer: React.FC<ICellRendererParams> = ({
 // Cell Renderers (keeping original ones for backward compatibility)
 const TitleRenderer: React.FC<ICellRendererParams> = ({ value }) => {
   return (
-    <div className="text-sm font-medium text-gray-900 truncate" title={value}>
+    <div
+      className="text-sm font-medium text-gray-900 flex items-center justify-center h-full truncate"
+      title={value}
+    >
       {value || <span className="text-gray-400 italic">No subject</span>}
     </div>
   );
@@ -95,36 +113,54 @@ const TitleRenderer: React.FC<ICellRendererParams> = ({ value }) => {
 
 const DescriptionRenderer: React.FC<ICellRendererParams> = ({ value }) => {
   return (
-    <div className="text-sm text-gray-600 flex-wrap line-clamp-2" title={value}>
+    <div
+      className="text-sm text-gray-600 flex items-center justify-center h-full line-clamp-2"
+      title={value}
+    >
       {value}
     </div>
   );
 };
 
 const PriorityRenderer: React.FC<ICellRendererParams> = ({ value }) => {
-  return <TaskPriority priority={value} />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <TaskPriority priority={value} />
+    </div>
+  );
 };
 
 const StatusRenderer: React.FC<ICellRendererParams> = ({ value }) => {
-  return <TaskStatus status={value} />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <TaskStatus status={value} />
+    </div>
+  );
 };
 
 const DueDateRenderer: React.FC<ICellRendererParams> = ({ value }) => {
-  return <TimeDisplay time={value} />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <TimeDisplay time={value} />
+    </div>
+  );
 };
 
 const AssignedToRenderer: React.FC<ICellRendererParams> = ({ value }) => {
-  return <PersonDisplay name={value} variant="assigned" />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <PersonDisplay name={value} variant="assigned" />
+    </div>
+  );
 };
 
 const PersonRenderer: React.FC<ICellRendererParams> = ({ value }) => {
-  return <PersonDisplay name={value} variant="person" />;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <PersonDisplay name={value} variant="person" />
+    </div>
+  );
 };
-
-interface ActionsRendererProps extends ICellRendererParams {
-  onReply: (taskId: string) => void;
-  onComplete: (taskId: string) => void;
-}
 
 const ActionsRenderer: React.FC<ActionsRendererProps> = ({
   data,
@@ -132,12 +168,19 @@ const ActionsRenderer: React.FC<ActionsRendererProps> = ({
   onComplete,
 }) => {
   return (
-    <TaskActions
-      onReply={() => onReply(data.id)}
-      onComplete={() => onComplete(data.id)}
-    />
+    <div className="flex items-center justify-center h-full">
+      <TaskActions
+        onReply={() => onReply(data.id)}
+        onComplete={() => onComplete(data.id)}
+      />
+    </div>
   );
 };
+
+interface ActionsRendererProps extends ICellRendererParams {
+  onReply: (taskId: string) => void;
+  onComplete: (taskId: string) => void;
+}
 
 export const AGGridTable: React.FC<AGGridTableProps> = ({
   tasks,
@@ -207,7 +250,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
           colDef.width = 100;
           colDef.flex = 0;
         } else if (column.key === "name") {
-          colDef.flex = 2;
+          colDef.flex = 1;
           colDef.minWidth = 150;
         } else if (column.key.toLowerCase().includes("phone")) {
           colDef.minWidth = 130;
@@ -434,7 +477,6 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
             suppressMenuHide={false}
             getRowId={(params) => params.data.id}
             suppressHorizontalScroll={true}
-            rowBuffer={10}
             suppressRowVirtualisation={true}
             domLayout="autoHeight"
             suppressAnimationFrame={false}

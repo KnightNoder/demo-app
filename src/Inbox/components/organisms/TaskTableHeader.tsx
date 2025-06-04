@@ -1,7 +1,5 @@
-import React from 'react';
-import { SearchAndFilters } from '../molecules/SearchAndFilters';
-import { FilterTabs } from '../molecules/FilterTabs';
-import { Icon } from '../atoms/Icon';
+import React from "react";
+import { Icon } from "../atoms/Icon";
 
 export interface TaskTableHeaderProps {
   searchValue: string;
@@ -20,15 +18,45 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
   activeTab,
   onTabChange,
   isExpanded,
-  onToggleExpanded
+  onToggleExpanded,
 }) => {
   const tabs = [
-    { id: 'reminders', label: 'Reminders', icon: 'bell' as const, active: activeTab === 'reminders' },
-    { id: 'review-forms', label: 'Review Forms', icon: 'document' as const, active: activeTab === 'review-forms' },
-    { id: 'treatment-plans', label: 'Treatment Plan Reviews', icon: 'check-circle' as const, active: activeTab === 'treatment-plans' },
-    { id: 'drfirst', label: 'DrFirst Notifications', icon: 'inbox' as const, active: activeTab === 'drfirst' },
-    { id: 'messages', label: 'Messages', icon: 'chat' as const, active: activeTab === 'messages' },
-    { id: 'birthdays', label: 'Birthdays', icon: 'calendar' as const, active: activeTab === 'birthdays' }
+    {
+      id: "reminders",
+      label: "Reminders",
+      icon: "bell" as const,
+      active: activeTab === "reminders",
+    },
+    {
+      id: "review-forms",
+      label: "Review Forms",
+      icon: "document" as const,
+      active: activeTab === "review-forms",
+    },
+    {
+      id: "treatment-plans",
+      label: "Treatment Plan Reviews",
+      icon: "check-circle" as const,
+      active: activeTab === "treatment-plans",
+    },
+    {
+      id: "drfirst",
+      label: "DrFirst Notifications",
+      icon: "inbox" as const,
+      active: activeTab === "drfirst",
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: "chat" as const,
+      active: activeTab === "messages",
+    },
+    {
+      id: "birthdays",
+      label: "Birthdays",
+      icon: "calendar" as const,
+      active: activeTab === "birthdays",
+    },
   ];
 
   return (
@@ -84,22 +112,21 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <div
-                  role="menubar"
-                  className="flex h-10 items-center space-x-1 p-1 bg-white border rounded-lg px-2 py-1 shrink-0"
-                  tabIndex={0}
+                <button
+                  type="button"
+                  role="menuitem"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-state="closed"
+                  className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+                  tabIndex={-1}
+                  data-orientation="horizontal"
+                  onClick={onFiltersClick}
                 >
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground"
-                    onClick={onFiltersClick}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span>Filters</span>
-                    </div>
-                  </button>
-                </div>
+                  <div className="flex items-center gap-2">
+                    <span>Filters</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>

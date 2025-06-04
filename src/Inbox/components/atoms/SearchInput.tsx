@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface SearchInputProps {
   placeholder?: string;
   value: string;
@@ -7,11 +5,11 @@ export interface SearchInputProps {
   className?: string;
 }
 
-export const SearchInput: React.FC<SearchInputProps> = ({ 
-  placeholder = "Search", 
-  value, 
+export const SearchInput: React.FC<SearchInputProps> = ({
+  placeholder = "Search",
+  value,
   onChange,
-  className = ""
+  className = "",
 }) => {
   return (
     <input

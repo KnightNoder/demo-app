@@ -1,6 +1,5 @@
 import React from 'react';
-import { SearchInput } from '../atoms/SearchInput';
-import { Button } from "../atoms/Button";
+import { SearchInput } from "../atoms/SearchInput";
 
 export interface SearchAndFiltersProps {
   searchValue: string;
@@ -38,7 +37,7 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
           <button
             type="button"
             role="menuitem"
-            className="flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground"
+            className="flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none "
             onClick={onFiltersClick}
           >
             <div className="flex items-center gap-2">
