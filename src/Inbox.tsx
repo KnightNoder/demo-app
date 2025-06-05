@@ -261,15 +261,18 @@ const Inbox = () => {
         "/inbox/birthdays",
         {
           params: {
-            per_page: 1000,
+            per_page: 10000,
           },
         }
       );
 
       const birthdayData = response.data.data;
+
       const transformedTasks = birthdayData.map(transformBirthdayToTask);
 
       setBirthdayTasks(transformedTasks);
+      console.log(birthdayTasks.length, "Birthday Tasks Length");
+      
       setBirthdayCount(response.data.pagination.total);
       setApiColumns(response.data.columns); // Store column definitions
     } catch (err) {

@@ -263,18 +263,18 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       });
 
       // Add actions column at the end
-      dynamicColumns.push({
-        field: "actions",
-        headerName: "Actions",
-        cellRenderer: (props: ICellRendererParams) =>
-          ActionsRenderer({ ...props, onReply, onComplete }),
-        sortable: false,
-        filter: false,
-        resizable: false,
-        suppressMenu: true,
-        flex: 1,
-        minWidth: 120,
-      });
+      // dynamicColumns.push({
+      //   field: "actions",
+      //   headerName: "Actions",
+      //   cellRenderer: (props: ICellRendererParams) =>
+      //     ActionsRenderer({ ...props, onReply, onComplete }),
+      //   sortable: false,
+      //   filter: false,
+      //   resizable: false,
+      //   suppressMenu: true,
+      //   flex: 1,
+      //   minWidth: 120,
+      // });
 
       return dynamicColumns;
     }
