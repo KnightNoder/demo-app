@@ -472,7 +472,7 @@ const Inbox = () => {
         ))}
 
         {/* Add New Label Button */}
-        <div className="relative mb-10  overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-white/50 flex items-center h-[60px] cursor-pointer hover:border-blue-300 hover:bg-white hover:shadow-sm transition-all duration-300 group mt-8 w-[220px] p-0.5">
+        {/* <div className="relative mb-10  overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-white/50 flex items-center h-[60px] cursor-pointer hover:border-blue-300 hover:bg-white hover:shadow-sm transition-all duration-300 group mt-8 w-[220px] p-0.5">
           <div className="flex items-center gap-3 px-4">
             <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors flex-shrink-0">
               <svg
@@ -494,7 +494,7 @@ const Inbox = () => {
             </div>
             <h3 className="text-sm font-medium text-gray-700">Add New Label</h3>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Task Management Container */}
