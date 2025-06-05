@@ -195,22 +195,22 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
     // If we have API columns, create dynamic column definitions
     if (columns.length > 0) {
       // Add checkbox column first
-      dynamicColumns.push({
-        field: "checkbox",
-        headerName: "",
-        width: 50,
-        maxWidth: 50,
-        minWidth: 50,
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        pinned: "left",
-        lockPosition: true,
-        suppressMenu: true,
-        sortable: false,
-        filter: false,
-        resizable: false,
-        flex: 0,
-      });
+      // dynamicColumns.push({
+      //   field: "checkbox",
+      //   headerName: "",
+      //   width: 50,
+      //   maxWidth: 50,
+      //   minWidth: 50,
+      //   checkboxSelection: true,
+      //   headerCheckboxSelection: true,
+      //   pinned: "left",
+      //   lockPosition: true,
+      //   suppressMenu: true,
+      //   sortable: false,
+      //   filter: false,
+      //   resizable: false,
+      //   flex: 0,
+      // });
 
       // Create columns based on API response
       columns.forEach((column) => {
