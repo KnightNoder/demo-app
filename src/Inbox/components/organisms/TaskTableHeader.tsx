@@ -118,7 +118,7 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
                   aria-haspopup="menu"
                   aria-expanded="false"
                   data-state="closed"
-                  className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+                  className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
                   tabIndex={-1}
                   data-orientation="horizontal"
                   onClick={onFiltersClick}
