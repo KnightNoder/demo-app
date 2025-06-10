@@ -1,6 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, GridReadyEvent, ICellRendererParams } from "ag-grid-community";
+import {
+  ColDef,
+  GridReadyEvent,
+  ICellRendererParams,
+  GridApi,
+} from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { ModuleRegistry } from "@ag-grid-community/core";
@@ -189,6 +194,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
   onComplete,
   onGridReady,
 }) => {
+  const gridApiRef = useRef<GridApi | null>(null);
   const columnDefs: ColDef[] = useMemo(() => {
     const dynamicColumns: ColDef[] = [];
 
@@ -441,6 +447,8 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
   const handleGridReady = (event: GridReadyEvent) => {
     const { api } = event;
 
+    gridApiRef.current = api;
+
     // Force refresh of view after a small delay to fix virtualization issues
     setTimeout(() => {
       api.refreshCells({ force: true });
@@ -463,6 +471,14 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
             height: "100%",
           }}
         >
+          <div className="flex justify-end space-x-2 mb-2">
+            <button
+              className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => gridApiRef.current?.exportDataAsCsv()}
+            >
+              Export CSV
+            </button>
+          </div>
           <AgGridReact
             rowData={tasks}
             columnDefs={columnDefs}

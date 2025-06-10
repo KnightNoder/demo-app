@@ -7,7 +7,11 @@ import {
 // import { Icon } from "./Inbox/components/atoms/Icon";
 // import { TaskCard } from "./Inbox/components/organisms/TaskCard";
 import { TaskHeader } from "./Inbox/components/organisms/TaskHeader";
-import { TaskManagementContainer } from "./Inbox/components/organisms/TaskManagementContainer";
+// import { TaskSlidePanel } from "./Inbox/components/organisms/TaskSlidePanel";
+import {
+  // ExtendedTask,
+  TaskManagementContainer,
+} from "./Inbox/components/organisms/TaskManagementContainer";
 import axiosClient from "./api/axiosClient";
 
 // Interface for birthday data from API
@@ -74,6 +78,11 @@ const Inbox = () => {
   const [apiColumns, setApiColumns] = useState<ApiColumn[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // const [selectedCardTasks, setSelectedCardTasks] = useState<ExtendedTask[]>(
+  //   []
+  // );
+  // const [isPanelVisible, setIsPanelVisible] = useState(false);
+  // const [selectedCardTitle, setSelectedCardTitle] = useState("");
 
   // Task cards configuration
   const taskCards: TaskCardConfig[] = [
@@ -272,7 +281,7 @@ const Inbox = () => {
 
       setBirthdayTasks(transformedTasks);
       console.log(birthdayTasks.length, "Birthday Tasks Length");
-      
+
       setBirthdayCount(response.data.pagination.total);
       setApiColumns(response.data.columns); // Store column definitions
     } catch (err) {
@@ -293,6 +302,10 @@ const Inbox = () => {
     if (cardType === "Birthdays") {
       // Optionally refresh birthday data when card is clicked
       fetchBirthdayData();
+    } else {
+      // setSelectedCardTasks(mockTasks);
+      // setSelectedCardTitle("Tasks");
+      // setIsPanelVisible(true);
     }
   };
 
@@ -335,6 +348,75 @@ const Inbox = () => {
       });
   };
 
+  // const mockColumns: ApiColumn[] = [
+  //   { key: "title", label: "Subject" },
+  //   { key: "description", label: "Message" },
+  //   { key: "type", label: "Type" },
+  //   { key: "priority", label: "Priority" },
+  //   { key: "dueDate", label: "Due" },
+  //   { key: "status", label: "Status" },
+  //   { key: "assignedTo", label: "Received from" },
+  //   { key: "person", label: "Person" },
+  // ];
+
+  // const mockTasks: ExtendedTask[] = [
+  //   {
+  //     id: "1",
+  //     title: "Crisis intervention plan review",
+  //     description: "Crisis intervention plan",
+  //     assignedTo: "Lisa Thompson",
+  //     person: "Lisa Thompson",
+  //     dueDate: "Today",
+  //     priority: "high",
+  //     status: "pending",
+  //     type: "Treatment",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Reminder: Check in with high-risk patient",
+  //     description: "High-risk patient check-in",
+  //     assignedTo: "System",
+  //     person: "",
+  //     dueDate: "Today",
+  //     priority: "high",
+  //     status: "pending",
+  //     type: "Reminder",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "High risk assessment for Kevin L.",
+  //     description: "High risk assessment",
+  //     assignedTo: "System",
+  //     person: "",
+  //     dueDate: "Today",
+  //     priority: "high",
+  //     status: "pending",
+  //     type: "Assessment",
+  //   },
+  //   {
+  //     id: "4",
+  //     title: "DrFirst: Controlled substance monitoring alert",
+  //     description: "Controlled substance monitoring alert",
+  //     assignedTo: "System",
+  //     person: "",
+  //     dueDate: "Today",
+  //     priority: "high",
+  //     status: "pending",
+  //     type: "Dr First Notifications",
+  //   },
+  //   {
+  //     id: "5",
+  //     title: "Document crisis intervention",
+  //     description: "Document crisis intervention",
+  //     assignedTo: "System",
+  //     person: "",
+  //     dueDate: "Today",
+  //     priority: "high",
+  //     status: "pending",
+  //     type: "Clinical",
+  //   },
+  // ];
+
   // Priority swim lane configuration
   const swimLanes = [
     {
@@ -370,6 +452,10 @@ const Inbox = () => {
       cards: getCardsByPriority("other"),
     },
   ];
+
+  // const handleClosePanel = () => {
+  //   setIsPanelVisible(false);
+  // };
 
   if (loading && birthdayTasks.length === 0) {
     return (
@@ -506,6 +592,15 @@ const Inbox = () => {
           onComplete={handleComplete}
         />
       </div>
+      {/* <TaskSlidePanel
+        tasks={selectedCardTasks}
+        columns={mockColumns}
+        onReply={handleReply}
+        onComplete={handleComplete}
+        isVisible={isPanelVisible}
+        onClose={handleClosePanel}
+        title={selectedCardTitle}
+      /> */}
     </div>
   );
 };
