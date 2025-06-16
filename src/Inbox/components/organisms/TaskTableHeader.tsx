@@ -28,30 +28,6 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
       active: activeTab === "reminders",
     },
     {
-      id: "review-forms",
-      label: "Review Forms",
-      icon: "document" as const,
-      active: activeTab === "review-forms",
-    },
-    {
-      id: "treatment-plans",
-      label: "Treatment Plan Reviews",
-      icon: "check-circle" as const,
-      active: activeTab === "treatment-plans",
-    },
-    {
-      id: "drfirst",
-      label: "DrFirst Notifications",
-      icon: "inbox" as const,
-      active: activeTab === "drfirst",
-    },
-    {
-      id: "messages",
-      label: "Messages",
-      icon: "chat" as const,
-      active: activeTab === "messages",
-    },
-    {
       id: "birthdays",
       label: "Birthdays",
       icon: "calendar" as const,
@@ -71,7 +47,7 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
             <div className="ml-2 p-1 text-gray-500">
               <Icon
                 name="chevron-down"
-                className={`size-5 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                className={`size-5 transition-transform duration-300 ${isExpanded ? "" : "rotate-180"}`}
               />
             </div>
           </div>

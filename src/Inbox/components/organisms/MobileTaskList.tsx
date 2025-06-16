@@ -1,22 +1,23 @@
 import React from 'react';
-import { TaskCard, Task } from './TaskDetailCard';
+import { TaskCard } from "./TaskDetailCard";
+import { ExtendedTask } from "./TaskManagementContainer";
 
 export interface MobileTaskListProps {
-  tasks: Task[];
+  tasks: ExtendedTask[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
 }
 
-export const MobileTaskList: React.FC<MobileTaskListProps> = ({ 
-  tasks, 
-  onReply, 
-  onComplete 
+export const MobileTaskList: React.FC<MobileTaskListProps> = ({
+  tasks,
+  onReply,
+  onComplete,
 }) => {
   return (
     <div className="sm:hidden w-full">
       {tasks.map((task, index) => (
         <div
-          key={task.id}
+          key={`${task.id}-${index}`} // Make key unique by combining id and index
           style={{ animationDelay: `${index * 50}ms` }}
           className="w-full"
         >

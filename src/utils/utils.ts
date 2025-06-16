@@ -74,7 +74,6 @@ export const timeAgoFromToday = (dateString: string | number | Date) => {
   return result.trim() + " ago";
 };
 
-
 export const calculateAge = (dobString: string): number => {
   const dob = new Date(dobString);
   const today = new Date();
@@ -95,7 +94,6 @@ export const capitalize = (str: string): string => {
   if (!str) return "";
   return str[0].toUpperCase() + str.slice(1).toLowerCase();
 };
-
 
 // utils/formatDate.tsx
 
@@ -151,3 +149,47 @@ export function getBaseUrl(): string {
     return "";
   }
 }
+
+export const formatDueDate = (dateString: string): string => {
+  if (!dateString) return "";
+
+  try {
+    // Parse the ISO date string
+    const dueDate = new Date(dateString);
+    const today = new Date();
+
+    // Reset time to start of day for accurate comparison
+    const dueDateOnly = new Date(
+      dueDate.getFullYear(),
+      dueDate.getMonth(),
+      dueDate.getDate()
+    );
+    const todayOnly = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+
+    // Calculate the difference in milliseconds
+    const diffTime = dueDateOnly.getTime() - todayOnly.getTime();
+
+    // Convert to days
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    // Return appropriate string based on difference
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "Tomorrow";
+    } else if (diffDays === -1) {
+      return "Yesterday";
+    } else if (diffDays > 1) {
+      return `${diffDays} days`;
+    } else {
+      return `${Math.abs(diffDays)} days ago`;
+    }
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return dateString; // Return original string if parsing fails
+  }
+};

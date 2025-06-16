@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  // CheckIcon,
-  // ClockIcon,
-  PlayIcon,
-} from "./Inbox/components/assets/Icons";
-// import { Icon } from "./Inbox/components/atoms/Icon";
-// import { TaskCard } from "./Inbox/components/organisms/TaskCard";
+import { PlayIcon } from "./Inbox/components/assets/Icons";
 import { TaskHeader } from "./Inbox/components/organisms/TaskHeader";
 import { TaskSlidePanel } from "./Inbox/components/organisms/TaskSlidePanel";
 import {
@@ -46,6 +40,15 @@ interface BirthdayApiResponse {
   };
 }
 
+interface UrgentTaskCountApiResponse {
+  success: boolean;
+  data: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
 // Task card configuration
 interface TaskCardConfig {
   id: string;
@@ -57,28 +60,27 @@ interface TaskCardConfig {
   testId: string;
 }
 
-// Transform birthday data to task format (keeping original task structure for compatibility)
-const transformBirthdayToTask = (birthday: BirthdayData): any => ({
-  id: birthday.pid.toString(),
-  title: `Birthday: ${birthday.name}`,
-  description: `DOB: ${birthday.DOB}`,
-  assignedTo: birthday.name,
-  person: birthday.name,
-  dueDate: birthday.DOB,
-  priority: "medium" as const,
-  status: "pending" as const,
-  type: "birthday" as const,
-  // Include all original birthday data for dynamic column access
-  ...birthday,
-});
+// Function to capitalize first letter of each word
+const capitalizeLabel = (label: string): string => {
+  return label
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
 
 const Inbox = () => {
-  const [birthdayTasks, setBirthdayTasks] = useState<any[]>([]);
   const [birthdayCount, setBirthdayCount] = useState(0);
-  const [apiColumns, setApiColumns] = useState<ApiColumn[]>([]);
+  const [urgentTaskCounts, setUrgentTaskCounts] = useState({
+    high: 0,
+    medium: 0,
+    low: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCardTasks, setSelectedCardTasks] = useState<ExtendedTask[]>(
+    []
+  );
+  const [selectedCardColumns, setSelectedCardColumns] = useState<ApiColumn[]>(
     []
   );
   const [isPanelVisible, setIsPanelVisible] = useState(false);
@@ -90,7 +92,7 @@ const Inbox = () => {
     {
       id: "urgent-tasks",
       title: "Urgent Tasks",
-      count: 9,
+      count: urgentTaskCounts.high,
       icon: <PlayIcon />,
       variant: "urgent",
       priority: "high",
@@ -149,6 +151,15 @@ const Inbox = () => {
     },
     // Medium Priority
     {
+      id: "urgent-tasks",
+      title: "Urgent Tasks",
+      count: urgentTaskCounts.medium,
+      icon: <PlayIcon />,
+      variant: "normal",
+      priority: "medium",
+      testId: "task-block-expedite-queue",
+    },
+    {
       id: "review-forms-medium",
       title: "Review Forms",
       count: 12,
@@ -175,7 +186,8 @@ const Inbox = () => {
     {
       id: "all-reminders",
       title: "All Reminders",
-      count: 12,
+      count:
+        urgentTaskCounts.high + urgentTaskCounts.medium + urgentTaskCounts.low,
       icon: <PlayIcon />,
       variant: "normal",
       priority: "medium",
@@ -216,9 +228,18 @@ const Inbox = () => {
     },
     // Low Priority
     {
+      id: "urgent-tasks",
+      title: "Urgent Tasks",
+      count: urgentTaskCounts.low,
+      icon: <PlayIcon />,
+      variant: "normal",
+      priority: "low",
+      testId: "task-block-expedite-queue",
+    },
+    {
       id: "birthdays",
       title: "Birthdays",
-      count: birthdayCount, // This will be dynamic from API
+      count: birthdayCount,
       icon: <PlayIcon />,
       variant: "normal",
       priority: "low",
@@ -260,51 +281,201 @@ const Inbox = () => {
     },
   ];
 
-  // Fetch birthday data from API
-  const fetchBirthdayData = async () => {
+  // Fetch birthday data from API to get count
+  const fetchBirthdayCount = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const response = await axiosClient.get<BirthdayApiResponse>(
         "/inbox/birthdays",
         {
           params: {
-            per_page: 10000,
+            per_page: 1, // Just need one record to get the total count
           },
         }
       );
 
-      const birthdayData = response.data.data;
-
-      const transformedTasks = birthdayData.map(transformBirthdayToTask);
-
-      setBirthdayTasks(transformedTasks);
-      console.log(birthdayTasks.length, "Birthday Tasks Length");
-
       setBirthdayCount(response.data.pagination.total);
-      setApiColumns(response.data.columns); // Store column definitions
     } catch (err) {
-      console.error("Failed to fetch birthday data:", err);
+      console.error("Failed to fetch birthday count:", err);
+      setError("Failed to load birthday count");
+    }
+  };
+
+  // Fetch full birthday data for slide panel
+  const fetchBirthdayDataForPanel = async () => {
+    try {
+      const response = await axiosClient.get<BirthdayApiResponse>(
+        "/inbox/birthdays",
+        {
+          params: {
+            per_page: 1000, // Get all birthday records
+          },
+        }
+      );
+
+      // Transform birthday data to task format
+      const transformedTasks = response.data.data.map(
+        (birthday: BirthdayData) => ({
+          id: birthday.pid.toString(),
+          title: `Birthday: ${birthday.name}`,
+          description: `DOB: ${birthday.DOB}`,
+          assignedTo: birthday.name,
+          person: birthday.name,
+          dueDate: birthday.DOB,
+          priority: "medium" as const,
+          status: "pending" as const,
+          type: "birthday" as const,
+          // Include all original birthday data for dynamic column access
+          ...birthday,
+        })
+      );
+
+      // Use columns from API response with capitalized labels
+      const capitalizedColumns = response.data.columns.map((column) => ({
+        ...column,
+        label: capitalizeLabel(column.label),
+      }));
+
+      setSelectedCardTasks(transformedTasks);
+      setSelectedCardColumns(capitalizedColumns);
+      setSelectedCardTitle("Birthdays");
+      setIsPanelVisible(true);
+    } catch (err) {
+      console.error("Failed to fetch birthday data for panel:", err);
       setError("Failed to load birthday data");
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchUrgentTaskCounts = async () => {
+    try {
+      const response = await axiosClient.get<UrgentTaskCountApiResponse>(
+        "/tasks/priority-summary"
+      );
+      setUrgentTaskCounts(response.data.data);
+    } catch (err) {
+      console.error("Failed to fetch urgent task counts:", err);
+      setError("Failed to load urgent task counts");
     }
   };
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchBirthdayData();
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Use Promise.all to fetch both API calls concurrently
+        await Promise.all([fetchBirthdayCount(), fetchUrgentTaskCounts()]);
+      } catch (err) {
+        console.error("Failed to fetch initial data:", err);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
   }, []);
 
-  const handleCardClick = (cardType: string) => {
-    console.log(`${cardType} card clicked`);
+  // Add this function in the Inbox component after fetchBirthdayDataForPanel
+
+  // Fetch urgent tasks data for slide panel
+  const fetchUrgentTasksDataForPanel = async (
+    priority: "high" | "medium" | "low"
+  ) => {
+    try {
+      const priorityMap = {
+        high: 1,
+        medium: 2,
+        low: 3,
+      };
+
+      const response = await axiosClient.get<TasksApiResponse>("/tasks", {
+        params: {
+          priority: priorityMap[priority],
+        },
+      });
+
+      // Transform response data to ExtendedTask format with flattened nested objects
+      const transformedTasks = response.data.data.map(
+        (task: any, index: number) => ({
+          id: task.id?.toString() || index.toString(),
+          title: task.subject || "No Title",
+          description: task.message || "No Description",
+          assignedTo: task.received_from?.name || "System",
+          person: task.patient?.name || "",
+          dueDate: task.due_date || "Today",
+          priority: task.priority?.toLowerCase() || priority,
+          status: task.status?.toLowerCase() || "pending",
+          type: task.type || "Reminder",
+          // Flatten nested objects for display
+          subject: task.subject,
+          message: task.message,
+          start_date: task.start_date,
+          due_date: task.due_date,
+          received_from: task.received_from?.name,
+          patient: task.patient?.name,
+          patient_pid: task.patient?.pid,
+        })
+      );
+
+      // Generate columns based on flattened structure
+      const columnDefinitions: ApiColumn[] = [
+        { key: "subject", label: "Subject" },
+        { key: "message", label: "Message" },
+        { key: "start_date", label: "Start Date" },
+        { key: "due_date", label: "Due Date" },
+        { key: "priority", label: "Priority" },
+        { key: "status", label: "Status" },
+        { key: "type", label: "Type" },
+        { key: "received_from", label: "Received From" },
+        { key: "patient", label: "Patient" },
+        { key: "patient_pid", label: "Patient PID" },
+      ];
+
+      setSelectedCardTasks(transformedTasks);
+      setSelectedCardColumns(columnDefinitions);
+      setSelectedCardTitle(
+        `Urgent Tasks - ${priority.charAt(0).toUpperCase() + priority.slice(1)} Priority`
+      );
+      setIsPanelVisible(true);
+    } catch (err) {
+      console.error("Failed to fetch urgent tasks data for panel:", err);
+      setError("Failed to load urgent tasks data");
+    }
+  };
+
+  // Add TasksApiResponse interface if not already defined
+  interface TasksApiResponse {
+    data: any[];
+  }
+
+  const handleCardClick = async (
+    cardType: string,
+    cardConfig?: TaskCardConfig
+  ) => {
+    console.log(`${cardType} ${cardConfig} card clicked`);
+
     if (cardType === "Birthdays") {
-      // Optionally refresh birthday data when card is clicked
-      fetchBirthdayData();
+      // Fetch full birthday data and show in slide panel
+      await fetchBirthdayDataForPanel();
+    } else if (cardType === "Urgent Tasks" && cardConfig) {
+      // Fetch urgent tasks data based on priority
+      console.log(cardConfig.priority, "cardConfig.priority");
+      await fetchUrgentTasksDataForPanel(
+        cardConfig.priority as "high" | "medium" | "low"
+      );
+    } else if (cardType === "All Reminders") {
+      // For All Reminders, let TaskSlidePanel handle the API call
+      setSelectedCardTasks([]);
+      setSelectedCardColumns([]);
+      setSelectedCardTitle(cardType);
+      setIsPanelVisible(true);
     } else {
+      // For other cards, use mock data
       setSelectedCardTasks(mockTasks);
-      setSelectedCardTitle("Tasks");
+      setSelectedCardColumns(mockColumns);
+      setSelectedCardTitle(cardType);
       setIsPanelVisible(true);
     }
   };
@@ -328,11 +499,16 @@ const Inbox = () => {
   const handleComplete = (taskId: string) => {
     console.log("Complete task:", taskId);
     // Optionally refresh data after completing a task
-    fetchBirthdayData();
+    fetchBirthdayCount();
   };
 
   const handleRefresh = () => {
-    fetchBirthdayData();
+    Promise.all([fetchBirthdayCount(), fetchUrgentTaskCounts()]).catch(
+      (err) => {
+        console.error("Failed to refresh data:", err);
+        setError("Failed to refresh data");
+      }
+    );
   };
 
   // Get cards by priority
@@ -344,6 +520,26 @@ const Inbox = () => {
         if (card.id === "birthdays") {
           return { ...card, count: birthdayCount };
         }
+
+        // Update urgent task counts dynamically based on priority
+        if (card.title === "Urgent Tasks") {
+          let count = 0;
+          switch (priority) {
+            case "high":
+              count = urgentTaskCounts.high;
+              break;
+            case "medium":
+              count = urgentTaskCounts.medium;
+              break;
+            case "low":
+              count = urgentTaskCounts.low;
+              break;
+            default:
+              count = card.count; // fallback to original count
+          }
+          return { ...card, count };
+        }
+
         return card;
       });
   };
@@ -457,7 +653,7 @@ const Inbox = () => {
     setIsPanelVisible(false);
   };
 
-  if (loading && birthdayTasks.length === 0) {
+  if (loading) {
     return (
       <div className="w-full bg-[#f4f5fb] text-[#020817] flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -522,7 +718,7 @@ const Inbox = () => {
                         tabIndex={0}
                         aria-label={card.title}
                         data-testid={card.testId}
-                        onClick={() => handleCardClick(card.title)}
+                        onClick={() => handleCardClick(card.title, card)}
                       >
                         <div className="absolute inset-0 rounded-xl bg-white/70 pointer-events-none z-0 group-hover:bg-white/80"></div>
                         <div className="flex items-center gap-2 z-10 relative">
@@ -556,50 +752,25 @@ const Inbox = () => {
             </div>
           </div>
         ))}
-
-        {/* Add New Label Button */}
-        {/* <div className="relative mb-10  overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-white/50 flex items-center h-[60px] cursor-pointer hover:border-blue-300 hover:bg-white hover:shadow-sm transition-all duration-300 group mt-8 w-[220px] p-0.5">
-          <div className="flex items-center gap-3 px-4">
-            <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center group-hover:bg-blue-100 transition-colors flex-shrink-0">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
-                className="h-4 w-4 text-blue-500"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 4.5v15m7.5-7.5h-15"
-                ></path>
-              </svg>
-            </div>
-            <h3 className="text-sm font-medium text-gray-700">Add New Label</h3>
-          </div>
-        </div> */}
       </div>
 
       {/* Task Management Container */}
       <div className="w-full bg-[#f4f5fb]">
         <TaskManagementContainer
-          tasks={birthdayTasks}
-          columns={apiColumns}
           onReply={handleReply}
           onComplete={handleComplete}
         />
       </div>
+
       <TaskSlidePanel
         tasks={selectedCardTasks}
-        columns={mockColumns}
+        columns={selectedCardColumns}
         onReply={handleReply}
         onComplete={handleComplete}
         isVisible={isPanelVisible}
         onClose={handleClosePanel}
         title={selectedCardTitle}
+        cardType={selectedCardTitle} // Add this line
       />
     </div>
   );
