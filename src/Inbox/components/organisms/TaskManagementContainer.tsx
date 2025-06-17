@@ -257,7 +257,7 @@ export const TaskManagementContainer: React.FC<
 
   return (
     <div className="w-full bg-gray-50 p-4">
-      <div className="w-full mx-auto">
+      <div className="w-full mx-auto bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in">
         <TaskTableHeader
           searchValue={searchValue}
           onSearchChange={handleSearchChange}

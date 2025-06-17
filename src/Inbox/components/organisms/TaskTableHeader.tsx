@@ -36,8 +36,8 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
   ];
 
   return (
-    <div className="mb-6 w-full">
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in">
+    <div className="w-full">
+      <div className="bg-white overflow-hidden animate-scale-in">
         <div
           className="p-5 border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-all duration-200"
           onClick={onToggleExpanded}
@@ -54,7 +54,7 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
         </div>
 
         {isExpanded && (
-          <div className="p-4 animate-slide-up">
+          <div className="px-4 pt-4 animate-slide-up">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4">
               <input
                 type="text"

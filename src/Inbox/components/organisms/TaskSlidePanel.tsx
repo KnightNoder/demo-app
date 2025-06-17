@@ -33,7 +33,7 @@ interface TasksApiResponse {
   };
 }
 
-// Slide-out Panel Component - NO TRANSITIONS
+// Slide-out Panel Component - Modified for dev tools style
 export const TaskSlidePanel: React.FC<{
   tasks: ExtendedTask[];
   columns: ApiColumn[];
@@ -42,7 +42,8 @@ export const TaskSlidePanel: React.FC<{
   isVisible: boolean;
   onClose: () => void;
   title: string;
-  cardType?: string; // Add cardType to identify which card was clicked
+  cardType?: string;
+  onWidthChange?: (width: number) => void;
 }> = ({
   tasks: initialTasks,
   columns: initialColumns,
@@ -52,6 +53,7 @@ export const TaskSlidePanel: React.FC<{
   onClose,
   title,
   cardType,
+  onWidthChange,
 }) => {
   const [admittedOnly, setAdmittedOnly] = useState(false);
   const [panelWidth, setPanelWidth] = useState(1201.2);
@@ -131,6 +133,28 @@ export const TaskSlidePanel: React.FC<{
     }
   }, [isVisible, cardType, initialTasks, initialColumns]);
 
+  // Update parent component when panel width changes
+  useEffect(() => {
+    if (onWidthChange) {
+      onWidthChange(panelWidth);
+    }
+  }, [panelWidth, onWidthChange]);
+
+  // Add state to track if panel is fully loaded
+  const [isPanelReady, setIsPanelReady] = useState(false);
+
+  // Set panel ready after a small delay to ensure dimensions are stable
+  useEffect(() => {
+    if (isVisible && !loading) {
+      const timer = setTimeout(() => {
+        setIsPanelReady(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsPanelReady(false);
+    }
+  }, [isVisible, loading]);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
     e.preventDefault();
@@ -144,7 +168,8 @@ export const TaskSlidePanel: React.FC<{
       const minWidth = 514.8;
       const maxWidth = window.innerWidth * 0.9;
 
-      setPanelWidth(Math.max(minWidth, Math.min(maxWidth, newWidth)));
+      const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+      setPanelWidth(calculatedWidth);
     };
 
     const handleMouseUp = () => {
@@ -165,29 +190,31 @@ export const TaskSlidePanel: React.FC<{
   if (!isVisible) return null;
 
   const handleFullScreen = () => {
-    setIsFullScreen(!isFullScreen);
+    const newFullScreen = !isFullScreen;
+    setIsFullScreen(newFullScreen);
+    if (newFullScreen) {
+      setPanelWidth(window.innerWidth);
+    } else {
+      setPanelWidth(1201.2);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop - no transition */}
-      <div className="flex-1" onClick={onClose} />
-
-      {/* Panel - no transition */}
-      <div
-        className="bg-white border-l shadow-lg relative flex flex-col"
-        style={{
-          width: isFullScreen ? "100vw" : `${panelWidth}px`,
-          minWidth: isFullScreen ? "100vw" : "514.8px",
-          maxWidth: isFullScreen ? "100vw" : "90vw",
-        }}
-      >
-        {/* Resize Handle */}
+    <div
+      className="bg-white border-l shadow-lg relative flex flex-col h-screen transition-all duration-300 ease-in-out"
+      style={{
+        width: isFullScreen ? "100vw" : `${panelWidth}px`,
+        minWidth: isFullScreen ? "100vw" : "514.8px",
+        maxWidth: isFullScreen ? "100vw" : "90vw",
+      }}
+    >
+      {/* Resize Handle - only show when not in fullscreen */}
+      {!isFullScreen && (
         <div
           className="absolute left-0 top-0 bottom-0 w-6 cursor-ew-resize hover:bg-blue-200/20 group z-20"
           onMouseDown={handleMouseDown}
         >
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -209,58 +236,78 @@ export const TaskSlidePanel: React.FC<{
             </svg>
           </div>
         </div>
+      )}
 
-        {/* Header */}
-        <div className="flex justify-between items-center px-4 py-2.5 border-b sticky top-0 bg-white z-10">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-medium text-gray-900">{title}</h2>
-            <div className="inline-flex items-center rounded-full px-2.5 py-0.5 border border-gray-200 hover:bg-gray-50 text-xs font-normal text-gray-600 bg-gray-50">
-              {tasks.length} tasks
-            </div>
+      {/* Header */}
+      <div className="flex justify-between items-center px-4 py-2.5 border-b sticky top-0 bg-white z-10">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-medium text-gray-900">{title}</h2>
+          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 border border-gray-200 hover:bg-gray-50 text-xs font-normal text-gray-600 bg-gray-50">
+            {tasks.length} tasks
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={admittedOnly}
-                onClick={() => setAdmittedOnly(!admittedOnly)}
-                className={`peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors duration-200 ease-in-out ${
-                  admittedOnly ? "bg-blue-600" : "bg-gray-200"
-                }`}
-              >
-                <span
-                  className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${
-                    admittedOnly ? "translate-x-4" : "translate-x-0"
-                  }`}
-                />
-              </button>
-              <label className="text-sm text-gray-600 flex items-center gap-1.5 cursor-pointer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-4 h-4"
-                >
-                  <path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path>
-                  <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"></path>
-                  <path d="M12 4v6"></path>
-                  <path d="M2 18h20"></path>
-                </svg>
-                Admitted Patients Only
-              </label>
-            </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <button
-              className="text-gray-500 hover:text-gray-700 p-1.5 rounded-md hover:bg-gray-50"
-              title="Enter full screen"
-              onClick={handleFullScreen}
+              type="button"
+              role="switch"
+              aria-checked={admittedOnly}
+              onClick={() => setAdmittedOnly(!admittedOnly)}
+              className={`peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors duration-200 ease-in-out ${
+                admittedOnly ? "bg-blue-600" : "bg-gray-200"
+              }`}
             >
+              <span
+                className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform duration-200 ease-in-out ${
+                  admittedOnly ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+            <label className="text-sm text-gray-600 flex items-center gap-1.5 cursor-pointer">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"></path>
+                <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"></path>
+                <path d="M12 4v6"></path>
+                <path d="M2 18h20"></path>
+              </svg>
+              Admitted Patients Only
+            </label>
+          </div>
+          <button
+            className="text-gray-500 hover:text-gray-700 p-1.5 rounded-md hover:bg-gray-50"
+            title={isFullScreen ? "Exit full screen" : "Enter full screen"}
+            onClick={handleFullScreen}
+          >
+            {isFullScreen ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4 h-4"
+              >
+                <polyline points="4 14 10 14 10 20"></polyline>
+                <polyline points="20 10 14 10 14 4"></polyline>
+                <line x1="14" x2="21" y1="10" y2="3"></line>
+                <line x1="3" x2="10" y1="21" y2="14"></line>
+              </svg>
+            ) : (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -278,71 +325,73 @@ export const TaskSlidePanel: React.FC<{
                 <line x1="21" x2="14" y1="3" y2="10"></line>
                 <line x1="3" x2="10" y1="21" y2="14"></line>
               </svg>
-            </button>
-            <button
-              className="text-gray-500 hover:text-gray-700 p-1.5 rounded-md hover:bg-gray-50"
-              title="Close panel"
-              onClick={onClose}
+            )}
+          </button>
+          <button
+            className="text-gray-500 hover:text-gray-700 p-1.5 rounded-md hover:bg-gray-50"
+            title="Close panel"
+            onClick={onClose}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-4 h-4"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="m15 9-6 6"></path>
-                <path d="m9 9 6 6"></path>
-              </svg>
-            </button>
-          </div>
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="m15 9-6 6"></path>
+              <path d="m9 9 6 6"></path>
+            </svg>
+          </button>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p>Loading {title.toLowerCase()}...</p>
-              </div>
+      {/* Content */}
+      <div className="flex-1 overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+              <p>Loading {title.toLowerCase()}...</p>
             </div>
-          ) : error ? (
-            <div className="flex items-center justify-center h-full p-4">
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between w-full max-w-md">
-                <span>{error}</span>
-                <button
-                  onClick={() => {
-                    if (cardType === "All Reminders") {
-                      fetchRemindersData();
-                    }
-                  }}
-                  className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-                >
-                  Retry
-                </button>
-              </div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full p-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between w-full max-w-md">
+              <span>{error}</span>
+              <button
+                onClick={() => {
+                  if (cardType === "All Reminders") {
+                    fetchRemindersData();
+                  }
+                }}
+                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+              >
+                Retry
+              </button>
             </div>
-          ) : (
-            <div className="h-full">
-              <AGGridTable
-                tasks={tasks}
-                columns={columns}
-                onReply={onReply}
-                onComplete={onComplete}
-                activeTab={
-                  cardType === "All Reminders" ? "reminders" : "birthdays"
-                }
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="h-full" style={{ opacity: isPanelReady ? 1 : 0 }}>
+            <AGGridTable
+              tasks={tasks}
+              columns={columns}
+              onReply={onReply}
+              onComplete={onComplete}
+              activeTab={
+                cardType === "All Reminders" ? "reminders" : "birthdays"
+              }
+              isPanelReady={isPanelReady}
+              panelWidth={panelWidth}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

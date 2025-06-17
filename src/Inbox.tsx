@@ -85,6 +85,74 @@ const Inbox = () => {
   );
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [selectedCardTitle, setSelectedCardTitle] = useState("");
+  const [panelWidth, setPanelWidth] = useState(1201.2);
+  const [scrollableContainers, setScrollableContainers] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Filter state
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    low: false, // 0-5 items
+    medium: false, // 6-10 items
+    high: false, // 11+ items
+    customOnly: false,
+    defaultOnly: false,
+  });
+  const [filterButtonPosition, setFilterButtonPosition] = useState({
+    top: 0,
+    right: 0,
+  });
+
+  // Function to check if container is scrollable
+  const checkScrollable = (containerId: string) => {
+    const container = document.querySelector(
+      `[data-swim-lane="${containerId}"] .overflow-x-auto`
+    );
+    if (container) {
+      const isScrollable = container.scrollWidth > container.clientWidth;
+      console.log(
+        `Lane ${containerId}: scrollWidth=${container.scrollWidth}, clientWidth=${container.clientWidth}, isScrollable=${isScrollable}`
+      );
+      setScrollableContainers((prev) => {
+        const newSet = new Set(prev);
+        if (isScrollable) {
+          newSet.add(containerId);
+        } else {
+          newSet.delete(containerId);
+        }
+        return newSet;
+      });
+    }
+  };
+
+  // Check all containers when panel width changes or when data loads
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log("Checking scrollability for all lanes...");
+      swimLanes.forEach((lane) => {
+        checkScrollable(lane.priority);
+      });
+      console.log("Scrollable containers:", Array.from(scrollableContainers));
+    }, 200); // Increased timeout to ensure DOM is ready
+
+    return () => clearTimeout(timer);
+  }, [panelWidth, isPanelVisible, urgentTaskCounts, birthdayCount]);
+
+  // Add resize observer to check scrollability when window resizes
+  useEffect(() => {
+    const handleResize = () => {
+      console.log("Window resized, rechecking scrollability...");
+      setTimeout(() => {
+        swimLanes.forEach((lane) => {
+          checkScrollable(lane.priority);
+        });
+      }, 100);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Task cards configuration
   const taskCards: TaskCardConfig[] = [
@@ -484,8 +552,52 @@ const Inbox = () => {
     console.log("New task clicked");
   };
 
-  const handleFilter = () => {
-    console.log("Filter clicked");
+  const handleFilter = (buttonElement?: HTMLElement) => {
+    if (buttonElement && !isFilterOpen) {
+      // Get the button's position relative to viewport
+      const rect = buttonElement.getBoundingClientRect();
+      setFilterButtonPosition({
+        top: rect.bottom + 8, // 8px below the button
+        right: window.innerWidth - rect.right, // Distance from right edge
+      });
+    }
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleFilterChange = (filterType: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterType]: !prev[filterType],
+    }));
+  };
+
+  // Filter cards based on selected filters
+  const getFilteredCardsByPriority = (priority: string) => {
+    let cards = getCardsByPriority(priority);
+
+    // Apply count-based filters
+    if (filters.low || filters.medium || filters.high) {
+      cards = cards.filter((card) => {
+        const count = card.count;
+        if (filters.low && count >= 0 && count <= 5) return true;
+        if (filters.medium && count >= 6 && count <= 10) return true;
+        if (filters.high && count >= 11) return true;
+        return false;
+      });
+    }
+
+    // Apply type-based filters (placeholder for now - you can expand this)
+    if (filters.customOnly) {
+      // Add logic for custom cards if needed
+      cards = cards.filter((card) => card.id.includes("custom"));
+    }
+
+    if (filters.defaultOnly) {
+      // Add logic for default cards if needed
+      cards = cards.filter((card) => !card.id.includes("custom"));
+    }
+
+    return cards;
   };
 
   const handleSort = () => {
@@ -613,7 +725,7 @@ const Inbox = () => {
     },
   ];
 
-  // Priority swim lane configuration
+  // Priority swim lane configuration with filtered cards
   const swimLanes = [
     {
       priority: "high",
@@ -621,7 +733,7 @@ const Inbox = () => {
       color: "red",
       dotColor: "bg-red-500",
       textColor: "text-red-700",
-      cards: getCardsByPriority("high"),
+      cards: getFilteredCardsByPriority("high"),
     },
     {
       priority: "medium",
@@ -629,7 +741,7 @@ const Inbox = () => {
       color: "amber",
       dotColor: "bg-amber-500",
       textColor: "text-amber-700",
-      cards: getCardsByPriority("medium"),
+      cards: getFilteredCardsByPriority("medium"),
     },
     {
       priority: "low",
@@ -637,7 +749,7 @@ const Inbox = () => {
       color: "green",
       dotColor: "bg-green-500",
       textColor: "text-green-700",
-      cards: getCardsByPriority("low"),
+      cards: getFilteredCardsByPriority("low"),
     },
     {
       priority: "other",
@@ -645,12 +757,16 @@ const Inbox = () => {
       color: "blue",
       dotColor: "bg-blue-500",
       textColor: "text-blue-700",
-      cards: getCardsByPriority("other"),
+      cards: getFilteredCardsByPriority("other"),
     },
   ];
 
   const handleClosePanel = () => {
     setIsPanelVisible(false);
+  };
+
+  const handlePanelWidthChange = (newWidth: number) => {
+    setPanelWidth(newWidth);
   };
 
   if (loading) {
@@ -665,113 +781,339 @@ const Inbox = () => {
   }
 
   return (
-    <div className="w-full bg-[#f4f5fb] text-[#020817]">
-      <TaskHeader
-        onNewTask={handleNewTask}
-        onFilter={handleFilter}
-        onSort={handleSort}
-      />
+    <div className="flex h-screen bg-[#f4f5fb] text-[#020817]">
+      {/* Main Inbox Content */}
+      <div
+        className="flex-1 overflow-auto transition-all duration-300 ease-in-out"
+        style={{
+          width: isPanelVisible ? `calc(100% - ${panelWidth}px)` : "100%",
+          maxWidth: isPanelVisible ? `calc(100% - ${panelWidth}px)` : "100%",
+        }}
+      >
+        <TaskHeader
+          onNewTask={handleNewTask}
+          onFilter={handleFilter}
+          onSort={handleSort}
+        />
 
-      {/* Error Display */}
-      {error && (
-        <div className="w-full max-w-full px-4 mb-4">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
-            <span>{error}</span>
-            <button
-              onClick={handleRefresh}
-              className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+        {/* Filter Popup */}
+        {isFilterOpen && (
+          <div
+            className="fixed inset-0 z-50"
+            onClick={() => setIsFilterOpen(false)}
+          >
+            <div
+              className="fixed z-50 overflow-hidden rounded-md border bg-white p-1 text-gray-900 shadow-md animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 min-w-[12rem]"
+              style={{
+                top: `${filterButtonPosition.top}px`,
+                right: `${filterButtonPosition.right}px`,
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              Retry
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Priority Swim Lanes */}
-      <div className="space-y-2 md:space-y-4 px-4">
-        {swimLanes.map((lane) => (
-          <div key={lane.priority}>
-            <h3
-              className={`text-base font-medium ${lane.textColor} mb-1 flex items-center gap-2 px-2 md:px-0`}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-1.5 h-1.5 rounded-full ${lane.dotColor}`}
-                ></div>
-                {lane.title}
+              <div className="px-2 py-1.5 text-sm font-semibold">
+                Filter by:
               </div>
-              <span className="text-sm text-gray-500">
-                ({lane.cards.length} items)
-              </span>
-            </h3>
-            <div className="relative group">
-              <div className="absolute inset-0 pointer-events-none"></div>
-              <div className="overflow-x-auto scrollbar-hide relative">
-                <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 md:gap-4 pb-2 md:pb-4 px-2 pt-2">
-                  {lane.cards.map((card) => (
-                    <div
-                      key={card.id}
-                      className="cursor-pointer w-full sm:w-[180px] md:w-[220px] flex-shrink-0 p-0.5"
+
+              {/* Count-based filters */}
+              <div
+                role="menuitemcheckbox"
+                aria-checked={filters.low}
+                className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100"
+                onClick={() => handleFilterChange("low")}
+              >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                  {filters.low && (
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
                     >
-                      <div
-                        className="relative rounded-xl border-2 border-white ring-2 ring-inset ring-white/80 bg-gradient-to-br from-pink-50 via-blue-50 to-blue-50 hover:scale-[1.03] hover:border-blue-200 hover:z-10 transition-all duration-200 cursor-pointer group p-3 h-full flex flex-col"
-                        tabIndex={0}
-                        aria-label={card.title}
-                        data-testid={card.testId}
-                        onClick={() => handleCardClick(card.title, card)}
-                      >
-                        <div className="absolute inset-0 rounded-xl bg-white/70 pointer-events-none z-0 group-hover:bg-white/80"></div>
-                        <div className="flex items-center gap-2 z-10 relative">
-                          <div className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center">
-                            <div className="text-gray-500">{card.icon}</div>
-                          </div>
-                          <span className="text-gray-800 font-medium text-sm md:text-xs lg:text-sm text-left line-clamp-2">
-                            {card.title}
-                          </span>
-                        </div>
-                        <div className="mt-2 flex justify-between items-end z-10 relative">
-                          <div>
-                            <span
-                              className={`text-3xl font-${card.variant === "urgent" ? "bold" : "normal"} ${
-                                card.variant === "urgent"
-                                  ? "text-red-600"
-                                  : lane.priority === "high"
-                                    ? "text-orange-600"
-                                    : "text-gray-600"
-                              }`}
-                            >
-                              {card.count}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </span>
+                Low (0-5)
+              </div>
+
+              <div
+                role="menuitemcheckbox"
+                aria-checked={filters.medium}
+                className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100"
+                onClick={() => handleFilterChange("medium")}
+              >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                  {filters.medium && (
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </span>
+                Medium (6-10)
+              </div>
+
+              <div
+                role="menuitemcheckbox"
+                aria-checked={filters.high}
+                className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100"
+                onClick={() => handleFilterChange("high")}
+              >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                  {filters.high && (
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </span>
+                High (11+)
+              </div>
+
+              {/* Separator */}
+              <div
+                role="separator"
+                className="-mx-1 my-1 h-px bg-gray-200"
+              ></div>
+
+              {/* Type-based filters */}
+              <div
+                role="menuitemcheckbox"
+                aria-checked={filters.customOnly}
+                className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100"
+                onClick={() => handleFilterChange("customOnly")}
+              >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                  {filters.customOnly && (
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </span>
+                Custom only
+              </div>
+
+              <div
+                role="menuitemcheckbox"
+                aria-checked={filters.defaultOnly}
+                className="relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 focus:bg-gray-100"
+                onClick={() => handleFilterChange("defaultOnly")}
+              >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                  {filters.defaultOnly && (
+                    <svg
+                      className="h-4 w-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </span>
+                Default only
               </div>
             </div>
           </div>
-        ))}
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="w-full max-w-full px-4 mb-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
+              <span>{error}</span>
+              <button
+                onClick={handleRefresh}
+                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Priority Swim Lanes */}
+        <div className="space-y-2 md:space-y-4 px-4">
+          {swimLanes.map((lane) => (
+            <div key={lane.priority}>
+              <h3
+                className={`text-base font-medium ${lane.textColor} mb-1 flex items-center gap-2 px-2 md:px-0`}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full ${lane.dotColor}`}
+                  ></div>
+                  {lane.title}
+                </div>
+                <span className="text-sm text-gray-500">
+                  ({lane.cards.length} items)
+                </span>
+              </h3>
+              <div className="relative group">
+                <div className="absolute inset-0 pointer-events-none"></div>
+                <div className="overflow-x-auto scrollbar-hide relative">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 md:gap-4 pb-2 md:pb-4 px-2 pt-2">
+                    {lane.cards.map((card) => (
+                      <div
+                        key={card.id}
+                        className="cursor-pointer w-full sm:w-[180px] md:w-[220px] flex-shrink-0 p-0.5"
+                      >
+                        <div
+                          className="relative rounded-xl border-2 border-white ring-2 ring-inset ring-white/80 bg-gradient-to-br from-pink-50 via-blue-50 to-blue-50 hover:scale-[1.03] hover:border-blue-200 hover:z-10 transition-all duration-200 cursor-pointer group p-3 h-full flex flex-col"
+                          tabIndex={0}
+                          aria-label={card.title}
+                          data-testid={card.testId}
+                          onClick={() => handleCardClick(card.title, card)}
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-white/70 pointer-events-none z-0 group-hover:bg-white/80"></div>
+                          <div className="flex items-center gap-2 z-10 relative">
+                            <div className="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center">
+                              <div className="text-gray-500">{card.icon}</div>
+                            </div>
+                            <span className="text-gray-800 font-medium text-sm md:text-xs lg:text-sm text-left line-clamp-2">
+                              {card.title}
+                            </span>
+                          </div>
+                          <div className="mt-2 flex justify-between items-end z-10 relative">
+                            <div>
+                              <span
+                                className={`text-3xl font-${card.variant === "urgent" ? "bold" : "normal"} ${
+                                  card.variant === "urgent"
+                                    ? "text-red-600"
+                                    : lane.priority === "high"
+                                      ? "text-orange-600"
+                                      : "text-gray-600"
+                                }`}
+                              >
+                                {card.count}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Carousel navigation - fade gradients */}
+                <div className="hidden sm:block absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#f4f5fb] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"></div>
+                <div className="hidden sm:block absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#f4f5fb] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"></div>
+
+                {/* Carousel navigation - left arrow */}
+                <button
+                  className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-200 items-center justify-center text-gray-600 opacity-0 group-hover:opacity-100 hover:bg-gray-50 hover:scale-110 transition-all duration-200 z-20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const container =
+                      e.currentTarget.parentElement?.querySelector(
+                        ".overflow-x-auto"
+                      );
+                    if (container) {
+                      container.scrollBy({ left: -220, behavior: "smooth" });
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 19.5 8.25 12l7.5-7.5"
+                    />
+                  </svg>
+                </button>
+
+                {/* Carousel navigation - right arrow */}
+                <button
+                  className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-200 items-center justify-center text-gray-600 opacity-0 group-hover:opacity-100 hover:bg-gray-50 hover:scale-110 transition-all duration-200 z-20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const container =
+                      e.currentTarget.parentElement?.querySelector(
+                        ".overflow-x-auto"
+                      );
+                    if (container) {
+                      container.scrollBy({ left: 220, behavior: "smooth" });
+                    }
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Task Management Container */}
+        <div className="w-full bg-[#f4f5fb]">
+          <TaskManagementContainer
+            onReply={handleReply}
+            onComplete={handleComplete}
+          />
+        </div>
       </div>
 
-      {/* Task Management Container */}
-      <div className="w-full bg-[#f4f5fb]">
-        <TaskManagementContainer
+      {/* Task Slide Panel */}
+      {isPanelVisible && (
+        <TaskSlidePanel
+          tasks={selectedCardTasks}
+          columns={selectedCardColumns}
           onReply={handleReply}
           onComplete={handleComplete}
+          isVisible={isPanelVisible}
+          onClose={handleClosePanel}
+          title={selectedCardTitle}
+          cardType={selectedCardTitle}
+          onWidthChange={handlePanelWidthChange}
         />
-      </div>
-
-      <TaskSlidePanel
-        tasks={selectedCardTasks}
-        columns={selectedCardColumns}
-        onReply={handleReply}
-        onComplete={handleComplete}
-        isVisible={isPanelVisible}
-        onClose={handleClosePanel}
-        title={selectedCardTitle}
-        cardType={selectedCardTitle} // Add this line
-      />
+      )}
     </div>
   );
 };

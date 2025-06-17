@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, GridReadyEvent } from "ag-grid-community";
+import { ColDef, GridReadyEvent, GridApi } from "ag-grid-community";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 import { formatDueDate } from "../../../utils/utils";
 
@@ -10,6 +10,8 @@ interface AGGridTableProps {
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
   activeTab?: string;
+  isPanelReady?: boolean;
+  panelWidth?: number;
 }
 
 // Priority Badge Component
@@ -184,12 +186,26 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
   columns,
   onReply,
   onComplete,
-  activeTab = "reminders", // Default to reminders tab
+  activeTab = "reminders",
+  isPanelReady = true,
+  panelWidth,
 }) => {
+  const gridRef = useRef<AgGridReact>(null);
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
+  const [containerHeight, setContainerHeight] = useState(600);
+
   // Check if we're dealing with reminders (has subject/message columns) or birthdays
   const isRemindersData = columns.some(
     (col) => col.key === "subject" || col.key === "message"
   );
+
+  // Calculate dynamic column widths based on panel width
+  const getColumnWidth = (baseWidth: number) => {
+    if (!panelWidth) return baseWidth;
+    const availableWidth = panelWidth - 100; // Account for padding and scrollbar
+    const scaleFactor = Math.max(0.8, Math.min(1.2, availableWidth / 1200)); // Scale between 80% and 120%
+    return Math.max(120, Math.floor(baseWidth * scaleFactor));
+  };
 
   const columnDefs = useMemo((): ColDef[] => {
     // Base columns that always exist
@@ -199,39 +215,49 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
         field: "checkbox",
         headerName: "",
         width: 50,
+        minWidth: 50,
+        maxWidth: 50,
         checkboxSelection: true,
         headerCheckboxSelection: true,
         pinned: "left",
         sortable: false,
         filter: false,
         resizable: false,
+        suppressSizeToFit: true,
       },
     ];
     if (activeTab == "birthdays") {
       baseColumns = [];
     }
 
-    // For reminders data, use custom cell renderers
+    // For reminders data, use custom cell renderers with fixed widths
     if (isRemindersData) {
       const reminderColumns: ColDef[] = [
         {
           field: "title",
           headerName: "Subject",
-          width: 300,
+          width: getColumnWidth(280),
+          minWidth: 200,
           cellRenderer: (params: any) => <TitleCell title={params.value} />,
+          wrapText: false,
+          autoHeight: false,
         },
         {
           field: "description",
           headerName: "Message",
-          width: 300,
+          width: getColumnWidth(300),
+          minWidth: 250,
           cellRenderer: (params: any) => (
             <DescriptionCell description={params.value} />
           ),
+          wrapText: false,
+          autoHeight: false,
         },
         {
           field: "priority",
           headerName: "Priority",
-          width: 150,
+          width: getColumnWidth(130),
+          minWidth: 120,
           cellRenderer: (params: any) => (
             <PriorityBadge priority={params.value} />
           ),
@@ -239,7 +265,8 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
         {
           field: "dueDate",
           headerName: "Due",
-          width: 200,
+          width: getColumnWidth(180),
+          minWidth: 150,
           cellRenderer: (params: any) => (
             <DueDateWithIcon dueDate={formatDueDate(params.value)} />
           ),
@@ -247,25 +274,30 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
         {
           field: "status",
           headerName: "Status",
-          width: 150,
+          width: getColumnWidth(130),
+          minWidth: 120,
           cellRenderer: (params: any) => <StatusBadge status={params.value} />,
         },
         {
           field: "assignedTo",
           headerName: "Received from",
-          width: 200,
+          width: getColumnWidth(180),
+          minWidth: 150,
           cellRenderer: (params: any) => <PersonWithIcon name={params.value} />,
         },
         {
           field: "person",
           headerName: "Person",
-          width: 200,
+          width: getColumnWidth(180),
+          minWidth: 150,
           cellRenderer: (params: any) => <PersonWithIcon name={params.value} />,
         },
         {
           field: "actions",
           headerName: "Actions",
-          width: 150,
+          width: 130,
+          minWidth: 130,
+          maxWidth: 130,
           cellRenderer: (params: any) => (
             <ActionsCell
               taskId={params.data.id}
@@ -276,6 +308,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
           sortable: false,
           filter: false,
           pinned: "right",
+          suppressSizeToFit: true,
         },
       ];
 
@@ -286,14 +319,16 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
     const dynamicColumns: ColDef[] = columns.map((column) => ({
       field: column.key,
       headerName: column.label,
-      width: 150,
-      flex: 1,
+      width: getColumnWidth(150),
+      minWidth: 120,
     }));
 
     const actionsColumn: ColDef = {
       field: "actions",
       headerName: "Actions",
-      width: 150,
+      width: 130,
+      minWidth: 130,
+      maxWidth: 130,
       cellRenderer: (params: any) => (
         <ActionsCell
           taskId={params.data.id}
@@ -304,31 +339,83 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       sortable: false,
       filter: false,
       pinned: "right",
+      suppressSizeToFit: true,
     };
 
     return [...baseColumns, ...dynamicColumns, actionsColumn];
-  }, [columns, onReply, onComplete, isRemindersData]);
+  }, [columns, onReply, onComplete, isRemindersData, panelWidth]);
 
   const defaultColDef = useMemo(
     () => ({
       sortable: true,
       filter: true,
       resizable: true,
-      flex: 1,
+      suppressSizeToFit: false,
+      wrapText: false,
+      autoHeight: false,
     }),
     []
   );
 
   const onGridReady = (params: GridReadyEvent) => {
-    params.api.sizeColumnsToFit();
+    setGridApi(params.api);
+
+    // Delay sizing to ensure panel is ready
+    setTimeout(() => {
+      if (params.api && isPanelReady) {
+        params.api.sizeColumnsToFit();
+      }
+    }, 150);
   };
+
+  // Handle panel width changes and resize grid
+  useEffect(() => {
+    if (gridApi && isPanelReady && panelWidth) {
+      const timer = setTimeout(() => {
+        gridApi.sizeColumnsToFit();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [gridApi, isPanelReady, panelWidth]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (gridApi && isPanelReady) {
+        setTimeout(() => {
+          gridApi.sizeColumnsToFit();
+        }, 100);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [gridApi, isPanelReady]);
+
+  // Calculate container height based on available space
+  useEffect(() => {
+    const calculateHeight = () => {
+      const headerHeight = 120; // Approximate header height
+      const availableHeight = window.innerHeight - headerHeight;
+      setContainerHeight(Math.max(400, availableHeight));
+    };
+
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    return () => window.removeEventListener("resize", calculateHeight);
+  }, []);
 
   return (
     <div
-      className="ag-theme-alpine w-full hidden md:block"
-      style={{ height: "600px" }}
+      className="ag-theme-alpine w-full hidden md:block px-4"
+      style={{
+        height: `${containerHeight}px`,
+        transition: "opacity 0.2s ease-in-out",
+      }}
     >
       <AgGridReact
+        ref={gridRef}
         rowData={tasks}
         columnDefs={columnDefs}
         defaultColDef={defaultColDef}
@@ -344,9 +431,18 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
         suppressRowTransform={true}
         suppressColumnVirtualisation={false}
         suppressRowVirtualisation={false}
+        suppressLoadingOverlay={true}
+        suppressNoRowsOverlay={true}
         rowClassRules={{
           "ag-row-even": (params) => params.node.rowIndex! % 2 === 0,
           "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
+        }}
+        onFirstDataRendered={(params) => {
+          if (isPanelReady) {
+            setTimeout(() => {
+              params.api.sizeColumnsToFit();
+            }, 50);
+          }
         }}
       />
     </div>
