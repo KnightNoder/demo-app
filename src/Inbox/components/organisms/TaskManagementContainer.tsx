@@ -38,10 +38,36 @@ interface BirthdayData {
   room: string | null;
 }
 
-// Interface for API response
+// Interface for birthday API response
 interface BirthdayApiResponse {
   columns: ApiColumn[];
   data: BirthdayData[];
+  pagination: {
+    total: number;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+  };
+}
+
+// Interface for agenda/appointments data from API
+interface AgendaData {
+  pc_eid: number;
+  pc_eventDate: string;
+  formatted_start_time: string;
+  formatted_end_time: string;
+  appointment_type: string;
+  recurrence_type: string;
+  patient_name: string;
+  provider: string;
+  category: string;
+  facility: string;
+}
+
+// Interface for agenda API response
+interface AgendaApiResponse {
+  columns: ApiColumn[];
+  data: AgendaData[];
   pagination: {
     total: number;
     current_page: number;
@@ -69,9 +95,31 @@ const capitalizeLabel = (label: string): string => {
     .join(" ");
 };
 
-export const TaskManagementContainer: React.FC<
-  TaskManagementContainerProps
-> = ({ onReply, onComplete }) => {
+// Function to format date for display
+const formatDateForDisplay = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// Function to get priority based on appointment type or recurrence
+const getAppointmentPriority = (appointmentType: string, recurrenceType: string): "high" | "medium" | "low" => {
+  if (appointmentType?.toLowerCase() === 'patient') return 'high';
+  if (recurrenceType?.toLowerCase() === 'repeat') return 'medium';
+  return 'low';
+};
+
+export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = ({
+  onReply,
+  onComplete,
+}) => {
   const [searchValue, setSearchValue] = useState("");
   const [activeTab, setActiveTab] = useState("reminders"); // Default to reminders
   const [isExpanded, setIsExpanded] = useState(true);
@@ -190,12 +238,92 @@ export const TaskManagementContainer: React.FC<
     }
   };
 
+  // Fetch agenda/appointments data
+  const fetchAgendaData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosClient.get<AgendaApiResponse>(
+        "/inbox/upcoming-appointments",
+        {
+          params: {
+            per_page: 10000,
+          },
+        }
+      );
+
+      // Transform agenda data to task format
+      const transformedTasks = response.data.data.map(
+        (appointment: AgendaData) => ({
+          id: appointment.pc_eid.toString(),
+          title: `${appointment.appointment_type}: ${appointment.patient_name || "Group Session"}`,
+          description: `${appointment.category} at ${appointment.facility}`,
+          assignedTo: appointment.provider,
+          person: appointment.patient_name || "Group",
+          dueDate: formatDateForDisplay(appointment.pc_eventDate),
+          priority: getAppointmentPriority(
+            appointment.appointment_type,
+            appointment.recurrence_type
+          ),
+          status: "pending" as const,
+          type: "appointment" as const,
+          // Include all original appointment data for dynamic column access
+          pc_eid: appointment.pc_eid,
+          pc_eventDate: appointment.pc_eventDate,
+          formatted_start_time: appointment.formatted_start_time,
+          formatted_end_time: appointment.formatted_end_time,
+          appointment_type: appointment.appointment_type,
+          recurrence_type: appointment.recurrence_type,
+          patient_name: appointment.patient_name,
+          name: appointment.patient_name, // Map patient_name to name for column consistency
+          provider: appointment.provider,
+          category: appointment.category,
+          facility: appointment.facility,
+          // Create combined time field for better display
+          time_range: `${appointment.formatted_start_time} - ${appointment.formatted_end_time}`,
+        })
+      );
+
+      setTasks(transformedTasks);
+
+      // Use columns from API response with capitalized labels, plus some custom ones
+      const apiColumns = response.data.columns.map((column) => ({
+        ...column,
+        label: capitalizeLabel(column.label),
+      }));
+
+      // Add custom columns for better display
+      const enhancedColumns: ApiColumn[] = [
+        { key: "pc_eventDate", label: "Date" },
+        { key: "time_range", label: "Time" },
+        { key: "appointment_type", label: "Type" },
+        { key: "recurrence_type", label: "Recurrence" },
+        { key: "name", label: "Person" },
+        { key: "provider", label: "Provider" },
+        { key: "category", label: "Category" },
+        { key: "facility", label: "Program" },
+      ];
+
+      setColumns(enhancedColumns);
+    } catch (err) {
+      console.error("Failed to fetch agenda data:", err);
+      setError("Failed to load agenda data");
+      setTasks([]);
+      setColumns([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch data based on active tab
   useEffect(() => {
     if (activeTab === "reminders") {
       fetchRemindersData();
     } else if (activeTab === "birthdays") {
       fetchBirthdayData();
+    } else if (activeTab === "agenda") {
+      fetchAgendaData();
     }
   }, [activeTab]);
 
@@ -240,6 +368,17 @@ export const TaskManagementContainer: React.FC<
     setIsExpanded(!isExpanded);
   };
 
+  // Function to retry fetching data based on active tab
+  const retryFetch = () => {
+    if (activeTab === "reminders") {
+      fetchRemindersData();
+    } else if (activeTab === "birthdays") {
+      fetchBirthdayData();
+    } else if (activeTab === "agenda") {
+      fetchAgendaData();
+    }
+  };
+
   if (loading) {
     return (
       <div className="w-full bg-gray-50 p-4">
@@ -273,13 +412,7 @@ export const TaskManagementContainer: React.FC<
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
               <span>{error}</span>
               <button
-                onClick={() => {
-                  if (activeTab === "reminders") {
-                    fetchRemindersData();
-                  } else {
-                    fetchBirthdayData();
-                  }
-                }}
+                onClick={retryFetch}
                 className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
               >
                 Retry

@@ -33,7 +33,7 @@ const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
     <div
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border hover:bg-gray-50 text-sm h-6 ${getPriorityStyles(priority)}`}
     >
-      {priority?.charAt(0).toUpperCase() + priority?.slice(1) || "Unknown"}
+      {priority?.charAt(0).toUpperCase() + priority?.slice(1) || ""}
     </div>
   );
 };
@@ -58,7 +58,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
       case "in-progress":
         return "In Progress";
       default:
-        return status?.charAt(0).toUpperCase() + status?.slice(1) || "Unknown";
+        return status?.charAt(0).toUpperCase() + status?.slice(1) || "";
     }
   };
 
@@ -71,26 +71,21 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
-// Person/User Icon Component
-const PersonWithIcon: React.FC<{ name: string }> = ({ name }) => (
-  <div className="flex items-center text-sm text-gray-600">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth="1.5"
-      stroke="currentColor"
-      className="h-5 w-5 mr-2 text-gray-600"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-      />
-    </svg>
-    {name || "Unknown"}
-  </div>
-);
+// Person/User Icon Component with Avatar Circle
+const PersonWithIcon: React.FC<{ name: string }> = ({ name }) => {
+  const getInitial = (name: string) => {
+    return name?.charAt(0)?.toUpperCase() || "?";
+  };
+
+  return (
+    <div className="flex items-center">
+      <div className="w-6 h-6 rounded-full bg-gray-100 mr-2 flex items-center justify-center text-xs text-gray-600">
+        {name ? getInitial(name) : ""}
+      </div>
+      <span className="text-sm text-gray-900">{name || ""}</span>
+    </div>
+  );
+};
 
 // Due Date with Clock Icon
 const DueDateWithIcon: React.FC<{ dueDate: string }> = ({ dueDate }) => (
@@ -101,7 +96,7 @@ const DueDateWithIcon: React.FC<{ dueDate: string }> = ({ dueDate }) => (
       viewBox="0 0 24 24"
       strokeWidth="1.5"
       stroke="currentColor"
-      className="h-5 w-5 mr-2 text-gray-500"
+      className="h-4 w-4 mr-2 text-gray-500"
     >
       <path
         strokeLinecap="round"
@@ -113,8 +108,8 @@ const DueDateWithIcon: React.FC<{ dueDate: string }> = ({ dueDate }) => (
   </div>
 );
 
-// Actions Component
-const ActionsCell: React.FC<{
+// Actions Component for Reminders (Reply button + Complete checkbox)
+const RemindersActionsCell: React.FC<{
   taskId: string;
   onReply: (id: string) => void;
   onComplete: (id: string) => void;
@@ -128,7 +123,7 @@ const ActionsCell: React.FC<{
       Reply
     </button>
     <button
-      className="text-gray-400 hover:text-gray-600 p-2 rounded-sm hover:bg-gray-50"
+      className="text-gray-400 hover:text-gray-600 p-1 rounded-sm hover:bg-gray-50"
       onClick={() => onComplete(taskId)}
       title="Complete task"
     >
@@ -138,12 +133,93 @@ const ActionsCell: React.FC<{
         viewBox="0 0 24 24"
         strokeWidth="1.5"
         stroke="currentColor"
-        className="h-6 w-6 text-green-500 hover:text-green-600"
+        className="h-5 w-5 text-green-500 hover:text-green-600"
       >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+    </button>
+  </div>
+);
+
+// Actions Component for Agenda (View, Edit, Delete icons)
+const AgendaActionsCell: React.FC<{
+  taskId: string;
+  onView?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}> = ({ taskId, onView, onEdit, onDelete }) => (
+  <div className="flex gap-1 items-center justify-center">
+    {/* View Icon */}
+    <button
+      className="text-gray-400 hover:text-blue-600 p-1 rounded hover:bg-blue-50 transition-colors"
+      onClick={() => onView?.(taskId)}
+      title="View appointment"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth="1.5"
+        stroke="currentColor"
+        className="h-4 w-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+        />
+      </svg>
+    </button>
+
+    {/* Edit Icon */}
+    <button
+      className="text-gray-400 hover:text-green-600 p-1 rounded hover:bg-green-50 transition-colors"
+      onClick={() => onEdit?.(taskId)}
+      title="Edit appointment"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth="1.5"
+        stroke="currentColor"
+        className="h-4 w-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+        />
+      </svg>
+    </button>
+
+    {/* Delete Icon */}
+    <button
+      className="text-gray-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
+      onClick={() => onDelete?.(taskId)}
+      title="Delete appointment"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth="1.5"
+        stroke="currentColor"
+        className="h-4 w-4"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
         />
       </svg>
     </button>
@@ -207,31 +283,48 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
     return Math.max(120, Math.floor(baseWidth * scaleFactor));
   };
 
+  // Placeholder functions for agenda actions
+  const handleView = (taskId: string) => {
+    console.log("View appointment:", taskId);
+    // TODO: Implement view functionality
+  };
+
+  const handleEdit = (taskId: string) => {
+    console.log("Edit appointment:", taskId);
+    // TODO: Implement edit functionality
+  };
+
+  const handleDelete = (taskId: string) => {
+    console.log("Delete appointment:", taskId);
+    // TODO: Implement delete functionality
+  };
+
   const columnDefs = useMemo((): ColDef[] => {
-    // Base columns that always exist
+    // Base columns that always exist for reminders and agenda (not birthdays)
     let baseColumns: ColDef[] = [];
-    baseColumns = [
-      {
-        field: "checkbox",
-        headerName: "",
-        width: 50,
-        minWidth: 50,
-        maxWidth: 50,
-        checkboxSelection: true,
-        headerCheckboxSelection: true,
-        pinned: "left",
-        sortable: false,
-        filter: false,
-        resizable: false,
-        suppressSizeToFit: true,
-      },
-    ];
-    if (activeTab == "birthdays") {
-      baseColumns = [];
+
+    // Only add checkbox column for reminders and agenda, not birthdays
+    if (activeTab !== "birthdays") {
+      baseColumns = [
+        {
+          field: "checkbox",
+          headerName: "",
+          width: 50,
+          minWidth: 50,
+          maxWidth: 50,
+          checkboxSelection: true,
+          headerCheckboxSelection: true,
+          pinned: "left",
+          sortable: false,
+          filter: false,
+          resizable: false,
+          suppressSizeToFit: true,
+        },
+      ];
     }
 
     // For reminders data, use custom cell renderers with fixed widths
-    if (isRemindersData) {
+    if (isRemindersData && activeTab === "reminders") {
       const reminderColumns: ColDef[] = [
         {
           field: "title",
@@ -299,7 +392,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
           minWidth: 130,
           maxWidth: 130,
           cellRenderer: (params: any) => (
-            <ActionsCell
+            <RemindersActionsCell
               taskId={params.data.id}
               onReply={onReply}
               onComplete={onComplete}
@@ -315,7 +408,55 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       return [...baseColumns, ...reminderColumns];
     }
 
-    // For birthday data or other data, use dynamic columns from API
+    // For agenda data, create columns with special handling for Person column
+    if (activeTab === "agenda") {
+      const agendaColumns: ColDef[] = columns.map((column) => {
+        // Special handling for Person column to show avatar
+        if (column.key === "name" || column.key === "patient_name") {
+          return {
+            field: column.key,
+            headerName: column.label,
+            width: getColumnWidth(180),
+            minWidth: 150,
+            cellRenderer: (params: any) => (
+              <PersonWithIcon name={params.value} />
+            ),
+          };
+        }
+
+        return {
+          field: column.key,
+          headerName: column.label,
+          width: getColumnWidth(150),
+          minWidth: 120,
+        };
+      });
+
+      // Add actions column for agenda
+      const actionsColumn: ColDef = {
+        field: "actions",
+        headerName: "Actions",
+        width: 110,
+        minWidth: 110,
+        maxWidth: 110,
+        cellRenderer: (params: any) => (
+          <AgendaActionsCell
+            taskId={params.data.id}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ),
+        sortable: false,
+        filter: false,
+        pinned: "right",
+        suppressSizeToFit: true,
+      };
+
+      return [...baseColumns, ...agendaColumns, actionsColumn];
+    }
+
+    // For birthday data, use dynamic columns from API WITHOUT actions column
     const dynamicColumns: ColDef[] = columns.map((column) => ({
       field: column.key,
       headerName: column.label,
@@ -323,39 +464,22 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       minWidth: 120,
     }));
 
-    const actionsColumn: ColDef = {
-      field: "actions",
-      headerName: "Actions",
-      width: 130,
-      minWidth: 130,
-      maxWidth: 130,
-      cellRenderer: (params: any) => (
-        <ActionsCell
-          taskId={params.data.id}
-          onReply={onReply}
-          onComplete={onComplete}
-        />
-      ),
-      sortable: false,
-      filter: false,
-      pinned: "right",
-      suppressSizeToFit: true,
-    };
-
-    return [...baseColumns, ...dynamicColumns, actionsColumn];
-  }, [columns, onReply, onComplete, isRemindersData, panelWidth]);
+    // No actions column for birthdays
+    return [...baseColumns, ...dynamicColumns];
+  }, [columns, onReply, onComplete, isRemindersData, panelWidth, activeTab]);
 
   const defaultColDef = useMemo(
-    () => ({
-      sortable: true,
-      filter: true,
-      resizable: true,
-      suppressSizeToFit: false,
-      wrapText: false,
-      autoHeight: false,
-    }),
-    []
-  );
+  () => ({
+    sortable: true,
+    filter: true,
+    resizable: true,
+    suppressSizeToFit: false,
+    wrapText: false,
+    autoHeight: false,
+    cellClass: 'text-left', // ADD THIS LINE
+  }),
+  []
+);
 
   const onGridReady = (params: GridReadyEvent) => {
     setGridApi(params.api);

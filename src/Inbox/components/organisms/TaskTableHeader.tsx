@@ -33,6 +33,12 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
       icon: "calendar" as const,
       active: activeTab === "birthdays",
     },
+    {
+      id: "agenda",
+      label: "Agenda",
+      icon: "calendar" as const,
+      active: activeTab === "agenda",
+    },
   ];
 
   return (

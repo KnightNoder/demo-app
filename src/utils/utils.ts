@@ -193,3 +193,11 @@ export const formatDueDate = (dateString: string): string => {
     return dateString; // Return original string if parsing fails
   }
 };
+
+export const capitalizeLabel = (label: string): string => {
+  return label
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+};
+
