@@ -22,6 +22,7 @@ export interface ExtendedTask {
 export interface ApiColumn {
   key: string;
   label: string;
+  cellRenderer?: React.ComponentType<any>; // Add cellRenderer support
 }
 
 // Interface for birthday data from API
@@ -99,10 +100,10 @@ const capitalizeLabel = (label: string): string => {
 const formatDateForDisplay = (dateString: string): string => {
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   } catch {
     return dateString;
@@ -110,16 +111,43 @@ const formatDateForDisplay = (dateString: string): string => {
 };
 
 // Function to get priority based on appointment type or recurrence
-const getAppointmentPriority = (appointmentType: string, recurrenceType: string): "high" | "medium" | "low" => {
-  if (appointmentType?.toLowerCase() === 'patient') return 'high';
-  if (recurrenceType?.toLowerCase() === 'repeat') return 'medium';
-  return 'low';
+const getAppointmentPriority = (
+  appointmentType: string,
+  recurrenceType: string
+): "high" | "medium" | "low" => {
+  if (appointmentType?.toLowerCase() === "patient") return "high";
+  if (recurrenceType?.toLowerCase() === "repeat") return "medium";
+  return "low";
 };
 
-export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = ({
-  onReply,
-  onComplete,
-}) => {
+const RecurrenceCellRenderer: React.FC<{ value: string }> = ({ value }) => {
+  const isRepeat = value?.toLowerCase() === "repeat";
+
+  return (
+    <div className="flex items-center gap-1">
+      <span>{value}</span>
+      {isRepeat && (
+        <svg
+          className="w-4 h-4 text-blue-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      )}
+    </div>
+  );
+};
+
+export const TaskManagementContainer: React.FC<
+  TaskManagementContainerProps
+> = ({ onReply, onComplete }) => {
   const [searchValue, setSearchValue] = useState("");
   const [activeTab, setActiveTab] = useState("reminders"); // Default to reminders
   const [isExpanded, setIsExpanded] = useState(true);
@@ -276,7 +304,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           formatted_start_time: appointment.formatted_start_time,
           formatted_end_time: appointment.formatted_end_time,
           appointment_type: appointment.appointment_type,
-          recurrence_type: appointment.recurrence_type,
+          recurrence_type: appointment.recurrence_type, // Keep as string
           patient_name: appointment.patient_name,
           name: appointment.patient_name, // Map patient_name to name for column consistency
           provider: appointment.provider,
@@ -289,12 +317,16 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
 
       setTasks(transformedTasks);
 
-      // Add custom columns for better display
+      // Add custom columns for better display with custom cell renderer for recurrence
       const enhancedColumns: ApiColumn[] = [
         { key: "pc_eventDate", label: "Date" },
         { key: "time_range", label: "Time" },
         { key: "appointment_type", label: "Type" },
-        { key: "recurrence_type", label: "Recurrence" },
+        {
+          key: "recurrence_type",
+          label: "Recurrence",
+          cellRenderer: RecurrenceCellRenderer, // Add custom cell renderer
+        },
         { key: "name", label: "Person" },
         { key: "provider", label: "Provider" },
         { key: "category", label: "Category" },
@@ -375,24 +407,10 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full bg-gray-50 p-4">
-        <div className="w-full mx-auto">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p>Loading {activeTab}...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full bg-gray-50 p-4">
       <div className="w-full mx-auto bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in">
+        {/* TaskTableHeader should never show loading - it's just UI controls */}
         <TaskTableHeader
           searchValue={searchValue}
           onSearchChange={handleSearchChange}
@@ -403,8 +421,21 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           onToggleExpanded={handleToggleExpanded}
         />
 
-        {error && (
-          <div className="w-full mb-4">
+        {/* Show loading state only when data is being fetched */}
+        {loading && (
+          <div className="w-full">
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p>Loading {activeTab}...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Show error state when there's an error */}
+        {error && !loading && (
+          <div className="w-full mb-4 p-4">
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
               <span>{error}</span>
               <button
@@ -417,7 +448,8 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           </div>
         )}
 
-        {isExpanded && (
+        {/* Show content only when not loading and expanded */}
+        {isExpanded && !loading && (
           <>
             <AGGridTable
               tasks={filteredTasks}

@@ -14,6 +14,32 @@ interface AGGridTableProps {
   panelWidth?: number;
 }
 
+// RecurrenceCellRenderer - moved here to ensure proper usage
+const RecurrenceCellRenderer: React.FC<{ value: string }> = ({ value }) => {
+  const isRepeat = value?.toLowerCase() === "repeat";
+
+  return (
+    <div className="flex items-center gap-1">
+      <span>{value}</span>
+      {isRepeat && (
+        <svg
+          className="w-4 h-4 text-blue-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      )}
+    </div>
+  );
+};
+
 // Priority Badge Component
 const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
   const getPriorityStyles = (priority: string) => {
@@ -77,12 +103,17 @@ const PersonWithIcon: React.FC<{ name: string }> = ({ name }) => {
     return name?.charAt(0)?.toUpperCase() || "?";
   };
 
+  // If no name, don't show the icon or anything
+  if (!name || name.trim() === "") {
+    return <span className="text-sm text-gray-400">-</span>;
+  }
+
   return (
     <div className="flex items-center">
       <div className="w-6 h-6 rounded-full bg-gray-100 mr-2 flex items-center justify-center text-xs text-gray-600">
-        {name ? getInitial(name) : ""}
+        {getInitial(name)}
       </div>
-      <span className="text-sm text-gray-900">{name || ""}</span>
+      <span className="text-sm text-gray-900">{name}</span>
     </div>
   );
 };
@@ -411,7 +442,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       return [...baseColumns, ...reminderColumns];
     }
 
-    // For agenda data, create columns with special handling for Person column
+    // For agenda data, create columns with special handling for Person column and Recurrence column
     if (activeTab === "agenda") {
       const agendaColumns: ColDef[] = columns.map((column) => {
         // Special handling for Person column to show avatar
@@ -423,6 +454,19 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
             minWidth: 150,
             cellRenderer: (params: any) => (
               <PersonWithIcon name={params.value} />
+            ),
+          };
+        }
+
+        // Special handling for Recurrence column to show icon
+        if (column.key === "recurrence_type") {
+          return {
+            field: column.key,
+            headerName: column.label,
+            width: getColumnWidth(150),
+            minWidth: 120,
+            cellRenderer: (params: any) => (
+              <RecurrenceCellRenderer value={params.value} />
             ),
           };
         }
