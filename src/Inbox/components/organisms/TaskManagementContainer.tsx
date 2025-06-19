@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { TaskTableHeader } from "./TaskTableHeader";
 import { AGGridTable } from "./AGGridTable";
 import { MobileTaskList } from "./MobileTaskList";
@@ -155,6 +155,9 @@ export const TaskManagementContainer: React.FC<
   const [columns, setColumns] = useState<ApiColumn[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Ref for AG Grid to access export functionality
+  const gridRef = useRef<any>(null);
 
   // Fetch reminders/tasks data
   const fetchRemindersData = async () => {
@@ -396,6 +399,33 @@ export const TaskManagementContainer: React.FC<
     setIsExpanded(!isExpanded);
   };
 
+  // CSV Export handler
+  const handleExportCSV = () => {
+    if (gridRef.current && gridRef.current.api) {
+      const currentDate = new Date().toISOString().split("T")[0];
+      const filename = `${activeTab}_${currentDate}.csv`;
+
+      gridRef.current.api.exportDataAsCsv({
+        fileName: filename,
+        columnSeparator: ",",
+        suppressQuotes: false,
+        allColumns: false, // Only export visible columns
+        onlySelected: false, // Export all data, not just selected rows
+        skipFooters: true,
+        skipGroups: true,
+        skipHeader: false,
+        processCellCallback: (params: any) => {
+          // Clean up cell values for CSV export
+          if (params.value === null || params.value === undefined) {
+            return "";
+          }
+          // Convert any complex values to strings
+          return String(params.value);
+        },
+      });
+    }
+  };
+
   // Function to retry fetching data based on active tab
   const retryFetch = () => {
     if (activeTab === "reminders") {
@@ -415,6 +445,7 @@ export const TaskManagementContainer: React.FC<
           searchValue={searchValue}
           onSearchChange={handleSearchChange}
           onFiltersClick={handleFiltersClick}
+          onExportCSV={handleExportCSV}
           activeTab={activeTab}
           onTabChange={handleTabChange}
           isExpanded={isExpanded}
@@ -452,6 +483,7 @@ export const TaskManagementContainer: React.FC<
         {isExpanded && !loading && (
           <>
             <AGGridTable
+              ref={gridRef}
               tasks={filteredTasks}
               columns={columns}
               onReply={onReply}

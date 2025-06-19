@@ -1,4 +1,11 @@
-import React, { useMemo, useEffect, useRef, useState } from "react";
+import React, {
+  useMemo,
+  useEffect,
+  useRef,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridReadyEvent, GridApi } from "ag-grid-community";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
@@ -288,341 +295,357 @@ const DescriptionCell: React.FC<{ description: string }> = ({
   </div>
 );
 
-export const AGGridTable: React.FC<AGGridTableProps> = ({
-  tasks,
-  columns,
-  onReply,
-  onComplete,
-  activeTab = "reminders",
-  isPanelReady = true,
-  panelWidth,
-}) => {
-  const gridRef = useRef<AgGridReact>(null);
-  const [gridApi, setGridApi] = useState<GridApi | null>(null);
-  const [containerHeight, setContainerHeight] = useState(600);
+export const AGGridTable = forwardRef<any, AGGridTableProps>(
+  (
+    {
+      tasks,
+      columns,
+      onReply,
+      onComplete,
+      activeTab = "reminders",
+      isPanelReady = true,
+      panelWidth,
+    },
+    ref
+  ) => {
+    const gridRef = useRef<AgGridReact>(null);
+    const [gridApi, setGridApi] = useState<GridApi | null>(null);
+    const [containerHeight, setContainerHeight] = useState(600);
 
-  // Check if we're dealing with reminders/urgent tasks (has subject/message columns) or birthdays
-  const isRemindersData = columns.some(
-    (col) => col.key === "subject" || col.key === "message"
-  );
+    // Expose the grid API to parent component
+    useImperativeHandle(ref, () => ({
+      api: gridApi,
+    }));
 
-  // Check if this is urgent tasks data (high/medium/low priority reminders)
-  const isUrgentTasksData = isRemindersData && activeTab === "reminders";
+    // Check if we're dealing with reminders/urgent tasks (has subject/message columns) or birthdays
+    const isRemindersData = columns.some(
+      (col) => col.key === "subject" || col.key === "message"
+    );
 
-  // Calculate dynamic column widths based on panel width
-  const getColumnWidth = (baseWidth: number) => {
-    if (!panelWidth) return baseWidth;
-    const availableWidth = panelWidth - 100; // Account for padding and scrollbar
-    const scaleFactor = Math.max(0.8, Math.min(1.2, availableWidth / 1200)); // Scale between 80% and 120%
-    return Math.max(120, Math.floor(baseWidth * scaleFactor));
-  };
+    // Check if this is urgent tasks data (high/medium/low priority reminders)
+    const isUrgentTasksData = isRemindersData && activeTab === "reminders";
 
-  // Placeholder functions for agenda actions
-  const handleView = (taskId: string) => {
-    console.log("View appointment:", taskId);
-    // TODO: Implement view functionality
-  };
+    // Calculate dynamic column widths based on panel width
+    const getColumnWidth = (baseWidth: number) => {
+      if (!panelWidth) return baseWidth;
+      const availableWidth = panelWidth - 100; // Account for padding and scrollbar
+      const scaleFactor = Math.max(0.8, Math.min(1.2, availableWidth / 1200)); // Scale between 80% and 120%
+      return Math.max(120, Math.floor(baseWidth * scaleFactor));
+    };
 
-  const handleEdit = (taskId: string) => {
-    console.log("Edit appointment:", taskId);
-    // TODO: Implement edit functionality
-  };
+    // Placeholder functions for agenda actions
+    const handleView = (taskId: string) => {
+      console.log("View appointment:", taskId);
+      // TODO: Implement view functionality
+    };
 
-  const handleDelete = (taskId: string) => {
-    console.log("Delete appointment:", taskId);
-    // TODO: Implement delete functionality
-  };
+    const handleEdit = (taskId: string) => {
+      console.log("Edit appointment:", taskId);
+      // TODO: Implement edit functionality
+    };
 
-  const columnDefs = useMemo((): ColDef[] => {
-    // Base columns that always exist for reminders and agenda (not birthdays)
-    let baseColumns: ColDef[] = [];
+    const handleDelete = (taskId: string) => {
+      console.log("Delete appointment:", taskId);
+      // TODO: Implement delete functionality
+    };
 
-    // Only add checkbox column for reminders, urgent tasks, and agenda, not birthdays
-    if (activeTab !== "birthdays") {
-      baseColumns = [
-        {
-          field: "checkbox",
-          headerName: "",
-          width: 50,
-          minWidth: 50,
-          maxWidth: 50,
-          checkboxSelection: true,
-          headerCheckboxSelection: true,
-          pinned: "left",
-          sortable: false,
-          filter: false,
-          resizable: false,
-          suppressSizeToFit: true,
-        },
-      ];
-    }
+    const columnDefs = useMemo((): ColDef[] => {
+      // Base columns that always exist for reminders and agenda (not birthdays)
+      let baseColumns: ColDef[] = [];
 
-    // For reminders data AND urgent tasks data, use custom cell renderers with fixed widths
-    if ((isRemindersData && activeTab === "reminders") || isUrgentTasksData) {
-      const reminderColumns: ColDef[] = [
-        {
-          field: "title",
-          headerName: "Subject",
-          width: getColumnWidth(280),
-          minWidth: 200,
-          cellRenderer: (params: any) => <TitleCell title={params.value} />,
-          wrapText: false,
-          autoHeight: false,
-        },
-        {
-          field: "description",
-          headerName: "Message",
-          width: getColumnWidth(300),
-          minWidth: 250,
-          cellRenderer: (params: any) => (
-            <DescriptionCell description={params.value} />
-          ),
-          wrapText: false,
-          autoHeight: false,
-        },
-        {
-          field: "priority",
-          headerName: "Priority",
-          width: getColumnWidth(130),
-          minWidth: 120,
-          cellRenderer: (params: any) => (
-            <PriorityBadge priority={params.value} />
-          ),
-        },
-        {
-          field: "dueDate",
-          headerName: "Due",
-          width: getColumnWidth(180),
-          minWidth: 150,
-          cellRenderer: (params: any) => (
-            <DueDateWithIcon dueDate={formatDueDate(params.value)} />
-          ),
-        },
-        {
-          field: "status",
-          headerName: "Status",
-          width: getColumnWidth(130),
-          minWidth: 120,
-          cellRenderer: (params: any) => <StatusBadge status={params.value} />,
-        },
-        {
-          field: "assignedTo",
-          headerName: "Received from",
-          width: getColumnWidth(180),
-          minWidth: 150,
-          cellRenderer: (params: any) => <PersonWithIcon name={params.value} />,
-        },
-        {
-          field: "person",
-          headerName: "Person",
-          width: getColumnWidth(180),
-          minWidth: 150,
-          cellRenderer: (params: any) => <PersonWithIcon name={params.value} />,
-        },
-        {
+      // Only add checkbox column for reminders, urgent tasks, and agenda, not birthdays
+      if (activeTab !== "birthdays") {
+        baseColumns = [
+          {
+            field: "checkbox",
+            headerName: "",
+            width: 50,
+            minWidth: 50,
+            maxWidth: 50,
+            checkboxSelection: true,
+            headerCheckboxSelection: true,
+            pinned: "left",
+            sortable: false,
+            filter: false,
+            resizable: false,
+            suppressSizeToFit: true,
+          },
+        ];
+      }
+
+      // For reminders data AND urgent tasks data, use custom cell renderers with fixed widths
+      if ((isRemindersData && activeTab === "reminders") || isUrgentTasksData) {
+        const reminderColumns: ColDef[] = [
+          {
+            field: "title",
+            headerName: "Subject",
+            width: getColumnWidth(280),
+            minWidth: 200,
+            cellRenderer: (params: any) => <TitleCell title={params.value} />,
+            wrapText: false,
+            autoHeight: false,
+          },
+          {
+            field: "description",
+            headerName: "Message",
+            width: getColumnWidth(300),
+            minWidth: 250,
+            cellRenderer: (params: any) => (
+              <DescriptionCell description={params.value} />
+            ),
+            wrapText: false,
+            autoHeight: false,
+          },
+          {
+            field: "priority",
+            headerName: "Priority",
+            width: getColumnWidth(130),
+            minWidth: 120,
+            cellRenderer: (params: any) => (
+              <PriorityBadge priority={params.value} />
+            ),
+          },
+          {
+            field: "dueDate",
+            headerName: "Due",
+            width: getColumnWidth(180),
+            minWidth: 150,
+            cellRenderer: (params: any) => (
+              <DueDateWithIcon dueDate={formatDueDate(params.value)} />
+            ),
+          },
+          {
+            field: "status",
+            headerName: "Status",
+            width: getColumnWidth(130),
+            minWidth: 120,
+            cellRenderer: (params: any) => (
+              <StatusBadge status={params.value} />
+            ),
+          },
+          {
+            field: "assignedTo",
+            headerName: "Received from",
+            width: getColumnWidth(180),
+            minWidth: 150,
+            cellRenderer: (params: any) => (
+              <PersonWithIcon name={params.value} />
+            ),
+          },
+          {
+            field: "person",
+            headerName: "Person",
+            width: getColumnWidth(180),
+            minWidth: 150,
+            cellRenderer: (params: any) => (
+              <PersonWithIcon name={params.value} />
+            ),
+          },
+          {
+            field: "actions",
+            headerName: "Actions",
+            width: 130,
+            minWidth: 130,
+            maxWidth: 130,
+            cellRenderer: (params: any) => (
+              <RemindersActionsCell
+                taskId={params.data.id}
+                onReply={onReply}
+                onComplete={onComplete}
+              />
+            ),
+            sortable: false,
+            filter: false,
+            pinned: "right",
+            suppressSizeToFit: true,
+          },
+        ];
+
+        return [...baseColumns, ...reminderColumns];
+      }
+
+      // For agenda data, create columns with special handling for Person column and Recurrence column
+      if (activeTab === "agenda") {
+        const agendaColumns: ColDef[] = columns.map((column) => {
+          // Special handling for Person column to show avatar
+          if (column.key === "name" || column.key === "patient_name") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(180),
+              minWidth: 150,
+              cellRenderer: (params: any) => (
+                <PersonWithIcon name={params.value} />
+              ),
+            };
+          }
+
+          // Special handling for Recurrence column to show icon
+          if (column.key === "recurrence_type") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(150),
+              minWidth: 120,
+              cellRenderer: (params: any) => (
+                <RecurrenceCellRenderer value={params.value} />
+              ),
+            };
+          }
+
+          return {
+            field: column.key,
+            headerName: column.label,
+            width: getColumnWidth(150),
+            minWidth: 120,
+          };
+        });
+
+        // Add actions column for agenda
+        const actionsColumn: ColDef = {
           field: "actions",
           headerName: "Actions",
-          width: 130,
-          minWidth: 130,
-          maxWidth: 130,
+          width: 110,
+          minWidth: 110,
+          maxWidth: 110,
           cellRenderer: (params: any) => (
-            <RemindersActionsCell
+            <AgendaActionsCell
               taskId={params.data.id}
-              onReply={onReply}
-              onComplete={onComplete}
+              onView={handleView}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           ),
           sortable: false,
           filter: false,
           pinned: "right",
           suppressSizeToFit: true,
-        },
-      ];
-
-      return [...baseColumns, ...reminderColumns];
-    }
-
-    // For agenda data, create columns with special handling for Person column and Recurrence column
-    if (activeTab === "agenda") {
-      const agendaColumns: ColDef[] = columns.map((column) => {
-        // Special handling for Person column to show avatar
-        if (column.key === "name" || column.key === "patient_name") {
-          return {
-            field: column.key,
-            headerName: column.label,
-            width: getColumnWidth(180),
-            minWidth: 150,
-            cellRenderer: (params: any) => (
-              <PersonWithIcon name={params.value} />
-            ),
-          };
-        }
-
-        // Special handling for Recurrence column to show icon
-        if (column.key === "recurrence_type") {
-          return {
-            field: column.key,
-            headerName: column.label,
-            width: getColumnWidth(150),
-            minWidth: 120,
-            cellRenderer: (params: any) => (
-              <RecurrenceCellRenderer value={params.value} />
-            ),
-          };
-        }
-
-        return {
-          field: column.key,
-          headerName: column.label,
-          width: getColumnWidth(150),
-          minWidth: 120,
         };
-      });
 
-      // Add actions column for agenda
-      const actionsColumn: ColDef = {
-        field: "actions",
-        headerName: "Actions",
-        width: 110,
-        minWidth: 110,
-        maxWidth: 110,
-        cellRenderer: (params: any) => (
-          <AgendaActionsCell
-            taskId={params.data.id}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ),
-        sortable: false,
-        filter: false,
-        pinned: "right",
-        suppressSizeToFit: true,
-      };
-
-      return [...baseColumns, ...agendaColumns, actionsColumn];
-    }
-
-    // For birthday data, use dynamic columns from API WITHOUT actions column
-    const dynamicColumns: ColDef[] = columns.map((column) => ({
-      field: column.key,
-      headerName: column.label,
-      width: getColumnWidth(150),
-      minWidth: 120,
-    }));
-
-    // No actions column for birthdays
-    return [...baseColumns, ...dynamicColumns];
-  }, [
-    columns,
-    onReply,
-    onComplete,
-    isRemindersData,
-    isUrgentTasksData,
-    panelWidth,
-    activeTab,
-  ]);
-
-  const defaultColDef = useMemo(
-    () => ({
-      sortable: true,
-      filter: true,
-      resizable: true,
-      suppressSizeToFit: false,
-      wrapText: false,
-      autoHeight: false,
-    }),
-    []
-  );
-
-  const onGridReady = (params: GridReadyEvent) => {
-    setGridApi(params.api);
-
-    // Delay sizing to ensure panel is ready
-    setTimeout(() => {
-      if (params.api && isPanelReady) {
-        params.api.sizeColumnsToFit();
+        return [...baseColumns, ...agendaColumns, actionsColumn];
       }
-    }, 150);
-  };
 
-  // Handle panel width changes and resize grid
-  useEffect(() => {
-    if (gridApi && isPanelReady && panelWidth) {
-      const timer = setTimeout(() => {
-        gridApi.sizeColumnsToFit();
-      }, 100);
+      // For birthday data, use dynamic columns from API WITHOUT actions column
+      const dynamicColumns: ColDef[] = columns.map((column) => ({
+        field: column.key,
+        headerName: column.label,
+        width: getColumnWidth(150),
+        minWidth: 120,
+      }));
 
-      return () => clearTimeout(timer);
-    }
-  }, [gridApi, isPanelReady, panelWidth]);
+      // No actions column for birthdays
+      return [...baseColumns, ...dynamicColumns];
+    }, [
+      columns,
+      onReply,
+      onComplete,
+      isRemindersData,
+      isUrgentTasksData,
+      panelWidth,
+      activeTab,
+    ]);
 
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (gridApi && isPanelReady) {
-        setTimeout(() => {
+    const defaultColDef = useMemo(
+      () => ({
+        sortable: true,
+        filter: true,
+        resizable: true,
+        suppressSizeToFit: false,
+        wrapText: false,
+        autoHeight: false,
+      }),
+      []
+    );
+
+    const onGridReady = (params: GridReadyEvent) => {
+      setGridApi(params.api);
+
+      // Delay sizing to ensure panel is ready
+      setTimeout(() => {
+        if (params.api && isPanelReady) {
+          params.api.sizeColumnsToFit();
+        }
+      }, 150);
+    };
+
+    // Handle panel width changes and resize grid
+    useEffect(() => {
+      if (gridApi && isPanelReady && panelWidth) {
+        const timer = setTimeout(() => {
           gridApi.sizeColumnsToFit();
         }, 100);
+
+        return () => clearTimeout(timer);
       }
-    };
+    }, [gridApi, isPanelReady, panelWidth]);
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [gridApi, isPanelReady]);
+    // Handle window resize
+    useEffect(() => {
+      const handleResize = () => {
+        if (gridApi && isPanelReady) {
+          setTimeout(() => {
+            gridApi.sizeColumnsToFit();
+          }, 100);
+        }
+      };
 
-  // Calculate container height based on available space
-  useEffect(() => {
-    const calculateHeight = () => {
-      const headerHeight = 120; // Approximate header height
-      const availableHeight = window.innerHeight - headerHeight;
-      setContainerHeight(Math.max(400, availableHeight));
-    };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, [gridApi, isPanelReady]);
 
-    calculateHeight();
-    window.addEventListener("resize", calculateHeight);
-    return () => window.removeEventListener("resize", calculateHeight);
-  }, []);
+    // Calculate container height based on available space
+    useEffect(() => {
+      const calculateHeight = () => {
+        const headerHeight = 120; // Approximate header height
+        const availableHeight = window.innerHeight - headerHeight;
+        setContainerHeight(Math.max(400, availableHeight));
+      };
 
-  return (
-    <div
-      className="ag-theme-alpine w-full hidden md:block px-4"
-      style={{
-        height: `${containerHeight}px`,
-        transition: "opacity 0.2s ease-in-out",
-      }}
-    >
-      <AgGridReact
-        ref={gridRef}
-        rowData={tasks}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        onGridReady={onGridReady}
-        rowSelection="multiple"
-        suppressRowClickSelection={true}
-        pagination={true}
-        paginationPageSize={20}
-        headerHeight={40}
-        rowHeight={48}
-        animateRows={false}
-        suppressCellFocus={true}
-        suppressRowTransform={true}
-        suppressColumnVirtualisation={false}
-        suppressRowVirtualisation={false}
-        suppressLoadingOverlay={true}
-        suppressNoRowsOverlay={true}
-        rowClassRules={{
-          "ag-row-even": (params) => params.node.rowIndex! % 2 === 0,
-          "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
+      calculateHeight();
+      window.addEventListener("resize", calculateHeight);
+      return () => window.removeEventListener("resize", calculateHeight);
+    }, []);
+
+    return (
+      <div
+        className="ag-theme-alpine w-full hidden md:block px-4"
+        style={{
+          height: `${containerHeight}px`,
+          transition: "opacity 0.2s ease-in-out",
         }}
-        onFirstDataRendered={(params) => {
-          if (isPanelReady) {
-            setTimeout(() => {
-              params.api.sizeColumnsToFit();
-            }, 50);
-          }
-        }}
-      />
-    </div>
-  );
-};
+      >
+        <AgGridReact
+          ref={gridRef}
+          rowData={tasks}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          onGridReady={onGridReady}
+          rowSelection="multiple"
+          suppressRowClickSelection={true}
+          pagination={true}
+          paginationPageSize={20}
+          headerHeight={40}
+          rowHeight={48}
+          animateRows={false}
+          suppressCellFocus={true}
+          suppressRowTransform={true}
+          suppressColumnVirtualisation={false}
+          suppressRowVirtualisation={false}
+          suppressLoadingOverlay={true}
+          suppressNoRowsOverlay={true}
+          rowClassRules={{
+            "ag-row-even": (params) => params.node.rowIndex! % 2 === 0,
+            "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
+          }}
+          onFirstDataRendered={(params) => {
+            if (isPanelReady) {
+              setTimeout(() => {
+                params.api.sizeColumnsToFit();
+              }, 50);
+            }
+          }}
+        />
+      </div>
+    );
+  }
+);

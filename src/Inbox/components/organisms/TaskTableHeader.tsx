@@ -5,16 +5,49 @@ export interface TaskTableHeaderProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   onFiltersClick: () => void;
+  onExportCSV: () => void; // Added CSV export prop
   activeTab: string;
   onTabChange: (tabId: string) => void;
   isExpanded: boolean;
   onToggleExpanded: () => void;
 }
 
+// CSV Export Button Component
+const CSVExportButton: React.FC<{ onExportCSV: () => void }> = ({
+  onExportCSV,
+}) => {
+  return (
+    <button
+      onClick={onExportCSV}
+      className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:ring-[#00AAEE]/20 focus:border-[#00AAEE] transition-colors duration-200"
+      title="Export to CSV"
+    >
+      <div className="flex items-center gap-2">
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        <span>Export CSV</span>
+      </div>
+    </button>
+  );
+};
+
 export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
   searchValue,
   onSearchChange,
   onFiltersClick,
+  onExportCSV,
   activeTab,
   onTabChange,
   isExpanded,
@@ -100,7 +133,7 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
                   aria-haspopup="menu"
                   aria-expanded="false"
                   data-state="closed"
-                  className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+                  className="flex cursor-default select-none items-center rounded-lg border border-input px-4 py-2 text-sm font-medium outline-none data-[state=open]:bg-accent data-[state=open]:text-accent-foreground hover:bg-gray-50 hover:border-gray-400 focus:ring-2 focus:ring-[#00AAEE]/20 focus:border-[#00AAEE] transition-colors duration-200"
                   tabIndex={-1}
                   data-orientation="horizontal"
                   onClick={onFiltersClick}
@@ -109,6 +142,8 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
                     <span>Filters</span>
                   </div>
                 </button>
+
+                <CSVExportButton onExportCSV={onExportCSV} />
               </div>
             </div>
           </div>
