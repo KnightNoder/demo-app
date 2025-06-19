@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { LeftIcon, RightIcon } from "../../components/assets/Icons";
 
 // Task card configuration interface
@@ -34,7 +34,9 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
   onCardClick,
   scrollableContainers,
 }) => {
-  const scrollContainerRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const scrollContainerRefs = useRef<{ [key: string]: HTMLDivElement | null }>(
+    {}
+  );
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -77,16 +79,13 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
     return 220; // Desktop: full card width + gap
   };
 
-  const handleScrollLeft = (
-    e: React.MouseEvent,
-    containerSelector: string
-  ) => {
+  const handleScrollLeft = (e: React.MouseEvent, containerSelector: string) => {
     e.stopPropagation();
     const container = scrollContainerRefs.current[containerSelector];
     if (container) {
-      container.scrollBy({ 
-        left: -getScrollDistance(), 
-        behavior: "smooth" 
+      container.scrollBy({
+        left: -getScrollDistance(),
+        behavior: "smooth",
       });
     }
   };
@@ -98,16 +97,16 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
     e.stopPropagation();
     const container = scrollContainerRefs.current[containerSelector];
     if (container) {
-      container.scrollBy({ 
-        left: getScrollDistance(), 
-        behavior: "smooth" 
+      container.scrollBy({
+        left: getScrollDistance(),
+        behavior: "smooth",
       });
     }
   };
 
   // Handle card click with drag prevention
   const handleCardClick = (
-    cardTitle: string, 
+    cardTitle: string,
     cardConfig: TaskCardConfig,
     e: React.MouseEvent
   ) => {
@@ -123,14 +122,22 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
     <div className="space-y-3 md:space-y-4 lg:space-y-6">
       {swimLanes.map((lane) => {
         const isScrollable = scrollableContainers.has(lane.priority);
-        
+
         return (
-          <div key={lane.priority} data-swim-lane={lane.priority} className="px-2 sm:px-4">
+          <div
+            key={lane.priority}
+            data-swim-lane={lane.priority}
+            className="px-2 sm:px-4"
+          >
             {/* Lane Header */}
             <div className="mb-2 md:mb-3">
-              <h3 className={`text-sm sm:text-base lg:text-lg font-medium ${lane.textColor} flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2`}>
+              <h3
+                className={`text-sm sm:text-base lg:text-lg font-medium ${lane.textColor} flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2`}
+              >
                 <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${lane.dotColor}`}></div>
+                  <div
+                    className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${lane.dotColor}`}
+                  ></div>
                   <span>{lane.title}</span>
                 </div>
                 <span className="text-xs sm:text-sm text-gray-500 ml-3.5 sm:ml-0">
@@ -142,16 +149,18 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
             {/* Cards Container */}
             <div className="relative group">
               {/* Scrollable Cards Container */}
-              <div 
-                ref={(el) => {scrollContainerRefs.current[lane.priority] = el;}}
+              <div
+                ref={(el) => {
+                  scrollContainerRefs.current[lane.priority] = el;
+                }}
                 className="overflow-x-auto scrollbar-hide relative touch-pan-x"
                 onTouchStart={handleTouchStart}
                 onTouchMove={(e) => handleTouchMove(e, lane.priority)}
                 onTouchEnd={handleTouchEnd}
-                style={{ 
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none',
-                  WebkitOverflowScrolling: 'touch'
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  WebkitOverflowScrolling: "touch",
                 }}
               >
                 {/* Cards Grid/Flex Layout */}
@@ -168,7 +177,7 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
                         data-testid={card.testId}
                         onClick={(e) => handleCardClick(card.title, card, e)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             onCardClick(card.title, card);
                           }
@@ -176,17 +185,19 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
                       >
                         {/* Card Background Overlay */}
                         <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-white/70 pointer-events-none z-0 group-hover/card:bg-white/80 transition-colors duration-200"></div>
-                        
+
                         {/* Card Header */}
                         <div className="flex items-start gap-2 z-10 relative">
                           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <div className="text-gray-500 text-sm sm:text-base">{card.icon}</div>
+                            <div className="text-gray-500 text-sm sm:text-base">
+                              {card.icon}
+                            </div>
                           </div>
                           <span className="text-gray-800 font-medium text-xs sm:text-sm lg:text-base text-left line-clamp-2 leading-tight">
                             {card.title}
                           </span>
                         </div>
-                        
+
                         {/* Card Count */}
                         <div className="mt-2 sm:mt-3 flex justify-between items-end z-10 relative">
                           <div>

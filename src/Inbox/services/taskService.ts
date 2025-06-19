@@ -46,24 +46,26 @@ export const fetchUrgentTasksDataForPanel = async (
       },
     });
 
-    const transformedTasks = response.data.data.map((task: any, index: number) => ({
-      id: task.id?.toString() || index.toString(),
-      title: task.subject || "No Title",
-      description: task.message || "No Description",
-      assignedTo: task.received_from?.name || "System",
-      person: task.patient?.name || "",
-      dueDate: task.due_date || "Today",
-      priority: task.priority?.toLowerCase() || priority,
-      status: task.status?.toLowerCase() || "pending",
-      type: task.type || "Reminder",
-      subject: task.subject,
-      message: task.message,
-      start_date: task.start_date,
-      due_date: task.due_date,
-      received_from: task.received_from?.name,
-      patient: task.patient?.name,
-      patient_pid: task.patient?.pid,
-    }));
+    const transformedTasks = response.data.data.map(
+      (task: any, index: number) => ({
+        id: task.id?.toString() || index.toString(),
+        title: task.subject || "None",
+        description: task.message || "No Description",
+        assignedTo: task.received_from?.name || "System",
+        person: task.patient?.name || "",
+        dueDate: task.due_date || "Today",
+        priority: task.priority?.toLowerCase() || priority,
+        status: task.status?.toLowerCase() || "pending",
+        type: task.type || "Reminder",
+        subject: task.subject,
+        message: task.message,
+        start_date: task.start_date,
+        due_date: task.due_date,
+        received_from: task.received_from?.name,
+        patient: task.patient?.name,
+        patient_pid: task.patient?.pid,
+      })
+    );
 
     const columnDefinitions = [
       { key: "subject", label: "Subject" },

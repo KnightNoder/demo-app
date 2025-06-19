@@ -270,10 +270,13 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
   const [containerHeight, setContainerHeight] = useState(600);
 
-  // Check if we're dealing with reminders (has subject/message columns) or birthdays
+  // Check if we're dealing with reminders/urgent tasks (has subject/message columns) or birthdays
   const isRemindersData = columns.some(
     (col) => col.key === "subject" || col.key === "message"
   );
+
+  // Check if this is urgent tasks data (high/medium/low priority reminders)
+  const isUrgentTasksData = isRemindersData && activeTab === "reminders";
 
   // Calculate dynamic column widths based on panel width
   const getColumnWidth = (baseWidth: number) => {
@@ -303,7 +306,7 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
     // Base columns that always exist for reminders and agenda (not birthdays)
     let baseColumns: ColDef[] = [];
 
-    // Only add checkbox column for reminders and agenda, not birthdays
+    // Only add checkbox column for reminders, urgent tasks, and agenda, not birthdays
     if (activeTab !== "birthdays") {
       baseColumns = [
         {
@@ -323,8 +326,8 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
       ];
     }
 
-    // For reminders data, use custom cell renderers with fixed widths
-    if (isRemindersData && activeTab === "reminders") {
+    // For reminders data AND urgent tasks data, use custom cell renderers with fixed widths
+    if ((isRemindersData && activeTab === "reminders") || isUrgentTasksData) {
       const reminderColumns: ColDef[] = [
         {
           field: "title",
@@ -466,20 +469,27 @@ export const AGGridTable: React.FC<AGGridTableProps> = ({
 
     // No actions column for birthdays
     return [...baseColumns, ...dynamicColumns];
-  }, [columns, onReply, onComplete, isRemindersData, panelWidth, activeTab]);
+  }, [
+    columns,
+    onReply,
+    onComplete,
+    isRemindersData,
+    isUrgentTasksData,
+    panelWidth,
+    activeTab,
+  ]);
 
   const defaultColDef = useMemo(
-  () => ({
-    sortable: true,
-    filter: true,
-    resizable: true,
-    suppressSizeToFit: false,
-    wrapText: false,
-    autoHeight: false,
-    cellClass: 'text-left', // ADD THIS LINE
-  }),
-  []
-);
+    () => ({
+      sortable: true,
+      filter: true,
+      resizable: true,
+      suppressSizeToFit: false,
+      wrapText: false,
+      autoHeight: false,
+    }),
+    []
+  );
 
   const onGridReady = (params: GridReadyEvent) => {
     setGridApi(params.api);

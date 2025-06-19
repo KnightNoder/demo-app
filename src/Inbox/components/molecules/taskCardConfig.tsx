@@ -2,7 +2,11 @@
 import { PlayIcon, ReviewFormsIcon, PersonIcon, AgendaIcon } from "../assets/Icons";
 import { TaskCardConfig } from "../organisms/PrioritySwimLanes";
 
-export const getTaskCardsConfig = (urgentTaskCounts: { high: number; medium: number; low: number }, birthdayCount: number,agendaCount:number): TaskCardConfig[] => [
+export const getTaskCardsConfig = (
+  urgentTaskCounts: { high: number; medium: number; low: number },
+  birthdayCount: number,
+  agendaCount: number
+): TaskCardConfig[] => [
   {
     id: "urgent-tasks-high",
     title: "Urgent Tasks",
@@ -66,15 +70,15 @@ export const getTaskCardsConfig = (urgentTaskCounts: { high: number; medium: num
     priority: "medium",
     testId: "task-block-needs-review-medium",
   },
-  {
-    id: "all-reminders",
-    title: "All Reminders",
-    count: urgentTaskCounts.high + urgentTaskCounts.medium + urgentTaskCounts.low,
-    icon: <PlayIcon />,
-    variant: "normal",
-    priority: "medium",
-    testId: "task-block-suggested-actions",
-  },
+  // {
+  //   id: "all-reminders",
+  //   title: "All Reminders",
+  //   count: urgentTaskCounts.high + urgentTaskCounts.medium + urgentTaskCounts.low,
+  //   icon: <PlayIcon />,
+  //   variant: "normal",
+  //   priority: "medium",
+  //   testId: "task-block-suggested-actions",
+  // },
   {
     id: "assigned-to-me",
     title: "Assigned to Me",

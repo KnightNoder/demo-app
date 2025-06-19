@@ -59,7 +59,7 @@ const SortPopup: React.FC<SortPopupProps> = ({
     checked: boolean;
     onClick: () => void;
     children: React.ReactNode;
-  }> = ({ value, checked, onClick, children }) => (
+  }> = ({ checked, onClick, children }) => (
     <div
       role="menuitemradio"
       aria-checked={checked}

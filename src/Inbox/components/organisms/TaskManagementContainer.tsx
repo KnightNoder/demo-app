@@ -134,13 +134,15 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
       setLoading(true);
       setError(null);
 
-      const response = await axiosClient.get<TasksApiResponse>("/tasks");
+      const response = await axiosClient.get<TasksApiResponse>(
+        "/tasks?per_page=1000"
+      );
 
       // Transform response data to ExtendedTask format with flattened nested objects
       const transformedTasks = response.data.data.map(
         (task: any, index: number) => ({
           id: task.id?.toString() || index.toString(),
-          title: task.subject || "No Title",
+          title: task.subject || "None",
           description: task.message || "No Description",
           assignedTo: task.received_from?.name || "System",
           person: task.patient?.name || "",
@@ -286,12 +288,6 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
       );
 
       setTasks(transformedTasks);
-
-      // Use columns from API response with capitalized labels, plus some custom ones
-      const apiColumns = response.data.columns.map((column) => ({
-        ...column,
-        label: capitalizeLabel(column.label),
-      }));
 
       // Add custom columns for better display
       const enhancedColumns: ApiColumn[] = [

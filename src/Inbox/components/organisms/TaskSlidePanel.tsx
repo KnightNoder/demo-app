@@ -76,7 +76,7 @@ export const TaskSlidePanel: React.FC<{
       const transformedTasks = response.data.data.map(
         (task: any, index: number) => ({
           id: task.id?.toString() || index.toString(),
-          title: task.subject || "No Title",
+          title: task.subject || "None",
           description: task.message || "No Description",
           assignedTo: task.received_from?.name || "System",
           person: task.patient?.name || "",
@@ -120,6 +120,37 @@ export const TaskSlidePanel: React.FC<{
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to determine if the current card type represents reminders/urgent tasks
+  const isRemindersOrUrgentTasks = (cardType: string) => {
+    return (
+      cardType === "All Reminders" ||
+      cardType?.includes("Urgent Tasks") ||
+      cardType?.includes("High Priority") ||
+      cardType?.includes("Medium Priority") ||
+      cardType?.includes("Low Priority") ||
+      // Also check the title for these patterns
+      title?.includes("Urgent Tasks") ||
+      title?.includes("High Priority") ||
+      title?.includes("Medium Priority") ||
+      title?.includes("Low Priority")
+    );
+  };
+
+  // Function to determine the correct activeTab value
+  const getActiveTab = () => {
+    if (isRemindersOrUrgentTasks(cardType || title)) {
+      return "reminders"; // This will trigger the proper styling in AGGridTable
+    }
+    if (cardType === "Birthdays" || title === "Birthdays") {
+      return "birthdays";
+    }
+    if (cardType === "Agenda" || title === "Agenda") {
+      return "agenda";
+    }
+    // Default to reminders for any urgent tasks
+    return "reminders";
   };
 
   // Effect to handle different card types
@@ -384,9 +415,7 @@ export const TaskSlidePanel: React.FC<{
               columns={columns}
               onReply={onReply}
               onComplete={onComplete}
-              activeTab={
-                cardType === "All Reminders" ? "reminders" : "birthdays"
-              }
+              activeTab={getActiveTab()} // Use the dynamic activeTab function
               isPanelReady={isPanelReady}
               panelWidth={panelWidth}
             />

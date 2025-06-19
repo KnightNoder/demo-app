@@ -10,10 +10,7 @@ import axiosClient from "./api/axiosClient";
 import FilterPopup, {
   FilterState,
 } from "./Inbox/components/organisms/FilterPopup";
-import SortPopup, {
-  SortOption,
-  SortState,
-} from "./Inbox/components/organisms/SortPopup";
+import SortPopup, { SortOption } from "./Inbox/components/organisms/SortPopup";
 import PrioritySwimLanes from "./Inbox/components/organisms/PrioritySwimLanes";
 import { getTaskCardsConfig } from "./Inbox/components/molecules/taskCardConfig";
 import { InboxService } from "./Inbox/services/inboxService";

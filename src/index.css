@@ -412,3 +412,8 @@ body {
 .rounded-sm {
   border-radius: var(--radius-sm);
 }
+
+
+.ag-theme-alpine .ag-cell{
+  justify-content: left !important;
+}
