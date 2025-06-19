@@ -162,6 +162,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
           onTabChange={handleTabChange}
           isExpanded={isExpanded}
           onToggleExpanded={handleToggleExpanded}
+          onExportCSV={() => {}}
         />
 
         {isExpanded && (

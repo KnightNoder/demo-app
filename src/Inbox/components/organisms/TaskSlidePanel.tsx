@@ -76,7 +76,7 @@ export const TaskSlidePanel: React.FC<{
       const transformedTasks = response.data.data.map(
         (task: any, index: number) => ({
           id: task.id?.toString() || index.toString(),
-          title: task.subject || "None",
+          title: task.subject || "",
           description: task.message || "No Description",
           assignedTo: task.received_from?.name || "System",
           person: task.patient?.name || "",
@@ -236,7 +236,7 @@ export const TaskSlidePanel: React.FC<{
       style={{
         width: isFullScreen ? "100vw" : `${panelWidth}px`,
         minWidth: isFullScreen ? "100vw" : "514.8px",
-        maxWidth: isFullScreen ? "100vw" : "90vw",
+        maxWidth: isFullScreen ? "100vw" : "50vw justify-right",
       }}
     >
       {/* Resize Handle - only show when not in fullscreen */}

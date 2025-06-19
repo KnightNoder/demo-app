@@ -40,7 +40,7 @@ export const fetchUrgentTasksDataForPanel = async (
       low: 3,
     };
 
-    const response = await axiosClient.get<any>("/tasks", {
+    const response = await axiosClient.get<any>("/tasks?per_page=1000", {
       params: {
         priority: priorityMap[priority],
       },
@@ -49,7 +49,7 @@ export const fetchUrgentTasksDataForPanel = async (
     const transformedTasks = response.data.data.map(
       (task: any, index: number) => ({
         id: task.id?.toString() || index.toString(),
-        title: task.subject || "None",
+        title: task.subject || "",
         description: task.message || "No Description",
         assignedTo: task.received_from?.name || "System",
         person: task.patient?.name || "",

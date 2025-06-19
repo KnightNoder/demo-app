@@ -26,16 +26,18 @@ export const fetchAgendaDataForPanel = async () => {
       time_range: `${appointment.formatted_start_time} - ${appointment.formatted_end_time}`,
     }));
 
-    // Enhanced columns for better display
+    // Enhanced columns for better display - now includes copay
     const enhancedColumns = [
       { key: "pc_eventDate", label: "Date" },
-      { key: "time_range", label: "Time" },
-      { key: "appointment_type", label: "Type" },
+      { key: "formatted_start_time", label: "Start Time" },
+      { key: "formatted_end_time", label: "End Time" },
+      { key: "appointment_type", label: "Appointment Type" },
       { key: "recurrence_type", label: "Recurrence" },
-      { key: "name", label: "Person" },
+      { key: "patient_name", label: "Person" },
       { key: "provider", label: "Provider" },
       { key: "category", label: "Category" },
       { key: "facility", label: "Program" },
+      { key: "copay", label: "Copay" }, // NEW: Added copay column
     ];
 
     return {

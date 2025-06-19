@@ -51,7 +51,6 @@ interface BirthdayApiResponse {
   };
 }
 
-// Interface for agenda/appointments data from API
 interface AgendaData {
   pc_eid: number;
   pc_eventDate: string;
@@ -63,6 +62,7 @@ interface AgendaData {
   provider: string;
   category: string;
   facility: string;
+  copay: string; // NEW: Added copay field
 }
 
 // Interface for agenda API response
@@ -173,7 +173,7 @@ export const TaskManagementContainer: React.FC<
       const transformedTasks = response.data.data.map(
         (task: any, index: number) => ({
           id: task.id?.toString() || index.toString(),
-          title: task.subject || "None",
+          title: task.subject || "",
           description: task.message || "No Description",
           assignedTo: task.received_from?.name || "System",
           person: task.patient?.name || "",
@@ -271,7 +271,6 @@ export const TaskManagementContainer: React.FC<
     }
   };
 
-  // Fetch agenda/appointments data
   const fetchAgendaData = async () => {
     try {
       setLoading(true);
@@ -286,7 +285,6 @@ export const TaskManagementContainer: React.FC<
         }
       );
 
-      // Transform agenda data to task format
       const transformedTasks = response.data.data.map(
         (appointment: AgendaData) => ({
           id: appointment.pc_eid.toString(),
@@ -313,6 +311,7 @@ export const TaskManagementContainer: React.FC<
           provider: appointment.provider,
           category: appointment.category,
           facility: appointment.facility,
+          copay: appointment.copay, // NEW: Include copay in transformed data
           // Create combined time field for better display
           time_range: `${appointment.formatted_start_time} - ${appointment.formatted_end_time}`,
         })
@@ -320,23 +319,39 @@ export const TaskManagementContainer: React.FC<
 
       setTasks(transformedTasks);
 
-      // Add custom columns for better display with custom cell renderer for recurrence
-      const enhancedColumns: ApiColumn[] = [
-        { key: "pc_eventDate", label: "Date" },
-        { key: "time_range", label: "Time" },
-        { key: "appointment_type", label: "Type" },
-        {
-          key: "recurrence_type",
-          label: "Recurrence",
-          cellRenderer: RecurrenceCellRenderer, // Add custom cell renderer
-        },
-        { key: "name", label: "Person" },
-        { key: "provider", label: "Provider" },
-        { key: "category", label: "Category" },
-        { key: "facility", label: "Program" },
-      ];
+      // Check if API response includes columns, otherwise use enhanced columns with copay
+      if (response.data.columns && response.data.columns.length > 0) {
+        // Use columns from API response with capitalized labels
+        const capitalizedColumns = response.data.columns.map((column) => ({
+          ...column,
+          label: capitalizeLabel(column.label),
+          // Add custom cell renderer for recurrence column
+          ...(column.key === "recurrence_type" && {
+            cellRenderer: RecurrenceCellRenderer,
+          }),
+        }));
+        setColumns(capitalizedColumns);
+      } else {
+        // Fallback: Add custom columns for better display with copay included
+        const enhancedColumns: ApiColumn[] = [
+          { key: "pc_eventDate", label: "Date" },
+          { key: "formatted_start_time", label: "Start Time" },
+          { key: "formatted_end_time", label: "End Time" },
+          { key: "appointment_type", label: "Appointment Type" },
+          {
+            key: "recurrence_type",
+            label: "Recurrence",
+            cellRenderer: RecurrenceCellRenderer, // Add custom cell renderer
+          },
+          { key: "patient_name", label: "Person" },
+          { key: "provider", label: "Provider" },
+          { key: "category", label: "Category" },
+          { key: "facility", label: "Program" },
+          { key: "copay", label: "Copay" }, // NEW: Include copay column
+        ];
 
-      setColumns(enhancedColumns);
+        setColumns(enhancedColumns);
+      }
     } catch (err) {
       console.error("Failed to fetch agenda data:", err);
       setError("Failed to load agenda data");

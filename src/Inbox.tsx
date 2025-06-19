@@ -537,9 +537,9 @@ const Inbox = () => {
     {
       priority: "low",
       title: "Low Priority",
-      color: "green",
-      dotColor: "bg-green-500",
-      textColor: "text-green-700",
+      color: "yellow",
+      dotColor: "bg-yellow-500",
+      textColor: "text-yellow-500",
       cards: getFilteredCardsByPriority("low"),
     },
     {
