@@ -16,9 +16,8 @@ export const fetchUrgentTaskCounts = async (): Promise<{
   low: number;
 }> => {
   try {
-    const response = await axiosClient.get<UrgentTaskCountApiResponse>(
-      "/tasks/priority-summary"
-    );
+    const response =
+      await axiosClient.get<UrgentTaskCountApiResponse>("/tasks/summary");
     return response.data.data;
   } catch (err) {
     console.error("Failed to fetch urgent task counts:", err);

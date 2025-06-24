@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { TaskHeader } from "./Inbox/components/organisms/TaskHeader";
 import { TaskSlidePanel } from "./Inbox/components/organisms/TaskSlidePanel";
 import {
@@ -15,6 +15,9 @@ import PrioritySwimLanes from "./Inbox/components/organisms/PrioritySwimLanes";
 import { getTaskCardsConfig } from "./Inbox/components/molecules/taskCardConfig";
 import { InboxService } from "./Inbox/services/inboxService";
 import { BirthdayApiResponse } from "./types";
+import NewTaskModal, {
+  TaskFormData,
+} from "./Inbox/components/organisms/NewTaskModal";
 
 interface UrgentTaskCountApiResponse {
   success: boolean;
@@ -62,9 +65,12 @@ interface TaskCardConfig {
   testId: string;
 }
 
+// Polling status type
+type PollingStatus = "active" | "paused" | "error" | "idle";
+
 const Inbox = () => {
   const [birthdayCount, setBirthdayCount] = useState(0);
-  const [agendaCount, setAgendaCount] = useState(0); // Add agenda count state
+  const [agendaCount, setAgendaCount] = useState(0);
   const [urgentTaskCounts, setUrgentTaskCounts] = useState({
     high: 0,
     medium: 0,
@@ -85,12 +91,24 @@ const Inbox = () => {
     new Set()
   );
 
+  // New Task Modal state
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+
+  // Polling state
+  const [isPolling, setIsPolling] = useState(true);
+  const [pollingStatus, setPollingStatus] = useState<PollingStatus>("idle");
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [pollingInterval, setPollingInterval] = useState(30000); // 30 seconds default
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [pollingError, setPollingError] = useState<string | null>(null);
+  const [isIntervalDropdownOpen, setIsIntervalDropdownOpen] = useState(false);
+
   // Filter state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
-    low: false, // 0-5 items
-    medium: false, // 6-10 items
-    high: false, // 11+ items
+    low: false,
+    medium: false,
+    high: false,
     customOnly: false,
     defaultOnly: false,
   });
@@ -131,6 +149,182 @@ const Inbox = () => {
     }
   };
 
+  // Fetch birthday data from API to get count
+  const fetchBirthdayCount = async () => {
+    try {
+      const response = await axiosClient.get<BirthdayApiResponse>(
+        "/inbox/birthdays",
+        {
+          params: {
+            per_page: 1,
+          },
+        }
+      );
+      setBirthdayCount(response.data.pagination.total);
+      return response.data.pagination.total;
+    } catch (err) {
+      console.error("Failed to fetch birthday count:", err);
+      throw err;
+    }
+  };
+
+  // Fetch agenda data from API to get count
+  const fetchAgendaCount = async () => {
+    try {
+      const response = await axiosClient.get<AgendaApiResponse>(
+        "/inbox/upcoming-appointments"
+      );
+      setAgendaCount(response.data.data.length);
+      return response.data.data.length;
+    } catch (err) {
+      console.error("Failed to fetch agenda count:", err);
+      throw err;
+    }
+  };
+
+  // Fetch urgent task counts
+  const fetchUrgentTaskCounts = async () => {
+    try {
+      const response =
+        await axiosClient.get<UrgentTaskCountApiResponse>("/tasks/summary");
+      setUrgentTaskCounts(response.data.data);
+      return response.data.data;
+    } catch (err) {
+      console.error("Failed to fetch urgent task counts:", err);
+      throw err;
+    }
+  };
+
+  // Unified data fetching function for polling
+  const fetchAllData = useCallback(
+    async (isInitialLoad = false) => {
+      try {
+        if (isInitialLoad) {
+          setLoading(true);
+          setPollingStatus("idle");
+        } else {
+          setPollingStatus("active");
+        }
+
+        setPollingError(null);
+
+        const results = await Promise.allSettled([
+          fetchBirthdayCount(),
+          fetchUrgentTaskCounts(),
+          fetchAgendaCount(),
+        ]);
+
+        // Check if any promises failed
+        const hasError = results.some((result) => result.status === "rejected");
+
+        if (hasError && !isInitialLoad) {
+          const errors = results
+            .filter((result) => result.status === "rejected")
+            .map((result) => (result as PromiseRejectedResult).reason);
+
+          setPollingError(`Failed to update: ${errors.length} API(s) failed`);
+          setPollingStatus("error");
+        } else {
+          setPollingStatus(isPolling ? "active" : "paused");
+          setLastUpdated(new Date());
+          if (isInitialLoad) {
+            setError(null);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        if (isInitialLoad) {
+          setError("Failed to load data");
+        } else {
+          setPollingError("Failed to update data");
+          setPollingStatus("error");
+        }
+      } finally {
+        if (isInitialLoad) {
+          setLoading(false);
+        }
+      }
+    },
+    [isPolling]
+  );
+
+  // Start polling
+  const startPolling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      if (isPolling) {
+        fetchAllData(false);
+      }
+    }, pollingInterval);
+  }, [fetchAllData, pollingInterval, isPolling]);
+
+  // Stop polling
+  const stopPolling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  // Toggle polling
+  const togglePolling = () => {
+    setIsPolling((prev) => {
+      const newPollingState = !prev;
+      if (newPollingState) {
+        setPollingStatus("active");
+        // Immediately fetch data when resuming
+        fetchAllData(false);
+      } else {
+        setPollingStatus("paused");
+      }
+      return newPollingState;
+    });
+  };
+
+  // Manual refresh
+  const handleManualRefresh = () => {
+    fetchAllData(false);
+  };
+
+  // Initialize data and polling
+  useEffect(() => {
+    fetchAllData(true);
+  }, []);
+
+  // Setup polling when isPolling changes
+  useEffect(() => {
+    if (isPolling) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+
+    return () => stopPolling();
+  }, [isPolling, startPolling, stopPolling]);
+
+  // Add click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isIntervalDropdownOpen) {
+        const target = event.target as HTMLElement;
+        if (!target.closest(".relative")) {
+          setIsIntervalDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isIntervalDropdownOpen]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
+
   // Check all containers when panel width changes or when data loads
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -148,7 +342,7 @@ const Inbox = () => {
     urgentTaskCounts,
     birthdayCount,
     agendaCount,
-  ]); // Add agendaCount dependency
+  ]);
 
   // Add resize observer to check scrollability when window resizes
   useEffect(() => {
@@ -165,46 +359,12 @@ const Inbox = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Task cards configuration - now includes agenda count
+  // Task cards configuration
   const taskCards: TaskCardConfig[] = getTaskCardsConfig(
     urgentTaskCounts,
     birthdayCount,
-    agendaCount // Pass agenda count to task cards config
+    agendaCount
   );
-
-  // Fetch birthday data from API to get count
-  const fetchBirthdayCount = async () => {
-    try {
-      const response = await axiosClient.get<BirthdayApiResponse>(
-        "/inbox/birthdays",
-        {
-          params: {
-            per_page: 1,
-          },
-        }
-      );
-
-      setBirthdayCount(response.data.pagination.total);
-    } catch (err) {
-      console.error("Failed to fetch birthday count:", err);
-      setError("Failed to load birthday count");
-    }
-  };
-
-  // Fetch agenda data from API to get count
-  const fetchAgendaCount = async () => {
-    try {
-      const response = await axiosClient.get<AgendaApiResponse>(
-        "/inbox/upcoming-appointments"
-      );
-
-      // Use data.length instead of pagination.total as requested
-      setAgendaCount(response.data.data.length);
-    } catch (err) {
-      console.error("Failed to fetch agenda count:", err);
-      setError("Failed to load agenda count");
-    }
-  };
 
   // Fetch full agenda data for slide panel
   const fetchAgendaDataForPanel = async () => {
@@ -231,41 +391,6 @@ const Inbox = () => {
       setError("Failed to load birthday data");
     }
   };
-
-  const fetchUrgentTaskCounts = async () => {
-    try {
-      const response = await axiosClient.get<UrgentTaskCountApiResponse>(
-        "/tasks/priority-summary"
-      );
-      setUrgentTaskCounts(response.data.data);
-    } catch (err) {
-      console.error("Failed to fetch urgent task counts:", err);
-      setError("Failed to load urgent task counts");
-    }
-  };
-
-  // Fetch data on component mount - now includes agenda count
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        await Promise.all([
-          fetchBirthdayCount(),
-          fetchUrgentTaskCounts(),
-          fetchAgendaCount(), // Add agenda count fetch
-        ]);
-      } catch (err) {
-        console.error("Failed to fetch initial data:", err);
-        setError("Failed to load data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, []);
 
   // Fetch urgent tasks data for slide panel
   const fetchUrgentTasksDataForPanel = async (
@@ -311,8 +436,41 @@ const Inbox = () => {
     }
   };
 
+  // Updated handleNewTask to open modal
   const handleNewTask = () => {
-    console.log("New task clicked");
+    console.log("New task clicked - opening modal");
+    setIsNewTaskModalOpen(true);
+  };
+
+  // Handle new task form submission
+  const handleNewTaskSubmit = async (taskData: TaskFormData) => {
+    console.log("New task submitted:", taskData);
+
+    try {
+      // Here you would typically make an API call to create the task
+      // const response = await axiosClient.post("/tasks", taskData);
+
+      // For now, just log the data and refresh the counts
+      console.log("Task created successfully:", taskData);
+
+      // Refresh data to reflect the new task
+      await fetchAllData(false);
+
+      // Close the modal
+      setIsNewTaskModalOpen(false);
+
+      // Optionally show a success message
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to create task:", err);
+      // Handle error - could show error message to user
+      setError("Failed to create task");
+    }
+  };
+
+  // Handle modal close
+  const handleNewTaskModalClose = () => {
+    setIsNewTaskModalOpen(false);
   };
 
   // Generic function to get button position
@@ -322,7 +480,6 @@ const Inbox = () => {
     if (buttonElementOrEvent) {
       let element: HTMLElement | null = null;
 
-      // Handle different types of input
       if (
         buttonElementOrEvent instanceof Event ||
         "currentTarget" in buttonElementOrEvent
@@ -335,7 +492,6 @@ const Inbox = () => {
         element = buttonElementOrEvent as HTMLElement;
       }
 
-      // If we have a valid element, get its position
       if (element && typeof element.getBoundingClientRect === "function") {
         try {
           const rect = element.getBoundingClientRect();
@@ -349,7 +505,6 @@ const Inbox = () => {
       }
     }
 
-    // Fallback position
     return { top: 60, right: 20 };
   };
 
@@ -432,7 +587,6 @@ const Inbox = () => {
   const getFilteredCardsByPriority = (priority: string) => {
     let cards = getCardsByPriority(priority);
 
-    // Apply count-based filters
     if (filters.low || filters.medium || filters.high) {
       cards = cards.filter((card) => {
         const count = card.count;
@@ -443,7 +597,6 @@ const Inbox = () => {
       });
     }
 
-    // Apply type-based filters
     if (filters.customOnly) {
       cards = cards.filter((card) => card.id.includes("custom"));
     }
@@ -452,7 +605,6 @@ const Inbox = () => {
       cards = cards.filter((card) => !card.id.includes("custom"));
     }
 
-    // Apply sorting
     return sortCards(cards);
   };
 
@@ -463,37 +615,26 @@ const Inbox = () => {
   const handleComplete = (taskId: string) => {
     console.log("Complete task:", taskId);
     // Refresh counts after completing a task
-    fetchBirthdayCount();
-    fetchAgendaCount();
+    fetchAllData(false);
   };
 
   const handleRefresh = () => {
-    Promise.all([
-      fetchBirthdayCount(),
-      fetchUrgentTaskCounts(),
-      fetchAgendaCount(), // Include agenda count in refresh
-    ]).catch((err) => {
-      console.error("Failed to refresh data:", err);
-      setError("Failed to refresh data");
-    });
+    fetchAllData(false);
   };
 
-  // Get cards by priority - now includes agenda count
+  // Get cards by priority
   const getCardsByPriority = (priority: string) => {
     return taskCards
       .filter((card) => card.priority === priority)
       .map((card) => {
-        // Update birthday count dynamically
         if (card.id === "birthdays") {
           return { ...card, count: birthdayCount };
         }
 
-        // Update agenda count dynamically
         if (card.id === "agenda" || card.id === "upcoming-appointments") {
           return { ...card, count: agendaCount };
         }
 
-        // Update urgent task counts dynamically based on priority
         if (card.title === "Urgent Tasks") {
           let count = 0;
           switch (priority) {
@@ -560,6 +701,75 @@ const Inbox = () => {
     setPanelWidth(newWidth);
   };
 
+  // Format time for display
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  // Get interval display text
+  const getIntervalText = (interval: number) => {
+    switch (interval) {
+      case 10000:
+        return "10s";
+      case 30000:
+        return "30s";
+      case 60000:
+        return "1m";
+      case 300000:
+        return "5m";
+      default:
+        return "30s";
+    }
+  };
+
+  // Handle interval change
+  const handleIntervalChange = (newInterval: number) => {
+    setPollingInterval(newInterval);
+    setIsIntervalDropdownOpen(false);
+  };
+
+  // Get status display info
+  const getStatusInfo = () => {
+    switch (pollingStatus) {
+      case "active":
+        return {
+          color: "text-green-600",
+          bgColor: "bg-green-50",
+          borderColor: "border-green-200",
+          icon: "🔄",
+          text: "Auto-refreshing",
+        };
+      case "paused":
+        return {
+          color: "text-yellow-600",
+          bgColor: "bg-yellow-50",
+          borderColor: "border-yellow-200",
+          icon: "⏸️",
+          text: "Paused",
+        };
+      case "error":
+        return {
+          color: "text-red-600",
+          bgColor: "bg-red-50",
+          borderColor: "border-red-200",
+          icon: "❌",
+          text: "Error",
+        };
+      default:
+        return {
+          color: "text-gray-600",
+          bgColor: "bg-gray-50",
+          borderColor: "border-gray-200",
+          icon: "⏹️",
+          text: "Idle",
+        };
+    }
+  };
+
   if (loading) {
     return (
       <div className="w-full bg-[#f4f5fb] text-[#020817] flex items-center justify-center min-h-screen">
@@ -571,8 +781,10 @@ const Inbox = () => {
     );
   }
 
+  const statusInfo = getStatusInfo();
+
   return (
-    <div className="flex h-screen bg-[#f4f5fb] text-[#020817]">
+    <div className="flex h-full bg-[#f4f5fb] text-[#020817]">
       {/* Main Inbox Content */}
       <div
         className="flex-1 overflow-auto transition-all duration-300 ease-in-out"
@@ -586,6 +798,107 @@ const Inbox = () => {
           onFilter={handleFilter}
           onSort={handleSort}
         />
+
+        {/* Polling Status Bar */}
+        <div className="px-4 mb-4">
+          <div
+            className={`flex items-center justify-between p-3 rounded-lg border ${statusInfo.bgColor} ${statusInfo.borderColor}`}
+          >
+            <div className="flex items-center space-x-3">
+              <span className="text-lg">{statusInfo.icon}</span>
+              <div>
+                <span className={`font-medium ${statusInfo.color}`}>
+                  {statusInfo.text}
+                </span>
+                {lastUpdated && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    Last updated: {formatTime(lastUpdated)}
+                  </span>
+                )}
+                {pollingError && (
+                  <div className="text-sm text-red-600 mt-1">
+                    {pollingError}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {/* Polling interval dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() =>
+                    setIsIntervalDropdownOpen(!isIntervalDropdownOpen)
+                  }
+                  disabled={pollingStatus === "active"}
+                  className="flex items-center space-x-1 px-3 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Change polling interval"
+                >
+                  <span>⏱️ {getIntervalText(pollingInterval)}</span>
+                  <svg
+                    className={`w-3 h-3 transition-transform ${isIntervalDropdownOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu */}
+                {isIntervalDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-20 bg-white border border-gray-300 rounded shadow-lg z-50">
+                    {[
+                      { value: 10000, label: "10s" },
+                      { value: 30000, label: "30s" },
+                      { value: 60000, label: "1m" },
+                      { value: 300000, label: "5m" },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleIntervalChange(option.value)}
+                        className={`w-full px-3 py-2 text-xs text-left hover:bg-gray-100 transition-colors ${
+                          pollingInterval === option.value
+                            ? "bg-blue-50 text-blue-600"
+                            : ""
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Manual refresh button */}
+              <button
+                onClick={handleManualRefresh}
+                disabled={pollingStatus === "active"}
+                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Manual refresh"
+              >
+                🔄 Refresh
+              </button>
+
+              {/* Pause/Resume button */}
+              <button
+                onClick={togglePolling}
+                className={`px-3 py-1 text-xs rounded transition-colors ${
+                  isPolling
+                    ? "bg-yellow-500 hover:bg-yellow-600 text-white"
+                    : "bg-green-500 hover:bg-green-600 text-white"
+                }`}
+              >
+                {isPolling ? "⏸️ Pause" : "▶️ Resume"}
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Filter Popup */}
         <FilterPopup
@@ -650,6 +963,13 @@ const Inbox = () => {
           onWidthChange={handlePanelWidthChange}
         />
       )}
+
+      {/* New Task Modal */}
+      <NewTaskModal
+        isOpen={isNewTaskModalOpen}
+        onClose={handleNewTaskModalClose}
+        onSubmit={handleNewTaskSubmit}
+      />
     </div>
   );
 };

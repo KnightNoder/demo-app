@@ -150,11 +150,12 @@ export const TaskManagementContainer: React.FC<
 > = ({ onReply, onComplete }) => {
   const [searchValue, setSearchValue] = useState("");
   const [activeTab, setActiveTab] = useState("reminders"); // Default to reminders
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [tasks, setTasks] = useState<ExtendedTask[]>([]);
   const [columns, setColumns] = useState<ApiColumn[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Ref for AG Grid to access export functionality
   const gridRef = useRef<any>(null);
@@ -411,7 +412,31 @@ export const TaskManagementContainer: React.FC<
   };
 
   const handleToggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
+
+    if (newExpandedState && containerRef.current) {
+      // Wait for table to be fully rendered
+      const checkAndScroll = () => {
+        const container = containerRef.current;
+        const tableElement = container?.querySelector(".ag-root-wrapper"); // Adjust selector based on your table structure
+
+        if (container && tableElement) {
+          const containerRect = container.getBoundingClientRect();
+          const scrollOffset = window.pageYOffset + containerRect.top - 80;
+
+          window.scrollTo({
+            top: Math.max(0, scrollOffset),
+            behavior: "smooth",
+          });
+        } else {
+          // If table not rendered yet, try again
+          setTimeout(checkAndScroll, 100);
+        }
+      };
+
+      setTimeout(checkAndScroll, 200);
+    }
   };
 
   // CSV Export handler
@@ -454,7 +479,10 @@ export const TaskManagementContainer: React.FC<
 
   return (
     <div className="w-full bg-gray-50 p-4">
-      <div className="w-full mx-auto bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in">
+      <div
+        ref={containerRef}
+        className="w-full mx-auto bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 mt-2 animate-scale-in"
+      >
         {/* TaskTableHeader should never show loading - it's just UI controls */}
         <TaskTableHeader
           searchValue={searchValue}
