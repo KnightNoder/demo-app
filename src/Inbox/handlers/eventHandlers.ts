@@ -1,4 +1,4 @@
-import { TaskFormData } from "../components/organisms/NewTaskModal";
+import { TaskFormData } from "../types/taskTypes";
 import { TaskCardConfig } from "../utils/cardUtils";
 import {
   fetchAgendaDataForPanel,
