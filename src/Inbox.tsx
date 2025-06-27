@@ -186,7 +186,8 @@ const Inbox = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isIntervalDropdownOpen) {
         const target = event.target as HTMLElement;
-        if (!target.closest(".relative")) {
+        // More specific check for the polling interval dropdown
+        if (!target.closest("[data-polling-dropdown]")) {
           setIsIntervalDropdownOpen(false);
         }
       }
@@ -268,8 +269,14 @@ const Inbox = () => {
 
   // Handle interval change
   const handleIntervalChange = (newInterval: number) => {
+    console.log("Changing polling interval from", pollingInterval, "to", newInterval);
     setPollingInterval(newInterval);
     setIsIntervalDropdownOpen(false);
+    
+    // Force re-render to ensure UI updates
+    setTimeout(() => {
+      console.log("Polling interval updated to:", newInterval);
+    }, 100);
   };
 
   // Priority swim lane configuration with filtered and sorted cards
@@ -362,6 +369,7 @@ const Inbox = () => {
           onNewTask={() => handleNewTask(setIsNewTaskModalOpen)}
           onFilter={handleFilter}
           onSort={handleSort}
+          filters={filters}
         />
 
         {/* Subtle Polling Status Bar */}
@@ -394,9 +402,12 @@ const Inbox = () => {
 
             <div className="flex items-center space-x-1">
               {/* Polling interval dropdown */}
-              <div className="relative">
+              <div className="relative" data-polling-dropdown>
                 <button
-                  onClick={() => setIsIntervalDropdownOpen(!isIntervalDropdownOpen)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsIntervalDropdownOpen(!isIntervalDropdownOpen);
+                  }}
                   className="flex items-center space-x-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
                   title="Change refresh interval"
                 >
@@ -410,16 +421,18 @@ const Inbox = () => {
                 </button>
 
                 {isIntervalDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-16 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <div className="absolute top-full right-0 mt-1 w-16 bg-white border border-gray-200 rounded-md shadow-lg z-[60]">
                     {[
-                      { value: 10000, label: "10s" },
                       { value: 30000, label: "30s" },
                       { value: 60000, label: "1m" },
-                      { value: 300000, label: "5m" },
                     ].map((option) => (
                       <button
                         key={option.value}
-                        onClick={() => handleIntervalChange(option.value)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log("Clicked interval option:", option.value, option.label);
+                          handleIntervalChange(option.value);
+                        }}
                         className={`w-full px-2 py-1.5 text-xs text-left hover:bg-gray-50 transition-colors ${
                           pollingInterval === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
                         }`}
@@ -494,6 +507,49 @@ const Inbox = () => {
               >
                 Retry
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Active Filters Status for Priority Swim Lanes */}
+        {Object.values(filters).some(Boolean) && (
+          <div className="px-4 mb-3">
+            <div className="bg-blue-50/50 border border-blue-100 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="text-blue-700 font-medium">Filtered by item count:</span>
+                <div className="flex gap-1">
+                  {filters.low && (
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      0-5 items
+                    </span>
+                  )}
+                  {filters.medium && (
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      6-10 items
+                    </span>
+                  )}
+                  {filters.high && (
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      11+ items
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setFilters({
+                    low: false,
+                    medium: false,
+                    high: false,
+                    customOnly: false,
+                    defaultOnly: false,
+                  })}
+                  className="ml-auto text-blue-600 hover:text-blue-800 text-xs underline"
+                >
+                  Clear filters
+                </button>
+              </div>
             </div>
           </div>
         )}

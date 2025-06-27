@@ -181,52 +181,54 @@ export const TaskManagementContainer: React.FC<
           onToggleExpanded={handleToggleExpanded}
         />
 
-        {/* Show loading state only when data is being fetched */}
-        {loading && (
-          <div className="w-full">
-            <div className="flex items-center justify-center min-h-[200px]">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p>Loading {activeTab}...</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Show error state when there's an error */}
-        {error && !loading && (
-          <div className="w-full mb-4 p-4">
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
-              <span>{error}</span>
-              <button
-                onClick={retryFetch}
-                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Show content only when not loading and expanded */}
-        {isExpanded && !loading && (
+        {/* Show content when expanded - maintain consistent height */}
+        {isExpanded && (
           <>
-            <AGGridTable
-              ref={gridRef}
-              tasks={filteredTasks}
-              columns={columns}
-              onReply={onReply}
-              onComplete={onComplete}
-              activeTab={activeTab}
-              isPanelReady={true}
-              panelWidth={1200}
-            />
+            {/* Error state with consistent height */}
+            {error && !loading && (
+              <div className="w-full mb-4 p-4">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center justify-between">
+                  <span>{error}</span>
+                  <button
+                    onClick={retryFetch}
+                    className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            )}
 
-            <MobileTaskList
-              tasks={filteredTasks}
-              onReply={onReply}
-              onComplete={onComplete}
-            />
+            {/* Table container with consistent height */}
+            <div className="relative">
+              {/* Loading overlay - positioned absolutely to maintain height */}
+              {loading && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-600">Loading {activeTab}...</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Table content - always rendered to maintain height */}
+              <AGGridTable
+                ref={gridRef}
+                tasks={filteredTasks}
+                columns={columns}
+                onReply={onReply}
+                onComplete={onComplete}
+                activeTab={activeTab}
+                isPanelReady={true}
+                panelWidth={1200}
+              />
+
+              <MobileTaskList
+                tasks={filteredTasks}
+                onReply={onReply}
+                onComplete={onComplete}
+              />
+            </div>
           </>
         )}
       </div>

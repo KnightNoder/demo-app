@@ -1,5 +1,6 @@
 import { Heading } from "../atoms/Heading";
 import { ActionControls } from "../molecules/ActionControls";
+import { FilterState } from "../molecules/FilterSortControls";
 
 interface TaskHeaderProps {
   title?: string;
@@ -7,6 +8,7 @@ interface TaskHeaderProps {
   onFilter?: () => void;
   onSort?: () => void;
   className?: string;
+  filters?: FilterState;
 }
 
 export const TaskHeader: React.FC<TaskHeaderProps> = ({
@@ -14,7 +16,8 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
   onNewTask,
   onFilter,
   onSort,
-  className = ''
+  className = '',
+  filters
 }) => {
   return (
     <div
@@ -26,6 +29,7 @@ export const TaskHeader: React.FC<TaskHeaderProps> = ({
         onNewTask={onNewTask}
         onFilter={onFilter}
         onSort={onSort}
+        filters={filters}
       />
     </div>
   );

@@ -598,42 +598,36 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
       // Remove automatic column sizing to prevent layout shifts
     };
 
-    // Disable automatic column sizing to prevent extra empty columns
-    // Handle panel width changes - commented out to prevent empty columns
-    // useEffect(() => {
-    //   if (gridApi && isPanelReady && panelWidth) {
-    //     // Only resize if width change is significant (>50px)
-    //     const widthDiff = Math.abs((panelWidth || 0) - (prevPanelWidth || 0));
-    //     if (widthDiff > 50) {
-    //       const timer = setTimeout(() => {
-    //         gridApi.sizeColumnsToFit();
-    //       }, 200); // Increased delay to prevent conflicts
+    // Handle tab changes and data updates - resize columns to fit
+    useEffect(() => {
+      if (gridApi && tasks.length > 0) {
+        const timer = setTimeout(() => {
+          gridApi.sizeColumnsToFit();
+        }, 150); // Small delay to ensure data is rendered
+        
+        return () => clearTimeout(timer);
+      }
+    }, [gridApi, activeTab, tasks.length, columns.length]);
 
-    //       setPrevPanelWidth(panelWidth);
-    //       return () => clearTimeout(timer);
-    //     }
-    //   }
-    // }, [gridApi, isPanelReady, panelWidth, prevPanelWidth]);
-
-    // Handle window resize - commented out to prevent empty columns
-    // useEffect(() => {
-    //   let resizeTimer: NodeJS.Timeout;
+    // Handle window resize with debouncing
+    useEffect(() => {
+      let resizeTimer: NodeJS.Timeout;
       
-    //   const handleResize = () => {
-    //     clearTimeout(resizeTimer);
-    //     resizeTimer = setTimeout(() => {
-    //       if (gridApi && isPanelReady) {
-    //         gridApi.sizeColumnsToFit();
-    //       }
-    //     }, 300); // Increased delay to prevent conflicts
-    //   };
+      const handleResize = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          if (gridApi) {
+            gridApi.sizeColumnsToFit();
+          }
+        }, 250); // Debounced resize
+      };
 
-    //   window.addEventListener("resize", handleResize);
-    //   return () => {
-    //     window.removeEventListener("resize", handleResize);
-    //     clearTimeout(resizeTimer);
-    //   };
-    // }, [gridApi, isPanelReady]);
+      window.addEventListener("resize", handleResize);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+        clearTimeout(resizeTimer);
+      };
+    }, [gridApi]);
 
     // Calculate container height based on available space
     useEffect(() => {
@@ -653,6 +647,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         className="ag-theme-alpine w-full hidden md:block px-4"
         style={{
           height: `${containerHeight}px`,
+          minHeight: `${containerHeight}px`,
           transition: "opacity 0.2s ease-in-out",
         }}
       >
@@ -683,11 +678,19 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
           }}
           onFirstDataRendered={(params) => {
-            // Initial column sizing only on first render to prevent empty columns
+            // Initial column sizing on first render
             if (params.api) {
               setTimeout(() => {
                 params.api.sizeColumnsToFit();
               }, 100);
+            }
+          }}
+          onModelUpdated={(params) => {
+            // Resize columns when data model updates (tab changes)
+            if (params.api && tasks.length > 0) {
+              setTimeout(() => {
+                params.api.sizeColumnsToFit();
+              }, 50);
             }
           }}
         />
