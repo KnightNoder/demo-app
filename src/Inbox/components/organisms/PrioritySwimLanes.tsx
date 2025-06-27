@@ -233,7 +233,7 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
                       {lane.cards.map((card) => (
                         <div
                           key={card.id}
-                          className="flex-shrink-0 w-36 xs:w-40 sm:w-44 md:w-52 lg:w-56"
+                          className="flex-shrink-0 w-36 xs:w-40 sm:w-44 md:w-52 lg:w-64"
                         >
                           <div
                             className="relative rounded-lg sm:rounded-xl border-2 border-white ring-1 sm:ring-2 ring-inset ring-white/80 bg-gradient-to-br from-pink-50 via-blue-50 to-blue-50 hover:scale-[1.02] sm:hover:scale-[1.03] hover:border-blue-200 hover:z-10 transition-all duration-200 cursor-pointer group/card p-2.5 sm:p-3 h-full flex flex-col active:scale-[0.98] touch-manipulation"
@@ -254,13 +254,13 @@ const PrioritySwimLanes: React.FC<PrioritySwimLanesProps> = ({
                             <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-white/70 pointer-events-none z-0 group-hover/card:bg-white/80 transition-colors duration-200"></div>
 
                             {/* Card Header */}
-                            <div className="flex items-start gap-2 z-10 relative">
+                            <div className="flex items-center gap-2 z-10 relative">
                               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <div className="text-gray-500 text-sm sm:text-base">
                                   {card.icon}
                                 </div>
                               </div>
-                              <span className="text-gray-800 font-medium text-xs sm:text-sm lg:text-base text-left line-clamp-2 leading-tight">
+                              <span className="text-gray-800 font-[400] text-xs sm:text-sm lg:text-[16px] text-left line-clamp-2 leading-tight">
                                 {card.title}
                               </span>
                             </div>

@@ -3,7 +3,7 @@ import { PlayIcon, ReviewFormsIcon, PersonIcon, AgendaIcon } from "../assets/Ico
 import { TaskCardConfig } from "../organisms/PrioritySwimLanes";
 
 export const getTaskCardsConfig = (
-  urgentTaskCounts: { high: number; medium: number; low: number },
+  urgentTaskCounts: { high: number; medium: number; low: number; assigned_to_me: number; created_by_me: number },
   birthdayCount: number,
   agendaCount: number
 ): TaskCardConfig[] => [
@@ -82,7 +82,7 @@ export const getTaskCardsConfig = (
   {
     id: "assigned-to-me",
     title: "Assigned to Me",
-    count: 0,
+    count: urgentTaskCounts.assigned_to_me,
     icon: <PersonIcon />,
     variant: "normal",
     priority: "medium",
@@ -91,7 +91,7 @@ export const getTaskCardsConfig = (
   {
     id: "tasks-created-by-me",
     title: "Tasks Created by Me",
-    count: 0,
+    count: urgentTaskCounts.created_by_me,
     icon: <PlayIcon />,
     variant: "normal",
     priority: "medium",

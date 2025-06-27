@@ -32,6 +32,11 @@ export const usePolling = ({
   const [isPollingState, setIsPolling] = useState(isPolling);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Sync internal state with prop
+  useEffect(() => {
+    setIsPolling(isPolling);
+  }, [isPolling]);
+
   // Start polling
   const startPolling = useCallback(() => {
     if (intervalRef.current) {

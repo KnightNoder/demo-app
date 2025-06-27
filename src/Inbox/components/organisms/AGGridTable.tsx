@@ -328,7 +328,6 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
       onReply,
       onComplete,
       activeTab = "reminders",
-      isPanelReady = true,
       panelWidth,
     },
     ref
@@ -350,11 +349,12 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
     // Check if this is urgent tasks data (high/medium/low priority reminders)
     const isUrgentTasksData = isRemindersData && activeTab === "reminders";
 
-    // Calculate dynamic column widths based on panel width
+    // Calculate stable column widths to prevent layout shifts
     const getColumnWidth = (baseWidth: number) => {
       if (!panelWidth) return baseWidth;
+      // Use more stable width calculation with less variance
       const availableWidth = panelWidth - 100; // Account for padding and scrollbar
-      const scaleFactor = Math.max(0.8, Math.min(1.2, availableWidth / 1200)); // Scale between 80% and 120%
+      const scaleFactor = Math.max(0.9, Math.min(1.1, availableWidth / 1200)); // Reduced range: 90% to 110%
       return Math.max(120, Math.floor(baseWidth * scaleFactor));
     };
 
@@ -398,11 +398,11 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         ];
       }
 
-      // For reminders data AND urgent tasks data, use custom cell renderers with fixed widths
-      if ((isRemindersData && activeTab === "reminders") || isUrgentTasksData) {
+      // For reminders data (including urgent tasks), use custom cell renderers with fixed widths
+      if (activeTab === "reminders" && isRemindersData) {
         const reminderColumns: ColDef[] = [
           {
-            field: "title",
+            field: "subject",
             headerName: "Subject",
             width: getColumnWidth(280),
             minWidth: 200,
@@ -411,7 +411,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             autoHeight: false,
           },
           {
-            field: "description",
+            field: "message",
             headerName: "Message",
             width: getColumnWidth(300),
             minWidth: 250,
@@ -431,7 +431,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             ),
           },
           {
-            field: "dueDate",
+            field: "due_date",
             headerName: "Due",
             width: getColumnWidth(180),
             minWidth: 150,
@@ -449,7 +449,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             ),
           },
           {
-            field: "assignedTo",
+            field: "received_from",
             headerName: "Received from",
             width: getColumnWidth(180),
             minWidth: 150,
@@ -458,8 +458,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             ),
           },
           {
-            field: "person",
-            headerName: "Person",
+            field: "patient",
+            headerName: "Patient",
             width: getColumnWidth(180),
             minWidth: 150,
             cellRenderer: (params: any) => (
@@ -469,9 +469,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           {
             field: "actions",
             headerName: "Actions",
-            width: 130,
-            minWidth: 130,
-            maxWidth: 130,
+            width: getColumnWidth(130),
+            minWidth: 120,
             cellRenderer: (params: any) => (
               <RemindersActionsCell
                 taskId={params.data.id}
@@ -481,8 +480,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             ),
             sortable: false,
             filter: false,
-            pinned: "right",
-            suppressSizeToFit: true,
+            resizable: true,
           },
         ];
 
@@ -543,9 +541,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         const actionsColumn: ColDef = {
           field: "actions",
           headerName: "Actions",
-          width: 110,
+          width: getColumnWidth(120),
           minWidth: 110,
-          maxWidth: 110,
           cellRenderer: (params: any) => (
             <AgendaActionsCell
               taskId={params.data.id}
@@ -556,14 +553,13 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           ),
           sortable: false,
           filter: false,
-          pinned: "right",
-          suppressSizeToFit: true,
+          resizable: true,
         };
 
         return [...baseColumns, ...agendaColumns, actionsColumn];
       }
 
-      // For birthday data, use dynamic columns from API WITHOUT actions column
+      // For birthday data and other dynamic data, use columns from API WITHOUT actions column
       const dynamicColumns: ColDef[] = columns.map((column) => ({
         field: column.key,
         headerName: column.label,
@@ -571,8 +567,10 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         minWidth: 120,
       }));
 
-      // No actions column for birthdays
-      return [...baseColumns, ...dynamicColumns];
+      // Filter out any empty columns or columns with missing field data
+      const validDynamicColumns = dynamicColumns.filter((col) => col.field && col.field.trim() !== '');
+
+      return [...baseColumns, ...validDynamicColumns];
     }, [
       columns,
       onReply,
@@ -597,39 +595,45 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
 
     const onGridReady = (params: GridReadyEvent) => {
       setGridApi(params.api);
-
-      // Delay sizing to ensure panel is ready
-      setTimeout(() => {
-        if (params.api && isPanelReady) {
-          params.api.sizeColumnsToFit();
-        }
-      }, 150);
+      // Remove automatic column sizing to prevent layout shifts
     };
 
-    // Handle panel width changes and resize grid
-    useEffect(() => {
-      if (gridApi && isPanelReady && panelWidth) {
-        const timer = setTimeout(() => {
-          gridApi.sizeColumnsToFit();
-        }, 100);
+    // Disable automatic column sizing to prevent extra empty columns
+    // Handle panel width changes - commented out to prevent empty columns
+    // useEffect(() => {
+    //   if (gridApi && isPanelReady && panelWidth) {
+    //     // Only resize if width change is significant (>50px)
+    //     const widthDiff = Math.abs((panelWidth || 0) - (prevPanelWidth || 0));
+    //     if (widthDiff > 50) {
+    //       const timer = setTimeout(() => {
+    //         gridApi.sizeColumnsToFit();
+    //       }, 200); // Increased delay to prevent conflicts
 
-        return () => clearTimeout(timer);
-      }
-    }, [gridApi, isPanelReady, panelWidth]);
+    //       setPrevPanelWidth(panelWidth);
+    //       return () => clearTimeout(timer);
+    //     }
+    //   }
+    // }, [gridApi, isPanelReady, panelWidth, prevPanelWidth]);
 
-    // Handle window resize
-    useEffect(() => {
-      const handleResize = () => {
-        if (gridApi && isPanelReady) {
-          setTimeout(() => {
-            gridApi.sizeColumnsToFit();
-          }, 100);
-        }
-      };
+    // Handle window resize - commented out to prevent empty columns
+    // useEffect(() => {
+    //   let resizeTimer: NodeJS.Timeout;
+      
+    //   const handleResize = () => {
+    //     clearTimeout(resizeTimer);
+    //     resizeTimer = setTimeout(() => {
+    //       if (gridApi && isPanelReady) {
+    //         gridApi.sizeColumnsToFit();
+    //       }
+    //     }, 300); // Increased delay to prevent conflicts
+    //   };
 
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, [gridApi, isPanelReady]);
+    //   window.addEventListener("resize", handleResize);
+    //   return () => {
+    //     window.removeEventListener("resize", handleResize);
+    //     clearTimeout(resizeTimer);
+    //   };
+    // }, [gridApi, isPanelReady]);
 
     // Calculate container height based on available space
     useEffect(() => {
@@ -667,8 +671,11 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           animateRows={false}
           suppressCellFocus={true}
           suppressRowTransform={true}
-          suppressColumnVirtualisation={false}
+          suppressColumnVirtualisation={true}
           suppressRowVirtualisation={false}
+          suppressColumnMoveAnimation={true}
+          suppressAnimationFrame={true}
+          maintainColumnOrder={true}
           suppressLoadingOverlay={true}
           suppressNoRowsOverlay={true}
           rowClassRules={{
@@ -676,10 +683,11 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
             "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
           }}
           onFirstDataRendered={(params) => {
-            if (isPanelReady) {
+            // Initial column sizing only on first render to prevent empty columns
+            if (params.api) {
               setTimeout(() => {
                 params.api.sizeColumnsToFit();
-              }, 50);
+              }, 100);
             }
           }}
         />

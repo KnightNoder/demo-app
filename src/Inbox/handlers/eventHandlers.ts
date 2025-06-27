@@ -5,6 +5,10 @@ import {
   fetchBirthdayDataForPanel,
   fetchUrgentTasksDataForPanel,
 } from "./dataHandlers";
+import {
+  fetchAssignedTasksDataForPanel,
+  fetchCreatedByMeTasksDataForPanel,
+} from "../services/taskService";
 
 // Task action handlers
 export const handleReply = (taskId: string) => {
@@ -26,10 +30,18 @@ export const handleCardClick = async (
     setSelectedCardColumns: (columns: any[]) => void;
     setSelectedCardTitle: (title: string) => void;
     setIsPanelVisible: (visible: boolean) => void;
+    setIsPanelLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
   }
 ) => {
-  console.log(`${cardType} ${cardConfig} card clicked`);
+  console.log(
+    `${cardType === "Tasks created by me"} ${cardType} ${cardConfig} card clicked`
+  );
+
+  // Set loading state and show panel immediately
+  setters.setIsPanelLoading(true);
+  setters.setIsPanelVisible(true);
+  setters.setSelectedCardTitle(cardType);
 
   try {
     if (cardType === "Birthdays") {
@@ -37,13 +49,13 @@ export const handleCardClick = async (
       setters.setSelectedCardTasks(tasks);
       setters.setSelectedCardColumns(columns);
       setters.setSelectedCardTitle(title);
-      setters.setIsPanelVisible(true);
+      setters.setIsPanelLoading(false);
     } else if (cardType === "Agenda" || cardType === "Upcoming Appointments") {
       const { tasks, columns, title } = await fetchAgendaDataForPanel();
       setters.setSelectedCardTasks(tasks);
       setters.setSelectedCardColumns(columns);
       setters.setSelectedCardTitle(title);
-      setters.setIsPanelVisible(true);
+      setters.setIsPanelLoading(false);
     } else if (cardType === "Urgent Tasks" && cardConfig) {
       console.log(cardConfig.priority, "cardConfig.priority");
       const { tasks, columns, title } = await fetchUrgentTasksDataForPanel(
@@ -52,19 +64,33 @@ export const handleCardClick = async (
       setters.setSelectedCardTasks(tasks);
       setters.setSelectedCardColumns(columns);
       setters.setSelectedCardTitle(title);
-      setters.setIsPanelVisible(true);
+      setters.setIsPanelLoading(false);
+    } else if (cardType === "Assigned to Me") {
+      const { tasks, columns, title } = await fetchAssignedTasksDataForPanel();
+      setters.setSelectedCardTasks(tasks);
+      setters.setSelectedCardColumns(columns);
+      setters.setSelectedCardTitle(title);
+      setters.setIsPanelLoading(false);
+    } else if (cardType === "Tasks Created by Me") {
+      const { tasks, columns, title } =
+        await fetchCreatedByMeTasksDataForPanel();
+      setters.setSelectedCardTasks(tasks);
+      setters.setSelectedCardColumns(columns);
+      setters.setSelectedCardTitle(title);
+      setters.setIsPanelLoading(false);
     } else if (cardType === "All Reminders") {
       setters.setSelectedCardTasks([]);
       setters.setSelectedCardColumns([]);
       setters.setSelectedCardTitle(cardType);
-      setters.setIsPanelVisible(true);
+      setters.setIsPanelLoading(false);
     } else {
       setters.setSelectedCardTasks([]);
       setters.setSelectedCardColumns([]);
       setters.setSelectedCardTitle(cardType);
-      setters.setIsPanelVisible(true);
+      setters.setIsPanelLoading(false);
     }
   } catch (err) {
+    setters.setIsPanelLoading(false);
     setters.setError(err instanceof Error ? err.message : "An error occurred");
   }
 };

@@ -71,6 +71,8 @@ export const fetchUrgentTaskCounts = async (): Promise<{
   high: number;
   medium: number;
   low: number;
+  assigned_to_me?: number;
+  created_by_me?: number;
 }> => {
   try {
     const response =

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import { TaskTableHeader } from "./TaskTableHeader";
 import { AGGridTable } from "./AGGridTable";
 import { MobileTaskList } from "./MobileTaskList";
-import axiosClient from "../../../api/axiosClient";
+import { useTaskData } from "../../hooks/useTaskData";
 
 // Extended task interface with index signature for dynamic properties
 export interface ExtendedTask {
@@ -25,125 +25,10 @@ export interface ApiColumn {
   cellRenderer?: React.ComponentType<any>; // Add cellRenderer support
 }
 
-// Interface for birthday data from API
-interface BirthdayData {
-  pid: number;
-  name: string;
-  DOB: string;
-  street: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  phone_home: string;
-  loc: string | null;
-  room: string | null;
-}
-
-// Interface for birthday API response
-interface BirthdayApiResponse {
-  columns: ApiColumn[];
-  data: BirthdayData[];
-  pagination: {
-    total: number;
-    current_page: number;
-    last_page: number;
-    per_page: number;
-  };
-}
-
-interface AgendaData {
-  pc_eid: number;
-  pc_eventDate: string;
-  formatted_start_time: string;
-  formatted_end_time: string;
-  appointment_type: string;
-  recurrence_type: string;
-  patient_name: string;
-  provider: string;
-  category: string;
-  facility: string;
-  copay: string; // NEW: Added copay field
-}
-
-// Interface for agenda API response
-interface AgendaApiResponse {
-  columns: ApiColumn[];
-  data: AgendaData[];
-  pagination: {
-    total: number;
-    current_page: number;
-    last_page: number;
-    per_page: number;
-  };
-}
-
-// Interface for reminders/tasks API response
-interface TasksApiResponse {
-  data: any[];
-  // Add other properties as needed based on your API response
-}
-
-export interface TaskManagementContainerProps {
+interface TaskManagementContainerProps {
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
 }
-
-// Function to capitalize first letter of each word
-const capitalizeLabel = (label: string): string => {
-  return label
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
-
-// Function to format date for display
-const formatDateForDisplay = (dateString: string): string => {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-};
-
-// Function to get priority based on appointment type or recurrence
-const getAppointmentPriority = (
-  appointmentType: string,
-  recurrenceType: string
-): "high" | "medium" | "low" => {
-  if (appointmentType?.toLowerCase() === "patient") return "high";
-  if (recurrenceType?.toLowerCase() === "repeat") return "medium";
-  return "low";
-};
-
-const RecurrenceCellRenderer: React.FC<{ value: string }> = ({ value }) => {
-  const isRepeat = value?.toLowerCase() === "repeat";
-
-  return (
-    <div className="flex items-center gap-1">
-      <span>{value}</span>
-      {isRepeat && (
-        <svg
-          className="w-4 h-4 text-blue-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-      )}
-    </div>
-  );
-};
 
 export const TaskManagementContainer: React.FC<
   TaskManagementContainerProps
@@ -151,228 +36,32 @@ export const TaskManagementContainer: React.FC<
   const [searchValue, setSearchValue] = useState("");
   const [activeTab, setActiveTab] = useState("reminders"); // Default to reminders
   const [isExpanded, setIsExpanded] = useState(false);
-  const [tasks, setTasks] = useState<ExtendedTask[]>([]);
-  const [columns, setColumns] = useState<ApiColumn[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Ref for AG Grid to access export functionality
   const gridRef = useRef<any>(null);
 
-  // Fetch reminders/tasks data
-  const fetchRemindersData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axiosClient.get<TasksApiResponse>(
-        "/tasks?per_page=1000"
-      );
-
-      // Transform response data to ExtendedTask format with flattened nested objects
-      const transformedTasks = response.data.data.map(
-        (task: any, index: number) => ({
-          id: task.id?.toString() || index.toString(),
-          title: task.subject || "",
-          description: task.message || "No Description",
-          assignedTo: task.received_from?.name || "System",
-          person: task.patient?.name || "",
-          dueDate: task.due_date || "Today",
-          priority: task.priority?.toLowerCase() || "medium",
-          status: task.status?.toLowerCase() || "pending",
-          type: task.type || "Reminder",
-          // Flatten nested objects for display
-          subject: task.subject,
-          message: task.message,
-          start_date: task.start_date,
-          due_date: task.due_date,
-          received_from: task.received_from?.name, // Extract name from object
-          patient: task.patient?.name, // Extract name from object
-          patient_pid: task.patient?.pid, // Extract pid separately
-          // ...task, // Include all original properties, but the flattened ones above will override nested objects
-        })
-      );
-
-      setTasks(transformedTasks);
-
-      // Generate columns based on flattened structure
-      const columnDefinitions: ApiColumn[] = [
-        { key: "subject", label: "Subject" },
-        { key: "message", label: "Message" },
-        { key: "start_date", label: "Start Date" },
-        { key: "due_date", label: "Due Date" },
-        { key: "priority", label: "Priority" },
-        { key: "status", label: "Status" },
-        { key: "type", label: "Type" },
-        { key: "received_from", label: "Received From" },
-        { key: "patient", label: "Patient" },
-        { key: "patient_pid", label: "Patient PID" },
-      ];
-
-      setColumns(columnDefinitions);
-    } catch (err) {
-      console.error("Failed to fetch reminders data:", err);
-      setError("Failed to load reminders data");
-      setTasks([]);
-      setColumns([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch birthday data
-  const fetchBirthdayData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axiosClient.get<BirthdayApiResponse>(
-        "/inbox/birthdays",
-        {
-          params: {
-            per_page: 1000,
-          },
-        }
-      );
-
-      // Transform birthday data to task format
-      const transformedTasks = response.data.data.map(
-        (birthday: BirthdayData) => ({
-          id: birthday.pid.toString(),
-          title: `Birthday: ${birthday.name}`,
-          description: `DOB: ${birthday.DOB}`,
-          assignedTo: birthday.name,
-          person: birthday.name,
-          dueDate: birthday.DOB,
-          priority: "medium" as const,
-          status: "pending" as const,
-          type: "birthday" as const,
-          // Include all original birthday data for dynamic column access
-          ...birthday,
-        })
-      );
-
-      setTasks(transformedTasks);
-
-      // Use columns from API response with capitalized labels
-      const capitalizedColumns = response.data.columns.map((column) => ({
-        ...column,
-        label: capitalizeLabel(column.label),
-      }));
-
-      setColumns(capitalizedColumns);
-    } catch (err) {
-      console.error("Failed to fetch birthday data:", err);
-      setError("Failed to load birthday data");
-      setTasks([]);
-      setColumns([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAgendaData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await axiosClient.get<AgendaApiResponse>(
-        "/inbox/upcoming-appointments",
-        {
-          params: {
-            per_page: 10000,
-          },
-        }
-      );
-
-      const transformedTasks = response.data.data.map(
-        (appointment: AgendaData) => ({
-          id: appointment.pc_eid.toString(),
-          title: `${appointment.appointment_type}: ${appointment.patient_name || "Group Session"}`,
-          description: `${appointment.category} at ${appointment.facility}`,
-          assignedTo: appointment.provider,
-          person: appointment.patient_name || "Group",
-          dueDate: formatDateForDisplay(appointment.pc_eventDate),
-          priority: getAppointmentPriority(
-            appointment.appointment_type,
-            appointment.recurrence_type
-          ),
-          status: "pending" as const,
-          type: "appointment" as const,
-          // Include all original appointment data for dynamic column access
-          pc_eid: appointment.pc_eid,
-          pc_eventDate: appointment.pc_eventDate,
-          formatted_start_time: appointment.formatted_start_time,
-          formatted_end_time: appointment.formatted_end_time,
-          appointment_type: appointment.appointment_type,
-          recurrence_type: appointment.recurrence_type, // Keep as string
-          patient_name: appointment.patient_name,
-          name: appointment.patient_name, // Map patient_name to name for column consistency
-          provider: appointment.provider,
-          category: appointment.category,
-          facility: appointment.facility,
-          copay: appointment.copay, // NEW: Include copay in transformed data
-          // Create combined time field for better display
-          time_range: `${appointment.formatted_start_time} - ${appointment.formatted_end_time}`,
-        })
-      );
-
-      setTasks(transformedTasks);
-
-      // Check if API response includes columns, otherwise use enhanced columns with copay
-      if (response.data.columns && response.data.columns.length > 0) {
-        // Use columns from API response with capitalized labels
-        const capitalizedColumns = response.data.columns.map((column) => ({
-          ...column,
-          label: capitalizeLabel(column.label),
-          // Add custom cell renderer for recurrence column
-          ...(column.key === "recurrence_type" && {
-            cellRenderer: RecurrenceCellRenderer,
-          }),
-        }));
-        setColumns(capitalizedColumns);
-      } else {
-        // Fallback: Add custom columns for better display with copay included
-        const enhancedColumns: ApiColumn[] = [
-          { key: "pc_eventDate", label: "Date" },
-          { key: "formatted_start_time", label: "Start Time" },
-          { key: "formatted_end_time", label: "End Time" },
-          { key: "appointment_type", label: "Appointment Type" },
-          {
-            key: "recurrence_type",
-            label: "Recurrence",
-            cellRenderer: RecurrenceCellRenderer, // Add custom cell renderer
-          },
-          { key: "patient_name", label: "Person" },
-          { key: "provider", label: "Provider" },
-          { key: "category", label: "Category" },
-          { key: "facility", label: "Program" },
-          { key: "copay", label: "Copay" }, // NEW: Include copay column
-        ];
-
-        setColumns(enhancedColumns);
-      }
-    } catch (err) {
-      console.error("Failed to fetch agenda data:", err);
-      setError("Failed to load agenda data");
-      setTasks([]);
-      setColumns([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use unified data hook
+  const {
+    tasks,
+    columns,
+    loading,
+    error,
+    fetchData,
+  } = useTaskData();
 
   // Fetch data based on active tab
   useEffect(() => {
-    if (activeTab === "reminders") {
-      fetchRemindersData();
-    } else if (activeTab === "birthdays") {
-      fetchBirthdayData();
-    } else if (activeTab === "agenda") {
-      fetchAgendaData();
-    }
-  }, [activeTab]);
+    const fetchTabData = async () => {
+      try {
+        await fetchData(activeTab as "reminders" | "birthdays" | "agenda");
+      } catch (err) {
+        console.error(`Failed to fetch ${activeTab} data:`, err);
+      }
+    };
+
+    fetchTabData();
+  }, [activeTab, fetchData]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -416,26 +105,29 @@ export const TaskManagementContainer: React.FC<
     setIsExpanded(newExpandedState);
 
     if (newExpandedState && containerRef.current) {
-      // Wait for table to be fully rendered
+      // Optimized scroll behavior to prevent cursor jumps
       const checkAndScroll = () => {
         const container = containerRef.current;
-        const tableElement = container?.querySelector(".ag-root-wrapper"); // Adjust selector based on your table structure
-
-        if (container && tableElement) {
+        
+        if (container) {
           const containerRect = container.getBoundingClientRect();
-          const scrollOffset = window.pageYOffset + containerRect.top - 80;
-
-          window.scrollTo({
-            top: Math.max(0, scrollOffset),
-            behavior: "smooth",
-          });
-        } else {
-          // If table not rendered yet, try again
-          setTimeout(checkAndScroll, 100);
+          // Only scroll if container is significantly out of view
+          const viewportHeight = window.innerHeight;
+          const isOutOfView = containerRect.bottom > viewportHeight || containerRect.top < 0;
+          
+          if (isOutOfView) {
+            const scrollOffset = window.pageYOffset + containerRect.top - 80;
+            
+            window.scrollTo({
+              top: Math.max(0, scrollOffset),
+              behavior: "smooth",
+            });
+          }
         }
       };
 
-      setTimeout(checkAndScroll, 200);
+      // Reduced delay to minimize user perception
+      setTimeout(checkAndScroll, 100);
     }
   };
 
@@ -448,33 +140,27 @@ export const TaskManagementContainer: React.FC<
       gridRef.current.api.exportDataAsCsv({
         fileName: filename,
         columnSeparator: ",",
-        suppressQuotes: false,
-        allColumns: false, // Only export visible columns
-        onlySelected: false, // Export all data, not just selected rows
-        skipFooters: true,
-        skipGroups: true,
-        skipHeader: false,
         processCellCallback: (params: any) => {
-          // Clean up cell values for CSV export
+          // Handle nested objects and format data properly
           if (params.value === null || params.value === undefined) {
             return "";
           }
-          // Convert any complex values to strings
           return String(params.value);
         },
       });
     }
   };
 
-  // Function to retry fetching data based on active tab
   const retryFetch = () => {
-    if (activeTab === "reminders") {
-      fetchRemindersData();
-    } else if (activeTab === "birthdays") {
-      fetchBirthdayData();
-    } else if (activeTab === "agenda") {
-      fetchAgendaData();
-    }
+    const fetchTabData = async () => {
+      try {
+        await fetchData(activeTab as "reminders" | "birthdays" | "agenda");
+      } catch (err) {
+        console.error(`Failed to fetch ${activeTab} data:`, err);
+      }
+    };
+
+    fetchTabData();
   };
 
   return (
@@ -532,6 +218,8 @@ export const TaskManagementContainer: React.FC<
               onReply={onReply}
               onComplete={onComplete}
               activeTab={activeTab}
+              isPanelReady={true}
+              panelWidth={1200}
             />
 
             <MobileTaskList
@@ -545,3 +233,5 @@ export const TaskManagementContainer: React.FC<
     </div>
   );
 };
+
+export default TaskManagementContainer;

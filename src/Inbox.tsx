@@ -26,7 +26,6 @@ import {
   getButtonPosition,
   formatTime,
   getIntervalText,
-  getStatusInfo,
 } from "./Inbox/utils/uiUtils";
 import {
   sortCards,
@@ -43,13 +42,24 @@ import {
   handleNewTaskModalClose,
 } from "./Inbox/handlers/eventHandlers";
 
+// Define the correct type for urgent task counts
+interface UrgentTaskCounts {
+  high: number;
+  medium: number;
+  low: number;
+  assigned_to_me: number;
+  created_by_me: number;
+}
+
 const Inbox = () => {
   const [birthdayCount, setBirthdayCount] = useState(0);
   const [agendaCount, setAgendaCount] = useState(0);
-  const [urgentTaskCounts, setUrgentTaskCounts] = useState({
+  const [urgentTaskCounts, setUrgentTaskCounts] = useState<UrgentTaskCounts>({
     high: 0,
     medium: 0,
     low: 0,
+    assigned_to_me: 0,
+    created_by_me: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +70,7 @@ const Inbox = () => {
     []
   );
   const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const [isPanelLoading, setIsPanelLoading] = useState(false);
   const [selectedCardTitle, setSelectedCardTitle] = useState("");
   const [panelWidth, setPanelWidth] = useState(1201.2);
 
@@ -67,7 +78,7 @@ const Inbox = () => {
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
 
   // Polling state
-  const [isPolling, _] = useState(true);
+  const [isPolling, setIsPolling] = useState(true);
   const [pollingInterval, setPollingInterval] = useState(30000); // 30 seconds default
   const [isIntervalDropdownOpen, setIsIntervalDropdownOpen] = useState(false);
 
@@ -105,7 +116,15 @@ const Inbox = () => {
 
         const results = await Promise.allSettled([
           fetchBirthdayCount().then(setBirthdayCount),
-          fetchUrgentTaskCounts().then(setUrgentTaskCounts),
+          fetchUrgentTaskCounts().then((counts) =>
+            setUrgentTaskCounts({
+              high: counts.high,
+              medium: counts.medium,
+              low: counts.low,
+              assigned_to_me: counts.assigned_to_me || 0,
+              created_by_me: counts.created_by_me || 0,
+            })
+          ),
           fetchAgendaCount().then(setAgendaCount),
         ]);
 
@@ -151,6 +170,7 @@ const Inbox = () => {
     isPolling,
     fetchDataFunction: () => fetchAllData(false),
   });
+
 
   // Use scroll detection hook
   const { scrollableContainers, checkScrollable } = useScrollDetection([
@@ -327,7 +347,6 @@ const Inbox = () => {
     );
   }
 
-  const statusInfo = getStatusInfo(polling.pollingStatus);
 
   return (
     <div className="flex h-full bg-[#f4f5fb] text-[#020817]">
@@ -345,60 +364,53 @@ const Inbox = () => {
           onSort={handleSort}
         />
 
-        {/* Polling Status Bar */}
-        <div className="px-4 mb-4">
-          <div
-            className={`flex items-center justify-between p-3 rounded-lg border ${statusInfo.bgColor} ${statusInfo.borderColor}`}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-lg">{statusInfo.icon}</span>
-              <div>
-                <span className={`font-medium ${statusInfo.color}`}>
-                  {statusInfo.text}
+        {/* Subtle Polling Status Bar */}
+        <div className="px-4 mb-3">
+          <div className="flex items-center justify-between py-2 px-3 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-100/50 shadow-sm">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${
+                polling.pollingStatus === "active" 
+                  ? "bg-green-400 animate-pulse" 
+                  : polling.pollingStatus === "error"
+                  ? "bg-red-400"
+                  : "bg-gray-300"
+              }`}></div>
+              <span className="text-xs font-medium text-gray-600">
+                {polling.pollingStatus === "active" ? "Live" : 
+                 polling.pollingStatus === "paused" ? "Paused" :
+                 polling.pollingStatus === "error" ? "Error" : "Idle"}
+              </span>
+              {polling.lastUpdated && (
+                <span className="text-xs text-gray-400">
+                  • {formatTime(polling.lastUpdated)}
                 </span>
-                {polling.lastUpdated && (
-                  <span className="text-sm text-gray-500 ml-2">
-                    Last updated: {formatTime(polling.lastUpdated)}
-                  </span>
-                )}
-                {polling.pollingError && (
-                  <div className="text-sm text-red-600 mt-1">
-                    {polling.pollingError}
-                  </div>
-                )}
-              </div>
+              )}
+              {polling.pollingError && (
+                <span className="text-xs text-red-500 max-w-48 truncate">
+                  • {polling.pollingError}
+                </span>
+              )}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               {/* Polling interval dropdown */}
               <div className="relative">
                 <button
-                  onClick={() =>
-                    setIsIntervalDropdownOpen(!isIntervalDropdownOpen)
-                  }
-                  disabled={polling.pollingStatus === "active"}
-                  className="flex items-center space-x-1 px-3 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  title="Change polling interval"
+                  onClick={() => setIsIntervalDropdownOpen(!isIntervalDropdownOpen)}
+                  className="flex items-center space-x-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                  title="Change refresh interval"
                 >
-                  <span>⏱️ {getIntervalText(pollingInterval)}</span>
-                  <svg
-                    className={`w-3 h-3 transition-transform ${isIntervalDropdownOpen ? "rotate-180" : ""}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{getIntervalText(pollingInterval)}</span>
+                  <svg className={`w-3 h-3 transition-transform ${isIntervalDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
-                {/* Dropdown menu */}
                 {isIntervalDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-20 bg-white border border-gray-300 rounded shadow-lg z-50">
+                  <div className="absolute top-full right-0 mt-1 w-16 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     {[
                       { value: 10000, label: "10s" },
                       { value: 30000, label: "30s" },
@@ -408,10 +420,8 @@ const Inbox = () => {
                       <button
                         key={option.value}
                         onClick={() => handleIntervalChange(option.value)}
-                        className={`w-full px-3 py-2 text-xs text-left hover:bg-gray-100 transition-colors ${
-                          pollingInterval === option.value
-                            ? "bg-blue-50 text-blue-600"
-                            : ""
+                        className={`w-full px-2 py-1.5 text-xs text-left hover:bg-gray-50 transition-colors ${
+                          pollingInterval === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
                         }`}
                       >
                         {option.label}
@@ -424,23 +434,32 @@ const Inbox = () => {
               {/* Manual refresh button */}
               <button
                 onClick={polling.handleManualRefresh}
-                disabled={polling.pollingStatus === "active"}
-                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Manual refresh"
+                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                title="Refresh now"
               >
-                🔄 Refresh
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
 
               {/* Pause/Resume button */}
               <button
-                onClick={polling.togglePolling}
-                className={`px-3 py-1 text-xs rounded transition-colors ${
-                  isPolling
-                    ? "bg-yellow-500 hover:bg-yellow-600 text-white"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
+                onClick={() => {
+                  polling.togglePolling();
+                  setIsPolling(!isPolling);
+                }}
+                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                title={isPolling ? "Pause auto-refresh" : "Resume auto-refresh"}
               >
-                {isPolling ? "⏸️ Pause" : "▶️ Resume"}
+                {isPolling ? (
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                  </svg>
+                ) : (
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -488,6 +507,7 @@ const Inbox = () => {
               setSelectedCardColumns,
               setSelectedCardTitle,
               setIsPanelVisible,
+              setIsPanelLoading,
               setError,
             })
           }
@@ -515,6 +535,7 @@ const Inbox = () => {
             handleComplete(taskId, () => fetchAllData(false))
           }
           isVisible={isPanelVisible}
+          isLoading={isPanelLoading}
           onClose={handleClosePanel}
           title={selectedCardTitle}
           cardType={selectedCardTitle}

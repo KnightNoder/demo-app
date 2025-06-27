@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../../api/axiosClient";
 import { AGGridTable } from "./AGGridTable"; // Import the real AG-Grid component
+import { useTaskData } from "../../hooks/useTaskData";
 
 // Extended task interface with index signature for dynamic properties
 interface ExtendedTask {
@@ -22,16 +22,6 @@ interface ApiColumn {
   label: string;
 }
 
-// Interface for reminders/tasks API response
-interface TasksApiResponse {
-  data: any[];
-  pagination?: {
-    total: number;
-    current_page: number;
-    last_page: number;
-    per_page: number;
-  };
-}
 
 // Slide-out Panel Component - Modified for dev tools style
 export const TaskSlidePanel: React.FC<{
@@ -40,6 +30,7 @@ export const TaskSlidePanel: React.FC<{
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
   isVisible: boolean;
+  isLoading?: boolean;
   onClose: () => void;
   title: string;
   cardType?: string;
@@ -50,6 +41,7 @@ export const TaskSlidePanel: React.FC<{
   onReply,
   onComplete,
   isVisible,
+  isLoading,
   onClose,
   title,
   cardType,
@@ -58,69 +50,23 @@ export const TaskSlidePanel: React.FC<{
   const [admittedOnly, setAdmittedOnly] = useState(false);
   const [panelWidth, setPanelWidth] = useState(1201.2);
   const [isResizing, setIsResizing] = useState(false);
-  const [tasks, setTasks] = useState<ExtendedTask[]>(initialTasks);
-  const [columns, setColumns] = useState<ApiColumn[]>(initialColumns);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Fetch reminders/tasks data for "All Reminders" card
-  const fetchRemindersData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Use unified data hook for "All Reminders" case
+  const {
+    tasks: hookTasks,
+    columns: hookColumns,
+    loading: hookLoading,
+    error: hookError,
+    fetchData,
+  } = useTaskData();
 
-      const response = await axiosClient.get<TasksApiResponse>("/tasks");
+  // Use hook data for "All Reminders", passed data for other cases
+  const tasks = cardType === "All Reminders" ? hookTasks : initialTasks;
+  const columns = cardType === "All Reminders" ? hookColumns : initialColumns;
+  const loading = cardType === "All Reminders" ? hookLoading : false;
+  const error = cardType === "All Reminders" ? hookError : null;
 
-      // Transform response data to ExtendedTask format with flattened nested objects
-      const transformedTasks = response.data.data.map(
-        (task: any, index: number) => ({
-          id: task.id?.toString() || index.toString(),
-          title: task.subject || "",
-          description: task.message || "No Description",
-          assignedTo: task.received_from?.name || "System",
-          person: task.patient?.name || "",
-          dueDate: task.due_date || "Today",
-          priority: task.priority?.toLowerCase() || "medium",
-          status: task.status?.toLowerCase() || "pending",
-          type: task.type || "Reminder",
-          // Flatten nested objects for display
-          subject: task.subject,
-          message: task.message,
-          start_date: task.start_date,
-          due_date: task.due_date,
-          received_from: task.received_from?.name, // Extract name from object
-          patient: task.patient?.name, // Extract name from object
-          patient_pid: task.patient?.pid, // Extract pid separately
-        })
-      );
-
-      setTasks(transformedTasks);
-
-      // Generate columns based on flattened structure
-      const columnDefinitions: ApiColumn[] = [
-        { key: "subject", label: "Subject" },
-        { key: "message", label: "Message" },
-        { key: "start_date", label: "Start Date" },
-        { key: "due_date", label: "Due Date" },
-        { key: "priority", label: "Priority" },
-        { key: "status", label: "Status" },
-        { key: "type", label: "Type" },
-        { key: "received_from", label: "Received From" },
-        { key: "patient", label: "Patient" },
-        { key: "patient_pid", label: "Patient PID" },
-      ];
-
-      setColumns(columnDefinitions);
-    } catch (err) {
-      console.error("Failed to fetch reminders data:", err);
-      setError("Failed to load reminders data");
-      setTasks([]);
-      setColumns([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Function to determine if the current card type represents reminders/urgent tasks
   const isRemindersOrUrgentTasks = (cardType: string) => {
@@ -156,13 +102,10 @@ export const TaskSlidePanel: React.FC<{
   // Effect to handle different card types
   useEffect(() => {
     if (isVisible && cardType === "All Reminders") {
-      fetchRemindersData();
-    } else if (isVisible) {
-      // For other card types, use the passed tasks and columns
-      setTasks(initialTasks);
-      setColumns(initialColumns);
+      fetchData("reminders");
     }
-  }, [isVisible, cardType, initialTasks, initialColumns]);
+    // For other card types, the passed tasks and columns are used directly
+  }, [isVisible, cardType, fetchData]);
 
   // Update parent component when panel width changes
   useEffect(() => {
@@ -176,7 +119,7 @@ export const TaskSlidePanel: React.FC<{
 
   // Set panel ready after a small delay to ensure dimensions are stable
   useEffect(() => {
-    if (isVisible && !loading) {
+    if (isVisible && !loading && !isLoading) {
       const timer = setTimeout(() => {
         setIsPanelReady(true);
       }, 100);
@@ -184,7 +127,7 @@ export const TaskSlidePanel: React.FC<{
     } else {
       setIsPanelReady(false);
     }
-  }, [isVisible, loading]);
+  }, [isVisible, loading, isLoading]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsResizing(true);
@@ -385,7 +328,7 @@ export const TaskSlidePanel: React.FC<{
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-        {loading ? (
+        {(loading || isLoading) ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
@@ -399,7 +342,7 @@ export const TaskSlidePanel: React.FC<{
               <button
                 onClick={() => {
                   if (cardType === "All Reminders") {
-                    fetchRemindersData();
+                    fetchData("reminders");
                   }
                 }}
                 className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"

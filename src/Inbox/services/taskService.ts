@@ -7,6 +7,8 @@ interface UrgentTaskCountApiResponse {
     high: number;
     medium: number;
     low: number;
+    assigned_to_me: number;
+    created_by_me: number;
   };
 }
 
@@ -14,6 +16,8 @@ export const fetchUrgentTaskCounts = async (): Promise<{
   high: number;
   medium: number;
   low: number;
+  assigned_to_me: number;
+  created_by_me: number;
 }> => {
   try {
     const response =
@@ -87,6 +91,112 @@ export const fetchUrgentTasksDataForPanel = async (
   } catch (err) {
     console.error("Failed to fetch urgent tasks data for panel:", err);
     throw new Error("Failed to load urgent tasks data");
+  }
+};
+
+export const fetchAssignedTasksDataForPanel = async (): Promise<{
+  tasks: any[];
+  columns: any[];
+  title: string;
+}> => {
+  try {
+    const response = await axiosClient.get<any>("/tasks?per_page=1000");
+
+    const transformedTasks = response.data.data.map(
+      (task: any, index: number) => ({
+        id: task.id?.toString() || index.toString(),
+        title: task.subject || "",
+        description: task.message || "No Description",
+        assignedTo: task.received_from?.name || "System",
+        person: task.patient?.name || "",
+        dueDate: task.due_date || "Today",
+        priority: task.priority?.toLowerCase() || "medium",
+        status: task.status?.toLowerCase() || "pending",
+        type: task.type || "Reminder",
+        subject: task.subject,
+        message: task.message,
+        start_date: task.start_date,
+        due_date: task.due_date,
+        received_from: task.received_from?.name,
+        patient: task.patient?.name,
+        patient_pid: task.patient?.pid,
+      })
+    );
+
+    const columnDefinitions = [
+      { key: "subject", label: "Subject" },
+      { key: "message", label: "Message" },
+      { key: "start_date", label: "Start Date" },
+      { key: "due_date", label: "Due Date" },
+      { key: "priority", label: "Priority" },
+      { key: "status", label: "Status" },
+      { key: "type", label: "Type" },
+      { key: "received_from", label: "Received From" },
+      { key: "patient", label: "Patient" },
+      { key: "patient_pid", label: "Patient PID" },
+    ];
+
+    return {
+      tasks: transformedTasks,
+      columns: columnDefinitions,
+      title: "Assigned to Me",
+    };
+  } catch (err) {
+    console.error("Failed to fetch assigned tasks data for panel:", err);
+    throw new Error("Failed to load assigned tasks data");
+  }
+};
+
+export const fetchCreatedByMeTasksDataForPanel = async (): Promise<{
+  tasks: any[];
+  columns: any[];
+  title: string;
+}> => {
+  try {
+    const response = await axiosClient.get<any>("/tasks?created_by_me=1");
+
+    const transformedTasks = response.data.data.map(
+      (task: any, index: number) => ({
+        id: task.id?.toString() || index.toString(),
+        title: task.subject || "",
+        description: task.message || "No Description",
+        assignedTo: task.received_from?.name || "System",
+        person: task.patient?.name || "",
+        dueDate: task.due_date || "Today",
+        priority: task.priority?.toLowerCase() || "medium",
+        status: task.status?.toLowerCase() || "pending",
+        type: task.type || "Reminder",
+        subject: task.subject,
+        message: task.message,
+        start_date: task.start_date,
+        due_date: task.due_date,
+        received_from: task.received_from?.name,
+        patient: task.patient?.name,
+        patient_pid: task.patient?.pid,
+      })
+    );
+
+    const columnDefinitions = [
+      { key: "subject", label: "Subject" },
+      { key: "message", label: "Message" },
+      { key: "start_date", label: "Start Date" },
+      { key: "due_date", label: "Due Date" },
+      { key: "priority", label: "Priority" },
+      { key: "status", label: "Status" },
+      { key: "type", label: "Type" },
+      { key: "received_from", label: "Received From" },
+      { key: "patient", label: "Patient" },
+      { key: "patient_pid", label: "Patient PID" },
+    ];
+
+    return {
+      tasks: transformedTasks,
+      columns: columnDefinitions,
+      title: "Tasks created by me",
+    };
+  } catch (err) {
+    console.error("Failed to fetch created by me tasks data for panel:", err);
+    throw new Error("Failed to load created by me tasks data");
   }
 };
 
