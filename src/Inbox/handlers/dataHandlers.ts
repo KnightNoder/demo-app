@@ -1,5 +1,6 @@
 import { InboxService } from "../services/inboxService";
 import { ExtendedTask, ApiColumn } from "../components/organisms/TaskManagementContainer";
+import axiosClient from "../../api/axiosClient";
 
 // Fetch full agenda data for slide panel
 export const fetchAgendaDataForPanel = async (): Promise<{
@@ -55,5 +56,66 @@ export const fetchUrgentTasksDataForPanel = async (
     };
   } catch (err) {
     throw new Error("Failed to load urgent tasks data");
+  }
+};
+
+// Fetch applicants data for slide panel
+export const fetchApplicantsDataForPanel = async (): Promise<{
+  tasks: ExtendedTask[];
+  columns: ApiColumn[];
+  title: string;
+}> => {
+  try {
+    interface ApplicantData {
+      name: string;
+      movein_facility_id: string;
+      movein_date: string;
+      physical_approval_date: string;
+      approved_date: string;
+      elgname: string | null;
+      sex: string;
+      phone: string | null;
+      address: string;
+    }
+
+    interface ApplicantApiResponse {
+      data: ApplicantData[];
+      columns: ApiColumn[];
+    }
+
+    const response = await axiosClient.get<ApplicantApiResponse>("/applicants");
+
+    const transformedTasks: ExtendedTask[] = response.data.data.map(
+      (applicant: ApplicantData, index: number) => ({
+        id: `applicant-${index}`,
+        title: `Applicant: ${applicant.name}`,
+        description: `Moving to ${applicant.movein_facility_id}`,
+        assignedTo: "System",
+        person: applicant.name,
+        dueDate: applicant.movein_date,
+        priority: "medium" as const,
+        status: "pending" as const,
+        type: "applicant" as const,
+        // Include all original applicant data for dynamic column access
+        ...applicant,
+      })
+    );
+
+    // Capitalize column labels
+    const capitalizedColumns = response.data.columns.map((column) => ({
+      ...column,
+      label: column.label
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" "),
+    }));
+
+    return {
+      tasks: transformedTasks,
+      columns: capitalizedColumns,
+      title: "Applicants",
+    };
+  } catch (err) {
+    throw new Error("Failed to load applicants data");
   }
 };

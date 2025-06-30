@@ -46,6 +46,23 @@ interface AgendaApiResponse {
   columns?: ApiColumn[];
 }
 
+interface ApplicantData {
+  name: string;
+  movein_facility_id: string;
+  movein_date: string;
+  physical_approval_date: string;
+  approved_date: string;
+  elgname: string | null;
+  sex: string;
+  phone: string | null;
+  address: string;
+}
+
+interface ApplicantApiResponse {
+  data: ApplicantData[];
+  columns: ApiColumn[];
+}
+
 // Utility functions
 const capitalizeLabel = (label: string): string => {
   return label
@@ -288,8 +305,53 @@ export const useTaskData = () => {
     }
   }, []);
 
+  // Fetch applicants data
+  const fetchApplicantsData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosClient.get<ApplicantApiResponse>("/applicants");
+
+      const transformedTasks = response.data.data.map(
+        (applicant: ApplicantData, index: number) => ({
+          id: `applicant-${index}`,
+          title: `Applicant: ${applicant.name}`,
+          description: `Moving to ${applicant.movein_facility_id}`,
+          assignedTo: "System",
+          person: applicant.name,
+          dueDate: applicant.movein_date,
+          priority: "medium" as const,
+          status: "pending" as const,
+          type: "applicant" as const,
+          // Include all original applicant data for dynamic column access
+          ...applicant,
+        })
+      );
+
+      setTasks(transformedTasks);
+
+      // Use columns from API response with capitalized labels
+      const capitalizedColumns = response.data.columns.map((column) => ({
+        ...column,
+        label: capitalizeLabel(column.label),
+      }));
+
+      setColumns(capitalizedColumns);
+      return { tasks: transformedTasks, columns: capitalizedColumns };
+    } catch (err) {
+      console.error("Failed to fetch applicants data:", err);
+      setError("Failed to load applicants data");
+      setTasks([]);
+      setColumns([]);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Unified fetch function that takes a data type
-  const fetchData = useCallback(async (dataType: "reminders" | "birthdays" | "agenda") => {
+  const fetchData = useCallback(async (dataType: "reminders" | "birthdays" | "agenda" | "applicants") => {
     switch (dataType) {
       case "reminders":
         return fetchRemindersData();
@@ -297,10 +359,12 @@ export const useTaskData = () => {
         return fetchBirthdayData();
       case "agenda":
         return fetchAgendaData();
+      case "applicants":
+        return fetchApplicantsData();
       default:
         throw new Error(`Unknown data type: ${dataType}`);
     }
-  }, [fetchRemindersData, fetchBirthdayData, fetchAgendaData]);
+  }, [fetchRemindersData, fetchBirthdayData, fetchAgendaData, fetchApplicantsData]);
 
   return {
     tasks,
@@ -311,6 +375,7 @@ export const useTaskData = () => {
     fetchRemindersData,
     fetchBirthdayData,
     fetchAgendaData,
+    fetchApplicantsData,
     setTasks,
     setColumns,
     setError,

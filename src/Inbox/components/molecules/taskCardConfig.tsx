@@ -126,6 +126,15 @@ export const getTaskCardsConfig = (
     testId: "task-block-messages",
   },
   {
+    id: "applicants",
+    title: "Applicants",
+    count: 5,
+    icon: <PlayIcon />,
+    variant: "normal",
+    priority: "other",
+    testId: "task-block-applicants",
+  },
+  {
     id: "agenda",
     title: "Agenda",
     count: agendaCount,

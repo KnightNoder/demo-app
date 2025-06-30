@@ -95,6 +95,9 @@ export const TaskSlidePanel: React.FC<{
     if (cardType === "Agenda" || title === "Agenda") {
       return "agenda";
     }
+    if (cardType === "Applicants" || title === "Applicants") {
+      return "applicants";
+    }
     // Default to reminders for any urgent tasks
     return "reminders";
   };
