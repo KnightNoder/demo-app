@@ -559,6 +559,158 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         return [...baseColumns, ...agendaColumns, actionsColumn];
       }
 
+      // For messages data, use custom cell renderers to match HTML structure
+      if (activeTab === "messages") {
+        const messageColumns: ColDef[] = [
+          {
+            field: "message",
+            headerName: "Message",
+            width: getColumnWidth(300),
+            minWidth: 250,
+            cellRenderer: (params: any) => (
+              <div
+                className="text-sm text-gray-900 line-clamp-2 hover:line-clamp-none cursor-pointer py-2"
+                title={params.value}
+              >
+                {params.value}
+              </div>
+            ),
+          },
+          {
+            field: "from",
+            headerName: "From",
+            width: getColumnWidth(150),
+            minWidth: 120,
+            cellRenderer: (params: any) => (
+              <div className="flex items-center text-sm text-gray-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 mr-2 text-gray-600"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {params.value}
+              </div>
+            ),
+          },
+          {
+            field: "person",
+            headerName: "Person",
+            width: getColumnWidth(150),
+            minWidth: 120,
+            cellRenderer: (params: any) => (
+              <div
+                className="flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                title={`View patient chart for ${params.value}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 mr-2 text-gray-600"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {params.value}
+              </div>
+            ),
+          },
+          {
+            field: "messageType",
+            headerName: "Type",
+            width: getColumnWidth(120),
+            minWidth: 100,
+            cellRenderer: (params: any) => (
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-3.5 w-3.5"
+                  >
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="m9 15 2 2 4-4"></path>
+                  </svg>
+                </div>
+                <span className="text-sm text-gray-600">{params.value}</span>
+              </div>
+            ),
+          },
+          {
+            field: "date",
+            headerName: "Date",
+            width: getColumnWidth(150),
+            minWidth: 130,
+            cellRenderer: (params: any) => (
+              <div className="flex items-center text-sm text-gray-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 mr-2 text-gray-500"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {params.value}
+              </div>
+            ),
+          },
+          {
+            field: "messageStatus",
+            headerName: "Status",
+            width: getColumnWidth(120),
+            minWidth: 100,
+            cellRenderer: (params: any) => {
+              const isUnread = params.value?.toLowerCase() === "unread";
+              return (
+                <div
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border hover:bg-gray-50 text-sm h-6 ${
+                    isUnread
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                      : "bg-gray-50 text-gray-700 border-gray-200"
+                  }`}
+                >
+                  {params.value}
+                </div>
+              );
+            },
+          },
+        ];
+
+        return [...baseColumns, ...messageColumns];
+      }
+
       // For birthday data and other dynamic data, use columns from API WITHOUT actions column
       const dynamicColumns: ColDef[] = columns.map((column) => ({
         field: column.key,
@@ -568,7 +720,9 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
       }));
 
       // Filter out any empty columns or columns with missing field data
-      const validDynamicColumns = dynamicColumns.filter((col) => col.field && col.field.trim() !== '');
+      const validDynamicColumns = dynamicColumns.filter(
+        (col) => col.field && col.field.trim() !== ""
+      );
 
       return [...baseColumns, ...validDynamicColumns];
     }, [
@@ -644,7 +798,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
 
     return (
       <div
-        className="ag-theme-alpine w-full px-4"
+        className="ag-theme-alpine w-full"
         style={{
           height: `${containerHeight}px`,
           minHeight: `${containerHeight}px`,

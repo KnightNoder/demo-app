@@ -119,3 +119,72 @@ export const fetchApplicantsDataForPanel = async (): Promise<{
     throw new Error("Failed to load applicants data");
   }
 };
+
+// Fetch messages data for slide panel
+export const fetchMessagesDataForPanel = async (): Promise<{
+  tasks: ExtendedTask[];
+  columns: ApiColumn[];
+  title: string;
+}> => {
+  try {
+    interface MessageData {
+      id: string;
+      message: string;
+      from: string;
+      person: string;
+      type: string;
+      date: string;
+      status: string;
+    }
+
+    interface MessageApiResponse {
+      data: MessageData[];
+      columns?: ApiColumn[];
+    }
+
+    const response = await axiosClient.get<MessageApiResponse>("/inbox/messages", {
+      params: {
+        format: "inbox_list",
+        per_page: 1000
+      }
+    });
+
+    const transformedTasks: ExtendedTask[] = response.data.data.map(
+      (message: MessageData, index: number) => ({
+        id: message.id || `message-${index}`,
+        title: message.message || "No subject",
+        description: message.message || "No message content",
+        assignedTo: message.from || "System",
+        person: message.person || "",
+        dueDate: message.date || "",
+        priority: "medium" as const,
+        status: message.status?.toLowerCase() === "unread" ? ("pending" as const) : ("completed" as const),
+        type: "message" as const,
+        // Include all original message data for dynamic column access
+        message: message.message,
+        from: message.from,
+        messageType: message.type,
+        date: message.date,
+        messageStatus: message.status,
+      })
+    );
+
+    // Define columns based on the HTML structure
+    const messageColumns: ApiColumn[] = [
+      { key: "message", label: "Message" },
+      { key: "from", label: "From" },
+      { key: "person", label: "Person" },
+      { key: "type", label: "Type" },
+      { key: "date", label: "Date" },
+      { key: "status", label: "Status" },
+    ];
+
+    return {
+      tasks: transformedTasks,
+      columns: messageColumns,
+      title: "Messages",
+    };
+  } catch (err) {
+    throw new Error("Failed to load messages data");
+  }
+};

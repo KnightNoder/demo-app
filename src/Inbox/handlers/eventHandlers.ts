@@ -5,6 +5,7 @@ import {
   fetchBirthdayDataForPanel,
   fetchUrgentTasksDataForPanel,
   fetchApplicantsDataForPanel,
+  fetchMessagesDataForPanel,
 } from "./dataHandlers";
 import {
   fetchAssignedTasksDataForPanel,
@@ -81,6 +82,12 @@ export const handleCardClick = async (
       setters.setIsPanelLoading(false);
     } else if (cardType === "Applicants") {
       const { tasks, columns, title } = await fetchApplicantsDataForPanel();
+      setters.setSelectedCardTasks(tasks);
+      setters.setSelectedCardColumns(columns);
+      setters.setSelectedCardTitle(title);
+      setters.setIsPanelLoading(false);
+    } else if (cardType === "Messages") {
+      const { tasks, columns, title } = await fetchMessagesDataForPanel();
       setters.setSelectedCardTasks(tasks);
       setters.setSelectedCardColumns(columns);
       setters.setSelectedCardTitle(title);
