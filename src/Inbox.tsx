@@ -25,7 +25,6 @@ import {
 import {
   getButtonPosition,
   formatTime,
-  getIntervalText,
 } from "./Inbox/utils/uiUtils";
 import {
   sortCards,
@@ -372,10 +371,15 @@ const Inbox = () => {
           filters={filters}
         />
 
-        {/* Subtle Polling Status Bar */}
-        <div className="px-4 mb-3">
-          <div className="flex items-center justify-between py-2 px-3 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-100/50 shadow-sm">
-            <div className="flex items-center space-x-2">
+        {/* Compact Polling Status Indicator */}
+        <div 
+          className="fixed top-4 z-50 transition-all duration-300 ease-in-out"
+          style={{
+            right: isPanelVisible ? `${panelWidth + 24}px` : '24px',
+          }}
+        >
+          <div className="relative group">
+            <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-gray-100/50">
               <div className={`w-2 h-2 rounded-full ${
                 polling.pollingStatus === "active" 
                   ? "bg-green-400 animate-pulse" 
@@ -383,97 +387,105 @@ const Inbox = () => {
                   ? "bg-red-400"
                   : "bg-gray-300"
               }`}></div>
-              <span className="text-xs font-medium text-gray-600">
+              <span className="text-xs font-medium text-gray-700">
                 {polling.pollingStatus === "active" ? "Live" : 
                  polling.pollingStatus === "paused" ? "Paused" :
                  polling.pollingStatus === "error" ? "Error" : "Idle"}
               </span>
-              {polling.lastUpdated && (
-                <span className="text-xs text-gray-400">
-                  • {formatTime(polling.lastUpdated)}
-                </span>
-              )}
-              {polling.pollingError && (
-                <span className="text-xs text-red-500 max-w-48 truncate">
-                  • {polling.pollingError}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center space-x-1">
-              {/* Polling interval dropdown */}
+              
+              {/* Controls dropdown */}
               <div className="relative" data-polling-dropdown>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsIntervalDropdownOpen(!isIntervalDropdownOpen);
                   }}
-                  className="flex items-center space-x-1 px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                  title="Change refresh interval"
+                  className="p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
+                  title="Polling controls"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{getIntervalText(pollingInterval)}</span>
-                  <svg className={`w-3 h-3 transition-transform ${isIntervalDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
                 {isIntervalDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-16 bg-white border border-gray-200 rounded-md shadow-lg z-[60]">
-                    {[
-                      { value: 30000, label: "30s" },
-                      { value: 60000, label: "1m" },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("Clicked interval option:", option.value, option.label);
-                          handleIntervalChange(option.value);
-                        }}
-                        className={`w-full px-2 py-1.5 text-xs text-left hover:bg-gray-50 transition-colors ${
-                          pollingInterval === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-[60]">
+                    <div className="p-2 border-b border-gray-100">
+                      <div className="text-xs font-medium text-gray-700 mb-1">Status</div>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        {polling.lastUpdated && (
+                          <span>Last: {formatTime(polling.lastUpdated)}</span>
+                        )}
+                        {polling.pollingError && (
+                          <span className="text-red-500 truncate">{polling.pollingError}</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="p-2 border-b border-gray-100">
+                      <div className="text-xs font-medium text-gray-700 mb-2">Refresh Interval</div>
+                      <div className="space-y-1">
+                        {[
+                          { value: 30000, label: "30 seconds" },
+                          { value: 60000, label: "1 minute" },
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleIntervalChange(option.value);
+                            }}
+                            className={`w-full px-2 py-1 text-xs text-left rounded hover:bg-gray-50 transition-colors ${
+                              pollingInterval === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="p-2">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={polling.handleManualRefresh}
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                          title="Refresh now"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Refresh
+                        </button>
+                        <button
+                          onClick={() => {
+                            polling.togglePolling();
+                            setIsPolling(!isPolling);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                          title={isPolling ? "Pause auto-refresh" : "Resume auto-refresh"}
+                        >
+                          {isPolling ? (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                              </svg>
+                              Pause
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                              </svg>
+                              Resume
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Manual refresh button */}
-              <button
-                onClick={polling.handleManualRefresh}
-                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                title="Refresh now"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-
-              {/* Pause/Resume button */}
-              <button
-                onClick={() => {
-                  polling.togglePolling();
-                  setIsPolling(!isPolling);
-                }}
-                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                title={isPolling ? "Pause auto-refresh" : "Resume auto-refresh"}
-              >
-                {isPolling ? (
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
-                  </svg>
-                ) : (
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                )}
-              </button>
             </div>
           </div>
         </div>

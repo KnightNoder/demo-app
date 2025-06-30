@@ -644,7 +644,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
 
     return (
       <div
-        className="ag-theme-alpine w-full hidden md:block px-4"
+        className="ag-theme-alpine w-full px-4"
         style={{
           height: `${containerHeight}px`,
           minHeight: `${containerHeight}px`,
