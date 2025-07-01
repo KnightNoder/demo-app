@@ -25,6 +25,13 @@ export const fetchSentMessages = async () => {
   return response.data;
 };
 
+export const fetchMyMessages = async () => {
+  const response = await axiosClient.get(
+    "/inbox/messages?format=inbox_list"
+  );
+  return response.data;
+};
+
 export const InboxService = {
   fetchBirthdayCount,
   fetchBirthdayDataForPanel,
@@ -33,6 +40,7 @@ export const InboxService = {
   fetchAgendaDataForPanel,
   fetchMessages,
   fetchSentMessages,
+  fetchMyMessages,
 
   fetchInitialData: async () => {
     return Promise.all([

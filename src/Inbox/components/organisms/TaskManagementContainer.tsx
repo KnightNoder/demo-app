@@ -13,7 +13,7 @@ export interface ExtendedTask {
   person: string;
   dueDate: string;
   priority: "high" | "medium" | "low";
-  status: "pending" | "completed" | "in-progress";
+  status: "pending" | "completed" | "in-progress" | "Read" | "New" | "Done";
   type: string;
   [key: string]: any; // This allows dynamic property access
 }

@@ -334,6 +334,9 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
     },
     ref
   ) => {
+    console.log("AGGridTable: Received props - tasks:", tasks);
+    console.log("AGGridTable: Received props - columns:", columns);
+    console.log("AGGridTable: Received props - activeTab:", activeTab);
     const gridRef = useRef<AgGridReact>(null);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const [containerHeight, setContainerHeight] = useState(600);

@@ -378,12 +378,15 @@ export const useTaskData = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axiosClient.get<MessageApiResponse>("/inbox/messages", {
-        params: {
-          format: "inbox_list",
-          per_page: 1000
+      const response = await axiosClient.get<MessageApiResponse>(
+        "/inbox/messages",
+        {
+          params: {
+            format: "inbox_list",
+            per_page: 1000,
+          },
         }
-      });
+      );
 
       const transformedTasks = response.data.data.map(
         (message: MessageData) => ({
@@ -394,32 +397,52 @@ export const useTaskData = () => {
           person: message.patient,
           dueDate: message.date,
           priority: "medium" as const,
-          status: message.status?.toLowerCase() === "read" ? ("completed" as const) : ("pending" as const),
+          status:
+            message.status === "Done" ||
+            message.status === "Read"
+              ? ("completed" as const)
+              : ("pending" as const),
           type: "message" as const,
           // Include all original message data for dynamic column access
           from: message.from,
           patient: message.patient,
           messageType: message.type,
           date: message.date,
-          messageStatus: message.status,
+          messageStatus:
+            message.status === "Done" ||
+            message.status === "Read"
+              ? "read"
+              : "unread",
+          originalStatus: message.status, // Keep original status for reference
           form_link: message.form_link,
         })
       );
+      console.log(transformedTasks);
 
       setTasks(transformedTasks);
 
       // Use columns from API response
       let messageColumns: ApiColumn[] = response.data.columns;
+      
+      // Update the status column to use messageStatus for display
+      messageColumns = messageColumns.map(column => {
+        if (column.key === 'status') {
+          return { ...column, key: 'messageStatus' };
+        }
+        return column;
+      });
 
       // Remove the "Messages" column
-      messageColumns = messageColumns.filter(column => column.key !== 'messages');
+      messageColumns = messageColumns.filter(
+        (column) => column.key !== "messages"
+      );
 
       // Add the "Actions" column
       messageColumns.push({
         key: "actions",
         label: "Actions",
         // Add a custom cell renderer for the buttons
-        cellRenderer: () => (
+        cellRenderer: () =>
           `<div class="flex justify-end gap-2">
             <button class="text-gray-400 hover:text-amber-600 p-2 rounded-sm hover:bg-amber-50" title="Mark as Client Grievance">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-warning h-6 w-6 text-amber-500 hover:text-amber-600">
@@ -434,8 +457,7 @@ export const useTaskData = () => {
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
             </button>
-          </div>`
-        )
+          </div>`,
       });
 
       setColumns(messageColumns);

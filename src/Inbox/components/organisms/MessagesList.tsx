@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AGGridTable } from "./AGGridTable";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
+import { InboxService } from "../../services/inboxService";
 
 interface MessagesListProps {
   messages: ExtendedTask[];
@@ -11,7 +12,7 @@ interface MessagesListProps {
 }
 
 export const MessagesList: React.FC<MessagesListProps> = ({
-  messages,
+  messages: inboxMessagesProp, // Rename to avoid conflict with internal state
   columns,
   onReply,
   onComplete,
@@ -20,10 +21,248 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   const [activeTab, setActiveTab] = useState<"inbox" | "sent">("inbox");
   const [searchValue, setSearchValue] = useState("");
   const [showFilter, setShowFilter] = useState<"all" | "my">("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
+  const [allMessagesData, setAllMessagesData] = useState<ExtendedTask[]>([]);
+  const [myMessagesData, setMyMessagesData] = useState<ExtendedTask[]>([]);
+  const [currentColumns, setCurrentColumns] = useState<ApiColumn[]>(columns);
+  const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">(
+    "all"
+  );
+  const [sentMessages, setSentMessages] = useState<ExtendedTask[]>([]);
+  const [loadingSent, setLoadingSent] = useState(false);
+
+  // Helper function to fetch all messages
+  const fetchAllMessages = async () => {
+    try {
+      const response = await InboxService.fetchMessages();
+
+      // Check if response.data is an array or has a data property
+      const messagesArray = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data;
+
+      if (!messagesArray || !Array.isArray(messagesArray)) {
+        setAllMessagesData([]);
+        return [];
+      }
+
+      // Transform the API response to match ExtendedTask format
+      const transformedMessages = messagesArray.map((message: any) => ({
+        id: message.id.toString(),
+        title: `${message.type}: ${message.patient}`,
+        description: `Message from ${message.from} regarding ${message.patient}`,
+        assignedTo: message.from,
+        person: message.patient,
+        dueDate: message.date,
+        priority: "medium" as const,
+        status:
+          message.status === "Done" || message.status === "Read"
+            ? ("completed" as const)
+            : ("pending" as const),
+        type: "message" as const,
+        from: message.from,
+        patient: message.patient,
+        messageType: message.type,
+        date: message.date,
+        messageStatus:
+          message.status === "Done" || message.status === "Read"
+            ? "read"
+            : "unread",
+        originalStatus: message.status,
+        form_link: message.form_link,
+      }));
+      setAllMessagesData(transformedMessages);
+      
+      // Update columns from API response
+      if (response.columns) {
+        let messageColumns: ApiColumn[] = response.columns;
+        
+        // Update the status column to use messageStatus for display
+        messageColumns = messageColumns.map(column => {
+          if (column.key === 'status') {
+            return { ...column, key: 'messageStatus' };
+          }
+          return column;
+        });
+
+        // Remove the "Messages" column
+        messageColumns = messageColumns.filter(
+          (column) => column.key !== "messages"
+        );
+
+        // Add the "Actions" column
+        messageColumns.push({
+          key: "actions",
+          label: "Actions",
+          cellRenderer: () =>
+            `<div class="flex justify-end gap-2">
+              <button class="text-gray-400 hover:text-amber-600 p-2 rounded-sm hover:bg-amber-50" title="Mark as Client Grievance">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-warning h-6 w-6 text-amber-500 hover:text-amber-600">
+                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V7Z"></path>
+                  <path d="M12 9v4"></path>
+                  <path d="M12 17h.01"></path>
+                </svg>
+              </button>
+              <button class="text-gray-400 hover:text-blue-600 p-2 rounded-sm hover:bg-blue-50" title="Mark as read">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-6 w-6 text-blue-500 hover:text-blue-600">
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>`,
+        });
+        
+        setCurrentColumns(messageColumns);
+      }
+      
+      return transformedMessages;
+    } catch (error) {
+      setAllMessagesData([]);
+      return [];
+    }
+  };
+
+  // Helper function to fetch my messages
+  const fetchMyMessages = async () => {
+    try {
+      const response = await InboxService.fetchMyMessages();
+      
+      // Check if response.data is an array or has a data property
+      const messagesArray = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data;
+      
+      if (!messagesArray || !Array.isArray(messagesArray)) {
+        setMyMessagesData([]);
+        return [];
+      }
+
+      // Transform the API response to match ExtendedTask format
+      const transformedMessages = messagesArray.map((message: any) => ({
+        id: message.id.toString(),
+        title: `${message.type}: ${message.patient}`,
+        description: `Message from ${message.from} regarding ${message.patient}`,
+        assignedTo: message.from,
+        person: message.patient,
+        dueDate: message.date,
+        priority: "medium" as const,
+        status:
+          message.status === "Done" || message.status === "Read"
+            ? ("completed" as const)
+            : ("pending" as const),
+        type: "message" as const,
+        from: message.from,
+        patient: message.patient,
+        messageType: message.type,
+        date: message.date,
+        messageStatus:
+          message.status === "Done" || message.status === "Read"
+            ? "read"
+            : "unread",
+        originalStatus: message.status,
+        form_link: message.form_link,
+      }));
+      setMyMessagesData(transformedMessages);
+      
+      // Update columns from API response
+      if (response.columns) {
+        let messageColumns: ApiColumn[] = response.columns;
+        
+        // Update the status column to use messageStatus for display
+        messageColumns = messageColumns.map(column => {
+          if (column.key === 'status') {
+            return { ...column, key: 'messageStatus' };
+          }
+          return column;
+        });
+
+        // Remove the "Messages" column
+        messageColumns = messageColumns.filter(
+          (column) => column.key !== "messages"
+        );
+
+        // Add the "Actions" column
+        messageColumns.push({
+          key: "actions",
+          label: "Actions",
+          cellRenderer: () =>
+            `<div class="flex justify-end gap-2">
+              <button class="text-gray-400 hover:text-amber-600 p-2 rounded-sm hover:bg-amber-50" title="Mark as Client Grievance">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-warning h-6 w-6 text-amber-500 hover:text-amber-600">
+                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V7Z"></path>
+                  <path d="M12 9v4"></path>
+                  <path d="M12 17h.01"></path>
+                </svg>
+              </button>
+              <button class="text-gray-400 hover:text-blue-600 p-2 rounded-sm hover:bg-blue-50" title="Mark as read">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-6 w-6 text-blue-500 hover:text-blue-600">
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>`,
+        });
+        
+        setCurrentColumns(messageColumns);
+      }
+      
+      return transformedMessages;
+    } catch (error) {
+      setMyMessagesData([]);
+      return [];
+    }
+  };
+
+  // Initialize with passed messages data if available, otherwise fetch data
+  useEffect(() => {
+    console.log("MessagesList: Received messages prop:", inboxMessagesProp);
+    console.log("MessagesList: Received columns prop:", columns);
+    
+    if (inboxMessagesProp && inboxMessagesProp.length > 0) {
+      // Use the passed messages data and update internal state
+      setMyMessagesData(inboxMessagesProp);
+      setAllMessagesData(inboxMessagesProp);
+      console.log("MessagesList: Using passed messages data");
+      // Update columns with passed columns
+      if (columns && columns.length > 0) {
+        setCurrentColumns(columns);
+        console.log("MessagesList: Using passed columns");
+      }
+    } else {
+      // Only fetch if no messages were passed
+      console.log("MessagesList: No messages passed, fetching data");
+      fetchMyMessages();
+    }
+  }, [inboxMessagesProp, columns]);
+
+  // Effect to fetch sent messages when the tab changes to 'sent'
+  useEffect(() => {
+    if (activeTab === "sent" && sentMessages.length === 0) {
+      setLoadingSent(true);
+      InboxService.fetchSentMessages()
+        .then((response) => {
+          setSentMessages(
+            Array.isArray(response.data.data) ? response.data.data : []
+          );
+        })
+        .catch(() => {
+          setSentMessages([]); // Clear messages on error
+        })
+        .finally(() => {
+          setLoadingSent(false);
+        });
+    }
+  }, [activeTab, sentMessages.length]);
+
+  const currentMessages = activeTab === "inbox" 
+    ? (showFilter === "all" ? allMessagesData : myMessagesData)
+    : sentMessages;
+
+  console.log("MessagesList: Current messages:", currentMessages);
+  console.log("MessagesList: Show filter:", showFilter);
+  console.log("MessagesList: Active tab:", activeTab);
 
   // Filter tasks based on search and filters
-  const filteredTasks = messages.filter(task => {
+  const filteredTasks = currentMessages.filter((task) => {
     const searchLower = searchValue.toLowerCase();
     const matchesSearch =
       task.title?.toLowerCase().includes(searchLower) ||
@@ -31,29 +270,25 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       task.assignedTo?.toLowerCase().includes(searchLower) ||
       task.person?.toLowerCase().includes(searchLower);
 
-    // Filter by tab (inbox/sent) - using 'messageType' property on ExtendedTask
-    const matchesTab =
-      activeTab === "inbox"
-        ? task.messageType !== "sent" // Assuming 'sent' is a possible messageType
-        : task.messageType === "sent";
-
     // Filter by 'Show' (all/my) - assuming 'my' messages are identified by 'from'
     // NOTE: Replace "CURRENT_USER_IDENTIFIER" with the actual user's ID or name
     // This value would typically come from an authentication context or user profile.
     const matchesShow =
-      showFilter === "all" || (showFilter === "my" && task.from === "CURRENT_USER_IDENTIFIER");
+      showFilter === "all" ||
+      (showFilter === "my" && task.from === "CURRENT_USER_IDENTIFIER");
 
     const matchesStatus =
       statusFilter === "all" ||
       (statusFilter === "unread" && task.messageStatus === "unread") ||
       (statusFilter === "read" && task.messageStatus === "read");
 
-    return matchesSearch && matchesTab && matchesShow && matchesStatus;
+    return matchesSearch && matchesShow && matchesStatus;
   });
 
-  // Calculate counts for tabs based on messageType
-  const inboxCount = messages.filter(task => task.messageType !== "sent").length;
-  const sentCount = messages.filter(task => task.messageType === "sent").length;
+  console.log("MessagesList: Filtered tasks:", filteredTasks);
+  console.log("MessagesList: Current columns:", currentColumns);
+  console.log("MessagesList: filteredTasks.length:", filteredTasks.length);
+  console.log("MessagesList: currentColumns.length:", currentColumns.length);
 
   return (
     <div className="h-[calc(100vh-64px)] overflow-y-auto">
@@ -71,12 +306,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             >
               Inbox
               <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {inboxCount}
+                {inboxMessagesProp.length}
               </span>
             </button>
-            {/* The 'Sent' tab is included for future expansion. Currently, the API only provides inbox messages,
-                so this tab will likely show 0 messages unless your API is updated to include 'sent' messages
-                with a 'messageType' of "sent". */}
             <button
               onClick={() => setActiveTab("sent")}
               className={`pb-2 text-sm font-medium relative ${
@@ -87,7 +319,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             >
               Sent
               <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {sentCount}
+                {sentMessages.length}
               </span>
             </button>
           </div>
@@ -123,86 +355,111 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-            {/* Show Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Show:</span>
-              <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-                <button
-                  onClick={() => setShowFilter("all")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    showFilter === "all"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  All Messages
-                </button>
-                <button
-                  onClick={() => setShowFilter("my")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    showFilter === "my"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  My Messages
-                </button>
+          {/* Filters - Only show when not on Sent tab */}
+          {activeTab !== "sent" && (
+            <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+              {/* Show Filter */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">Show:</span>
+                <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                  <button
+                    onClick={() => {
+                      setShowFilter("all");
+                      fetchAllMessages();
+                    }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      showFilter === "all"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    All Messages
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowFilter("my");
+                      fetchMyMessages();
+                    }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      showFilter === "my"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    My Messages
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Status:</span>
-              <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-                <button
-                  onClick={() => setStatusFilter("all")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    statusFilter === "all"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setStatusFilter("unread")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    statusFilter === "unread"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Unread
-                </button>
-                <button
-                  onClick={() => setStatusFilter("read")}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    statusFilter === "read"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
-                >
-                  Read
-                </button>
+              {/* Status Filter */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">Status:</span>
+                <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      statusFilter === "all"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("unread")}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      statusFilter === "unread"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Unread
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("read")}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                      statusFilter === "read"
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Read
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Loading indicator for sent messages */}
+        {loadingSent && activeTab === "sent" && (
+          <div className="flex items-center justify-center h-24">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-sm text-gray-600 ml-2">
+              Loading sent messages...
+            </p>
+          </div>
+        )}
 
         {/* Messages Table */}
-        <div className="ag-theme-alpine ag-theme-custom rounded-lg border border-gray-200">
-          <AGGridTable
-            tasks={filteredTasks}
-            columns={columns}
-            onReply={onReply}
-            onComplete={onComplete}
-            activeTab="messages"
-            isPanelReady={true}
-            panelWidth={panelWidth}
-          />
-        </div>
+        {!loadingSent && (
+          <div className="ag-theme-alpine ag-theme-custom rounded-lg border border-gray-200">
+            {(() => {
+              console.log("MessagesList: Passing to AGGridTable - filteredTasks:", filteredTasks);
+              console.log("MessagesList: Passing to AGGridTable - currentColumns:", currentColumns);
+              return null;
+            })()}
+            <AGGridTable
+              tasks={filteredTasks}
+              columns={currentColumns}
+              onReply={onReply}
+              onComplete={onComplete}
+              activeTab="messages"
+              isPanelReady={true}
+              panelWidth={panelWidth}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

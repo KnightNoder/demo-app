@@ -3,7 +3,6 @@ import { AGGridTable } from "./AGGridTable"; // Import the real AG-Grid componen
 import { MessagesList } from "./MessagesList"; // Import Messages component
 import { useTaskData } from "../../hooks/useTaskData";
 import { Button } from "../atoms/Button";
-import { InboxService } from "../../services/inboxService";
 
 // Extended task interface with index signature for dynamic properties
 interface ExtendedTask {
@@ -63,6 +62,7 @@ export const TaskSlidePanel: React.FC<{
     error: hookError,
     fetchData,
   } = useTaskData();
+
 
   // Use hook data for "All Reminders", passed data for other cases
   const tasks = cardType === "All Reminders" ? hookTasks : initialTasks;
@@ -405,13 +405,20 @@ export const TaskSlidePanel: React.FC<{
         ) : (
           <div className="h-full" style={{ opacity: isPanelReady ? 1 : 0 }}>
             {title === "Messages" ? (
-              <MessagesList
-                messages={tasks}
-                columns={columns}
-                onReply={onReply}
-                onComplete={onComplete}
-                panelWidth={panelWidth}
-              />
+              <>
+                {(() => {
+                  console.log("TaskSlidePanel: Passing to MessagesList - tasks:", tasks);
+                  console.log("TaskSlidePanel: Passing to MessagesList - columns:", columns);
+                  return null;
+                })()}
+                <MessagesList
+                  messages={tasks}
+                  columns={columns}
+                  onReply={onReply}
+                  onComplete={onComplete}
+                  panelWidth={panelWidth}
+                />
+              </>
             ) : (
               <AGGridTable
                 tasks={tasks}

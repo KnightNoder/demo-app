@@ -169,7 +169,8 @@ export const fetchMessagesDataForPanel = async (): Promise<{
         dueDate: message.date,
         priority: "medium" as const,
         status:
-          message.status?.toLowerCase() === "done"
+          message.status === "Done" ||
+          message.status === "Read"
             ? ("completed" as const)
             : ("pending" as const),
         type: message.type,
@@ -180,13 +181,24 @@ export const fetchMessagesDataForPanel = async (): Promise<{
         messageType: message.type,
         date: message.date,
         messageStatus:
-          message.status?.toLowerCase() === "done" ? "read" : "unread",
+          message.status === "Done" ||
+          message.status === "Read"
+            ? "read"
+            : "unread",
         form_link: message.form_link,
       })
     );
 
     // Use columns from API response
     let messageColumns: ApiColumn[] = response.data.columns;
+    
+    // Update the status column to use messageStatus for display
+    messageColumns = messageColumns.map(column => {
+      if (column.key === 'status') {
+        return { ...column, key: 'messageStatus' };
+      }
+      return column;
+    });
 
     // Remove the "Messages" column
     messageColumns = messageColumns.filter(
