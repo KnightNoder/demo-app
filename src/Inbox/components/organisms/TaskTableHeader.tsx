@@ -146,13 +146,19 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
       icon: "calendar" as const,
       active: activeTab === "agenda",
     },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: "chat" as const,
+      active: activeTab === "messages",
+    },
   ];
 
   return (
     <div className="w-full">
       <div className="bg-white overflow-hidden animate-scale-in">
         <div
-          className="p-5 border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-all duration-200"
+          className="p-5 border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 transition-all duration-200"
           onClick={onToggleExpanded}
         >
           <div className="flex items-center">
@@ -201,7 +207,10 @@ export const TaskTableHeader: React.FC<TaskTableHeaderProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <FilterButton onFiltersClick={onFiltersClick} filters={filters} />
+                <FilterButton
+                  onFiltersClick={onFiltersClick}
+                  filters={filters}
+                />
                 <CSVExportButton onExportCSV={onExportCSV} />
               </div>
             </div>

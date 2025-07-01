@@ -589,6 +589,16 @@ const Inbox = () => {
             onComplete={(taskId) =>
               handleComplete(taskId, () => fetchAllData(false))
             }
+            onTaskClick={(task) =>
+              handleCardClick("messages", { id: task.id, title: task.title, count: 0, icon: "", variant: "normal", priority: "low", testId: "" }, {
+                setSelectedCardTasks,
+                setSelectedCardColumns,
+                setSelectedCardTitle,
+                setIsPanelVisible,
+                setIsPanelLoading,
+                setError,
+              })
+            }
           />
         </div>
       </div>

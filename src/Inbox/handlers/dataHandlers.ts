@@ -128,56 +128,76 @@ export const fetchMessagesDataForPanel = async (): Promise<{
 }> => {
   try {
     interface MessageData {
-      id: string;
-      message: string;
+      id: number;
       from: string;
-      person: string;
+      patient: string;
       type: string;
       date: string;
       status: string;
+      form_link: string | null;
     }
 
     interface MessageApiResponse {
       data: MessageData[];
-      columns?: ApiColumn[];
+      columns: ApiColumn[];
+      success: boolean;
+      message: string;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+      };
     }
 
-    const response = await axiosClient.get<MessageApiResponse>("/inbox/messages", {
-      params: {
-        format: "inbox_list",
-        per_page: 1000
+    const response = await axiosClient.get<MessageApiResponse>(
+      "/inbox/messages",
+      {
+        params: {
+          format: "inbox_list",
+          per_page: 1000,
+        },
       }
-    });
+    );
 
     const transformedTasks: ExtendedTask[] = response.data.data.map(
-      (message: MessageData, index: number) => ({
-        id: message.id || `message-${index}`,
-        title: message.message || "No subject",
-        description: message.message || "No message content",
-        assignedTo: message.from || "System",
-        person: message.person || "",
-        dueDate: message.date || "",
+      (message: MessageData) => ({
+        id: message.id.toString(),
+        title: `${message.type}: ${message.patient}`,
+        description: `Message from ${message.from} regarding ${message.patient}`,
+        assignedTo: message.from,
+        person: message.patient,
+        dueDate: message.date,
         priority: "medium" as const,
-        status: message.status?.toLowerCase() === "unread" ? ("pending" as const) : ("completed" as const),
-        type: "message" as const,
+        status:
+          message.status?.toLowerCase() === "done"
+            ? ("completed" as const)
+            : ("pending" as const),
+        type: message.type,
         // Include all original message data for dynamic column access
-        message: message.message,
+        message: `${message.type}: ${message.patient}`,
         from: message.from,
+        patient: message.patient,
         messageType: message.type,
         date: message.date,
-        messageStatus: message.status,
+        messageStatus:
+          message.status?.toLowerCase() === "done" ? "read" : "unread",
+        form_link: message.form_link,
       })
     );
 
-    // Define columns based on the HTML structure
-    const messageColumns: ApiColumn[] = [
-      { key: "message", label: "Message" },
-      { key: "from", label: "From" },
-      { key: "person", label: "Person" },
-      { key: "type", label: "Type" },
-      { key: "date", label: "Date" },
-      { key: "status", label: "Status" },
-    ];
+    // Use columns from API response
+    let messageColumns: ApiColumn[] = response.data.columns;
+
+    // Remove the "Messages" column
+    messageColumns = messageColumns.filter(
+      (column) => column.key !== "messages"
+    );
+
+    // Add the "Actions" column
+    messageColumns.push({
+      key: "actions",
+      label: "Actions",
+    });
 
     return {
       tasks: transformedTasks,

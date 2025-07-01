@@ -28,11 +28,12 @@ export interface ApiColumn {
 interface TaskManagementContainerProps {
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
+  onTaskClick: (task: ExtendedTask) => void;
 }
 
 export const TaskManagementContainer: React.FC<
   TaskManagementContainerProps
-> = ({ onReply, onComplete }) => {
+> = ({ onReply, onComplete, onTaskClick }) => {
   const [searchValue, setSearchValue] = useState("");
   const [activeTab, setActiveTab] = useState("reminders"); // Default to reminders
   const [isExpanded, setIsExpanded] = useState(false);
@@ -54,7 +55,7 @@ export const TaskManagementContainer: React.FC<
   useEffect(() => {
     const fetchTabData = async () => {
       try {
-        await fetchData(activeTab as "reminders" | "birthdays" | "agenda");
+        await fetchData(activeTab as "reminders" | "birthdays" | "agenda" | "messages");
       } catch (err) {
         console.error(`Failed to fetch ${activeTab} data:`, err);
       }
@@ -86,6 +87,10 @@ export const TaskManagementContainer: React.FC<
       return standardFieldsMatch || dynamicFieldsMatch;
     });
   }, [tasks, searchValue, columns]);
+
+  const handleTaskClick = (task: ExtendedTask) => {
+    onTaskClick(task);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
@@ -154,7 +159,7 @@ export const TaskManagementContainer: React.FC<
   const retryFetch = () => {
     const fetchTabData = async () => {
       try {
-        await fetchData(activeTab as "reminders" | "birthdays" | "agenda");
+        await fetchData(activeTab as "reminders" | "birthdays" | "agenda" | "messages");
       } catch (err) {
         console.error(`Failed to fetch ${activeTab} data:`, err);
       }
@@ -218,6 +223,7 @@ export const TaskManagementContainer: React.FC<
                 columns={columns}
                 onReply={onReply}
                 onComplete={onComplete}
+                onTaskClick={handleTaskClick}
                 activeTab={activeTab}
                 isPanelReady={true}
                 panelWidth={1200}

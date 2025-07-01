@@ -3,7 +3,7 @@ import { AGGridTable } from "./AGGridTable";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 
 interface MessagesListProps {
-  tasks: ExtendedTask[];
+  messages: ExtendedTask[];
   columns: ApiColumn[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
@@ -11,7 +11,7 @@ interface MessagesListProps {
 }
 
 export const MessagesList: React.FC<MessagesListProps> = ({
-  tasks,
+  messages,
   columns,
   onReply,
   onComplete,
@@ -23,26 +23,43 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
 
   // Filter tasks based on search and filters
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = messages.filter(task => {
     const searchLower = searchValue.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       task.title?.toLowerCase().includes(searchLower) ||
       task.description?.toLowerCase().includes(searchLower) ||
       task.assignedTo?.toLowerCase().includes(searchLower) ||
       task.person?.toLowerCase().includes(searchLower);
 
-    const matchesStatus = statusFilter === "all" || 
-      (statusFilter === "unread" && task.status === "pending") ||
-      (statusFilter === "read" && task.status === "completed");
+    // Filter by tab (inbox/sent) - using 'messageType' property on ExtendedTask
+    const matchesTab =
+      activeTab === "inbox"
+        ? task.messageType !== "sent" // Assuming 'sent' is a possible messageType
+        : task.messageType === "sent";
 
-    return matchesSearch && matchesStatus;
+    // Filter by 'Show' (all/my) - assuming 'my' messages are identified by 'from'
+    // NOTE: Replace "CURRENT_USER_IDENTIFIER" with the actual user's ID or name
+    // This value would typically come from an authentication context or user profile.
+    const matchesShow =
+      showFilter === "all" || (showFilter === "my" && task.from === "CURRENT_USER_IDENTIFIER");
+
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "unread" && task.messageStatus === "unread") ||
+      (statusFilter === "read" && task.messageStatus === "read");
+
+    return matchesSearch && matchesTab && matchesShow && matchesStatus;
   });
+
+  // Calculate counts for tabs based on messageType
+  const inboxCount = messages.filter(task => task.messageType !== "sent").length;
+  const sentCount = messages.filter(task => task.messageType === "sent").length;
 
   return (
     <div className="h-[calc(100vh-64px)] overflow-y-auto">
       <div className="h-full p-4">
         {/* Tab Navigation */}
-        <div className="mb-4 border-b">
+        <div className="mb-4 border-b border-gray-200">
           <div className="flex gap-4">
             <button
               onClick={() => setActiveTab("inbox")}
@@ -54,9 +71,12 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             >
               Inbox
               <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {filteredTasks.length}
+                {inboxCount}
               </span>
             </button>
+            {/* The 'Sent' tab is included for future expansion. Currently, the API only provides inbox messages,
+                so this tab will likely show 0 messages unless your API is updated to include 'sent' messages
+                with a 'messageType' of "sent". */}
             <button
               onClick={() => setActiveTab("sent")}
               className={`pb-2 text-sm font-medium relative ${
@@ -66,6 +86,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               }`}
             >
               Sent
+              <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                {sentCount}
+              </span>
             </button>
           </div>
         </div>

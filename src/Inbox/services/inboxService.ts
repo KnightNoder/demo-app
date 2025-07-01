@@ -9,6 +9,21 @@ import {
 } from "./taskService";
 
 import { fetchAgendaDataForPanel } from "./agendaService";
+import axiosClient from "../../api/axiosClient";
+
+export const fetchMessages = async () => {
+  const response = await axiosClient.get(
+    "/inbox/messages?format=inbox_list&show_all=yes"
+  );
+  return response.data;
+};
+
+export const fetchSentMessages = async () => {
+  const response = await axiosClient.get(
+    "/inbox/messages?format=sent_list&show_all=yes"
+  );
+  return response.data;
+};
 
 export const InboxService = {
   fetchBirthdayCount,
@@ -16,12 +31,14 @@ export const InboxService = {
   fetchUrgentTaskCounts,
   fetchUrgentTasksDataForPanel,
   fetchAgendaDataForPanel,
-  
+  fetchMessages,
+  fetchSentMessages,
+
   fetchInitialData: async () => {
     return Promise.all([
       fetchBirthdayCount(),
       fetchUrgentTaskCounts(),
-      fetchAgendaDataForPanel()
+      fetchAgendaDataForPanel(),
     ]);
   },
 };

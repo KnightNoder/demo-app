@@ -16,6 +16,7 @@ interface AGGridTableProps {
   columns: ApiColumn[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
+  onTaskClick?: (task: ExtendedTask) => void; // Add this line
   activeTab?: string;
   isPanelReady?: boolean;
   panelWidth?: number;
@@ -327,6 +328,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
       columns,
       onReply,
       onComplete,
+      onTaskClick, // Add this line
       activeTab = "reminders",
       panelWidth,
     },
@@ -559,86 +561,48 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         return [...baseColumns, ...agendaColumns, actionsColumn];
       }
 
-      // For messages data, use custom cell renderers to match HTML structure
+      // For messages data, use dynamic columns from API (messages column removed, actions added)
       if (activeTab === "messages") {
-        const messageColumns: ColDef[] = [
-          {
-            field: "message",
-            headerName: "Message",
-            width: getColumnWidth(300),
-            minWidth: 250,
-            cellRenderer: (params: any) => (
-              <div
-                className="text-sm text-gray-900 line-clamp-2 hover:line-clamp-none cursor-pointer py-2"
-                title={params.value}
-              >
-                {params.value}
-              </div>
-            ),
-          },
-          {
-            field: "from",
-            headerName: "From",
-            width: getColumnWidth(150),
-            minWidth: 120,
-            cellRenderer: (params: any) => (
-              <div className="flex items-center text-sm text-gray-600">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 mr-2 text-gray-600"
+        // Debug: Log columns to identify empty ones
+        console.log('Messages columns before filtering:', columns);
+        
+        const filteredColumns = columns.filter(column => 
+          column.key && 
+          column.key.trim() !== "" && 
+          column.label && 
+          column.label.trim() !== "" &&
+          column.key !== 'messages' // Ensure messages column is completely removed
+        );
+        
+        console.log('Messages columns after filtering:', filteredColumns);
+        
+        const dynamicColumns: ColDef[] = filteredColumns.map((column) => {
+          // Custom cell renderers for specific message columns
+          if (column.key === "message") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(300),
+              minWidth: 250,
+              cellRenderer: (params: any) => (
+                <div
+                  className="text-sm text-gray-900 line-clamp-2 hover:line-clamp-none cursor-pointer py-2"
+                  title={params.value}
                 >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                {params.value}
-              </div>
-            ),
-          },
-          {
-            field: "person",
-            headerName: "Person",
-            width: getColumnWidth(150),
-            minWidth: 120,
-            cellRenderer: (params: any) => (
-              <div
-                className="flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                title={`View patient chart for ${params.value}`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 mr-2 text-gray-600"
-                >
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                {params.value}
-              </div>
-            ),
-          },
-          {
-            field: "messageType",
-            headerName: "Type",
-            width: getColumnWidth(120),
-            minWidth: 100,
-            cellRenderer: (params: any) => (
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  {params.value}
+                </div>
+              ),
+            };
+          }
+          
+          if (column.key === "from") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(150),
+              minWidth: 120,
+              cellRenderer: (params: any) => (
+                <div className="flex items-center text-sm text-gray-600">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -649,66 +613,208 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="h-3.5 w-3.5"
+                    className="h-5 w-5 mr-2 text-gray-600"
                   >
-                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                    <path d="m9 15 2 2 4-4"></path>
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-                </div>
-                <span className="text-sm text-gray-600">{params.value}</span>
-              </div>
-            ),
-          },
-          {
-            field: "date",
-            headerName: "Date",
-            width: getColumnWidth(150),
-            minWidth: 130,
-            cellRenderer: (params: any) => (
-              <div className="flex items-center text-sm text-gray-600">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 mr-2 text-gray-500"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                {params.value}
-              </div>
-            ),
-          },
-          {
-            field: "messageStatus",
-            headerName: "Status",
-            width: getColumnWidth(120),
-            minWidth: 100,
-            cellRenderer: (params: any) => {
-              const isUnread = params.value?.toLowerCase() === "unread";
-              return (
-                <div
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border hover:bg-gray-50 text-sm h-6 ${
-                    isUnread
-                      ? "bg-blue-50 text-blue-700 border-blue-200"
-                      : "bg-gray-50 text-gray-700 border-gray-200"
-                  }`}
-                >
                   {params.value}
                 </div>
-              );
-            },
-          },
-        ];
+              ),
+            };
+          }
+          
+          if (column.key === "person" || column.key === "patient") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(150),
+              minWidth: 120,
+              cellRenderer: (params: any) => (
+                <div
+                  className="flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  title={`View patient chart for ${params.value}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5 mr-2 text-gray-600"
+                  >
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  {params.value}
+                </div>
+              ),
+            };
+          }
+          
+          if (column.key === "type" || column.key === "messageType") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(120),
+              minWidth: 100,
+              cellRenderer: (params: any) => (
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-3.5 w-3.5"
+                    >
+                      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                      <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                      <path d="m9 15 2 2 4-4"></path>
+                    </svg>
+                  </div>
+                  <span className="text-sm text-gray-600">{params.value}</span>
+                </div>
+              ),
+            };
+          }
+          
+          if (column.key === "date") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(150),
+              minWidth: 130,
+              cellRenderer: (params: any) => (
+                <div className="flex items-center text-sm text-gray-600">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5 mr-2 text-gray-500"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {params.value}
+                </div>
+              ),
+            };
+          }
+          
+          if (column.key === "status" || column.key === "messageStatus") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(120),
+              minWidth: 100,
+              cellRenderer: (params: any) => {
+                const isUnread = params.value?.toLowerCase() === "unread";
+                return (
+                  <div
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border hover:bg-gray-50 text-sm h-6 ${
+                      isUnread
+                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                        : "bg-gray-50 text-gray-700 border-gray-200"
+                    }`}
+                  >
+                    {isUnread ? "Unread" : "Read"}
+                  </div>
+                );
+              },
+            };
+          }
+          
+          if (column.key === "actions") {
+            return {
+              field: column.key,
+              headerName: column.label,
+              width: getColumnWidth(120),
+              minWidth: 100,
+              cellRenderer: (params: any) => (
+                <div className="flex justify-end gap-2">
+                  <button 
+                    className="text-gray-400 hover:text-amber-600 p-2 rounded-sm hover:bg-amber-50" 
+                    title="Mark as Client Grievance"
+                    onClick={() => {
+                      // Handle grievance action
+                      console.log('Mark as grievance:', params.data);
+                    }}
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      className="h-6 w-6 text-amber-500 hover:text-amber-600"
+                    >
+                      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                      <path d="M12 9v4"></path>
+                      <path d="M12 17h.01"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    className="text-gray-400 hover:text-blue-600 p-2 rounded-sm hover:bg-blue-50" 
+                    title="Mark as read"
+                    onClick={() => {
+                      // Handle mark as read action
+                      console.log('Mark as read:', params.data);
+                    }}
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="24" 
+                      height="24" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      className="h-6 w-6 text-blue-500 hover:text-blue-600"
+                    >
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+              ),
+              sortable: false,
+              filter: false,
+            };
+          }
+          
+          // Default column configuration
+          return {
+            field: column.key,
+            headerName: column.label,
+            width: getColumnWidth(150),
+            minWidth: 120,
+          };
+        });
 
-        return [...baseColumns, ...messageColumns];
+        // For messages, don't include any base columns (no checkbox selection needed)
+        return [...dynamicColumns];
       }
 
       // For birthday data and other dynamic data, use columns from API WITHOUT actions column
@@ -811,6 +917,7 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           onGridReady={onGridReady}
+          onRowClicked={(event) => onTaskClick?.(event.data)} // Add this line
           rowSelection="multiple"
           suppressRowClickSelection={true}
           pagination={true}

@@ -63,6 +63,28 @@ interface ApplicantApiResponse {
   columns: ApiColumn[];
 }
 
+interface MessageData {
+  id: number;
+  from: string;
+  patient: string;
+  type: string;
+  date: string;
+  status: string;
+  form_link: string | null;
+}
+
+interface MessageApiResponse {
+  data: MessageData[];
+  columns: ApiColumn[];
+  success: boolean;
+  message: string;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
 // Utility functions
 const capitalizeLabel = (label: string): string => {
   return label
@@ -350,8 +372,87 @@ export const useTaskData = () => {
     }
   }, []);
 
+  // Fetch messages data
+  const fetchMessagesData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosClient.get<MessageApiResponse>("/inbox/messages", {
+        params: {
+          format: "inbox_list",
+          per_page: 1000
+        }
+      });
+
+      const transformedTasks = response.data.data.map(
+        (message: MessageData) => ({
+          id: message.id.toString(),
+          title: `${message.type}: ${message.patient}`,
+          description: `Message from ${message.from} regarding ${message.patient}`,
+          assignedTo: message.from,
+          person: message.patient,
+          dueDate: message.date,
+          priority: "medium" as const,
+          status: message.status?.toLowerCase() === "read" ? ("completed" as const) : ("pending" as const),
+          type: "message" as const,
+          // Include all original message data for dynamic column access
+          from: message.from,
+          patient: message.patient,
+          messageType: message.type,
+          date: message.date,
+          messageStatus: message.status,
+          form_link: message.form_link,
+        })
+      );
+
+      setTasks(transformedTasks);
+
+      // Use columns from API response
+      let messageColumns: ApiColumn[] = response.data.columns;
+
+      // Remove the "Messages" column
+      messageColumns = messageColumns.filter(column => column.key !== 'messages');
+
+      // Add the "Actions" column
+      messageColumns.push({
+        key: "actions",
+        label: "Actions",
+        // Add a custom cell renderer for the buttons
+        cellRenderer: () => (
+          `<div class="flex justify-end gap-2">
+            <button class="text-gray-400 hover:text-amber-600 p-2 rounded-sm hover:bg-amber-50" title="Mark as Client Grievance">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-warning h-6 w-6 text-amber-500 hover:text-amber-600">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V7Z"></path>
+                <path d="M12 9v4"></path>
+                <path d="M12 17h.01"></path>
+              </svg>
+            </button>
+            <button class="text-gray-400 hover:text-blue-600 p-2 rounded-sm hover:bg-blue-50" title="Mark as read">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-6 w-6 text-blue-500 hover:text-blue-600">
+                <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>`
+        )
+      });
+
+      setColumns(messageColumns);
+      return { tasks: transformedTasks, columns: messageColumns };
+    } catch (err) {
+      console.error("Failed to fetch messages data:", err);
+      setError("Failed to load messages data");
+      setTasks([]);
+      setColumns([]);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Unified fetch function that takes a data type
-  const fetchData = useCallback(async (dataType: "reminders" | "birthdays" | "agenda" | "applicants") => {
+  const fetchData = useCallback(async (dataType: "reminders" | "birthdays" | "agenda" | "applicants" | "messages") => {
     switch (dataType) {
       case "reminders":
         return fetchRemindersData();
@@ -361,10 +462,12 @@ export const useTaskData = () => {
         return fetchAgendaData();
       case "applicants":
         return fetchApplicantsData();
+      case "messages":
+        return fetchMessagesData();
       default:
         throw new Error(`Unknown data type: ${dataType}`);
     }
-  }, [fetchRemindersData, fetchBirthdayData, fetchAgendaData, fetchApplicantsData]);
+  }, [fetchRemindersData, fetchBirthdayData, fetchAgendaData, fetchApplicantsData, fetchMessagesData]);
 
   return {
     tasks,
@@ -376,6 +479,7 @@ export const useTaskData = () => {
     fetchBirthdayData,
     fetchAgendaData,
     fetchApplicantsData,
+    fetchMessagesData,
     setTasks,
     setColumns,
     setError,

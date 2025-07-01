@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { AGGridTable } from "./AGGridTable"; // Import the real AG-Grid component
 import { MessagesList } from "./MessagesList"; // Import Messages component
 import { useTaskData } from "../../hooks/useTaskData";
+import { Button } from "../atoms/Button";
+import { InboxService } from "../../services/inboxService";
 
 // Extended task interface with index signature for dynamic properties
 interface ExtendedTask {
@@ -22,7 +24,6 @@ interface ApiColumn {
   key: string;
   label: string;
 }
-
 
 // Slide-out Panel Component - Modified for dev tools style
 export const TaskSlidePanel: React.FC<{
@@ -52,6 +53,7 @@ export const TaskSlidePanel: React.FC<{
   const [panelWidth, setPanelWidth] = useState(1201.2);
   const [isResizing, setIsResizing] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  
 
   // Use unified data hook for "All Reminders" case
   const {
@@ -67,7 +69,6 @@ export const TaskSlidePanel: React.FC<{
   const columns = cardType === "All Reminders" ? hookColumns : initialColumns;
   const loading = cardType === "All Reminders" ? hookLoading : false;
   const error = cardType === "All Reminders" ? hookError : null;
-
 
   // Function to determine if the current card type represents reminders/urgent tasks
   const isRemindersOrUrgentTasks = (cardType: string) => {
@@ -182,7 +183,7 @@ export const TaskSlidePanel: React.FC<{
 
   return (
     <div
-      className="bg-white border-l shadow-lg relative flex flex-col h-screen transition-all duration-300 ease-in-out"
+      className="bg-white border-l border-gray-200 shadow-lg relative flex flex-col h-screen transition-all duration-300 ease-in-out"
       style={{
         width: isFullScreen ? "100vw" : `${panelWidth}px`,
         minWidth: isFullScreen ? "100vw" : "514.8px",
@@ -220,7 +221,7 @@ export const TaskSlidePanel: React.FC<{
       )}
 
       {/* Header */}
-      <div className="flex justify-between items-center px-4 py-2.5 border-b sticky top-0 bg-white z-10">
+      <div className="flex justify-between items-center px-4 py-2.5 border border-gray-200 sticky top-0 bg-white z-10">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-medium text-gray-900">{title}</h2>
           <div className="inline-flex items-center rounded-full px-2.5 py-0.5 border border-gray-200 hover:bg-gray-50 text-xs font-normal text-gray-600 bg-gray-50">
@@ -230,35 +231,35 @@ export const TaskSlidePanel: React.FC<{
         <div className="flex items-center gap-4">
           {title === "Messages" ? (
             <div className="flex items-center gap-2">
-              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 rounded-md px-3 text-xs">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+              <Button size="sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="w-4 h-4 mr-2"
                 >
                   <path d="M5 12h14"></path>
                   <path d="M12 5v14"></path>
                 </svg>
                 New Message
-              </button>
-              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-primary text-primary shadow-sm hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+              </Button>
+              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-[#00b0f0] text-[#00b0f0] shadow-sm hover:bg-[#00b0f0] hover:text-[#f8fafc] h-8 rounded-md px-3 text-xs">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="w-4 h-4 mr-2"
                 >
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -377,8 +378,8 @@ export const TaskSlidePanel: React.FC<{
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
-        {(loading || isLoading) ? (
+      <div className="flex-1 overflow-hidden p-4">
+        {loading || isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
@@ -405,7 +406,7 @@ export const TaskSlidePanel: React.FC<{
           <div className="h-full" style={{ opacity: isPanelReady ? 1 : 0 }}>
             {title === "Messages" ? (
               <MessagesList
-                tasks={tasks}
+                messages={tasks}
                 columns={columns}
                 onReply={onReply}
                 onComplete={onComplete}
