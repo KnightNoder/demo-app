@@ -115,7 +115,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       }
       
       return transformedMessages;
-    } catch (error) {
+    } catch {
       setAllMessagesData([]);
       return [];
     }
@@ -206,7 +206,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       }
       
       return transformedMessages;
-    } catch (error) {
+    } catch {
       setMyMessagesData([]);
       return [];
     }
@@ -219,8 +219,11 @@ export const MessagesList: React.FC<MessagesListProps> = ({
     
     if (inboxMessagesProp && inboxMessagesProp.length > 0) {
       // Use the passed messages data and update internal state
-      setMyMessagesData(inboxMessagesProp);
+      // Set allMessagesData to passed data, but only set myMessagesData if showFilter is 'my'
       setAllMessagesData(inboxMessagesProp);
+      if (showFilter === "my") {
+        setMyMessagesData(inboxMessagesProp);
+      }
       console.log("MessagesList: Using passed messages data");
       // Update columns with passed columns
       if (columns && columns.length > 0) {
@@ -230,9 +233,23 @@ export const MessagesList: React.FC<MessagesListProps> = ({
     } else {
       // Only fetch if no messages were passed
       console.log("MessagesList: No messages passed, fetching data");
+      if (showFilter === "all") {
+        fetchAllMessages();
+      } else {
+        fetchMyMessages();
+      }
+    }
+  }, [inboxMessagesProp, columns, showFilter]);
+
+  // Effect to handle filter changes and ensure proper data is loaded
+  useEffect(() => {
+    // Only fetch if we don't have data or if we're switching filters
+    if (showFilter === "all" && allMessagesData.length === 0) {
+      fetchAllMessages();
+    } else if (showFilter === "my" && myMessagesData.length === 0) {
       fetchMyMessages();
     }
-  }, [inboxMessagesProp, columns]);
+  }, [showFilter, allMessagesData.length, myMessagesData.length]);
 
   // Effect to fetch sent messages when the tab changes to 'sent'
   useEffect(() => {
@@ -270,12 +287,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       task.assignedTo?.toLowerCase().includes(searchLower) ||
       task.person?.toLowerCase().includes(searchLower);
 
-    // Filter by 'Show' (all/my) - assuming 'my' messages are identified by 'from'
-    // NOTE: Replace "CURRENT_USER_IDENTIFIER" with the actual user's ID or name
-    // This value would typically come from an authentication context or user profile.
-    const matchesShow =
-      showFilter === "all" ||
-      (showFilter === "my" && task.from === "CURRENT_USER_IDENTIFIER");
+    // Filter by 'Show' (all/my) - when using "my", we rely on the data being properly separated
+    // between allMessagesData and myMessagesData rather than filtering here
+    const matchesShow = true; // Since we're using separate data arrays, no need to filter here
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -365,7 +379,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
                   <button
                     onClick={() => {
                       setShowFilter("all");
-                      fetchAllMessages();
+                      if (allMessagesData.length === 0) {
+                        fetchAllMessages();
+                      }
                     }}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                       showFilter === "all"
