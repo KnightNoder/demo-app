@@ -2,8 +2,8 @@ import React from 'react';
 import { Badge } from '../atoms/Badge';
 
 export interface TaskStatusProps {
-  status: 'pending' | 'in-progress' | 'completed';
-  size?: 'sm' | 'md';
+  status: "pending" | "completed" | "in-progress" | "Read" | "New" | "Done";
+  size?: "sm" | "md";
 }
 
 export const TaskStatus: React.FC<TaskStatusProps> = ({ status, size = 'md' }) => {

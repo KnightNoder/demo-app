@@ -13,7 +13,7 @@ interface ExtendedTask {
   person: string;
   dueDate: string;
   priority: "high" | "medium" | "low";
-  status: "pending" | "completed" | "in-progress";
+  status: "pending" | "completed" | "in-progress" | "Done" | "Read" | "New";
   type: string;
   [key: string]: any;
 }

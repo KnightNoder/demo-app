@@ -816,8 +816,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           };
         });
 
-        // For messages, don't include any base columns (no checkbox selection needed)
-        return [...dynamicColumns];
+        // For messages, include checkbox selection
+        return [...baseColumns, ...dynamicColumns];
       }
 
       // For birthday data and other dynamic data, use columns from API WITHOUT actions column

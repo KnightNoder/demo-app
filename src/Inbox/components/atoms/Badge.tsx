@@ -14,7 +14,10 @@ interface BadgeProps {
     | "low"
     | "pending"
     | "in-progress"
-    | "completed";
+    | "completed"
+    | "New"
+    | "Read"
+    | "Done";
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -45,6 +48,9 @@ export const Badge: React.FC<BadgeProps> = ({
       "inline-flex items-center rounded-full px-2.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-all duration-200",
     completed:
       "inline-flex items-center rounded-full px-2.5 py-0.5 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all duration-200",
+    Read: "inline-flex items-center rounded-full px-2.5 py-0.5 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all duration-200",
+    Done: "inline-flex items-center rounded-full px-2.5 py-0.5 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all duration-200",
+    New: "inline-flex items-center rounded-full px-2.5 py-0.5 bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-all duration-200",
   };
 
   const sizes = {
@@ -61,6 +67,9 @@ export const Badge: React.FC<BadgeProps> = ({
     "pending",
     "in-progress",
     "completed",
+    "New",
+    "Read",
+    "Done",
   ].includes(variant);
 
   if (isTaskVariant) {

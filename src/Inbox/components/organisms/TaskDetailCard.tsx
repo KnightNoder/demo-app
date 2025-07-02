@@ -9,9 +9,9 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
   dueDate: string;
-  status: 'pending' | 'in-progress' | 'completed';
+  status: "pending" | "completed" | "in-progress" | "Read" | "New" | "Done";
   assignedTo: string;
   person: string;
 }

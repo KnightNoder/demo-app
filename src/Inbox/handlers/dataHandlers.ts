@@ -132,6 +132,7 @@ export const fetchMessagesDataForPanel = async (): Promise<{
       from: string;
       patient: string;
       type: string;
+      body: string;
       date: string;
       status: string;
       form_link: string | null;
@@ -163,7 +164,7 @@ export const fetchMessagesDataForPanel = async (): Promise<{
       (message: MessageData) => ({
         id: message.id.toString(),
         title: `${message.type}: ${message.patient}`,
-        description: `Message from ${message.from} regarding ${message.patient}`,
+        description: message.body || `Message from ${message.from} regarding ${message.patient}`,
         assignedTo: message.from,
         person: message.patient,
         dueDate: message.date,
@@ -179,6 +180,8 @@ export const fetchMessagesDataForPanel = async (): Promise<{
         from: message.from,
         patient: message.patient,
         messageType: message.type,
+        body: message.body,
+        content: message.body, // Map body to content for column display
         date: message.date,
         messageStatus:
           message.status === "Done" ||

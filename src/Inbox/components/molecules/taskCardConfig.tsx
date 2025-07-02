@@ -5,7 +5,8 @@ import { TaskCardConfig } from "../organisms/PrioritySwimLanes";
 export const getTaskCardsConfig = (
   urgentTaskCounts: { high: number; medium: number; low: number; assigned_to_me: number; created_by_me: number },
   birthdayCount: number,
-  agendaCount: number
+  agendaCount: number,
+  messagesCount: number
 ): TaskCardConfig[] => [
   {
     id: "urgent-tasks-high",
@@ -119,7 +120,7 @@ export const getTaskCardsConfig = (
   {
     id: "messages",
     title: "Messages",
-    count: 12,
+    count: messagesCount,
     icon: <PlayIcon />,
     variant: "normal",
     priority: "other",

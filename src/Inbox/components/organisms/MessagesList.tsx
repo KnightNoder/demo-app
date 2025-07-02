@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AGGridTable } from "./AGGridTable";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 import { InboxService } from "../../services/inboxService";
@@ -20,7 +20,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<"inbox" | "sent">("inbox");
   const [searchValue, setSearchValue] = useState("");
-  const [showFilter, setShowFilter] = useState<"all" | "my">("all");
+  const [showFilter, setShowFilter] = useState<"all" | "my">("my"); // Default to "my" since initial data is from fetchMyMessages
   const [allMessagesData, setAllMessagesData] = useState<ExtendedTask[]>([]);
   const [myMessagesData, setMyMessagesData] = useState<ExtendedTask[]>([]);
   const [currentColumns, setCurrentColumns] = useState<ApiColumn[]>(columns);
@@ -49,7 +49,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       const transformedMessages = messagesArray.map((message: any) => ({
         id: message.id.toString(),
         title: `${message.type}: ${message.patient}`,
-        description: `Message from ${message.from} regarding ${message.patient}`,
+        description:
+          message.body ||
+          `Message from ${message.from} regarding ${message.patient}`,
         assignedTo: message.from,
         person: message.patient,
         dueDate: message.date,
@@ -58,7 +60,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
           message.status === "Done" || message.status === "Read"
             ? ("completed" as const)
             : ("pending" as const),
-        type: "message" as const,
+        type: message.type,
         from: message.from,
         patient: message.patient,
         messageType: message.type,
@@ -69,17 +71,19 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             : "unread",
         originalStatus: message.status,
         form_link: message.form_link,
+        body: message.body, // Include the body field directly
+        content: message.body, // Also map to content for column display
       }));
       setAllMessagesData(transformedMessages);
-      
+
       // Update columns from API response
       if (response.columns) {
         let messageColumns: ApiColumn[] = response.columns;
-        
+
         // Update the status column to use messageStatus for display
-        messageColumns = messageColumns.map(column => {
-          if (column.key === 'status') {
-            return { ...column, key: 'messageStatus' };
+        messageColumns = messageColumns.map((column) => {
+          if (column.key === "status") {
+            return { ...column, key: "messageStatus" };
           }
           return column;
         });
@@ -110,10 +114,10 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               </button>
             </div>`,
         });
-        
+
         setCurrentColumns(messageColumns);
       }
-      
+
       return transformedMessages;
     } catch {
       setAllMessagesData([]);
@@ -125,12 +129,12 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   const fetchMyMessages = async () => {
     try {
       const response = await InboxService.fetchMyMessages();
-      
+
       // Check if response.data is an array or has a data property
       const messagesArray = Array.isArray(response.data)
         ? response.data
         : response.data?.data;
-      
+
       if (!messagesArray || !Array.isArray(messagesArray)) {
         setMyMessagesData([]);
         return [];
@@ -140,7 +144,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       const transformedMessages = messagesArray.map((message: any) => ({
         id: message.id.toString(),
         title: `${message.type}: ${message.patient}`,
-        description: `Message from ${message.from} regarding ${message.patient}`,
+        description:
+          message.body ||
+          `Message from ${message.from} regarding ${message.patient}`,
         assignedTo: message.from,
         person: message.patient,
         dueDate: message.date,
@@ -160,17 +166,19 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             : "unread",
         originalStatus: message.status,
         form_link: message.form_link,
+        body: message.body, // Include the body field directly
+        content: message.body, // Also map to content for column display
       }));
       setMyMessagesData(transformedMessages);
-      
+
       // Update columns from API response
       if (response.columns) {
         let messageColumns: ApiColumn[] = response.columns;
-        
+
         // Update the status column to use messageStatus for display
-        messageColumns = messageColumns.map(column => {
-          if (column.key === 'status') {
-            return { ...column, key: 'messageStatus' };
+        messageColumns = messageColumns.map((column) => {
+          if (column.key === "status") {
+            return { ...column, key: "messageStatus" };
           }
           return column;
         });
@@ -201,10 +209,10 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               </button>
             </div>`,
         });
-        
+
         setCurrentColumns(messageColumns);
       }
-      
+
       return transformedMessages;
     } catch {
       setMyMessagesData([]);
@@ -216,15 +224,13 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   useEffect(() => {
     console.log("MessagesList: Received messages prop:", inboxMessagesProp);
     console.log("MessagesList: Received columns prop:", columns);
-    
+
     if (inboxMessagesProp && inboxMessagesProp.length > 0) {
-      // Use the passed messages data and update internal state
-      // Set allMessagesData to passed data, but only set myMessagesData if showFilter is 'my'
-      setAllMessagesData(inboxMessagesProp);
-      if (showFilter === "my") {
-        setMyMessagesData(inboxMessagesProp);
-      }
-      console.log("MessagesList: Using passed messages data");
+      // The passed data is from fetchMessagesDataForPanel which calls "My Messages" API
+      // So we set it as myMessagesData and set filter to "my"
+      setMyMessagesData(inboxMessagesProp);
+      console.log("MessagesList: Using passed messages data as My Messages");
+
       // Update columns with passed columns
       if (columns && columns.length > 0) {
         setCurrentColumns(columns);
@@ -232,51 +238,151 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       }
     } else {
       // Only fetch if no messages were passed
-      console.log("MessagesList: No messages passed, fetching data");
-      if (showFilter === "all") {
-        fetchAllMessages();
-      } else {
-        fetchMyMessages();
-      }
-    }
-  }, [inboxMessagesProp, columns, showFilter]);
-
-  // Effect to handle filter changes and ensure proper data is loaded
-  useEffect(() => {
-    // Only fetch if we don't have data or if we're switching filters
-    if (showFilter === "all" && allMessagesData.length === 0) {
-      fetchAllMessages();
-    } else if (showFilter === "my" && myMessagesData.length === 0) {
+      console.log(
+        "MessagesList: No messages passed, fetching My Messages data"
+      );
       fetchMyMessages();
     }
-  }, [showFilter, allMessagesData.length, myMessagesData.length]);
+  }, [inboxMessagesProp, columns]);
+
+  // Effect to handle filter changes - only when user explicitly changes filter
+  // Note: This won't run on initial load since we handle that in the first useEffect
 
   // Effect to fetch sent messages when the tab changes to 'sent'
   useEffect(() => {
-    if (activeTab === "sent" && sentMessages.length === 0) {
+    if (activeTab === "sent") {
       setLoadingSent(true);
       InboxService.fetchSentMessages()
         .then((response) => {
-          setSentMessages(
-            Array.isArray(response.data.data) ? response.data.data : []
-          );
+          console.log("Sent messages API response:", response);
+
+          // Check if response.data is an array or has a data property
+          const messagesArray = Array.isArray(response.data)
+            ? response.data
+            : response.data?.data;
+
+          if (!messagesArray || !Array.isArray(messagesArray)) {
+            setSentMessages([]);
+            return;
+          }
+
+          // Transform sent messages to match ExtendedTask format
+          const transformedMessages = messagesArray.map((message: any) => ({
+            id: message.id.toString(),
+            title: `${message.type}: ${message.patient || "No Patient"}`,
+            description:
+              message.body ||
+              `Message to ${message.to} regarding ${message.patient || "General"}`,
+            assignedTo: message.to, // For sent messages, this is who we sent it to
+            person: message.patient || message.to, // Use patient if available, otherwise the recipient
+            dueDate: message.date,
+            priority: "medium" as const,
+            status: "completed" as const, // Sent messages are considered completed
+            type: message.type,
+            to: message.to, // Use 'to' field for sent messages
+            patient: message.to,
+            messageType: message.type,
+            date: message.date,
+            messageStatus: "read", // Sent messages are always "sent/read"
+            originalStatus: "Sent",
+            form_link: null,
+            body: message.body,
+            content: message.body,
+          }));
+
+          console.log("Transformed sent messages:", transformedMessages);
+          setSentMessages(transformedMessages);
+
+          // Update columns for sent messages if provided
+          if (response.data.columns) {
+            let messageColumns: ApiColumn[] = response.data.columns;
+
+            // Remove the "from" column for sent messages since they use "to"
+            messageColumns = messageColumns.filter(
+              (column) => column.key !== "from"
+            );
+
+            // Map person column to show "to" field for sent messages
+            messageColumns = messageColumns.map((column) => {
+              if (column.key === "person" || column.key === "patient") {
+                return { ...column, key: "to" };
+              }
+              return column;
+            });
+
+            // Add the "Actions" column for sent messages too
+            messageColumns.push({
+              key: "actions",
+              label: "Actions",
+              cellRenderer: () =>
+                `<div class="flex justify-end gap-2">
+                  <button class="text-gray-400 hover:text-blue-600 p-2 rounded-sm hover:bg-blue-50" title="View Sent Message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-6 w-6 text-blue-500 hover:text-blue-600">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>`,
+            });
+
+            setCurrentColumns(messageColumns);
+          }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error("Failed to fetch sent messages:", error);
           setSentMessages([]); // Clear messages on error
         })
         .finally(() => {
           setLoadingSent(false);
         });
     }
-  }, [activeTab, sentMessages.length]);
+  }, [activeTab]);
 
-  const currentMessages = activeTab === "inbox" 
-    ? (showFilter === "all" ? allMessagesData : myMessagesData)
-    : sentMessages;
+  const currentMessages =
+    activeTab === "inbox"
+      ? showFilter === "all"
+        ? allMessagesData
+        : myMessagesData
+      : sentMessages;
+
+  // Filter and reorder columns based on active tab
+  const filteredColumns = useMemo(() => {
+    let columns = [...currentColumns];
+    
+    if (activeTab === "sent") {
+      // For sent messages, remove "from" column and ensure proper column mapping
+      columns = columns.filter(column => column.key !== "from");
+      
+      // Map person/patient columns to "to" for sent messages
+      columns = columns.map(column => {
+        if (column.key === "person" || column.key === "patient") {
+          return { ...column, key: "to", label: column.label === "Person" ? "To" : column.label };
+        }
+        return column;
+      });
+    } else if (activeTab === "inbox") {
+      // For inbox messages, reorder columns: Content, From, Person, Type, Date, Status, Actions
+      const columnOrder = ["content", "body", "from", "person", "patient", "type", "messageType", "date", "messageStatus", "status", "actions"];
+      
+      columns = columns.sort((a, b) => {
+        const indexA = columnOrder.indexOf(a.key);
+        const indexB = columnOrder.indexOf(b.key);
+        
+        // If column not found in order, put it at the end
+        const posA = indexA === -1 ? columnOrder.length : indexA;
+        const posB = indexB === -1 ? columnOrder.length : indexB;
+        
+        return posA - posB;
+      });
+    }
+    
+    return columns;
+  }, [currentColumns, activeTab]);
 
   console.log("MessagesList: Current messages:", currentMessages);
   console.log("MessagesList: Show filter:", showFilter);
   console.log("MessagesList: Active tab:", activeTab);
+  console.log("MessagesList: Filtered columns:", filteredColumns);
 
   // Filter tasks based on search and filters
   const filteredTasks = currentMessages.filter((task) => {
@@ -319,9 +425,11 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               }`}
             >
               Inbox
-              <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {inboxMessagesProp.length}
-              </span>
+              {activeTab === "inbox" && (allMessagesData.length > 0 || myMessagesData.length > 0) && (
+                <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                  {showFilter === "all" ? allMessagesData.length : myMessagesData.length}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab("sent")}
@@ -332,9 +440,11 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               }`}
             >
               Sent
-              <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {sentMessages.length}
-              </span>
+              {activeTab === "sent" && sentMessages.length > 0 && (
+                <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                  {sentMessages.length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -379,9 +489,8 @@ export const MessagesList: React.FC<MessagesListProps> = ({
                   <button
                     onClick={() => {
                       setShowFilter("all");
-                      if (allMessagesData.length === 0) {
-                        fetchAllMessages();
-                      }
+                      // Always fetch when clicked to ensure fresh data
+                      fetchAllMessages();
                     }}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                       showFilter === "all"
@@ -394,6 +503,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
                   <button
                     onClick={() => {
                       setShowFilter("my");
+                      // Always fetch when clicked to ensure fresh data
                       fetchMyMessages();
                     }}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
@@ -409,7 +519,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">Status:</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Status:
+                </span>
                 <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-1">
                   <button
                     onClick={() => setStatusFilter("all")}
@@ -461,13 +573,19 @@ export const MessagesList: React.FC<MessagesListProps> = ({
         {!loadingSent && (
           <div className="ag-theme-alpine ag-theme-custom rounded-lg border border-gray-200">
             {(() => {
-              console.log("MessagesList: Passing to AGGridTable - filteredTasks:", filteredTasks);
-              console.log("MessagesList: Passing to AGGridTable - currentColumns:", currentColumns);
+              console.log(
+                "MessagesList: Passing to AGGridTable - filteredTasks:",
+                filteredTasks
+              );
+              console.log(
+                "MessagesList: Passing to AGGridTable - filteredColumns:",
+                filteredColumns
+              );
               return null;
             })()}
             <AGGridTable
               tasks={filteredTasks}
-              columns={currentColumns}
+              columns={filteredColumns}
               onReply={onReply}
               onComplete={onComplete}
               activeTab="messages"
