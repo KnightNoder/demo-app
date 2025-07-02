@@ -79,7 +79,9 @@ const refreshToken = async (): Promise<string> => {
       },
       {
         headers: {
-          sitename: import.meta.env.VITE_SITE_NAME,
+          sitename:
+            document.querySelector<HTMLInputElement>('input[name="site_name"]')
+              ?.value || null,
         },
         withCredentials: true,
         timeout: 5000,
