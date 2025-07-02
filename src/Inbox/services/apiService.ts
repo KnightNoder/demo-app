@@ -100,3 +100,14 @@ export const fetchMessagesCount = async (): Promise<number> => {
     throw err;
   }
 };
+
+// Fetch applicants count
+export const fetchApplicantCount = async (): Promise<number> => {
+  try {
+    const response = await axiosClient.get<{ data: unknown[] }>("/applicants");
+    return response.data.data.length;
+  } catch (err) {
+    console.error("Failed to fetch applicants count:", err);
+    throw err;
+  }
+};

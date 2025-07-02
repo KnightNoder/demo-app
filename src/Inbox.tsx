@@ -22,6 +22,7 @@ import {
   fetchAgendaCount,
   fetchUrgentTaskCounts,
   fetchMessagesCount,
+  fetchApplicantCount,
 } from "./Inbox/services/apiService";
 import {
   getButtonPosition,
@@ -55,6 +56,7 @@ const Inbox = () => {
   const [birthdayCount, setBirthdayCount] = useState(0);
   const [agendaCount, setAgendaCount] = useState(0);
   const [messagesCount, setMessagesCount] = useState(0);
+  const [applicantCount, setApplicantCount] = useState(0);
   const [urgentTaskCounts, setUrgentTaskCounts] = useState<UrgentTaskCounts>({
     high: 0,
     medium: 0,
@@ -128,6 +130,7 @@ const Inbox = () => {
           ),
           fetchAgendaCount().then(setAgendaCount),
           fetchMessagesCount().then(setMessagesCount),
+          fetchApplicantCount().then(setApplicantCount),
         ]);
 
         // Check if any promises failed
@@ -209,7 +212,8 @@ const Inbox = () => {
     urgentTaskCounts,
     birthdayCount,
     agendaCount,
-    messagesCount
+    messagesCount,
+    applicantCount
   );
 
   // Filter cards based on selected filters and sort

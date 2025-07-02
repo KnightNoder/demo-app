@@ -6,7 +6,8 @@ export const getTaskCardsConfig = (
   urgentTaskCounts: { high: number; medium: number; low: number; assigned_to_me: number; created_by_me: number },
   birthdayCount: number,
   agendaCount: number,
-  messagesCount: number
+  messagesCount: number,
+  applicantCount: number
 ): TaskCardConfig[] => [
   {
     id: "urgent-tasks-high",
@@ -129,7 +130,7 @@ export const getTaskCardsConfig = (
   {
     id: "applicants",
     title: "Applicants",
-    count: 5,
+    count: applicantCount,
     icon: <PlayIcon />,
     variant: "normal",
     priority: "other",
