@@ -10,8 +10,9 @@ import { Button } from "../atoms/Button";
 import { useTaskForm } from "../../hooks/useTaskForm";
 import { useTaskOptions } from "../../hooks/useTaskOptions";
 import { useTaskUsers } from "../../hooks/useTaskUsers";
+import { usePatients } from "../../hooks/usePatients";
+import { useGroups } from "../../hooks/useGroups";
 import { NewTaskModalProps } from "../../types/taskTypes";
-import { MOCK_GROUPS, PATIENT_OPTIONS } from "../../constants/taskConstants";
 import ErrorRetryDisplay from "../molecules/ErrorRetryDisplay";
 
 const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
@@ -21,6 +22,8 @@ const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
 }) => {
   const { formData, handleInputChange, resetForm, isFormValid, updateDefaults } = useTaskForm();
   const { users, usersLoading, usersError, fetchUsers } = useTaskUsers();
+  const { patients, patientsLoading, patientsError, fetchPatients } = usePatients();
+  const { groups, groupsLoading, groupsError, fetchGroups } = useGroups();
   const { priorityOptions, progressOptions, optionsLoading, optionsError, fetchOptions } = useTaskOptions();
 
   const handleSubmit = useCallback(() => {
@@ -39,7 +42,9 @@ const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
       const loadData = async () => {
         const [, optionsResult] = await Promise.all([
           fetchUsers(),
-          fetchOptions()
+          fetchOptions(),
+          fetchPatients(),
+          fetchGroups(),
         ]);
         
         if (optionsResult) {
@@ -49,7 +54,7 @@ const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
       
       loadData();
     }
-  }, [isOpen, fetchUsers, fetchOptions, resetForm, updateDefaults]);
+  }, [isOpen, fetchUsers, fetchOptions, fetchPatients, fetchGroups, resetForm, updateDefaults]);
 
   const footer = useMemo(
     () => (
@@ -84,19 +89,21 @@ const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
             handleInputChange("recipients", recipients)
           }
           users={users}
-          groups={MOCK_GROUPS}
-          loading={usersLoading}
-          error={usersError}
-          onRetry={fetchUsers}
+          groups={groups.map(g => ({ ...g, type: 'group', role: 'group' }))}
+          loading={usersLoading || groupsLoading}
+          error={usersError || groupsError}
+          onRetry={usersError ? fetchUsers : fetchGroups}
         />
 
         <SimpleDropdown
           label="Link to Patient/Client"
           value={formData.patientClient}
-          options={PATIENT_OPTIONS}
+          options={patients.map(p => p.name)}
           onChange={(value) => handleInputChange("patientClient", value)}
           placeholder="Search patient or client..."
+          disabled={patientsLoading}
         />
+        {patientsError && <ErrorRetryDisplay error={patientsError} onRetry={fetchPatients} />}
       </div>
 
       {/* Progress, Priority, and Dates */}

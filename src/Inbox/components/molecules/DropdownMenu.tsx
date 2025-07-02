@@ -14,7 +14,9 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`absolute z-50 mt-1 w-full rounded-md border bg-white shadow-lg max-h-96 overflow-auto ${className}`}>
+    <div
+      className={`absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-96 overflow-auto ${className}`}
+    >
       {children}
     </div>
   );
