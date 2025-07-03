@@ -179,6 +179,7 @@ export const TaskManagementContainer: React.FC<TaskManagementContainerProps> = (
 
             <MobileTaskList
               tasks={useServerSide ? tasks : filteredTasks}
+              columns={columns}
               onReply={onReply}
               onComplete={onComplete}
             />
