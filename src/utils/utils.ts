@@ -154,8 +154,29 @@ export const formatDueDate = (dateString: string): string => {
   if (!dateString) return "";
 
   try {
-    // Parse the ISO date string
-    const dueDate = new Date(dateString);
+    let dueDate;
+    // Check if the date string includes time
+    if (dateString.includes(':')) {
+        // Handle DD/MM/YY HH:MM:SS format
+        const dateTimeParts = dateString.split(' ');
+        const dateParts = dateTimeParts[0].split('/');
+        if (dateParts.length !== 3) {
+            throw new Error('Invalid date format');
+        }
+        const [day, month, year] = dateParts.map(Number);
+        // Assuming the year is in the 21st century if given as two digits
+        const fullYear = year < 100 ? 2000 + year : year;
+        dueDate = new Date(fullYear, month - 1, day);
+    } else {
+        // Handle DD/MM/YYYY format
+        const parts = dateString.split('/');
+        if (parts.length !== 3) {
+            throw new Error('Invalid date format');
+        }
+        const [day, month, year] = parts.map(Number);
+        dueDate = new Date(year, month - 1, day);
+    }
+
     const today = new Date();
 
     // Reset time to start of day for accurate comparison
