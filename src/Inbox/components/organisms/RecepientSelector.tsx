@@ -97,7 +97,9 @@ export const RecipientsSelector: React.FC<RecipientsSelectorProps> = ({
         >
           {loading ? (
             <span className="text-gray-500">Loading users...</span>
-          ) : selectedCount > 0 ? (
+          ) : selectedCount === 1 ? (
+            <span className="text-sm text-gray-900">{selectedRecipients[0]}</span>
+          ) : selectedCount > 1 ? (
             <span className="text-sm text-gray-900">{selectedCount} selected</span>
           ) : null}
         </DropdownButton>
