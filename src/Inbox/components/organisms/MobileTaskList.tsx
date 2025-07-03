@@ -4,12 +4,14 @@ import { ExtendedTask } from "./TaskManagementContainer";
 
 export interface MobileTaskListProps {
   tasks: ExtendedTask[];
+  columns: { key: string; label: string; }[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
 }
 
 export const MobileTaskList: React.FC<MobileTaskListProps> = ({
   tasks,
+  columns,
   onReply,
   onComplete,
 }) => {
@@ -21,7 +23,7 @@ export const MobileTaskList: React.FC<MobileTaskListProps> = ({
           style={{ animationDelay: `${index * 50}ms` }}
           className="w-full"
         >
-          <TaskCard task={task} onReply={onReply} onComplete={onComplete} />
+          <TaskCard task={task} columns={columns} onReply={onReply} onComplete={onComplete} />
         </div>
       ))}
       <div className="flex justify-between items-center text-sm text-gray-500 px-2 mt-4">

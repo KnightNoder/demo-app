@@ -237,6 +237,7 @@ export const TaskManagementContainer: React.FC<
 
               <MobileTaskList
                 tasks={filteredTasks}
+                columns={columns}
                 onReply={onReply}
                 onComplete={onComplete}
               />

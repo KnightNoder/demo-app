@@ -9,15 +9,18 @@ export interface Task {
   id: string;
   title: string;
   description: string;
+  message?: string;
   priority: "high" | "medium" | "low";
   dueDate: string;
   status: "pending" | "completed" | "in-progress" | "Read" | "New" | "Done";
   assignedTo: string;
   person: string;
+  [key: string]: any; // Allow additional dynamic properties
 }
 
 export interface TaskCardProps {
   task: Task;
+  columns: { key: string; label: string; }[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
   className?: string;
@@ -25,12 +28,18 @@ export interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ 
   task, 
+  columns,
   onReply, 
   onComplete, 
   className = "" 
 }) => {
   const handleReply = () => onReply(task.id);
   const handleComplete = () => onComplete(task.id);
+  
+  // Helper function to check if a column exists
+  const hasColumn = (columnKey: string) => {
+    return columns.some(col => col.key === columnKey);
+  };
 
   return (
     <div className={`bg-white rounded-lg border border-gray-100 p-4 mb-3 shadow-sm hover:shadow-md transition-all duration-200 animate-slide-up ${className}`}>
@@ -38,20 +47,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <h3 className="text-sm font-medium text-gray-900 flex-1 mr-2">
           {task.title || <span className="text-gray-400 italic">No subject</span>}
         </h3>
-        <TaskPriority priority={task.priority} size="sm" />
+        {hasColumn('priority') && <TaskPriority priority={task.priority} size="sm" />}
       </div>
       
-      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-        {task.description}
-      </p>
+      {hasColumn('description') || hasColumn('message') ? (
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+          {task.description || task.message}
+        </p>
+      ) : null}
       
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        <TimeDisplay time={task.dueDate} size="sm" />
-        <PersonDisplay name={task.assignedTo} size="sm" variant="assigned" />
-      </div>
+      {(hasColumn('dueDate') || hasColumn('assignedTo')) && (
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          {hasColumn('dueDate') && <TimeDisplay time={task.dueDate} size="sm" />}
+          {hasColumn('assignedTo') && <PersonDisplay name={task.assignedTo} size="sm" variant="assigned" />}
+        </div>
+      )}
       
       <div className="flex items-center justify-between">
-        <TaskStatus status={task.status} size="sm" />
+        {hasColumn('status') && <TaskStatus status={task.status} size="sm" />}
         <TaskActions onReply={handleReply} onComplete={handleComplete} size="sm" />
       </div>
     </div>

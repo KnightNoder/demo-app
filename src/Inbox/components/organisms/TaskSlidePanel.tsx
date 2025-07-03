@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AGGridTable } from "./AGGridTable"; // Import the real AG-Grid component
 import { MessagesList } from "./MessagesList"; // Import Messages component
+import { MobileTaskList } from "./MobileTaskList"; // Import Mobile Task List component
 import { useTaskData } from "../../hooks/useTaskData";
 import { Button } from "../atoms/Button";
 
@@ -436,15 +437,30 @@ export const TaskSlidePanel: React.FC<{
                 />
               </>
             ) : (
-              <AGGridTable
-                tasks={tasks}
-                columns={columns}
-                onReply={onReply}
-                onComplete={onComplete}
-                activeTab={getActiveTab()} // Use the dynamic activeTab function
-                isPanelReady={isPanelReady}
-                panelWidth={panelWidth}
-              />
+              <>
+                {/* Desktop Table View - hidden on mobile */}
+                <div className="task-table-desktop">
+                  <AGGridTable
+                    tasks={tasks}
+                    columns={columns}
+                    onReply={onReply}
+                    onComplete={onComplete}
+                    activeTab={getActiveTab()} // Use the dynamic activeTab function
+                    isPanelReady={isPanelReady}
+                    panelWidth={panelWidth}
+                  />
+                </div>
+                
+                {/* Mobile Task List View - hidden on desktop */}
+                <div className="task-list-mobile">
+                  <MobileTaskList
+                    tasks={tasks}
+                    columns={columns}
+                    onReply={onReply}
+                    onComplete={onComplete}
+                  />
+                </div>
+              </>
             )}
           </div>
         )}
