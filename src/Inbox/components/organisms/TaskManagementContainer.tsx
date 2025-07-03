@@ -220,18 +220,20 @@ export const TaskManagementContainer: React.FC<
                 </div>
               )}
 
-              {/* Table content - always rendered to maintain height */}
-              <AGGridTable
-                ref={gridRef}
-                tasks={filteredTasks}
-                columns={columns}
-                onReply={onReply}
-                onComplete={onComplete}
-                onTaskClick={handleTaskClick}
-                activeTab={activeTab}
-                isPanelReady={true}
-                panelWidth={1200}
-              />
+              {/* Table content - hidden on mobile */}
+              <div className="task-table-desktop">
+                <AGGridTable
+                  ref={gridRef}
+                  tasks={filteredTasks}
+                  columns={columns}
+                  onReply={onReply}
+                  onComplete={onComplete}
+                  onTaskClick={handleTaskClick}
+                  activeTab={activeTab}
+                  isPanelReady={true}
+                  panelWidth={1200}
+                />
+              </div>
 
               <MobileTaskList
                 tasks={filteredTasks}

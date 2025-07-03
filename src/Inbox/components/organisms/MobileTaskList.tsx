@@ -14,7 +14,7 @@ export const MobileTaskList: React.FC<MobileTaskListProps> = ({
   onComplete,
 }) => {
   return (
-    <div className="sm:hidden w-full">
+    <div className="task-list-mobile w-full">
       {tasks.map((task, index) => (
         <div
           key={`${task.id}-${index}`} // Make key unique by combining id and index

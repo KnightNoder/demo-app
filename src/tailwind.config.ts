@@ -10,6 +10,9 @@ module.exports = {
   prefix: "",
   theme: {
     extend: {
+      screens: {
+        'desktop': '910px',
+      },
       colors: {
         border: "oklch(0.898 0.013 264.5)",
         input: "oklch(0.898 0.013 264.5)",

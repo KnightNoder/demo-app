@@ -417,3 +417,22 @@ body {
 .ag-theme-alpine .ag-cell{
   justify-content: left !important;
 }
+
+/* Task Management responsive breakpoint at 910px */
+.task-table-desktop {
+  display: none;
+}
+
+.task-list-mobile {
+  display: block;
+}
+
+@media (min-width: 910px) {
+  .task-table-desktop {
+    display: block;
+  }
+  
+  .task-list-mobile {
+    display: none;
+  }
+}
