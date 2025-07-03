@@ -124,12 +124,31 @@ const getAppointmentPriority = (
   return "low";
 };
 
+// Cache for preventing duplicate API calls
+const cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+const CACHE_TTL = 60000; // 1 minute cache
+
+// Helper function to get cached data
+const getCachedData = (key: string) => {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < cached.ttl) {
+    return cached.data;
+  }
+  return null;
+};
+
+// Helper function to set cached data
+const setCachedData = (key: string, data: any, ttl: number = CACHE_TTL) => {
+  cache.set(key, { data, timestamp: Date.now(), ttl });
+};
+
 // Main hook
 export const useTaskData = () => {
   const [tasks, setTasks] = useState<ExtendedTask[]>([]);
   const [columns, setColumns] = useState<ApiColumn[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetchType, setLastFetchType] = useState<string>("");
 
   // Fetch reminders/tasks data
   const fetchRemindersData = useCallback(async () => {
@@ -330,9 +349,19 @@ export const useTaskData = () => {
 
   // Fetch applicants data
   const fetchApplicantsData = useCallback(async () => {
+    const cacheKey = 'applicants';
+    const cachedData = getCachedData(cacheKey);
+    
+    if (cachedData && lastFetchType === cacheKey) {
+      setTasks(cachedData.tasks);
+      setColumns(cachedData.columns);
+      return cachedData;
+    }
+    
     try {
       setLoading(true);
       setError(null);
+      setLastFetchType(cacheKey);
 
       const response = await axiosClient.get<ApplicantApiResponse>("/applicants");
 
@@ -361,7 +390,9 @@ export const useTaskData = () => {
       }));
 
       setColumns(capitalizedColumns);
-      return { tasks: transformedTasks, columns: capitalizedColumns };
+      const result = { tasks: transformedTasks, columns: capitalizedColumns };
+      setCachedData(cacheKey, result);
+      return result;
     } catch (err) {
       console.error("Failed to fetch applicants data:", err);
       setError("Failed to load applicants data");
@@ -371,7 +402,7 @@ export const useTaskData = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [lastFetchType]);
 
   // Fetch messages data
   const fetchMessagesData = useCallback(async () => {
@@ -494,6 +525,11 @@ export const useTaskData = () => {
     }
   }, [fetchRemindersData, fetchBirthdayData, fetchAgendaData, fetchApplicantsData, fetchMessagesData]);
 
+  // Clear cache function
+  const clearCache = useCallback(() => {
+    cache.clear();
+  }, []);
+
   return {
     tasks,
     columns,
@@ -508,5 +544,6 @@ export const useTaskData = () => {
     setTasks,
     setColumns,
     setError,
+    clearCache,
   };
 };

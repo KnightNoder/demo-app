@@ -82,7 +82,7 @@ const Inbox = () => {
 
   // Polling state
   const [isPolling, setIsPolling] = useState(true);
-  const [pollingInterval, setPollingInterval] = useState(30000); // 30 seconds default
+  const [pollingInterval, setPollingInterval] = useState(60000); // 1 minute default
   const [isIntervalDropdownOpen, setIsIntervalDropdownOpen] = useState(false);
 
   // Filter state
@@ -434,8 +434,8 @@ const Inbox = () => {
                       <div className="text-xs font-medium text-gray-700 mb-2">Refresh Interval</div>
                       <div className="space-y-1">
                         {[
-                          { value: 30000, label: "30 seconds" },
                           { value: 60000, label: "1 minute" },
+                          { value: 120000, label: "2 minutes" },
                         ].map((option) => (
                           <button
                             key={option.value}

@@ -321,7 +321,7 @@ const DescriptionCell: React.FC<{ description: string }> = ({
   </div>
 );
 
-export const AGGridTable = forwardRef<any, AGGridTableProps>(
+const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
   (
     {
       tasks,
@@ -340,6 +340,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
     const gridRef = useRef<AgGridReact>(null);
     const [gridApi, setGridApi] = useState<GridApi | null>(null);
     const [containerHeight, setContainerHeight] = useState(600);
+    const lastTasksRef = useRef<ExtendedTask[]>([]);
+    const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Expose the grid API to parent component
     useImperativeHandle(ref, () => ({
@@ -355,13 +357,15 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
     const isUrgentTasksData = isRemindersData && activeTab === "reminders";
 
     // Calculate stable column widths to prevent layout shifts
-    const getColumnWidth = (baseWidth: number) => {
-      if (!panelWidth) return baseWidth;
-      // Use more stable width calculation with less variance
-      const availableWidth = panelWidth - 100; // Account for padding and scrollbar
-      const scaleFactor = Math.max(0.9, Math.min(1.1, availableWidth / 1200)); // Reduced range: 90% to 110%
-      return Math.max(120, Math.floor(baseWidth * scaleFactor));
-    };
+    const getColumnWidth = useMemo(() => {
+      return (baseWidth: number) => {
+        if (!panelWidth) return baseWidth;
+        // Use more stable width calculation with less variance
+        const availableWidth = panelWidth - 100; // Account for padding and scrollbar
+        const scaleFactor = Math.max(0.9, Math.min(1.1, availableWidth / 1200)); // Reduced range: 90% to 110%
+        return Math.max(120, Math.floor(baseWidth * scaleFactor));
+      };
+    }, [panelWidth]);
 
     // Placeholder functions for agenda actions
     const handleView = (taskId: string) => {
@@ -840,9 +844,8 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
       onComplete,
       isRemindersData,
       isUrgentTasksData,
-      panelWidth,
       activeTab,
-    ]);
+    ]); // Removed panelWidth to reduce re-renders
 
     const defaultColDef = useMemo(
       () => ({
@@ -858,19 +861,45 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
 
     const onGridReady = (params: GridReadyEvent) => {
       setGridApi(params.api);
-      // Remove automatic column sizing to prevent layout shifts
+      // Initialize with current tasks
+      lastTasksRef.current = tasks;
     };
 
-    // Handle tab changes and data updates - resize columns to fit
+    // Prevent excessive re-renders during polling by batching updates
+    useEffect(() => {
+      if (JSON.stringify(tasks) !== JSON.stringify(lastTasksRef.current)) {
+        // Clear existing timeout
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current);
+        }
+        
+        // Batch the update
+        updateTimeoutRef.current = setTimeout(() => {
+          lastTasksRef.current = tasks;
+        }, 100);
+      }
+      
+      return () => {
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current);
+        }
+      };
+    }, [tasks]);
+
+    // Handle tab changes and data updates - resize columns to fit (debounced)
     useEffect(() => {
       if (gridApi && tasks.length > 0) {
         const timer = setTimeout(() => {
-          gridApi.sizeColumnsToFit();
-        }, 150); // Small delay to ensure data is rendered
+          try {
+            gridApi.sizeColumnsToFit();
+          } catch (error) {
+            console.warn('Error sizing columns:', error);
+          }
+        }, 300); // Increased delay to reduce thrashing
         
         return () => clearTimeout(timer);
       }
-    }, [gridApi, activeTab, tasks.length, columns.length]);
+    }, [gridApi, activeTab]); // Removed tasks.length and columns.length to reduce re-renders
 
     // Handle window resize with debouncing
     useEffect(() => {
@@ -880,9 +909,13 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
           if (gridApi) {
-            gridApi.sizeColumnsToFit();
+            try {
+              gridApi.sizeColumnsToFit();
+            } catch (error) {
+              console.warn('Error sizing columns on resize:', error);
+            }
           }
-        }, 250); // Debounced resize
+        }, 500); // Increased debounce delay to reduce thrashing
       };
 
       window.addEventListener("resize", handleResize);
@@ -930,31 +963,28 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
           animateRows={false}
           suppressCellFocus={true}
           suppressRowTransform={true}
-          suppressColumnVirtualisation={true}
-          suppressRowVirtualisation={false}
+          suppressColumnVirtualisation={false}
+          suppressRowVirtualisation={true}
           suppressColumnMoveAnimation={true}
-          suppressAnimationFrame={true}
+          suppressAnimationFrame={false}
           maintainColumnOrder={true}
           suppressLoadingOverlay={true}
           suppressNoRowsOverlay={true}
+          getRowId={(params) => params.data.id}
           rowClassRules={{
             "ag-row-even": (params) => params.node.rowIndex! % 2 === 0,
             "ag-row-odd": (params) => params.node.rowIndex! % 2 === 1,
           }}
           onFirstDataRendered={(params) => {
-            // Initial column sizing on first render
-            if (params.api) {
+            // Initial column sizing on first render only
+            if (params.api && !gridApi) {
               setTimeout(() => {
-                params.api.sizeColumnsToFit();
-              }, 100);
-            }
-          }}
-          onModelUpdated={(params) => {
-            // Resize columns when data model updates (tab changes)
-            if (params.api && tasks.length > 0) {
-              setTimeout(() => {
-                params.api.sizeColumnsToFit();
-              }, 50);
+                try {
+                  params.api.sizeColumnsToFit();
+                } catch (error) {
+                  console.warn('Error sizing columns on first render:', error);
+                }
+              }, 200);
             }
           }}
         />
@@ -962,3 +992,14 @@ export const AGGridTable = forwardRef<any, AGGridTableProps>(
     );
   }
 );
+
+// Memoize the component to prevent unnecessary re-renders
+export const AGGridTable = React.memo(AGGridTableComponent, (prevProps, nextProps) => {
+  // Only re-render if essential props have changed
+  return (
+    JSON.stringify(prevProps.tasks) === JSON.stringify(nextProps.tasks) &&
+    JSON.stringify(prevProps.columns) === JSON.stringify(nextProps.columns) &&
+    prevProps.activeTab === nextProps.activeTab &&
+    prevProps.panelWidth === nextProps.panelWidth
+  );
+});

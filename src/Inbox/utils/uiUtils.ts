@@ -45,12 +45,12 @@ export const formatTime = (date: Date): string => {
 // Get interval display text
 export const getIntervalText = (interval: number): string => {
   switch (interval) {
-    case 30000:
-      return "30s";
     case 60000:
       return "1m";
+    case 120000:
+      return "2m";
     default:
-      return "30s";
+      return "1m";
   }
 };
 

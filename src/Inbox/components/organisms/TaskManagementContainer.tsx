@@ -51,18 +51,22 @@ export const TaskManagementContainer: React.FC<
     fetchData,
   } = useTaskData();
 
-  // Fetch data based on active tab
+  // Fetch data based on active tab (debounced to prevent excessive API calls)
   useEffect(() => {
-    const fetchTabData = async () => {
-      try {
-        await fetchData(activeTab as "reminders" | "birthdays" | "agenda" | "messages");
-      } catch (err) {
-        console.error(`Failed to fetch ${activeTab} data:`, err);
-      }
-    };
+    const timer = setTimeout(() => {
+      const fetchTabData = async () => {
+        try {
+          await fetchData(activeTab as "reminders" | "birthdays" | "agenda" | "messages");
+        } catch (err) {
+          console.error(`Failed to fetch ${activeTab} data:`, err);
+        }
+      };
 
-    fetchTabData();
-  }, [activeTab, fetchData]);
+      fetchTabData();
+    }, 150); // Debounce to prevent rapid tab switching from causing multiple API calls
+
+    return () => clearTimeout(timer);
+  }, [activeTab]); // Removed fetchData dependency to prevent re-fetching
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
