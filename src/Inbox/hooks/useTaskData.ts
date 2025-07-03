@@ -458,10 +458,14 @@ export const useTaskData = () => {
       // Use columns from API response
       let messageColumns: ApiColumn[] = response.data.columns;
       
-      // Update the status column to use messageStatus for display
+      // Update column mappings for messages
       messageColumns = messageColumns.map(column => {
         if (column.key === 'status') {
           return { ...column, key: 'messageStatus' };
+        }
+        // Change any column with "Content" label to "Message"
+        if (column.label && column.label.toLowerCase().includes('content')) {
+          return { ...column, label: 'Message' };
         }
         return column;
       });

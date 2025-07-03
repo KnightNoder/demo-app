@@ -45,6 +45,24 @@ export const handleCardClick = async (
   setters.setIsPanelVisible(true);
   setters.setSelectedCardTitle(cardType);
 
+  // Scroll to the TaskSlidePanel after a small delay to ensure it's rendered
+  setTimeout(() => {
+    const taskSlidePanel = document.getElementById('task-slide-panel');
+    if (taskSlidePanel) {
+      // Check if the panel is already in view
+      const rect = taskSlidePanel.getBoundingClientRect();
+      const isInView = rect.top >= 0 && rect.top <= window.innerHeight;
+      
+      if (!isInView) {
+        taskSlidePanel.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, 150); // Slightly increased delay to ensure panel is fully rendered
+
   try {
     if (cardType === "Birthdays") {
       const { tasks, columns, title } = await fetchBirthdayDataForPanel();

@@ -52,6 +52,7 @@ export const TaskSlidePanel: React.FC<{
   const [panelWidth, setPanelWidth] = useState(1201.2);
   const [isResizing, setIsResizing] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [currentMessageCount, setCurrentMessageCount] = useState(0);
   
 
   // Use unified data hook for "All Reminders" case
@@ -69,6 +70,13 @@ export const TaskSlidePanel: React.FC<{
   const columns = cardType === "All Reminders" ? hookColumns : initialColumns;
   const loading = cardType === "All Reminders" ? hookLoading : false;
   const error = cardType === "All Reminders" ? hookError : null;
+
+  // Initialize message count when tasks change
+  useEffect(() => {
+    if (title === "Messages" && tasks) {
+      setCurrentMessageCount(tasks.length);
+    }
+  }, [title, tasks]);
 
   // Function to determine if the current card type represents reminders/urgent tasks
   const isRemindersOrUrgentTasks = (cardType: string) => {
@@ -183,6 +191,7 @@ export const TaskSlidePanel: React.FC<{
 
   return (
     <div
+      id="task-slide-panel"
       className="bg-white border-l border-gray-200 shadow-lg relative flex flex-col h-screen transition-all duration-300 ease-in-out"
       style={{
         width: isFullScreen ? "100vw" : `${panelWidth}px`,
@@ -225,7 +234,7 @@ export const TaskSlidePanel: React.FC<{
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-medium text-gray-900">{title}</h2>
           <div className="inline-flex items-center rounded-full px-2.5 py-0.5 border border-gray-200 hover:bg-gray-50 text-xs font-normal text-gray-600 bg-gray-50">
-            {tasks.length} {title === "Messages" ? "messages" : "tasks"}
+            {title === "Messages" ? currentMessageCount : tasks.length} {title === "Messages" ? "messages" : "tasks"}
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -407,8 +416,14 @@ export const TaskSlidePanel: React.FC<{
             {title === "Messages" ? (
               <>
                 {(() => {
-                  console.log("TaskSlidePanel: Passing to MessagesList - tasks:", tasks);
-                  console.log("TaskSlidePanel: Passing to MessagesList - columns:", columns);
+                  console.log(
+                    "TaskSlidePanel: Passing to MessagesList - tasks:",
+                    tasks
+                  );
+                  console.log(
+                    "TaskSlidePanel: Passing to MessagesList - columns:",
+                    columns
+                  );
                   return null;
                 })()}
                 <MessagesList
@@ -417,6 +432,7 @@ export const TaskSlidePanel: React.FC<{
                   onReply={onReply}
                   onComplete={onComplete}
                   panelWidth={panelWidth}
+                  onMessageCountChange={setCurrentMessageCount}
                 />
               </>
             ) : (

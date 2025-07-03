@@ -9,6 +9,7 @@ interface MessagesListProps {
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
   panelWidth?: number;
+  onMessageCountChange?: (count: number) => void;
 }
 
 export const MessagesList: React.FC<MessagesListProps> = ({
@@ -17,6 +18,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   onReply,
   onComplete,
   panelWidth = 1200,
+  onMessageCountChange,
 }) => {
   const [activeTab, setActiveTab] = useState<"inbox" | "sent">("inbox");
   const [searchValue, setSearchValue] = useState("");
@@ -80,10 +82,14 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       if (response.columns) {
         let messageColumns: ApiColumn[] = response.columns;
 
-        // Update the status column to use messageStatus for display
+        // Update column mappings for messages
         messageColumns = messageColumns.map((column) => {
           if (column.key === "status") {
             return { ...column, key: "messageStatus" };
+          }
+          // Change any column with "Content" label to "Message"
+          if (column.label && column.label.toLowerCase().includes('content')) {
+            return { ...column, label: 'Message' };
           }
           return column;
         });
@@ -175,10 +181,14 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       if (response.columns) {
         let messageColumns: ApiColumn[] = response.columns;
 
-        // Update the status column to use messageStatus for display
+        // Update column mappings for messages
         messageColumns = messageColumns.map((column) => {
           if (column.key === "status") {
             return { ...column, key: "messageStatus" };
+          }
+          // Change any column with "Content" label to "Message"
+          if (column.label && column.label.toLowerCase().includes('content')) {
+            return { ...column, label: 'Message' };
           }
           return column;
         });
@@ -404,6 +414,13 @@ export const MessagesList: React.FC<MessagesListProps> = ({
 
     return matchesSearch && matchesShow && matchesStatus;
   });
+
+  // Update parent component with current message count when it changes
+  useEffect(() => {
+    if (onMessageCountChange) {
+      onMessageCountChange(filteredTasks.length);
+    }
+  }, [filteredTasks.length, onMessageCountChange]);
 
   console.log("MessagesList: Filtered tasks:", filteredTasks);
   console.log("MessagesList: Current columns:", currentColumns);

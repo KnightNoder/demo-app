@@ -13,21 +13,21 @@ import axiosClient from "../../api/axiosClient";
 
 export const fetchMessages = async () => {
   const response = await axiosClient.get(
-    "/inbox/messages?format=inbox_list&show_all=yes"
+    "/inbox/messages?format=inbox_list&show_all=yes&per_page=100"
   );
   return response.data;
 };
 
 export const fetchSentMessages = async () => {
   const response = await axiosClient.get(
-    "/inbox/messages?format=sent_list&show_all=yes"
+    "/inbox/messages?format=sent_list&show_all=yes&per_page=100"
   );
   return response.data;
 };
 
 export const fetchMyMessages = async () => {
   const response = await axiosClient.get(
-    "/inbox/messages?format=inbox_list"
+    "/inbox/messages?format=inbox_list&per_page=100"
   );
   return response.data;
 };

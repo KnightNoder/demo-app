@@ -91,7 +91,6 @@ export const fetchMessagesCount = async (): Promise<number> => {
       params: {
         format: "inbox_list",
         per_page: 1000, // Only need the count, so minimal data
-        show_all: "yes", // Ensure we get all messages
       },
     });
     return response.data.pagination?.total || 0;
