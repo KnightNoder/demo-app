@@ -424,17 +424,18 @@ export const useTaskData = () => {
         (message: MessageData) => ({
           id: message.id.toString(),
           title: `${message.type}: ${message.patient}`,
-          description: message.body || `Message from ${message.from} regarding ${message.patient}`,
+          description:
+            message.body ||
+            `Message from ${message.from} regarding ${message.patient}`,
           assignedTo: message.from,
           person: message.patient,
           dueDate: message.date,
           priority: "medium" as const,
           status:
-            message.status === "Done" ||
-            message.status === "Read"
+            message.status === "Done" || message.status === "Read"
               ? ("completed" as const)
               : ("pending" as const),
-          type: "message" as const,
+          type: message.type,
           // Include all original message data for dynamic column access
           from: message.from,
           patient: message.patient,
@@ -443,8 +444,7 @@ export const useTaskData = () => {
           content: message.body, // Map body to content for column display
           date: message.date,
           messageStatus:
-            message.status === "Done" ||
-            message.status === "Read"
+            message.status === "Done" || message.status === "Read"
               ? "read"
               : "unread",
           originalStatus: message.status, // Keep original status for reference

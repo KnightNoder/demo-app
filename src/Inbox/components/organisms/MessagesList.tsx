@@ -161,7 +161,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
           message.status === "Done" || message.status === "Read"
             ? ("completed" as const)
             : ("pending" as const),
-        type: "message" as const,
+        type: message.type,
         from: message.from,
         patient: message.patient,
         messageType: message.type,
@@ -429,7 +429,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
 
   return (
     <div className="h-[calc(100vh-64px)] overflow-y-auto">
-      <div className="h-full p-4">
+      <div className="h-full">
         {/* Tab Navigation */}
         <div className="mb-4 border-b border-gray-200">
           <div className="flex gap-4">
@@ -442,11 +442,14 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               }`}
             >
               Inbox
-              {activeTab === "inbox" && (allMessagesData.length > 0 || myMessagesData.length > 0) && (
-                <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                  {showFilter === "all" ? allMessagesData.length : myMessagesData.length}
-                </span>
-              )}
+              {activeTab === "inbox" &&
+                (allMessagesData.length > 0 || myMessagesData.length > 0) && (
+                  <span className="ml-2 bg-blue-100 text-blue-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {showFilter === "all"
+                      ? allMessagesData.length
+                      : myMessagesData.length}
+                  </span>
+                )}
             </button>
             <button
               onClick={() => setActiveTab("sent")}

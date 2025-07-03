@@ -209,13 +209,15 @@ export const TaskManagementContainer: React.FC<
             )}
 
             {/* Table container with consistent height */}
-            <div className="relative">
+            <div className="relative px-4">
               {/* Loading overlay - positioned absolutely to maintain height */}
               {loading && (
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-600">Loading {activeTab}...</p>
+                    <p className="text-sm text-gray-600">
+                      Loading {activeTab}...
+                    </p>
                   </div>
                 </div>
               )}

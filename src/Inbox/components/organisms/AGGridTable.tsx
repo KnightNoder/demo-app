@@ -638,10 +638,7 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
               width: getColumnWidth(150),
               minWidth: 120,
               cellRenderer: (params: any) => (
-                <div
-                  className="flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                  title={`View patient chart for ${params.value}`}
-                >
+                <div className="flex items-center text-sm text-gray-900">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -899,7 +896,7 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
         
         return () => clearTimeout(timer);
       }
-    }, [gridApi, activeTab]); // Removed tasks.length and columns.length to reduce re-renders
+    }, [gridApi, activeTab, tasks, columns]);
 
     // Handle window resize with debouncing
     useEffect(() => {
