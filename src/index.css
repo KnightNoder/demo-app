@@ -427,7 +427,7 @@ body {
   display: block;
 }
 
-@media (min-width: 910px) {
+@media (min-width: 1000px) {
   .task-table-desktop {
     display: block;
   }

@@ -11,7 +11,7 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'desktop': '910px',
+        desktop: "1000px",
       },
       colors: {
         border: "oklch(0.898 0.013 264.5)",

@@ -37,6 +37,8 @@ export const TaskSlidePanel: React.FC<{
   title: string;
   cardType?: string;
   onWidthChange?: (width: number) => void;
+  isPolling?: boolean;
+  pollingInterval?: number;
 }> = ({
   tasks: initialTasks,
   columns: initialColumns,
@@ -48,6 +50,8 @@ export const TaskSlidePanel: React.FC<{
   title,
   cardType,
   onWidthChange,
+  isPolling = true,
+  pollingInterval = 60000,
 }) => {
   const [admittedOnly, setAdmittedOnly] = useState(false);
   const [panelWidth, setPanelWidth] = useState(1201.2);
@@ -434,6 +438,8 @@ export const TaskSlidePanel: React.FC<{
                   onComplete={onComplete}
                   panelWidth={panelWidth}
                   onMessageCountChange={setCurrentMessageCount}
+                  isPolling={isPolling}
+                  pollingInterval={pollingInterval}
                 />
               </>
             ) : (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AGGridTable } from "./AGGridTable";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 import { InboxService } from "../../services/inboxService";
@@ -10,6 +10,8 @@ interface MessagesListProps {
   onComplete: (taskId: string) => void;
   panelWidth?: number;
   onMessageCountChange?: (count: number) => void;
+  isPolling?: boolean;
+  pollingInterval?: number;
 }
 
 export const MessagesList: React.FC<MessagesListProps> = ({
@@ -19,6 +21,8 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   onComplete,
   panelWidth = 1200,
   onMessageCountChange,
+  isPolling = true,
+  pollingInterval = 60000,
 }) => {
   const [activeTab, setActiveTab] = useState<"inbox" | "sent">("inbox");
   const [searchValue, setSearchValue] = useState("");
@@ -31,9 +35,12 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   );
   const [sentMessages, setSentMessages] = useState<ExtendedTask[]>([]);
   const [loadingSent, setLoadingSent] = useState(false);
+  
+  // Polling state
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper function to fetch all messages
-  const fetchAllMessages = async () => {
+  const fetchAllMessages = useCallback(async () => {
     try {
       const response = await InboxService.fetchMessages();
 
@@ -129,10 +136,10 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       setAllMessagesData([]);
       return [];
     }
-  };
+  }, []);
 
   // Helper function to fetch my messages
-  const fetchMyMessages = async () => {
+  const fetchMyMessages = useCallback(async () => {
     try {
       const response = await InboxService.fetchMyMessages();
 
@@ -228,7 +235,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
       setMyMessagesData([]);
       return [];
     }
-  };
+  }, []);
 
   // Initialize with passed messages data if available, otherwise fetch data
   useEffect(() => {
@@ -347,6 +354,35 @@ export const MessagesList: React.FC<MessagesListProps> = ({
         });
     }
   }, [activeTab]);
+
+  // Polling effect
+  useEffect(() => {
+    if (!isPolling) return;
+
+    const startPolling = () => {
+      pollingIntervalRef.current = setInterval(() => {
+        if (activeTab === "inbox") {
+          if (showFilter === "all") {
+            fetchAllMessages();
+          } else {
+            fetchMyMessages();
+          }
+        }
+      }, pollingInterval);
+    };
+
+    const stopPolling = () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+
+    stopPolling(); // Clear any existing interval
+    startPolling(); // Start new polling
+
+    return stopPolling; // Cleanup on unmount or dependency change
+  }, [isPolling, pollingInterval, activeTab, showFilter, fetchAllMessages, fetchMyMessages]);
 
   const currentMessages =
     activeTab === "inbox"
@@ -581,9 +617,9 @@ export const MessagesList: React.FC<MessagesListProps> = ({
 
         {/* Loading indicator for sent messages */}
         {loadingSent && activeTab === "sent" && (
-          <div className="flex items-center justify-center h-24">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-sm text-gray-600 ml-2">
+          <div className="flex flex-col items-center justify-center h-24">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-sm text-gray-600 mt-2">
               Loading sent messages...
             </p>
           </div>

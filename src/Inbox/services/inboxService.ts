@@ -13,7 +13,7 @@ import axiosClient from "../../api/axiosClient";
 
 export const fetchMessages = async () => {
   const response = await axiosClient.get(
-    "/inbox/messages?format=inbox_list&show_all=yes&per_page=100"
+    "/inbox/messages?format=inbox_list&show_all=yes&per_page=1000"
   );
   return response.data;
 };
