@@ -234,6 +234,7 @@ export const TaskManagementContainer: React.FC<
                   activeTab={activeTab}
                   isPanelReady={true}
                   panelWidth={1200}
+                  loading={loading}
                 />
               </div>
 
@@ -242,6 +243,7 @@ export const TaskManagementContainer: React.FC<
                 columns={columns}
                 onReply={onReply}
                 onComplete={onComplete}
+                loading={loading}
               />
             </div>
           </>

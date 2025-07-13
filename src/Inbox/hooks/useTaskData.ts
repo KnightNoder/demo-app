@@ -355,6 +355,7 @@ export const useTaskData = () => {
     if (cachedData && lastFetchType === cacheKey) {
       setTasks(cachedData.tasks);
       setColumns(cachedData.columns);
+      setLoading(false); // Ensure loading is set to false when using cached data
       return cachedData;
     }
     

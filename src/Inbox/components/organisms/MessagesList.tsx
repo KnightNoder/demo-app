@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { AGGridTable } from "./AGGridTable";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 import { InboxService } from "../../services/inboxService";
+import { NewMessageModal } from "./NewMessageModal";
 
 interface MessagesListProps {
   messages: ExtendedTask[];
@@ -35,9 +36,35 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   );
   const [sentMessages, setSentMessages] = useState<ExtendedTask[]>([]);
   const [loadingSent, setLoadingSent] = useState(false);
-  
-  // Polling state
+  const [selectedMessageCount, setSelectedMessageCount] = useState(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
+  const [initialMessageData, setInitialMessageData] = useState<any>(null);
+
+  const handleSelectionChanged = (count: number) => {
+    setSelectedMessageCount(count);
+  };
+
+  const handleMessageClick = (data: ExtendedTask) => {
+    setInitialMessageData({
+      patientClient: data.person || data.patient,
+      message: data.body || data.content,
+      progress: data.messageStatus === "read" ? "completed" : "pending", // Map messageStatus to progress
+    });
+    setIsNewMessageModalOpen(true);
+  };
+
+  const handleCloseNewMessageModal = () => {
+    setIsNewMessageModalOpen(false);
+    setInitialMessageData(null);
+  };
+
+  const handleSendMessage = (formData: any) => {
+    console.log("Sending message:", formData);
+    // Here you would typically call an API to send the message
+    setIsNewMessageModalOpen(false);
+    setInitialMessageData(null);
+  };
 
   // Helper function to fetch all messages
   const fetchAllMessages = useCallback(async () => {
@@ -95,8 +122,8 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             return { ...column, key: "messageStatus" };
           }
           // Change any column with "Content" label to "Message"
-          if (column.label && column.label.toLowerCase().includes('content')) {
-            return { ...column, label: 'Message' };
+          if (column.label && column.label.toLowerCase().includes("content")) {
+            return { ...column, label: "Message" };
           }
           return column;
         });
@@ -194,8 +221,8 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             return { ...column, key: "messageStatus" };
           }
           // Change any column with "Content" label to "Message"
-          if (column.label && column.label.toLowerCase().includes('content')) {
-            return { ...column, label: 'Message' };
+          if (column.label && column.label.toLowerCase().includes("content")) {
+            return { ...column, label: "Message" };
           }
           return column;
         });
@@ -382,7 +409,14 @@ export const MessagesList: React.FC<MessagesListProps> = ({
     startPolling(); // Start new polling
 
     return stopPolling; // Cleanup on unmount or dependency change
-  }, [isPolling, pollingInterval, activeTab, showFilter, fetchAllMessages, fetchMyMessages]);
+  }, [
+    isPolling,
+    pollingInterval,
+    activeTab,
+    showFilter,
+    fetchAllMessages,
+    fetchMyMessages,
+  ]);
 
   const currentMessages =
     activeTab === "inbox"
@@ -394,34 +428,50 @@ export const MessagesList: React.FC<MessagesListProps> = ({
   // Filter and reorder columns based on active tab
   const filteredColumns = useMemo(() => {
     let columns = [...currentColumns];
-    
+
     if (activeTab === "sent") {
       // For sent messages, remove "from" column and ensure proper column mapping
-      columns = columns.filter(column => column.key !== "from");
-      
+      columns = columns.filter((column) => column.key !== "from");
+
       // Map person/patient columns to "to" for sent messages
-      columns = columns.map(column => {
+      columns = columns.map((column) => {
         if (column.key === "person" || column.key === "patient") {
-          return { ...column, key: "to", label: column.label === "Person" ? "To" : column.label };
+          return {
+            ...column,
+            key: "to",
+            label: column.label === "Person" ? "To" : column.label,
+          };
         }
         return column;
       });
     } else if (activeTab === "inbox") {
       // For inbox messages, reorder columns: Content, From, Person, Type, Date, Status, Actions
-      const columnOrder = ["content", "body", "from", "person", "patient", "type", "messageType", "date", "messageStatus", "status", "actions"];
-      
+      const columnOrder = [
+        "content",
+        "body",
+        "from",
+        "person",
+        "patient",
+        "type",
+        "messageType",
+        "date",
+        "messageStatus",
+        "status",
+        "actions",
+      ];
+
       columns = columns.sort((a, b) => {
         const indexA = columnOrder.indexOf(a.key);
         const indexB = columnOrder.indexOf(b.key);
-        
+
         // If column not found in order, put it at the end
         const posA = indexA === -1 ? columnOrder.length : indexA;
         const posB = indexB === -1 ? columnOrder.length : indexB;
-        
+
         return posA - posB;
       });
     }
-    
+
     return columns;
   }, [currentColumns, activeTab]);
 
@@ -614,7 +664,97 @@ export const MessagesList: React.FC<MessagesListProps> = ({
             </div>
           )}
         </div>
-
+        {selectedMessageCount ? (
+          <div className="mb-4 flex items-center justify-between bg-blue-50 px-4 py-2 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-blue-700 font-medium">
+                {selectedMessageCount} message
+                {selectedMessageCount > 1 ? "s" : ""} selected
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 rounded-md px-3 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-eye w-4 h-4 mr-1.5"
+                >
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Mark as Read
+              </button>
+              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 rounded-md px-3 text-xs text-gray-600 hover:text-gray-700 hover:bg-blue-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-eye w-4 h-4 mr-1.5"
+                >
+                  <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Mark as Unread
+              </button>
+              <button className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 rounded-md px-3 text-xs text-green-600 hover:text-green-700 hover:bg-blue-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-circle-check-big w-4 h-4 mr-1.5"
+                >
+                  <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+                  <path d="m9 11 3 3L22 4"></path>
+                </svg>
+                Mark as Done
+              </button>
+              <div className="w-px h-6 bg-blue-200 mx-2"></div>{" "}
+              <button
+                className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 rounded-md px-3 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                title="Delete selected messages"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-trash2 w-4 h-4"
+                >
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  <line x1="10" x2="10" y1="11" y2="17"></line>
+                  <line x1="14" x2="14" y1="11" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : null}
+        {/* Messages Table */}
         {/* Loading indicator for sent messages */}
         {loadingSent && activeTab === "sent" && (
           <div className="flex flex-col items-center justify-center h-24">
@@ -647,9 +787,19 @@ export const MessagesList: React.FC<MessagesListProps> = ({
               activeTab="messages"
               isPanelReady={true}
               panelWidth={panelWidth}
+              onSelectionChanged={handleSelectionChanged}
+              onMessageClick={handleMessageClick}
             />
           </div>
         )}
+
+        <NewMessageModal
+          isOpen={isNewMessageModalOpen}
+          onClose={handleCloseNewMessageModal}
+          onSubmit={handleSendMessage}
+          initialState={initialMessageData}
+          modalTitle={initialMessageData ? "Reply to Message" : "New Message"}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { MessagesList } from "./MessagesList"; // Import Messages component
 import { MobileTaskList } from "./MobileTaskList"; // Import Mobile Task List component
 import { useTaskData } from "../../hooks/useTaskData";
 import { Button } from "../atoms/Button";
+import { NewMessageModal } from "./NewMessageModal";
 
 // Extended task interface with index signature for dynamic properties
 interface ExtendedTask {
@@ -58,16 +59,24 @@ export const TaskSlidePanel: React.FC<{
   const [isResizing, setIsResizing] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [currentMessageCount, setCurrentMessageCount] = useState(0);
+  const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
   
 
-  // Use unified data hook for "All Reminders" case
-  const {
-    tasks: hookTasks,
-    columns: hookColumns,
-    loading: hookLoading,
-    error: hookError,
-    fetchData,
-  } = useTaskData();
+  const handleNewMessage = () => {
+    setIsNewMessageModalOpen(true);
+  };
+
+  const handleCloseNewMessageModal = () => {
+    setIsNewMessageModalOpen(false);
+  };
+
+  const handleSendMessage = (formData: any) => {
+    console.log("Sending message:", formData);
+    // Here you would typically call an API to send the message
+    setIsNewMessageModalOpen(false);
+  };
+
+  const { fetchData, tasks: hookTasks, columns: hookColumns, loading: hookLoading, error: hookError } = useTaskData();
 
 
   // Use hook data for "All Reminders", passed data for other cases
@@ -245,7 +254,7 @@ export const TaskSlidePanel: React.FC<{
         <div className="flex items-center gap-4">
           {title === "Messages" ? (
             <div className="flex items-center gap-2">
-              <Button size="sm">
+              <Button size="sm" onClick={handleNewMessage}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -393,6 +402,11 @@ export const TaskSlidePanel: React.FC<{
 
       {/* Content */}
       <div className="flex-1 overflow-hidden p-4">
+        <NewMessageModal
+          isOpen={isNewMessageModalOpen}
+          onClose={handleCloseNewMessageModal}
+          onSubmit={handleSendMessage}
+        />
         {loading || isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -440,6 +454,7 @@ export const TaskSlidePanel: React.FC<{
                   onMessageCountChange={setCurrentMessageCount}
                   isPolling={isPolling}
                   pollingInterval={pollingInterval}
+                  loading={loading}
                 />
               </>
             ) : (

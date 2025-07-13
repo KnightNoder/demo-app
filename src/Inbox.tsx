@@ -384,27 +384,33 @@ const Inbox = () => {
         />
 
         {/* Compact Polling Status Indicator */}
-        <div 
-          className="fixed top-4 z-50 transition-all duration-300 ease-in-out"
+        <div
+          className="fixed top-12 z-50 transition-all duration-300 ease-in-out"
           style={{
-            right: isPanelVisible ? `${panelWidth + 24}px` : '24px',
+            right: isPanelVisible ? `${panelWidth + 24}px` : "24px",
           }}
         >
           <div className="relative group">
             <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-gray-100/50">
-              <div className={`w-2 h-2 rounded-full ${
-                polling.pollingStatus === "active" 
-                  ? "bg-green-400 animate-pulse" 
-                  : polling.pollingStatus === "error"
-                  ? "bg-red-400"
-                  : "bg-gray-300"
-              }`}></div>
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  polling.pollingStatus === "active"
+                    ? "bg-green-400 animate-pulse"
+                    : polling.pollingStatus === "error"
+                      ? "bg-red-400"
+                      : "bg-gray-300"
+                }`}
+              ></div>
               <span className="text-xs font-medium text-gray-700">
-                {polling.pollingStatus === "active" ? "Live" : 
-                 polling.pollingStatus === "paused" ? "Paused" :
-                 polling.pollingStatus === "error" ? "Error" : "Idle"}
+                {polling.pollingStatus === "active"
+                  ? "Live"
+                  : polling.pollingStatus === "paused"
+                    ? "Paused"
+                    : polling.pollingStatus === "error"
+                      ? "Error"
+                      : "Idle"}
               </span>
-              
+
               {/* Controls dropdown */}
               <div className="relative" data-polling-dropdown>
                 <button
@@ -415,27 +421,43 @@ const Inbox = () => {
                   className="p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
                   title="Polling controls"
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {isIntervalDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-[60]">
                     <div className="p-2 border-b border-gray-100">
-                      <div className="text-xs font-medium text-gray-700 mb-1">Status</div>
+                      <div className="text-xs font-medium text-gray-700 mb-1">
+                        Status
+                      </div>
                       <div className="flex items-center gap-2 text-xs text-gray-600">
                         {polling.lastUpdated && (
                           <span>Last: {formatTime(polling.lastUpdated)}</span>
                         )}
                         {polling.pollingError && (
-                          <span className="text-red-500 truncate">{polling.pollingError}</span>
+                          <span className="text-red-500 truncate">
+                            {polling.pollingError}
+                          </span>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="p-2 border-b border-gray-100">
-                      <div className="text-xs font-medium text-gray-700 mb-2">Refresh Interval</div>
+                      <div className="text-xs font-medium text-gray-700 mb-2">
+                        Refresh Interval
+                      </div>
                       <div className="space-y-1">
                         {[
                           { value: 60000, label: "1 minute" },
@@ -448,7 +470,9 @@ const Inbox = () => {
                               handleIntervalChange(option.value);
                             }}
                             className={`w-full px-2 py-1 text-xs text-left rounded hover:bg-gray-50 transition-colors ${
-                              pollingInterval === option.value ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700"
+                              pollingInterval === option.value
+                                ? "bg-blue-50 text-blue-600 font-medium"
+                                : "text-gray-700"
                             }`}
                           >
                             {option.label}
@@ -456,7 +480,7 @@ const Inbox = () => {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="p-2">
                       <div className="flex gap-1">
                         <button
@@ -472,8 +496,18 @@ const Inbox = () => {
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                />
                               </svg>
                               Refresh
                             </>
@@ -485,19 +519,37 @@ const Inbox = () => {
                             setIsPolling(!isPolling);
                           }}
                           className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                          title={isPolling ? "Pause auto-refresh" : "Resume auto-refresh"}
+                          title={
+                            isPolling
+                              ? "Pause auto-refresh"
+                              : "Resume auto-refresh"
+                          }
                         >
                           {isPolling ? (
                             <>
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M10 9v6m4-6v6"
+                                />
                               </svg>
                               Pause
                             </>
                           ) : (
                             <>
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
+                              <svg
+                                className="w-3 h-3"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M8 5v14l11-7z" />
                               </svg>
                               Resume
                             </>
@@ -549,11 +601,16 @@ const Inbox = () => {
         {Object.values(filters).some(Boolean) && (
           <div className="px-4 mb-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Active Filters:</span>
+              <span className="text-sm font-medium text-gray-700">
+                Active Filters:
+              </span>
               {filters.low && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   0-5 items
-                  <button onClick={() => handleFilterChange('low')} className="ml-1.5 text-gray-400 hover:text-gray-600">
+                  <button
+                    onClick={() => handleFilterChange("low")}
+                    className="ml-1.5 text-gray-400 hover:text-gray-600"
+                  >
                     &#x2715;
                   </button>
                 </span>
@@ -561,7 +618,10 @@ const Inbox = () => {
               {filters.medium && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   6-10 items
-                  <button onClick={() => handleFilterChange('medium')} className="ml-1.5 text-gray-400 hover:text-gray-600">
+                  <button
+                    onClick={() => handleFilterChange("medium")}
+                    className="ml-1.5 text-gray-400 hover:text-gray-600"
+                  >
                     &#x2715;
                   </button>
                 </span>
@@ -569,13 +629,24 @@ const Inbox = () => {
               {filters.high && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   11+ items
-                  <button onClick={() => handleFilterChange('high')} className="ml-1.5 text-gray-400 hover:text-gray-600">
+                  <button
+                    onClick={() => handleFilterChange("high")}
+                    className="ml-1.5 text-gray-400 hover:text-gray-600"
+                  >
                     &#x2715;
                   </button>
                 </span>
               )}
               <button
-                onClick={() => setFilters({ low: false, medium: false, high: false, customOnly: false, defaultOnly: false })}
+                onClick={() =>
+                  setFilters({
+                    low: false,
+                    medium: false,
+                    high: false,
+                    customOnly: false,
+                    defaultOnly: false,
+                  })
+                }
                 className="text-xs text-blue-600 hover:underline"
               >
                 Clear all
@@ -608,14 +679,26 @@ const Inbox = () => {
               handleComplete(taskId, () => fetchAllData(false))
             }
             onTaskClick={(task) =>
-              handleCardClick("messages", { id: task.id, title: task.title, count: 0, icon: "", variant: "normal", priority: "low", testId: "" }, {
-                setSelectedCardTasks,
-                setSelectedCardColumns,
-                setSelectedCardTitle,
-                setIsPanelVisible,
-                setIsPanelLoading,
-                setError,
-              })
+              handleCardClick(
+                "messages",
+                {
+                  id: task.id,
+                  title: task.title,
+                  count: 0,
+                  icon: "",
+                  variant: "normal",
+                  priority: "low",
+                  testId: "",
+                },
+                {
+                  setSelectedCardTasks,
+                  setSelectedCardColumns,
+                  setSelectedCardTitle,
+                  setIsPanelVisible,
+                  setIsPanelLoading,
+                  setError,
+                }
+              )
             }
           />
         </div>

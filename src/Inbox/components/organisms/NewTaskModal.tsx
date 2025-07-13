@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, memo } from "react";
+import React, { useEffect, useCallback, useMemo, memo, useState } from "react";
 import { ModalTemplate } from "./Modal";
 import { RecipientsSelector } from "../organisms/RecepientSelector";
 import { SimpleDropdown } from "../organisms/SimpleDropdown";
@@ -15,154 +15,217 @@ import { useGroups } from "../../hooks/useGroups";
 import { NewTaskModalProps } from "../../types/taskTypes";
 import ErrorRetryDisplay from "../molecules/ErrorRetryDisplay";
 
-const NewTaskModal: React.FC<NewTaskModalProps> = memo(({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
-  const { formData, handleInputChange, resetForm, isFormValid, updateDefaults } = useTaskForm();
-  const { users, usersLoading, usersError, fetchUsers } = useTaskUsers();
-  const { patients, patientsLoading, patientsError, fetchPatients } = usePatients();
-  const { groups, groupsLoading, groupsError, fetchGroups } = useGroups();
-  const { priorityOptions, progressOptions, optionsLoading, optionsError, fetchOptions } = useTaskOptions();
+const NewTaskModal: React.FC<
+  NewTaskModalProps & {
+    showPriority?: boolean;
+    showDates?: boolean;
+    showSubject?: boolean;
+    showStatus?: boolean;
+    sendButtonText?: string;
+    patientLabel?: string;
+    modalTitle?: string;
+    initialState?: {
+      patientClient?: string;
+      message?: string;
+      progress?: string;
+    };
+  }
+> = memo(
+  ({
+    isOpen,
+    onClose,
+    onSubmit,
+    showPriority = true,
+    showDates = true,
+    showSubject = true,
+    showStatus = true,
+    sendButtonText = "Send",
+    patientLabel = "Link to Patient/Client",
+    modalTitle = "New Task",
+    initialState = {},
+  }) => {
+    const {
+      formData,
+      handleInputChange,
+      resetForm,
+      isFormValid,
+      updateDefaults,
+    } = useTaskForm(initialState);
+    const { users, usersLoading, usersError, fetchUsers } = useTaskUsers();
+    const { patients, patientsLoading, patientsError, fetchPatients } =
+      usePatients();
+    const { groups, groupsLoading, groupsError, fetchGroups } = useGroups();
+    const {
+      priorityOptions,
+      progressOptions,
+      optionsLoading,
+      optionsError,
+      fetchOptions,
+    } = useTaskOptions();
 
-  const handleSubmit = useCallback(() => {
-    if (!isFormValid) {
-      alert("Please fill in all required fields");
-      return;
-    }
-    onSubmit(formData);
-    onClose();
-  }, [isFormValid, formData, onSubmit, onClose]);
+    const handleSubmit = useCallback(() => {
+      if (!isFormValid) {
+        alert("Please fill in all required fields");
+        return;
+      }
+      onSubmit(formData);
+      onClose();
+    }, [isFormValid, formData, onSubmit, onClose]);
 
-  useEffect(() => {
-    if (isOpen) {
-      resetForm();
-      
-      const loadData = async () => {
-        const [, optionsResult] = await Promise.all([
-          fetchUsers(),
-          fetchOptions(),
-          fetchPatients(),
-          fetchGroups(),
-        ]);
-        
-        if (optionsResult) {
-          updateDefaults(optionsResult.priorities[1], optionsResult.progress[0]);
-        }
-      };
-      
-      loadData();
-    }
-  }, [isOpen, fetchUsers, fetchOptions, fetchPatients, fetchGroups, resetForm, updateDefaults]);
+    useEffect(() => {
+      if (isOpen) {
+        resetForm();
 
-  const footer = useMemo(
-    () => (
-      <>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={!isFormValid}
-        >
-          Send
-        </Button>
-      </>
-    ),
-    [onClose, handleSubmit, isFormValid]
-  );
+        const loadData = async () => {
+          const [, optionsResult] = await Promise.all([
+            fetchUsers(),
+            fetchOptions(),
+            fetchPatients(),
+            fetchGroups(),
+          ]);
 
-  return (
-    <ModalTemplate
-      isOpen={isOpen}
-      onClose={onClose}
-      title="New Task"
-      footer={footer}
-    >
-      {/* Recipients and Patient Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <RecipientsSelector
-          selectedRecipients={formData.recipients}
-          onRecipientsChange={(recipients) =>
-            handleInputChange("recipients", recipients)
+          if (optionsResult) {
+            updateDefaults(
+              optionsResult.priorities[1],
+              optionsResult.progress[0],
+              initialState.patientClient,
+              initialState.message
+            );
           }
-          users={users}
-          groups={groups.map(g => ({ ...g, type: 'group', role: 'group' }))}
-          loading={usersLoading || groupsLoading}
-          error={usersError || groupsError}
-          onRetry={usersError ? fetchUsers : fetchGroups}
-        />
+        };
 
-        <SimpleDropdown
-          label="Link to Patient/Client"
-          value={formData.patientClient}
-          options={patients.map(p => p.name)}
-          onChange={(value) => handleInputChange("patientClient", value)}
-          placeholder="Search patient or client..."
-          disabled={patientsLoading}
-        />
-        {patientsError && <ErrorRetryDisplay error={patientsError} onRetry={fetchPatients} />}
-      </div>
+        loadData();
+      }
+    }, [
+      isOpen,
+      fetchUsers,
+      fetchOptions,
+      fetchPatients,
+      fetchGroups,
+      resetForm,
+      updateDefaults,
+    ]);
 
-      {/* Progress, Priority, and Dates */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SimpleDropdown
-          label="Progress"
-          value={formData.progress}
-          options={progressOptions}
-          onChange={(value) => handleInputChange("progress", value)}
-          disabled={optionsLoading}
-        />
+    const footer = useMemo(
+      () => (
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={!isFormValid}
+          >
+            {sendButtonText}
+          </Button>
+        </>
+      ),
+      [onClose, handleSubmit, isFormValid]
+    );
 
-        <SimpleDropdown
-          label="Priority"
-          value={formData.priority}
-          options={priorityOptions}
-          onChange={(value) => handleInputChange("priority", value)}
-          disabled={optionsLoading}
-        />
+    return (
+      <ModalTemplate
+        isOpen={isOpen}
+        onClose={onClose}
+        title={modalTitle}
+        footer={footer}
+      >
+        {/* Recipients and Patient Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <RecipientsSelector
+            selectedRecipients={formData.recipients}
+            onRecipientsChange={(recipients) =>
+              handleInputChange("recipients", recipients)
+            }
+            users={users}
+            groups={groups.map((g) => ({ ...g, type: "group", role: "group" }))}
+            loading={usersLoading || groupsLoading}
+            error={usersError || groupsError}
+            onRetry={usersError ? fetchUsers : fetchGroups}
+          />
 
-        <DateSelector
-          label="Start Date"
-          value={formData.startDate}
-          onChange={(value) => handleInputChange("startDate", value)}
-        />
+          <SimpleDropdown
+            label={patientLabel}
+            value={formData.patientClient}
+            options={patients.map((p) => p.name)}
+            onChange={(value) => handleInputChange("patientClient", value)}
+            placeholder="Search patient or client..."
+            disabled={patientsLoading}
+          />
+          {patientsError && (
+            <ErrorRetryDisplay error={patientsError} onRetry={fetchPatients} />
+          )}
+        </div>
 
-        <DateSelector
-          label="Due Date"
-          value={formData.dueDate}
-          onChange={(value) => handleInputChange("dueDate", value)}
-        />
-      </div>
+        {/* Progress, Priority, and Dates */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {showStatus && (
+            <SimpleDropdown
+              label="Progress"
+              value={formData.progress}
+              options={progressOptions}
+              onChange={(value) => handleInputChange("progress", value)}
+              disabled={optionsLoading}
+            />
+          )}
 
-      <ErrorRetryDisplay error={optionsError} onRetry={fetchOptions} />
+          {showPriority && (
+            <SimpleDropdown
+              label="Priority"
+              value={formData.priority}
+              options={priorityOptions}
+              onChange={(value) => handleInputChange("priority", value)}
+              disabled={optionsLoading}
+            />
+          )}
 
-      {/* Subject */}
-      <FormField label="Subject" required id="subject">
-        <Input
-          id="subject"
-          value={formData.subject}
-          onChange={(e) => handleInputChange("subject", e.target.value)}
-          placeholder="Enter reminder subject"
-        />
-      </FormField>
+          {showDates && (
+            <DateSelector
+              label="Start Date"
+              value={formData.startDate}
+              onChange={(value) => handleInputChange("startDate", value)}
+            />
+          )}
 
-      {/* Message */}
-      <FormField label="Message" required id="message">
-        <TextArea
-          id="message"
-          value={formData.message}
-          onChange={(e) => handleInputChange("message", e.target.value)}
-          placeholder="Enter your task details here..."
-          className="min-h-[200px]"
-        />
-      </FormField>
-    </ModalTemplate>
-  );
-});
+          {showDates && (
+            <DateSelector
+              label="Due Date"
+              value={formData.dueDate}
+              onChange={(value) => handleInputChange("dueDate", value)}
+            />
+          )}
+        </div>
 
-NewTaskModal.displayName = 'NewTaskModal';
+        <ErrorRetryDisplay error={optionsError} onRetry={fetchOptions} />
+
+        {/* Subject */}
+        {showSubject && (
+          <FormField label="Subject" required id="subject">
+            <Input
+              id="subject"
+              value={formData.subject}
+              onChange={(e) => handleInputChange("subject", e.target.value)}
+              placeholder="Enter reminder subject"
+            />
+          </FormField>
+        )}
+
+        {/* Message */}
+        <FormField label="Message" required id="message">
+          <TextArea
+            id="message"
+            value={formData.message}
+            onChange={(e) => handleInputChange("message", e.target.value)}
+            placeholder="Enter your task details here..."
+            className="min-h-[200px]"
+          />
+        </FormField>
+        </ModalTemplate>
+    );
+  }
+);
+
+NewTaskModal.displayName = "NewTaskModal";
 
 export default NewTaskModal;

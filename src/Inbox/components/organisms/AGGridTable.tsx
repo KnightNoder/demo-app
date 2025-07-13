@@ -7,7 +7,12 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, GridReadyEvent, GridApi } from "ag-grid-community";
+import {
+  ColDef,
+  GridReadyEvent,
+  GridApi,
+  SelectionChangedEvent,
+} from "ag-grid-community";
 import { ExtendedTask, ApiColumn } from "./TaskManagementContainer";
 import { formatDueDate } from "../../../utils/utils";
 
@@ -16,10 +21,12 @@ interface AGGridTableProps {
   columns: ApiColumn[];
   onReply: (taskId: string) => void;
   onComplete: (taskId: string) => void;
-  onTaskClick?: (task: ExtendedTask) => void; // Add this line
+  onTaskClick?: (task: ExtendedTask) => void;
   activeTab?: string;
   isPanelReady?: boolean;
   panelWidth?: number;
+  onSelectionChanged?: (count: number) => void;
+  onMessageClick?: (data: ExtendedTask) => void;
 }
 
 // RecurrenceCellRenderer - moved here to ensure proper usage
@@ -331,6 +338,8 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
       onTaskClick, // Add this line
       activeTab = "reminders",
       panelWidth,
+      onSelectionChanged,
+      onMessageClick,
     },
     ref
   ) => {
@@ -398,6 +407,7 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
             maxWidth: 50,
             checkboxSelection: true,
             headerCheckboxSelection: true,
+            headerCheckboxSelectionCurrentPageOnly: true,
             pinned: "left",
             sortable: false,
             filter: false,
@@ -595,6 +605,7 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
                 <div
                   className="text-sm text-gray-900 line-clamp-2 hover:line-clamp-none cursor-pointer py-2"
                   title={params.value}
+                  onClick={() => onMessageClick?.(params.data)}
                 >
                   {params.value}
                 </div>
@@ -950,7 +961,13 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           onGridReady={onGridReady}
-          onRowClicked={(event) => onTaskClick?.(event.data)} // Add this line
+          onRowClicked={(event) => {
+            if (activeTab === "messages" && onMessageClick) {
+              onMessageClick(event.data);
+            } else if (onTaskClick) {
+              onTaskClick(event.data);
+            }
+          }}
           rowSelection="multiple"
           suppressRowClickSelection={true}
           pagination={true}
@@ -982,6 +999,11 @@ const AGGridTableComponent = forwardRef<any, AGGridTableProps>(
                   console.warn('Error sizing columns on first render:', error);
                 }
               }, 200);
+            }
+          }}
+          onSelectionChanged={(event: SelectionChangedEvent) => {
+            if (onSelectionChanged) {
+              onSelectionChanged(event.api.getSelectedRows().length);
             }
           }}
         />

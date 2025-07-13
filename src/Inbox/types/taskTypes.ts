@@ -30,4 +30,16 @@ export interface NewTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (taskData: TaskFormData) => void;
+  showPriority?: boolean;
+  showDates?: boolean;
+  showSubject?: boolean;
+  showStatus?: boolean;
+  sendButtonText?: string;
+  patientLabel?: string;
+  modalTitle?: string;
+  initialState?: {
+    patientClient?: string;
+    message?: string;
+    progress?: string;
+  };
 }

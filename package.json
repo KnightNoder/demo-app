@@ -41,6 +41,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/redux-thunk": "^2.1.0",
     "ag-grid-community": "^31.0.0",
+    "ag-grid-enterprise": "^34.0.1",
     "ag-grid-react": "^31.0.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
